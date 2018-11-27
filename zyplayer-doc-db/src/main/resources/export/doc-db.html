@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<title>zyplayer-doc-db</title>
+	<link rel="stylesheet" href="css/zui.min.css" />
+	<link rel="stylesheet" href="css/zui-theme.min.css">
+	<link rel="stylesheet" href="css/chosen.min.css" />
+	<link rel="stylesheet" href="css/doc-db.css" />
+</head>
+<body>
+	<div class="container">
+		<div class="row choise-db">
+			<div class="col-md-12">
+				<select id="choiseTable" data-placeholder="选择一张表" class="chosen-select form-control" tabindex="2">
+					<option value=""></option>
+				</select>
+			</div>
+		</div>
+		<div class="table-info">
+			<div>表注释：<span class="table-desc"></span></div>
+		</div>
+		<div class="table-columns">
+			<table class="table table-bordered table-striped table-hover" id="tableCloumnsTable">
+				<thead>
+					<tr><th>字段名</th><th>自增</th><th>类型</th><th>长度</th><th>NULL</th><th>主键</th><th>注释</th></tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript" src="js/database.js"></script>
+
+<script type="text/javascript" src="js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="js/zui.min.js"></script>
+<script type="text/javascript" src="js/chosen.min.js"></script>
+<script type="text/javascript" src="js/formatjson.js"></script>
+<script type="text/javascript" src="js/toast.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/doc-db.js"></script>
+</html>
+
