@@ -96,97 +96,46 @@ $(document).ready(function(){
 		paramSendToServer.header = JSON.stringify(requestHeaderStore);
 		//console.log(paramBodySend);
 		var beforSendTime = new Date().getTime();
-		if(serverStorage) {
-			paramSendToServer.url = postUrl;
-			paramSendToServer.method = options;
-			ajaxTemp("swagger-mg-ui/http/request", "post", "json", paramSendToServer, function(result){
-				//console.log(result);
-				setStorage('p-request-obj-' + docUrl, storeRequestParam);
-				var afterSendTime = new Date().getTime();
-				$("#httpRequestStatus").text(result.status);
-				$("#httpRequestTime").text((afterSendTime - beforSendTime) + "ms");
-				try {
-					var htmlStr = Formatjson.processObjectToHtmlPre(JSON.parse(result.data), 0, false, false, false, false);
-					$("#responseBodyJsonDiv").html(htmlStr);
-				} catch (e) {
-					$("#responseBodyJsonDiv").html("<iframe id='responseBodyJsonIframe'></iframe>");
-					setTimeout(function(){
-						$("#responseBodyJsonIframe").contents().find("body").html(result.data);
-					}, 300);
-				}
-				$("#tabResponseHeader table tbody").empty();
-				$("#tabResponseCookie table tbody").empty();
-				var headers = result.header||[];
-				for (var i = 0; i < headers.length; i++) {
-					var name = getNotEmptyStr(headers[i].name);
-					var value = getNotEmptyStr(headers[i].value);
-					$("#tabResponseHeader table tbody").append(
-							'<tr>'+'<td>'+name+'</td>' + '<td>'+value+'</td>'+'</tr>'
-					);
-				}
-				var cookies = result.cookie||[];
-				for (var i = 0; i < cookies.length; i++) {
-					var name = getNotEmptyStr(cookies[i].name);
-					var value = getNotEmptyStr(cookies[i].value);
-					$("#tabResponseCookie table tbody").append(
-							'<tr>'+'<td>'+name+'</td>' + '<td>'+value+'</td>'+'</tr>'
-					);
-				}
-			}, function(){
-				Toast.error("请求失败！");
-			}, function(){
-				$(".send-request .icon").addClass("hide");
-			});
-		} else {
-			$.ajax({
-				url : postUrl,
-				sync : false,
-				type : options, // 数据发送方式
-				dataType : "JSON", // 接受数据格式
-				data : paramBodySend,//requestParamForm,
-				contentType : "application/x-www-form-urlencoded; charset=UTF-8",
-				beforeSend : function(request) {
-					Object.keys(requestHeaderStore).forEach(function(key){
-						request.setRequestHeader(key, requestHeaderStore[key]);
-					});
-				},
-				success : function(data, status, xhr) {
-				},
-				complete : function(xhr) {
-					//console.log(xhr);
-					setStorage('p-request-obj-' + docUrl, storeRequestParam);
-					$(".send-request .icon").addClass("hide");
-					var afterSendTime = new Date().getTime();
-					$("#httpRequestStatus").text(xhr.status + "-" + xhr.statusText);
-					$("#httpRequestTime").text((afterSendTime - beforSendTime) + "ms");
-					try {
-						var htmlStr = Formatjson.processObjectToHtmlPre(JSON.parse(xhr.responseText), 0, false, false, false, false);
-						$("#responseBodyJsonDiv").html(htmlStr);
-					} catch (e) {
-						$("#responseBodyJsonDiv").html("<iframe id='responseBodyJsonIframe'></iframe>");
-						setTimeout(function(){
-							$("#responseBodyJsonIframe").contents().find("body").html(xhr.responseText);
-						}, 300);
-					}
-					var allHeaders = xhr.getAllResponseHeaders();
-					var headers = allHeaders.split("\r\n");
-					$("#tabResponseHeader table tbody").empty();
-					$("#tabResponseCookie table tbody").empty();
-					for (var i = 0; i < headers.length; i++) {
-						if(isEmpty(headers[i])){
-							continue;
-						}
-						var headerArr = headers[i].split(":");
-						$("#tabResponseHeader table tbody").append(
-								'<tr>'+'<td>'+headerArr[0]+'</td>' + '<td>'+headerArr[1]+'</td>'+'</tr>'
-						);
-					}
-				},
-				error : function(data) {
-					
-				}
-			});
-		}
+		paramSendToServer.url = postUrl;
+		paramSendToServer.method = options;
+		ajaxTemp("swagger-mg-ui/http/request", "post", "json", paramSendToServer, function(result){
+			//console.log(result);
+			setStorage('p-request-obj-' + docUrl, storeRequestParam);
+			var afterSendTime = new Date().getTime();
+			$("#httpRequestStatus").text(result.status);
+			$("#httpRequestTime").text((afterSendTime - beforSendTime) + "ms");
+			try {
+				var htmlStr = Formatjson.processObjectToHtmlPre(JSON.parse(result.data), 0, false, false, false, false);
+				$("#responseBodyJsonDiv").html(htmlStr);
+			} catch (e) {
+				$("#responseBodyJsonDiv").html("<iframe id='responseBodyJsonIframe'></iframe>");
+				setTimeout(function(){
+					$("#responseBodyJsonIframe").contents().find("body").html(result.data);
+				}, 300);
+			}
+			$("#tabResponseHeader table tbody").empty();
+			$("#tabResponseCookie table tbody").empty();
+			var headers = result.header||[];
+			for (var i = 0; i < headers.length; i++) {
+				var name = getNotEmptyStr(headers[i].name);
+				var value = getNotEmptyStr(headers[i].value);
+				$("#tabResponseHeader table tbody").append(
+						'<tr>'+'<td>'+name+'</td>' + '<td>'+value+'</td>'+'</tr>'
+				);
+			}
+			var cookies = result.cookie||[];
+			for (var i = 0; i < cookies.length; i++) {
+				var name = getNotEmptyStr(cookies[i].name);
+				var value = getNotEmptyStr(cookies[i].value);
+				$("#tabResponseCookie table tbody").append(
+						'<tr>'+'<td>'+name+'</td>' + '<td>'+value+'</td>'+'</tr>'
+				);
+			}
+		}, function(){
+			Toast.error("请求失败！");
+		}, function(){
+			$(".send-request .icon").addClass("hide");
+		});
 	});
 	/**
 	 * 输入框输入之后，如果是最后一行则在增加一行
@@ -259,10 +208,6 @@ $(document).ready(function(){
 	 * 提交模拟返回值
 	 */
 	$("#simulationResultSubmit").click(function(){
-		if(!serverStorage) {
-			Toast.error("没有开启服务器端存储模拟返回是无效的");
-			return;
-		}
 		var value = $("#simulationResultText").val();
 		value = getNotEmptyStr(value, "");
 		var docUrl = $("#simulationResultUrl").text();
@@ -276,10 +221,6 @@ $(document).ready(function(){
 	 * 获取模拟返回值
 	 */
 	$("#simulationResultGet").click(function(){
-		if(!serverStorage) {
-			Toast.error("没有开启服务器端存储模拟返回是无效的");
-			return;
-		}
 		var docUrl = $("#simulationResultUrl").text();
 		getStorage('p-simulation-response-' + docUrl, function(data){
 			$("#simulationResultText").val(data);

@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  *  Mapper 接口
  * </p>
  *
- * @author hongli.zhang
+ * @author 暮光：城中城
  * @since 2018-11-27
  */
 public interface ZyplayerStorageMapper extends BaseMapper<ZyplayerStorage> {

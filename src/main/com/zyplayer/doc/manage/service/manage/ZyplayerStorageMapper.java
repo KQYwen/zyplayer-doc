@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  *  服务类
  * </p>
  *
- * @author hongli.zhang
+ * @author 暮光：城中城
  * @since 2018-11-27
  */
 public interface ZyplayerStorageService extends IService<ZyplayerStorage> {

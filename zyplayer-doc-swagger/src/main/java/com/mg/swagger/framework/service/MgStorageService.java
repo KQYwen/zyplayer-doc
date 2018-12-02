@@ -25,4 +25,12 @@ public interface MgStorageService {
 	 */
 	void put(String key, String value);
 	
+	/**
+	 * 删除数据
+	 * @author 暮光：城中城
+	 * @since 2018年8月19日
+	 * @param key
+	 */
+	void remove(String key);
+	
 }

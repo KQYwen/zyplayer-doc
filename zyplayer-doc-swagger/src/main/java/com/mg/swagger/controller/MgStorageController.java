@@ -25,7 +25,7 @@ public class MgStorageController {
 
 	@PostMapping(value = "/checkConfig")
 	public MgUiResponseJson checkConfig() {
-		// 本接口能访问当而且实现了MgStorageService才算配置好了
+		// 本接口能访问到而且实现了MgStorageService才算配置好了
 		if (storageService == null) {
 			return MgUiResponseJson.error("服务不可用");
 		}
@@ -42,6 +42,19 @@ public class MgStorageController {
 		}
 		storageService.put(key, value);
 		return MgUiResponseJson.ok();
+	}
+	
+	@PostMapping(value = "/delete")
+	public MgUiResponseJson delete(String key) {
+		if (storageService == null) {
+			return MgUiResponseJson.warn(Toast.AUTOWIRED_ERROR);
+		}
+		if (key == null) {
+			return MgUiResponseJson.warn("参数名不能为空");
+		}
+		String value = storageService.get(key);
+		value = (value == null) ? "" : value;
+		return MgUiResponseJson.ok(value);
 	}
 
 	@GetMapping(value = "/data")

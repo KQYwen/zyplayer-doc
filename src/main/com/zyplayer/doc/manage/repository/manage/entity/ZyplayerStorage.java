@@ -10,7 +10,7 @@ import java.io.Serializable;
  * 
  * </p>
  *
- * @author hongli.zhang
+ * @author 暮光：城中城
  * @since 2018-11-27
  */
 public class ZyplayerStorage implements Serializable {

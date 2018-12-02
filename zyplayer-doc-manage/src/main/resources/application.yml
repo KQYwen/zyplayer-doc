@@ -1,16 +1,44 @@
 spring:
   application:
     name: zyplayer-doc-manage
-  datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/zyplayer-doc-manage?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;autoReconnect=true
-    username: root
-    password: root
+  velocity:
+    layout-url: common/default.vm
+    cache: false
+    suffix: .vm
+    expose-spring-macro-helpers: true
+    date-tool-attribute: dateTool
+    number-tool-attribute: numberTool
+    contentType: text/html;charset=UTF-8
+    resource-loader-path: classpath:/vm/
+    default-content-type: text/html
+    ignore-accept-header: true
+    charset: UTF-8
+    properties:
+      input:
+        encoding: UTF-8
+      output:
+        encoding: UTF-8
+#  datasource:
+#    driver-class-name: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://127.0.0.1:3306/zyplayer-doc-manage?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;autoReconnect=true
+#    username: root
+#    password: root
 
 server:
   port: 8082
-  contextPath: /
-  
+  servlet:
+    context-path: /
+
+
+
+zyplayer:
+  datasource:
+    manage:
+      driverClassName: com.mysql.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/zyplayer-doc-manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
+      username: root
+      password: root
+
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*Mapper.xml
   #实体扫描，多个package用逗号或者分号分隔

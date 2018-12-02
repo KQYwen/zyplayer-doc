@@ -13,8 +13,6 @@ var definitionsDataMap = new Map();
 var treePathDataMap = new Map();
 
 var globalLoadingMessager;
-// 服务器端存储能力是否开启
-var serverStorage = false;
 // 树的下表
 var projectTreeIdIndex = 1;
 // 文档url加载的下标
@@ -60,56 +58,19 @@ $(document).ready(function(){
 		}, function(msg){
 		}, function(xhr){
 			showGlobalLoadingMessage('服务检查完成，请稍候...', true);
+			var serverStorage = false;
 			if(!isEmptyObject(xhr.responseJSON)) {
 				serverStorage = (xhr.responseJSON.errCode == 200);
 			}
 			if(!serverStorage) {
-				console.warn("服务器端存储能力配置有误，仅能使用浏览器存储，建议配置好服务器端存储能力" +
-						"\n请参考：https://gitee.com/zyplayer/swagger-mg-ui-demo");
+				Toast.error("服务器端能力配置有误，新版本必须开启才能使用", 999999);
+				documentLoadFinish();
+			} else {
+				initUserSettings();
 			}
-			initUserSettings();
 		}
 	);
 });
-
-/**
- * 增加文档
- * @returns
- */
-function addDocumentByUrl(fullUrl, isInSetting) {
-	// 获取原始的swagger的json对象
-	ajaxTemp(fullUrl, "get", "json", {}, function(json){
-		console.log(json);
-		if(isEmptyObject(json) || isEmpty(json.swagger)) {
-			Toast.error("获取文档错误，请检查：" + fullUrl);
-			return
-		}
-		// 拼接地址
-		json.fullUrl = fullUrl;
-		var v2Index = fullUrl.indexOf("/v2/api-docs");
-		if(v2Index > 0) {
-			var domainUrl = fullUrl.substring(0, v2Index + 1);
-			json.domainUrl = domainUrl;
-		}
-		documentJsonArr.push(json);// 加到所有文档
-		addHomePageDashboard(json, fullUrl);
-		createDefinitionsMapByJson(json);
-		if(userSettings.catalogShowType == 1) {
-			createTreeViewByTree(json);// url分成一层一层的展示
-		} else if(userSettings.catalogShowType == 2){
-			createTreeViewByTag(json);// tag方式，整个url显示为一层
-		} else {
-			createTreeViewByTree(json);// url分成一层一层的展示
-		}
-	}, function(msg){
-		Toast.error("获取文档失败，请检查：" + fullUrl);
-	}, function(msg){
-		projectLoadingIndex--;
-		if(projectLoadingIndex == 0) {
-			documentLoadFinish();
-		}
-	});
-}
 
 /**
  * 获取所有文档列表提供选择
@@ -164,67 +125,6 @@ function addDocumentByService(choiseDocList) {
 		documentLoadFinish();
 	}, function(msg){
 		Toast.error("获取文档失败，请检查！");
-	});
-}
-
-/**
- * 增加文档
- * @returns
- */
-function loadSwaggerResources(fullUrl, isInSetting) {
-	// 获取原始的swagger的resources配置
-	ajaxTemp(fullUrl, "get", "json", {}, function(json){
-		//console.log(json);
-		if(isEmptyObject(json) || json.length <= 0) {
-			Toast.error("获取文档错误，请检查：" + fullUrl);
-			return;
-		}
-		if(!isInSetting) {
-			if(!haveString(userSettings.projects, fullUrl)) {
-				userSettings.projects.push(fullUrl);
-			}
-			storeUserSettings();
-			document.location.reload();
-		}
-		var removedProjects = userSettings.removedProjects;
-		if(removedProjects == null || removedProjects == undefined) {
-			removedProjects = [];
-		}
-		// 将：http://192.168.5.172:8081/swagger-resources
-		// 变成：http://192.168.5.172:8081/v2/api-docs
-		var locationHref = fullUrl.substring(0, fullUrl.lastIndexOf("/"));
-		for (var i = 0; i < json.length; i++) {
-			var tempLocation = locationHref + json[i].location;
-			// 如果是新加的，判断在删除的数组里面，则从删除数组中移除，新的开始
-			if(!isInSetting) {
-				for (var j = 0; j < removedProjects.length; j++) {
-					if(removedProjects[j] == tempLocation) {
-						removedProjects[j] = "";
-					}
-				}
-			}
-			// 不存在则添加
-			if(!haveString(swaggerApiDocsArr, tempLocation)) {
-				swaggerApiDocsArr.push(tempLocation);
-			}
-		}
-		// 去掉被删除的路劲
-		var removedProjectsNew = [];
-		for (var i = 0; i < removedProjects.length; i++) {
-			if(isNotEmpty(removedProjects[i])) {
-				removedProjectsNew.push(removedProjects[i]);
-			}
-		}
-		userSettings.removedProjects = removedProjectsNew;
-		storeUserSettings();
-	}, function(msg){
-		Toast.error("获取文档失败，请检查：" + fullUrl);
-	}, function(msg){
-		projectLoadingIndex--;
-		showGlobalLoadingMessage('剩余'+projectLoadingIndex+'份文档，请稍候...', true);
-		if(projectLoadingIndex == 0) {
-			loadSwaggerResourcesFinish();
-		}
 	});
 }
 
@@ -424,18 +324,7 @@ $("#choiseDocBtn").click(function(){
 		}
 		allDocListObj.push(tempUrl);
 	});
-	if(serverStorage) {
-		addDocumentByService(choiseDocList);
-	} else {
-		if(choiseDocListObj.length <= 0) {
-			choiseDocListObj = allDocListObj;
-		}
-		// 请求url，获取文档配置，增加树形菜单等
-		projectLoadingIndex = choiseDocListObj.length;
-		for (var i = 0; i < choiseDocListObj.length; i++) {
-			addDocumentByUrl(choiseDocListObj[i]);
-		}
-	}
+	addDocumentByService(choiseDocList);
 	$('#choiseDocModal').modal('hide');
 });
 
@@ -448,16 +337,11 @@ $("#addNewDocumentBtn").click(function(){
 		Toast.error("地址不可以为空");return;
 	}
 	projectLoadingIndex = 1;
-	if(serverStorage) {
-		ajaxTemp("swagger-mg-ui/document/addSwaggerResources", "post", "json", {resourcesUrl: addNewDocumentInput}, function(json){
-			if(validateResult(json)) {
-				document.location.reload();
-			}
-		});
-	} else {
-		loadSwaggerResources(addNewDocumentInput, false);
-		$('#addNewDocumentModal').modal('hide');
-	}
+	ajaxTemp("swagger-mg-ui/document/addSwaggerResources", "post", "json", {resourcesUrl: addNewDocumentInput}, function(json){
+		if(validateResult(json)) {
+			document.location.reload();
+		}
+	});
 });
 
 /**
@@ -1104,23 +988,11 @@ function documentLoadFinish() {
 		// 被移除
 		afterPanelRemoved:function(id){
 			//console.log(id);
-			if(serverStorage) {
-				ajaxTemp("swagger-mg-ui/document/deleteSwaggerDoc", "post", "json", {docUrl: id}, function(json){
-					if(validateResult(json)) {
-						document.location.reload();
-					}
-				});
-			} else {
-				var tempProjects = [], nowIndex = 0;
-				for ( var i = 0; i < userSettings.projects.length; i++){
-					if(userSettings.projects[i] != id) {
-						tempProjects[nowIndex++] = userSettings.projects[i];
-					}
+			ajaxTemp("swagger-mg-ui/document/deleteSwaggerDoc", "post", "json", {docUrl: id}, function(json){
+				if(validateResult(json)) {
+					document.location.reload();
 				}
-				userSettings.projects = tempProjects;
-				userSettings.removedProjects.push(id);
-				storeUserSettings();
-			}
+			});
 		},
 	});
 }
@@ -1136,9 +1008,7 @@ function updateUserSettingsUi() {
 	$("input[name='showParamType'][value='"+userSettings.showParamType+"']").prop("checked",true);
 	$("input[name='onlyUseLastParam'][value='"+userSettings.onlyUseLastParam+"']").prop("checked",true);
 	$("input[name='autoFillParam'][value='"+userSettings.autoFillParam+"']").prop("checked",true);
-	if(!serverStorage) {
-		$(".local-storage").show();// 服务器存储了就不用管理了
-	}
+	//$(".local-storage").show();// 服务器存储了就不用管理了
 }
 
 /**
@@ -1181,65 +1051,45 @@ function storeUserSettings() {
  * 获取数据，异步的操作
  */
 function getStorage(key, success, fail) {
-	if(serverStorage) {
-		ajaxTemp("swagger-mg-ui/storage/data", "get", "json", {key: key}, function(json){
-			if(json.errCode == 200) {
-				if(typeof success == "function") {
-					var result = deserialize(json.data);
-					success(result);
-				}
-			} else {
-				if(typeof fail == "function") {
-					fail();
-				}
+	ajaxTemp("swagger-mg-ui/storage/data", "get", "json", {key: key}, function(json){
+		if(json.errCode == 200) {
+			if(typeof success == "function") {
+				var result = deserialize(json.data);
+				success(result);
 			}
-		}, function(msg){
+		} else {
 			if(typeof fail == "function") {
 				fail();
 			}
-		});
-	} else {
-		var value = $.zui.store.get(key);
-		if(typeof success == "function") {
-			success(value);
 		}
-	}
+	}, function(msg){
+		if(typeof fail == "function") {
+			fail();
+		}
+	});
 }
 
 /**
  * 存储数据，异步的操作
  */
 function setStorage(key, value, success, fail) {
-	if(serverStorage) {
-		value = $.zui.store.serialize(value);
-		ajaxTemp("swagger-mg-ui/storage/data", "post", "json", {key: key, value: value}, function(json){
-			if(json.errCode == 200) {
-				if(typeof success == "function") {
-					success();
-				}
-			} else {
-				if(typeof fail == "function") {
-					fail(getNotEmptyStr(json.errMsg));
-				}
+	value = $.zui.store.serialize(value);
+	ajaxTemp("swagger-mg-ui/storage/data", "post", "json", {key: key, value: value}, function(json){
+		if(json.errCode == 200) {
+			if(typeof success == "function") {
+				success();
 			}
-		}, function(msg){
+		} else {
 			if(typeof fail == "function") {
-				fail("");
+				fail(getNotEmptyStr(json.errMsg));
 			}
-			console.log("存储数据到服务器失败，请检查");
-		});
-	} else {
-		$.zui.store.set(key, value);
-	}
-}
-
-/**
- * 初始化用户的设置--通过服务器数据
- * @param 
- * @returns
- */
-function initUserSettingsByServer() {
-	
+		}
+	}, function(msg){
+		if(typeof fail == "function") {
+			fail("");
+		}
+		console.log("存储数据到服务器失败，请检查");
+	});
 }
 
 /**
@@ -1257,25 +1107,7 @@ function initUserSettings() {
 		updateTreeShowType();
 		updateUserSettingsUi();
 		// 增加文档
-		if(serverStorage) {
-			getDocumentListByService();
-		} else {
-			var projects = userSettings.projects;
-			if(isEmptyObject(projects) || projects.length <= 0) {
-				// 没有文档时默认本项目的文档
-				userSettings.projects = [];
-				var locationHref = document.location.href;
-				locationHref = locationHref.substring(0, locationHref.lastIndexOf("/"));
-				projectLoadingIndex = 1;
-				loadSwaggerResources(locationHref + "/swagger-resources", false);
-			} else {
-				projectLoadingIndex = projects.length;
-				for ( var i = 0; i < projects.length; i++){
-					// 请求url，获取文档配置，增加树形菜单等
-					loadSwaggerResources(projects[i], true);
-				}
-			}
-		}
+		getDocumentListByService();
 	});
 }
 
@@ -1286,24 +1118,3 @@ function showGlobalLoadingMessage(text, loading) {
 	globalLoadingMessager.$.find(".messager-content").html(text);
 }
 
-function loadSwaggerResourcesFinish() {
-	projectLoadingIndex = swaggerApiDocsArr.length;
-	if (projectLoadingIndex <= 0) {
-		documentLoadFinish();
-	} else {
-		if(swaggerApiDocsArr.length > 1) {
-			showGlobalLoadingMessage('等待选择需展示的文档，请选择...', true);
-			for (var i = 0; i < swaggerApiDocsArr.length; i++) {
-				var item = swaggerApiDocsArr[i];
-				$("#choiseDocListUl").append('<li value="'+item+'">'+item+'</li>');
-			}
-			$('#choiseDocModal').modal({moveable:true, backdrop:'static', keyboard: false});
-		} else {
-			for ( var i = 0; i < swaggerApiDocsArr.length; i++){
-				// 请求url，获取文档配置，增加树形菜单等
-				addDocumentByUrl(swaggerApiDocsArr[i]);
-			}
-		}
-		swaggerApiDocsArr = [];
-	}
-}

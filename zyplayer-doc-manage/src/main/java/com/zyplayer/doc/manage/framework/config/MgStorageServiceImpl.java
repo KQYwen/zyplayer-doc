@@ -56,5 +56,15 @@ public class MgStorageServiceImpl implements MgStorageService {
 			zyplayerStorageService.save(entity);
 		}
 	}
+	
+	/**
+	 * 删除一个key
+	 */
+	@Override
+	public void remove(String key) {
+		UpdateWrapper<ZyplayerStorage> queryWrapper = new UpdateWrapper<>();
+		queryWrapper.eq(true, "doc_key", key);
+		zyplayerStorageService.remove(queryWrapper);
+	}
 
 }

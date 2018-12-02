@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +44,8 @@ import springfox.documentation.swagger.web.SwaggerResource;
 @RestController
 @RequestMapping("/swagger-mg-ui/document")
 public class MgDocumentController {
+
+	private static Logger logger = LoggerFactory.getLogger(MgDocumentController.class);
 
 	@Autowired(required = false)
 	private MgStorageService storageService;
@@ -144,7 +148,7 @@ public class MgDocumentController {
 				String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
 				resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("获取文档失败：{}，{}", resourcesUrl, e.getMessage());
 			}
 			if (resourceList == null || resourceList.isEmpty()) {
 				continue;
@@ -183,7 +187,7 @@ public class MgDocumentController {
 							+ resourceStr;
 					swaggerResourceStrList.add(resourceStr);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("获取文档失败：{}，{}", location, e.getMessage());
 				}
 			}
 		}
@@ -245,7 +249,7 @@ public class MgDocumentController {
 			}
 			resourcesSet.add(resourcesUrl);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("获取文档失败：{}，{}", resourcesUrl, e.getMessage());
 			return MgUiResponseJson.warn("改地址查找文档失败");
 		}
 		storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesSet));
