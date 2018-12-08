@@ -46,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		String loginPage = "/statics/manage/login.html";
 		
-		http.authorizeRequests().antMatchers("/login/**").permitAll()//为了测试其他功能，设置“ /** ”允许所有请求
+		http.authorizeRequests().antMatchers("/login/**", "/document.html").permitAll()//为了测试其他功能，设置“ /** ”允许所有请求
 				.antMatchers("/document.html").hasAuthority("DOC_ALL")
 				// 其他地址的访问均需登录
 				.anyRequest().authenticated().and()
@@ -66,7 +66,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				// 开启rememberMe，设置一个私钥专供testall项目使用，注意与下面TokenBasedRememberMeServices的key保持一致
 				// .rememberMe().key("testallKey").and()
 				// 关闭csrf
-				.and().csrf().disable();
+				.and().csrf().disable()
+				// X-Frame-Options: SAMEORIGIN 表示该页面可以在相同域名页面的 frame 中展示
+				.headers().frameOptions().sameOrigin();
 	}
 
 	@Override

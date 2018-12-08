@@ -266,4 +266,21 @@ String.prototype.startWith = function(str) {
 	return (this.substr(0, str.length) == str);
 };
 
+var rightContentTabs;
+function changeOpenZpage(id, url, icon, reload){
+	if(reload || $("#tab-"+id).length <= 0) {
+		var newTab = {id: id, url: url, type: 'iframe', icon: icon};
+		rightContentTabs.open(newTab);
+	} else {
+		$("#tab-nav-item-"+id+" .tab-nav-link").click();
+	}
+}
 
+window.onload = function () {
+	// 定义标签页
+	var tabsArr = [
+		//{id: 'system-console', url: 'system/console', type: 'iframe', icon: 'icon-home', forbidClose: true},
+	];
+	$('#rightZpages').tabs({tabs: tabsArr});
+	rightContentTabs = $('#rightZpages').data('zui.tabs');
+}

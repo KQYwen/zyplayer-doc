@@ -7,6 +7,7 @@
 	<link rel="shortcut icon" href="webjars/mg-ui/img/api.ico"/>
 	<link rel="stylesheet" href="webjars/zui/css/zui.min.css" />
 	<link rel="stylesheet" href="webjars/zui/lib/dashboard/zui.dashboard.min.css" />
+	<link rel="stylesheet" href="webjars/zui/lib/tabs/zui.tabs.min.css" />
 	<link rel="stylesheet" href="webjars/mg-ui/css/mg-ui.css" />
 </head>
 <body>
@@ -31,7 +32,7 @@
 					<a href="#"><i class="icon icon-cogs"></i> 文档管理</a>
 					<ul>
 						<li id="onlineDebugLi" class="local-storage"><a href="javascript:void(0)" path=""><i class="icon-bug"></i> 在线调试管理</a></li>
-						<li><a href="#" path=""><i class="icon-cog"></i> 文档展示配置</a></li>
+						<li><a href="javascript:changeOpenZpage('docShowConfig', 'webjars/zpages/docShowConfig.html', 'icon-home', false)" path=""><i class="icon-cog"></i> 文档展示配置</a></li>
 						<li><a href="#" path=""><i class="icon-globe"></i> 全局参数管理</a></li>
 						<li><a href="#" path=""><i class="icon-bug"></i> 调试数据管理</a></li>
 						<li><a href="#" path=""><i class="icon-list-ul"></i> 文档地址管理</a></li>
@@ -130,6 +131,9 @@
 				</section>
 			</div>
 		</div>
+        <div class="tab-page tab-zpages hide">
+            <div class="tabs" id="rightZpages"></div>
+        </div>
 		<!-- 在线调试配置 -->
 		<div class="tab-page tab-online-debug-page hide">
 			<div class="title-info">
@@ -498,6 +502,7 @@
 </body>
 <script type="text/javascript" src="webjars/mg-ui/js/jquery-3.1.0.min.js"></script>
 <script type="text/javascript" src="webjars/zui/js/zui.min.js"></script>
+<script type="text/javascript" src="webjars/zui/lib/tabs/zui.tabs.min.js"></script>
 <script type="text/javascript" src="webjars/zui/lib/dashboard/zui.dashboard.min.js"></script>
 
 <!-- 
@@ -506,7 +511,7 @@
 <script type="text/javascript" src="webjars/mg-ui/js/formatjson.js"></script>
 <script type="text/javascript" src="webjars/mg-ui/js/toast.js"></script>
 <script type="text/javascript" src="webjars/mg-ui/js/common.js"></script>
-<script type="text/javascript" src="webjars/mg-ui/js/mgResizeble.js"></script>
+<script type="text/javascript" src="webjars/mg-ui/js/mgResizable.js"></script>
 <script type="text/javascript" src="webjars/mg-ui/js/mg-ui-tree.js"></script>
 <script type="text/javascript" src="webjars/mg-ui/js/mg-ui-tag.js"></script>
 <script type="text/javascript" src="webjars/mg-ui/js/mg-ui-debug.js"></script>

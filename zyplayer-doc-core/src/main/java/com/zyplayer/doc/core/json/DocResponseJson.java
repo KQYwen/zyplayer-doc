@@ -88,7 +88,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 * @return
 	 */
 	public static <T> DocResponseJson<T> warn(String errMsg) {
-		return new DocResponseJson<>(300, errMsg);
+		return new DocResponseJson<T>(300, errMsg);
 	}
 	
 	/**
@@ -99,7 +99,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 * @return
 	 */
 	public static <T> DocResponseJson<T> error(String errMsg) {
-		return new DocResponseJson<>(500, errMsg);
+		return new DocResponseJson<T>(500, errMsg);
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 * @return
 	 */
 	public static <T> DocResponseJson<T> ok() {
-		return new DocResponseJson<>();
+		return new DocResponseJson<T>();
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 		if (data == null) {
 			return DocResponseJson.ok();
 		}
-		DocResponseJson<T> responseJson = new DocResponseJson<>();
+		DocResponseJson<T> responseJson = new DocResponseJson<T>();
 		responseJson.setData(data);
 		return responseJson;
 	}
