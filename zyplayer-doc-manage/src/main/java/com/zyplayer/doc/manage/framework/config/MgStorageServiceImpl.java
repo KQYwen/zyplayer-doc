@@ -1,13 +1,19 @@
 package com.zyplayer.doc.manage.framework.config;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.mg.swagger.framework.service.MgStorageService;
 import com.zyplayer.doc.manage.repository.manage.entity.ZyplayerStorage;
 import com.zyplayer.doc.manage.service.manage.ZyplayerStorageService;
+import com.zyplayer.doc.swagger.framework.service.MgStorage;
+import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 
 /**
  * 申明为@Service之后网页上才能使用存储能力，同时需要在@EnableSwagger2的地方添加@EnableSwaggerMgUi注解，
@@ -31,12 +37,27 @@ public class MgStorageServiceImpl implements MgStorageService {
 	@Override
 	public String get(String key) {
 		QueryWrapper<ZyplayerStorage> wrapper = new QueryWrapper<>();
-		wrapper.eq(true, "doc_key", key);
+		wrapper.eq("doc_key", key);
 		ZyplayerStorage zyplayerStorage = zyplayerStorageService.getOne(wrapper);
 		if (zyplayerStorage == null) {
 			return null;
 		}
 		return zyplayerStorage.getDocValue();
+	}
+
+	@Override
+	public List<MgStorage> like(String key, String value) {
+		QueryWrapper<ZyplayerStorage> wrapper = new QueryWrapper<>();
+		wrapper.like(StringUtils.isNotBlank(key), "doc_key", key);
+		wrapper.like(StringUtils.isNotBlank(value), "doc_value", value);
+		List<ZyplayerStorage> storageList = zyplayerStorageService.list(wrapper);
+		if (storageList == null || storageList.isEmpty()) {
+			return Collections.emptyList();
+		}
+		List<MgStorage> resultList = storageList.stream().map(val -> {
+			return new MgStorage(val.getDocKey(), val.getDocValue());
+		}).collect(Collectors.toList());
+		return resultList;
 	}
 
 	/**

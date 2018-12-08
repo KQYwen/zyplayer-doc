@@ -6,6 +6,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,9 +22,10 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.util.DigestUtils;
 
+@Order(1)
 @Configuration
 @EnableWebSecurity
-@Order(1)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
@@ -37,38 +39,34 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/statics/lib/**", "/css/**", "/js/**", "/img/**");
+		web.ignoring().antMatchers("/statics/lib/**", "/css/**", "/js/**", "/img/**", "/swagger-resources", "/v2/api-docs");
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		String loginPage = "/statics/manage/login.html";
+		
 		http.authorizeRequests().antMatchers("/login/**").permitAll()//为了测试其他功能，设置“ /** ”允许所有请求
-				// user权限可以访问的请求
-				.antMatchers("/security/user").hasRole("user")
-				// admin权限可以访问的请求
-				.antMatchers("/security/admin").hasRole("admin")
-				// SpEL表达式:需要拥有user权限，且进行了完全认证
-				.antMatchers("/user/account").access("hasRole('user') and isFullyAuthenticated()")
-				// 其他地址的访问均需验证权限（需要登录）
+				.antMatchers("/document.html").hasAuthority("DOC_ALL")
+				// 其他地址的访问均需登录
 				.anyRequest().authenticated().and()
 				// 添加验证码验证
-				.addFilterAt(myUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class).exceptionHandling()
-				.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/statics/manage/login.html")).and()
-				.addFilterAt(rememberMeAuthenticationFilter(), RememberMeAuthenticationFilter.class)
+				.addFilterAt(myUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+				.exceptionHandling()
+				.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint(loginPage))
+				.and().addFilterAt(rememberMeAuthenticationFilter(), RememberMeAuthenticationFilter.class)
 				// 指定登录页面的请求路径
-				.formLogin().loginPage("/statics/manage/login.html")
+				.formLogin().loginPage(loginPage)
 				// 登陆处理路径
-				.loginProcessingUrl("/login").permitAll().and()
-				// 退出请求的默认路径为logout，下面改为signout，
-				// 成功退出登录后的url可以用logoutSuccessUrl设置
-				.logout().deleteCookies("remember-me")
-				.logoutUrl("/signout")
-				.logoutSuccessUrl("/statics/manage/login.html")
-				.permitAll().and()
+				.loginProcessingUrl("/login").permitAll()
+				// 退出请求的默认路径为logout
+				.and().logout().deleteCookies("remember-me")
+				.logoutUrl("/logout").logoutSuccessUrl(loginPage)
+				.permitAll()
 				// 开启rememberMe，设置一个私钥专供testall项目使用，注意与下面TokenBasedRememberMeServices的key保持一致
 				// .rememberMe().key("testallKey").and()
 				// 关闭csrf
-				.csrf().disable();
+				.and().csrf().disable();
 	}
 
 	@Override
@@ -81,19 +79,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			}
 			@Override
 			public boolean matches(CharSequence charSequence, String s) {
-				return s.equals(DigestUtils.md5DigestAsHex(charSequence.toString().getBytes()));
+				String digestAsHex = DigestUtils.md5DigestAsHex(charSequence.toString().getBytes());
+				return s.equals(digestAsHex);
 			}
 		}).and().authenticationProvider(rememberMeAuthenticationProvider());
 	}
 	
 	@Bean
-	public UserDetailsServiceImpl userDetailsServiceImpl() {
-		return new UserDetailsServiceImpl();
+	public DocDetailsServiceImpl userDetailsServiceImpl() {
+		return new DocDetailsServiceImpl();
 	}
 
 	@Bean
-	public MyUsernamePasswordAuthenticationFilter myUsernamePasswordAuthenticationFilter() throws Exception {
-		MyUsernamePasswordAuthenticationFilter myFilter = new MyUsernamePasswordAuthenticationFilter();
+	public DocUsernamePasswordAuthenticationFilter myUsernamePasswordAuthenticationFilter() throws Exception {
+		DocUsernamePasswordAuthenticationFilter myFilter = new DocUsernamePasswordAuthenticationFilter();
 		myFilter.setAuthenticationManager(authenticationManagerBean());
 		myFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
 		myFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
@@ -133,5 +132,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		RememberMeAuthenticationFilter myFilter = new RememberMeAuthenticationFilter(authenticationManagerBean(), tokenBasedRememberMeServices());
 		return myFilter;
 	}
-
+	
 }

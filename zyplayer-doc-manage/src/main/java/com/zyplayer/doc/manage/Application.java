@@ -10,6 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
+import java.util.Optional;
 
 /**
  * 程序启动器
@@ -27,11 +28,14 @@ public class Application extends SpringBootServletInitializer {
 	public static void main(String[] args) throws Exception {
 		ConfigurableApplicationContext application = SpringApplication.run(Application.class, args);
 		Environment env = application.getEnvironment();
+		String contextPath = env.getProperty("server.servlet.context-path");
+		contextPath = Optional.ofNullable(contextPath).orElse("").replaceFirst("/", "");
+		contextPath = (contextPath.length() <= 0 || contextPath.endsWith("/")) ? contextPath : contextPath + "/";
 		logger.info("\n----------------------------------------------------------\n\t" +
 						"\t\t地址列表\n\t" +
-						"文档地址：http://{}:{}/document.html\n" +
+						"文档地址：http://{}:{}/{}document.html\n" +
 						"----------------------------------------------------------",
-				InetAddress.getLocalHost().getHostAddress(), env.getProperty("server.port")
+				InetAddress.getLocalHost().getHostAddress(), env.getProperty("server.port"), contextPath
 		);
 	}
 }

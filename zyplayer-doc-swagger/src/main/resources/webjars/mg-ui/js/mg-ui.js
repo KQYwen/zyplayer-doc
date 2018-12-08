@@ -1,8 +1,8 @@
 /**
- * swagger-mg-ui是swagger-ui的一个前端实现，使用简单、解析速度快、走心的设计
+ * zyplayer-doc-swagger是swagger-ui的一个前端实现，使用简单、解析速度快、走心的设计
  * 支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯。
  * 使用中您有任何的意见和建议都可到源码地址处反馈哦！
- * git地址：https://gitee.com/zyplayer/swagger-mg-ui
+ * git地址：https://gitee.com/zyplayer/zyplayer-doc-swagger
  * @author 暮光：城中城
  * @since 2018年5月20日
  */
@@ -873,11 +873,11 @@ function changeContentWidth(width) {
 	$("#leftContent").css("width", width + 'px');
 	$("#resizebleLeftRight").css("left", width + 'px');
 	$("#rightContent").css("left", width + 'px');
-	var logoText = "swagger-mg-ui";
-	if(width < 270 && width > 140){
-		logoText = "mg-ui";
-	} else if(width < 140){
-		logoText = "mui";
+	var logoText = "zyplayer-doc-swagger";
+	if(width < 370 && width > 290){
+		logoText = "zyplayer-doc";
+	} else if(width < 290){
+		logoText = "doc";
 	}
 	$("#logoText").text(logoText);
 	userSettings.prevWNow = width;

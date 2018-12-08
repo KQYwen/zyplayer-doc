@@ -4,73 +4,34 @@
 
 	<groupId>com.zyplayer</groupId>
 	<artifactId>zyplayer-doc</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>zyplayer-doc</name>
 	<description>定位为所有文档的管理项目，swagger文档、数据库文档、、、、等</description>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.0.6.RELEASE</version>
-	</parent>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<mybatis.plus.boot.starter.version>3.0.6</mybatis.plus.boot.starter.version>
 		<fastjson.version>1.2.53</fastjson.version>
-		<swagger.mg.ui.version>2.0.1</swagger.mg.ui.version>
-		<velocity.engine.core.version>2.0</velocity.engine.core.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.7.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.baomidou</groupId>
-			<artifactId>mybatis-plus-boot-starter</artifactId>
-			<version>${mybatis.plus.boot.starter.version}</version>
-		</dependency>
-		<!-- json -->
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>${fastjson.version}</version>
-		</dependency>
-		<!-- 在线文档解析页面 -->
-		<dependency>
-			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-doc-swagger</artifactId>
-			<version>${swagger.mg.ui.version}</version>
-		</dependency>
-		<!-- velocity 模板引擎, 默认 -->
-		<dependency>
-			<groupId>org.apache.velocity</groupId>
-			<artifactId>velocity-engine-core</artifactId>
-			<version>${velocity.engine.core.version}</version>
-		</dependency>
-		<!-- freemarker 模板引擎 -->
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -85,6 +46,7 @@
 	<modules>
 		<module>zyplayer-doc-db</module>
 		<module>zyplayer-doc-manage</module>
-    <module>zyplayer-doc-swagger</module>
-  </modules>
+		<module>zyplayer-doc-swagger</module>
+		<module>zyplayer-doc-core</module>
+	</modules>
 </project>

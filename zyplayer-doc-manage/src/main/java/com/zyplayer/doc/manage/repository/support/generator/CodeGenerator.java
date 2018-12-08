@@ -22,7 +22,8 @@ public class CodeGenerator {
 	public static void main(String[] args) {
 
 		final String moduleName = "manage";
-		final String[] tableName = { "zyplayer_storage" };
+		final String[] tableName = { "zyplayer_storage", "auth_info", "user_auth", "user_info" };
+//		final String[] tableName = { "zyplayer_storage" };
 
 		// 代码生成器
 		AutoGenerator mpg = new AutoGenerator();
@@ -34,6 +35,7 @@ public class CodeGenerator {
 		gc.setOpen(false);
 		gc.setDateType(DateType.ONLY_DATE);
 		gc.setServiceName("%sService");
+		gc.setControllerName("Generator%sController");
 		mpg.setGlobalConfig(gc);
 
 		// 数据源配置
@@ -42,14 +44,14 @@ public class CodeGenerator {
 		// dsc.setSchemaName("public");
 		dsc.setDriverName("com.mysql.jdbc.Driver");
 		dsc.setUsername("root");
-		dsc.setPassword("11111");
+		dsc.setPassword("root");
 		mpg.setDataSource(dsc);
 
 		// 包配置
 		final PackageConfig pc = new PackageConfig();
 		pc.setModuleName(null);
 		pc.setParent("com.zyplayer.doc.manage");
-		pc.setController("web");
+		pc.setController("web.generator");
 		pc.setEntity("repository.manage.entity");
 		pc.setMapper("repository.manage.mapper");
 		pc.setService("service.manage");

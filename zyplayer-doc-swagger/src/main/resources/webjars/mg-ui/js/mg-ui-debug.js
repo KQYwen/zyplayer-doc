@@ -100,22 +100,23 @@ $(document).ready(function(){
 		paramSendToServer.method = options;
 		ajaxTemp("swagger-mg-ui/http/request", "post", "json", paramSendToServer, function(result){
 			//console.log(result);
+			var requestObj = result.data;
 			setStorage('p-request-obj-' + docUrl, storeRequestParam);
 			var afterSendTime = new Date().getTime();
-			$("#httpRequestStatus").text(result.status);
+			$("#httpRequestStatus").text(requestObj.status);
 			$("#httpRequestTime").text((afterSendTime - beforSendTime) + "ms");
 			try {
-				var htmlStr = Formatjson.processObjectToHtmlPre(JSON.parse(result.data), 0, false, false, false, false);
+				var htmlStr = Formatjson.processObjectToHtmlPre(JSON.parse(requestObj.data), 0, false, false, false, false);
 				$("#responseBodyJsonDiv").html(htmlStr);
 			} catch (e) {
 				$("#responseBodyJsonDiv").html("<iframe id='responseBodyJsonIframe'></iframe>");
 				setTimeout(function(){
-					$("#responseBodyJsonIframe").contents().find("body").html(result.data);
+					$("#responseBodyJsonIframe").contents().find("body").html(requestObj.data);
 				}, 300);
 			}
 			$("#tabResponseHeader table tbody").empty();
 			$("#tabResponseCookie table tbody").empty();
-			var headers = result.header||[];
+			var headers = requestObj.header||[];
 			for (var i = 0; i < headers.length; i++) {
 				var name = getNotEmptyStr(headers[i].name);
 				var value = getNotEmptyStr(headers[i].value);
@@ -123,7 +124,7 @@ $(document).ready(function(){
 						'<tr>'+'<td>'+name+'</td>' + '<td>'+value+'</td>'+'</tr>'
 				);
 			}
-			var cookies = result.cookie||[];
+			var cookies = requestObj.cookie||[];
 			for (var i = 0; i < cookies.length; i++) {
 				var name = getNotEmptyStr(cookies[i].name);
 				var value = getNotEmptyStr(cookies[i].value);

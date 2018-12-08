@@ -16,7 +16,7 @@
 					<div class="heading divider primary-pale">
 						<div class="title">登录 <span class="reason"> 您没有权限访问该内容或需要登录</span></div>
 					</div>
-					<form action="/login" method="post">
+					
 						<div class="content box">
 							<div class="control has-label-left"><!-- has-error -->
 								<input type="text" name="username" class="input" v-model="userId" placeholder="用户名">
@@ -29,10 +29,10 @@
 								<label for="account"><i class="icon-key"></i></label>
 							</div>
 							<div class="control">
-								<button type="submit" v-on:click="loginSubmit1" class="btn block primary">登录</button>
+								<button type="submit" v-on:click="loginSubmit" class="btn block primary">登录</button>
 							</div>
 						</div>
-					</form>
+					
 				</div>
 			</div>
 		</div>
@@ -58,10 +58,10 @@
 					password: app.password,
 					validateCode: "1234"
 				};
-				post("/login", param, function(result) {
+				post(ctx + "login", param, function(result) {
+					console.log(result);
 					if(result.errCode == 200) {
-						//location.href = "/manage/web/home";
-						alert("登录失败1，" + result.errMsg);
+						location.href = result.data;
 					} else {
 						alert("登录失败，" + result.errMsg);
 					}

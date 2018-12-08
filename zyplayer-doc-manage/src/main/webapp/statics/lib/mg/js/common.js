@@ -4,6 +4,14 @@
  * @since 2017年5月7日
 */
 
+var ctx = "/";
+var statics = "/statics/";
+
+window.onload=function(){
+	ctx = getCookie("ctx");
+	statics = ctx + "statics/";
+}
+
 function serialize(value) {
 	if (typeof value === 'string') {
 		return value;

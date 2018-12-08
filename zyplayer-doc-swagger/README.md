@@ -1,23 +1,23 @@
-# swagger-mg-ui
+# zyplayer-doc-swagger
 
 #### 项目介绍
-swagger-mg-ui是swagger的一个前端实现，使用简单、解析速度快、走心的设计，支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯，使用中您有任何的意见和建议都可到源码地址处反馈哦！
+zyplayer-doc-swagger是swagger的一个前端实现，使用简单、解析速度快、走心的设计，支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯，使用中您有任何的意见和建议都可到源码地址处反馈哦！
 
 每一行代码都是从头开始写的，所以每一个问题都能及时得到解决
 
 欢迎多多Star！右上角↗
 
 demo代码地址：
-[swagger-mg-ui-demo](https://gitee.com/zyplayer/swagger-mg-ui-demo)
+[zyplayer-doc-swagger-demo](https://gitee.com/zyplayer/zyplayer-doc-swagger-demo)
 
 已上传至中央仓库，使用方法：
 
 1、添加依赖
 ```
-<!-- https://mvnrepository.com/artifact/com.zyplayer/swagger-mg-ui -->
+<!-- https://mvnrepository.com/artifact/com.zyplayer/zyplayer-doc-swagger -->
 <dependency>
     <groupId>com.zyplayer</groupId>
-    <artifactId>swagger-mg-ui</artifactId>
+    <artifactId>zyplayer-doc-swagger</artifactId>
     <version>1.0.6</version>
 </dependency>
 ```
@@ -64,7 +64,7 @@ maven项目，前端由html、js、css组成的，后端使用java，前端框�
 
 #### 建议：
 1. 单项目文档不要添加@EnableSwaggerMgUi注解
-2. 多项目时建议不要引入文档UI包，只需要引入springfox-swagger2包，单独部署一个项目添加swagger-mg-ui包，增加@EnableSwaggerMgUi注解，再实现MgStorageService类，部署后用于专门的文档管理项目，再在文档页面“添加文档”，管理所有项目的文档，真正实现文档和项目分离管理！
+2. 多项目时建议不要引入文档UI包，只需要引入springfox-swagger2包，单独部署一个项目添加zyplayer-doc-swagger包，增加@EnableSwaggerMgUi注解，再实现MgStorageService类，部署后用于专门的文档管理项目，再在文档页面“添加文档”，管理所有项目的文档，真正实现文档和项目分离管理！
 
 欢迎加入群聊讨论：
 

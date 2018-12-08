@@ -97,7 +97,7 @@ label{font-weight: normal;}
 .param-box .param-table tbody td:nth-child(3){border-left: 0;padding: 0 10px 0 0;width: 10px;}
 .param-box .param-table tbody td:nth-child(3) i{cursor: pointer;color: #ccc;}
 .param-box .param-table tbody td:nth-child(3) i:hover{color: #888;}
-.param-box .param-table tbody tr.base td:last-child{display: none;}
+.param-box .param-table tbody tr.base td:last-child i{display: none;}
 #bulkEditHeaderCheck{margin-left: 10px;}
 #bulkEditHeader,#bulkEditForm{display: none;}
 

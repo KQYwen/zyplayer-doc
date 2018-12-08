@@ -84,9 +84,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git@git.oschina.net:zyplayer/swagger-mg-ui.git</connection>
-		<developerConnection>scm:git@git.oschina.net:zyplayer/swagger-mg-ui.git</developerConnection>
-		<url>git@git.oschina.net:zyplayer/swagger-mg-ui.git</url>
+		<connection>scm:git@git.oschina.net:zyplayer/zyplayer-doc.git</connection>
+		<developerConnection>scm:git@git.oschina.net:zyplayer/zyplayer-doc.git</developerConnection>
+		<url>git@git.oschina.net:zyplayer/zyplayer-doc.git</url>
 	</scm>
 
 	<distributionManagement>

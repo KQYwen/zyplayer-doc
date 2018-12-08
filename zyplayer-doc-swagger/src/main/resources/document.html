@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-	<title>swagger-mg-ui</title>
+	<title>接口文档管理系统 - zyplayer</title>
 	<link rel="shortcut icon" href="webjars/mg-ui/img/api.ico"/>
 	<link rel="stylesheet" href="webjars/zui/css/zui.min.css" />
 	<link rel="stylesheet" href="webjars/zui/lib/dashboard/zui.dashboard.min.css" />
@@ -12,12 +12,12 @@
 <body>
 	<div class="left-body" id="leftContent">
 		<div class="left-header">
-			<span class="logo" id="logoText">swagger-mg-ui</span>
+			<span class="logo" id="logoText">zyplayer-doc-swagger</span>
 			<i class="icon icon-bars" id="changeContentWidth"></i>
 		</div>
 		<div class="scrollbar-hover left-container">
 			<!-- 样式类可选：tree-menu tree-folders tree-chevrons tree-angles -->
-			<ul class="tree tree-lines tree-menu projects">
+			<ul class="tree tree-lines tree-menu projects" data-ride="tree">
 				<li>
 					<div class="input-group">
 						<input type="text" class="form-control" id="searchDocInput">
@@ -27,7 +27,16 @@
 					</div>
 				</li>
 				<li id="homePageLi"><a href="javascript:void(0)" path=""><i class="icon-home"></i> 控制台</a></li>
-				<li id="onlineDebugLi" class="local-storage"><a href="javascript:void(0)" path=""><i class="icon-bug"></i> 在线调试管理</a></li>
+				<li>
+					<a href="#"><i class="icon icon-cogs"></i> 文档管理</a>
+					<ul>
+						<li id="onlineDebugLi" class="local-storage"><a href="javascript:void(0)" path=""><i class="icon-bug"></i> 在线调试管理</a></li>
+						<li><a href="#" path=""><i class="icon-cog"></i> 文档展示配置</a></li>
+						<li><a href="#" path=""><i class="icon-globe"></i> 全局参数管理</a></li>
+						<li><a href="#" path=""><i class="icon-bug"></i> 调试数据管理</a></li>
+						<li><a href="#" path=""><i class="icon-list-ul"></i> 文档地址管理</a></li>
+					</ul>
+				</li>
 			</ul>
 			<div id="apiPathTree">
 				<ul class="tree tree-lines projects"></ul>
@@ -104,11 +113,11 @@
 										<tr>
 											<td colspan="2">
 												<div align="center">简介</div>
-												swagger-mg-ui是swagger-ui的一个前端实现，使用简单、解析速度快、走心的设计，
+												zyplayer-doc-swagger是swagger-ui的一个前端实现，使用简单、解析速度快、走心的设计，
 												支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯。
 												本项目是完全从头写的，所以有任何属性未解析到、UI上有何建议都能及时处理得到。
 												使用中您有任何的意见和建议都可到源码地址处反馈哦！<br/>
-												源码地址：<a target="_blank" href="https://gitee.com/zyplayer/swagger-mg-ui">swagger-mg-ui</a>，
+												源码地址：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc-swagger</a>，
 												前端框架：<a target="_blank" href="http://zui.sexy">zui</a>，
 												我的网站：<a target="_blank" href="http://kongjianzhou.com">空间轴</a>
 											</td>
@@ -369,7 +378,7 @@
 						</tr>
 						<tr>
 							<td class="info">测试地址</td>
-							<td><a id="simulationResultUrlTest" href="" target="_blank"></a>　<i class="icon icon-info-sign" title='需要被访问项目导入swagger-mg-ui包才能使用'></i></td>
+							<td><a id="simulationResultUrlTest" href="" target="_blank"></a>　<i class="icon icon-info-sign" title='需要被访问项目导入zyplayer-doc包才能使用'></i></td>
 						</tr>
 						<tr>
 							<td class="info">返回内容</td>
@@ -417,7 +426,7 @@
 				</div>
 				<div class="modal-body">
 					<div class="alert alert-danger hidden">
-						1、请到 <a target="_blank" href="https://gitee.com/zyplayer/swagger-mg-ui">源码处下载</a>《对外文档模板.zip》解压<br/>
+						1、请到 <a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">源码处下载</a>《对外文档模板.zip》解压<br/>
 						2、复制以下文本内容覆盖至 /js/mg-ui-data.js 文件内<br/>
 						3、然后双击打开目录下的：document.html 即可看到导出的文档
 					</div>

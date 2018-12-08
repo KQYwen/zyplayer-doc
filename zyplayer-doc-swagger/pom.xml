@@ -28,6 +28,16 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.4.2.RELEASE</version>
 	</parent>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<!-- 打包跳过单元测试 -->
+		<skipTests>true</skipTests>
+		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
+		<zyplayer.doc.core.version>1.0.0</zyplayer.doc.core.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -54,16 +64,13 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
+		<dependency>
+			<groupId>com.zyplayer</groupId>
+			<artifactId>zyplayer-doc-core</artifactId>
+			<version>${zyplayer.doc.core.version}</version>
+		</dependency>
 	</dependencies>
 	
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
-		<!-- 打包跳过单元测试 -->
-		<skipTests>true</skipTests>
-		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
-	</properties>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
