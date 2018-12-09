@@ -852,7 +852,7 @@ function getRequestParamObj(responsesObj, prevRef) {
 function changeContentWidth(width) {
 	$("#leftContent").css("width", width + 'px');
 	$("#resizebleLeftRight").css("left", width + 'px');
-	$("#rightContent,#rightContentMask").css("left", width + 'px');
+	$("#rightContent").css("left", width + 'px');
 	var logoText = "zyplayer-doc-swagger";
 	if(width < 370 && width > 290){
 		logoText = "zyplayer-doc";
