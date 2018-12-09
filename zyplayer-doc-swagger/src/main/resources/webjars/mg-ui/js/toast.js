@@ -11,6 +11,13 @@ var Toast = {
 		};
 		this.show(data);
 	},
+	success:function(msg, time){
+		var data = {
+				message:msg,time:time,
+				icon: 'check-circle-o',type:'success',
+		};
+		this.show(data);
+	},
 	warn:function(msg, time){
 		var data = {
 			message:msg,time:time,

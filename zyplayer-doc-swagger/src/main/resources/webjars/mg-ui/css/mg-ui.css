@@ -38,6 +38,7 @@ label{font-weight: normal;}
 
 #homePageDashboard{overflow-y: auto;bottom: 0;top: 0;right: 0;left: 0;position: absolute;overflow-x: hidden;padding: 10px;}
 #homePageDashboard .panel-body{padding: 10px;}
+.content.about{line-height: 30px;}
 
 #homePageLi{margin-top: 5px;}
 
@@ -74,6 +75,9 @@ label{font-weight: normal;}
 .modal-table-box li.checked{background-color: #8666b8;color:#fff;}
 
 #exportDocumentText{height: 350px;}
+
+#rightContentMask{background-color: rgba(0, 0, 0, 0);display: none;position: relative;top: 0;bottom: 0;left:0;right: 0;}
+#rightZpages{height: 100%;position: relative;top: 0;bottom: 0;left:0;right: 0;}
 
 /* 在线调试框样式 */
 #tabParamBody .tab-content{padding-top: 10px;}

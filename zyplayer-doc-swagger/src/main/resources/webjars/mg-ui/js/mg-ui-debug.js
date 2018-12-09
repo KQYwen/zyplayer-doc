@@ -159,7 +159,7 @@ $(document).ready(function(){
 	 * 在线调试管理
 	 */
 	$("#onlineDebugLi").click(function(){
-		$(".tab-page").hide();
+		$(".tab-page,.tab-zpages").hide();
 		$(".tab-online-debug-page").show();
 		createOnlineDebugParamTable();
 	});

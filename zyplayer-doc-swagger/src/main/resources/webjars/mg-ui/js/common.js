@@ -266,21 +266,49 @@ String.prototype.startWith = function(str) {
 	return (this.substr(0, str.length) == str);
 };
 
-var rightContentTabs;
-function changeOpenZpage(id, url, icon, reload){
-	if(reload || $("#tab-"+id).length <= 0) {
-		var newTab = {id: id, url: url, type: 'iframe', icon: icon};
-		rightContentTabs.open(newTab);
-	} else {
-		$("#tab-nav-item-"+id+" .tab-nav-link").click();
-	}
+/**
+ * 获取数据，异步的操作
+ */
+function getStorage(key, success, fail) {
+	var start = (typeof urlBase === 'string') ? urlBase : '';
+	ajaxTemp(start + "swagger-mg-ui/storage/data", "get", "json", {key: key}, function(json){
+		if(json.errCode == 200) {
+			if(typeof success == "function") {
+				var result = deserialize(json.data);
+				success(result);
+			}
+		} else {
+			if(typeof fail == "function") {
+				fail();
+			}
+		}
+	}, function(msg){
+		if(typeof fail == "function") {
+			fail();
+		}
+	});
 }
 
-window.onload = function () {
-	// 定义标签页
-	var tabsArr = [
-		//{id: 'system-console', url: 'system/console', type: 'iframe', icon: 'icon-home', forbidClose: true},
-	];
-	$('#rightZpages').tabs({tabs: tabsArr});
-	rightContentTabs = $('#rightZpages').data('zui.tabs');
+/**
+ * 存储数据，异步的操作
+ */
+function setStorage(key, value, success, fail) {
+	value = $.zui.store.serialize(value);
+	var start = (typeof urlBase === 'string') ? urlBase : '';
+	ajaxTemp(start + "swagger-mg-ui/storage/data", "post", "json", {key: key, value: value}, function(json){
+		if(json.errCode == 200) {
+			if(typeof success == "function") {
+				success();
+			}
+		} else {
+			if(typeof fail == "function") {
+				fail(getNotEmptyStr(json.errMsg));
+			}
+		}
+	}, function(msg){
+		if(typeof fail == "function") {
+			fail("");
+		}
+		console.log("存储数据到服务器失败，请检查");
+	});
 }

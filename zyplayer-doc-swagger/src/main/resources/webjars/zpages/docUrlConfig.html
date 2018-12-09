@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文档地址管理</title>
+<link rel="stylesheet" type="text/css" href="../zui/css/zui.min.css">
+</head>
+
+<body>
+	<div id="app">
+		<table class="table table-bordered setting-table">
+			<thead>
+				<tr>
+					<td style="width: 50px;">序号</td>
+					<td>地址</td>
+					<td>操作</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="(item,index) in swaggerResourcesList" :key="item.id" :data-id="item.id" :data-index="index" >
+					<td>{{index+1}}</td>
+					<td>{{item}}</td>
+					<td>
+						<button class="btn btn-danger" type="button" v-on:click="deleteDocUrl($event)">删除</button>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3" align="center">
+						<button class="btn" type="button" v-on:click="btnRefreshList">　刷新　</button>
+						<button class="btn btn-info" type="button" v-on:click="exportDocument">导出文档</button>
+						<button class="btn btn-primary" type="button" v-on:click="addNewDocument">增加文档</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- 增加文档弹出框 -->
+		<div class="modal fade" id="addNewDocumentModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+						</button>
+						<h4 class="modal-title">输入文档地址</h4>
+					</div>
+					<div class="modal-body">
+						<input v-model="addNewDocumentInput" type="text" class="form-control" placeholder="例：http://192.168.0.172/swagger-resources">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" v-on:click="addNewDocumentBtn">保存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="../mg-ui/js/jquery-3.1.0.min.js"></script>
+<script src="../zui/js/zui.min.js"></script>
+<script src="../mg-ui/js/common.js"></script>
+<script src="../vue/vue.js"></script>
+<script src="../mg-ui/js/toast.js"></script>
+
+<script>
+	var urlBase = "../../";
+	var app = new Vue({
+		el: '#app',
+		data: {
+			swaggerResourcesList: [],
+			addNewDocumentInput: ''
+		},
+		methods: {
+			btnRefreshList: function(){
+				this.refreshList();
+				Toast.success("刷新成功！");
+			},
+			refreshList: function(){
+				getStorage('swagger-resources-list', function(data){
+					//console.log(data);
+					app.swaggerResourcesList = data;
+				});
+			},
+			addNewDocument: function(){
+				app.addNewDocumentInput = '';
+				$('#addNewDocumentModal').modal({moveable:true});
+			},
+			addNewDocumentBtn: function(){
+				var addNewDocumentInput = app.addNewDocumentInput;
+				if(isEmpty(addNewDocumentInput)) {
+					Toast.error("地址不可以为空");return;
+				}
+				ajaxTemp(urlBase + "swagger-mg-ui/document/addSwaggerResources", "post", "json", {resourcesUrl: addNewDocumentInput}, function(json){
+					if(validateResult(json)) {
+						//window.parent.document.location.reload();
+						app.swaggerResourcesList.push(addNewDocumentInput);
+						$('#addNewDocumentModal').modal('hide');
+						Toast.success("保存成功，刷新后生效！");
+					}
+				});
+			},
+			exportDocument: function(){
+				window.parent.window.exportDocument();
+			},
+			deleteDocUrl: function(event){
+				if(!confirm("确定要删除吗？")) {
+					return;
+				}
+				var tr = $(event.currentTarget).parents("tr");
+				var index = tr.data("index");
+				var newDocList = [];
+				for(var i=0;i<app.swaggerResourcesList.length;i++){
+					if(i != index) {
+						newDocList.push(app.swaggerResourcesList[i]);
+					}
+				}
+				setStorage('swagger-resources-list', newDocList, function(data){
+					app.swaggerResourcesList = newDocList;
+				});
+			}
+		},
+		mounted: function(){
+			this.refreshList();
+		},
+		watch: {
+			catalogShowType: function(newVal, oldval){
+				app.userSettings.catalogShowType = newVal;
+				storeUserSettings();
+				window.parent.window.regeneratePathTree();
+			}
+		}
+	});
+</script>
+
+<style>
+	#app{padding-top: 10px;}
+</style>
+</html>
+
+
+

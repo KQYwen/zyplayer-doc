@@ -47,6 +47,8 @@ var requestParamObjTemp = {
 	}
 };
 
+var rightContentTabs;
+
 /**
  * 网页加载完毕后的处理
  */
@@ -140,9 +142,11 @@ $("#resizebleLeftRight").mgResizebleWidth({
 	},
 	onstart:function(){
 		$("body").addClass("unselect");
+		$("#rightContentMask").show();
 	},
 	onfinish:function(){
 		$("body").removeClass("unselect");
+		$("#rightContentMask").hide();
 		storeUserSettings();
 	}
 });
@@ -213,17 +217,9 @@ $("#searchDocBt").click(function(){
 });
 
 /**
- * 增加文档
- */
-$("#addNewDocument").click(function(){
-	$('#addNewDocumentInput').val("");
-	$('#addNewDocumentModal').modal({moveable:true});
-});
-
-/**
  * 导出文档
  */
-$("#exportDocument").click(function(){
+function exportDocument(){
 	// 清空
 	$("#exportDocumentText").val("");
 	$("#exportDocumentUl").show();
@@ -237,7 +233,7 @@ $("#exportDocument").click(function(){
 	}
 	$('#exportDocumentModal').modal({moveable:true, backdrop: 'static'});
 	$('#exportDocumentModal').modal('ajustPosition', 'fit');
-});
+}
 
 $("#doExportBtn").click(function(){
 	var jsonStrAll = "";
@@ -264,46 +260,30 @@ $("#doExportBtn").click(function(){
 	$('#exportDocumentModal').modal('ajustPosition', 'fit');
 });
 
+/**
+ * 切换选中和非选中样式
+ */
 $(".choise").on("click", "li", function(){
 	$(this).toggleClass("checked");
 });
 
 /**
- * 恢复默认
+ * 页面导航切换
  */
-$("#restoreDefault").click(function(){
-	userSettings = defaultUserSettings;
-	$("input[name='treeShowType'][value='"+userSettings.treeShowType+"']").prop("checked",true);
-	$("input[name='catalogShowType'][value='"+userSettings.catalogShowType+"']").prop("checked",true);
-	$("input[name='showParamType'][value='"+userSettings.showParamType+"']").prop("checked",true);
-	storeUserSettings();
-	document.location.reload();
-});
-
-/**
- * 导出配置
- */
-$("#exportSetting").click(function(){
-	$("#exportSettingText").val(JSON.stringify(userSettings));
-	$('#exportSettingModal').modal({moveable:true});
-});
-
-/**
- * 导入配置
- */
-$("#importSetting").click(function(){
-	$("#importSettingText").val("");
-	$('#importSettingModal').modal({moveable:true});
-});
-
-/**
- * 导入配置-确认
- */
-$("#importSettingBtn").click(function(){
-	var exportSettingText = $("#importSettingText").val();
-	userSettings = JSON.parse(exportSettingText);
-	$('#importSettingModal').modal('hide');
-	storeUserSettings();
+$("#tabZpagesNavigationLi").on("click", ".page-nav", function(){
+	var id = $(this).data("id");
+	var href = $(this).data("href");
+	var icon = $(this).data("icon");
+	var reload = $(this).data("reload");
+	$(".tab-page").hide();
+	$(".tab-online-debug-page").hide();
+	$(".tab-zpages").show();
+	if(reload || $("#tab-"+id).length <= 0) {
+		var newTab = {id: id, url: href, type: 'iframe', icon: icon};
+		rightContentTabs.open(newTab);
+	} else {
+		$("#tab-nav-item-"+id+" .tab-nav-link").click();
+	}
 });
 
 /**
@@ -348,7 +328,7 @@ $("#addNewDocumentBtn").click(function(){
  * 主页li点击事件，展示主页
  */
 $("#homePageLi").click(function(){
-	$(".tab-page").hide();
+	$(".tab-page,.tab-zpages").hide();
 	$(".tab-home-page").show();
 });
 
@@ -872,7 +852,7 @@ function getRequestParamObj(responsesObj, prevRef) {
 function changeContentWidth(width) {
 	$("#leftContent").css("width", width + 'px');
 	$("#resizebleLeftRight").css("left", width + 'px');
-	$("#rightContent").css("left", width + 'px');
+	$("#rightContent,#rightContentMask").css("left", width + 'px');
 	var logoText = "zyplayer-doc-swagger";
 	if(width < 370 && width > 290){
 		logoText = "zyplayer-doc";
@@ -919,9 +899,9 @@ function addHomePageDashboard(json, fullUrl) {
 				+'<div class="panel-heading">'
 					+'<div class="title">'+info.title+'</div>'
 					+'<div class="panel-actions">'
-						+'<button type="button" class="btn remove-panel" data-placement="bottom">'
-							+'<i class="icon-remove"></i>'
-						+'</button>'
+//						+'<button type="button" class="btn remove-panel" data-placement="bottom">'
+//							+'<i class="icon-remove"></i>'
+//						+'</button>'
 					+'</div>'
 				+'</div>'
 				+'<div class="panel-body">'
@@ -958,11 +938,18 @@ function addHomePageDashboard(json, fullUrl) {
  */
 function documentLoadFinish() {
 	showGlobalLoadingMessage('文档解析完成！', false);
+	// 定义配置的标签页
+	var tabsArr = [
+		{id: 'docShowConfig', url: 'webjars/zpages/docShowConfig.html', type: 'iframe', icon: 'icon-cog', forbidClose: true},
+	];
+	$('#rightZpages').tabs({tabs: tabsArr});
+	rightContentTabs = $('#rightZpages').data('zui.tabs');
+	// 隐藏提示框
 	setTimeout(function() {
 		globalLoadingMessager.hide();
 	}, 1000);
 	$('#apiPathTree .projects').tree();
-	$('#homePageDashboard').dashboard({draggable: true,
+	$('#homePageDashboard').dashboard({draggable: false,
 		// 修改排序
 		afterOrdered:function(newOrders){
 			/*//console.log(newOrders);
@@ -1048,48 +1035,10 @@ function storeUserSettings() {
 }
 
 /**
- * 获取数据，异步的操作
+ * 更新用户设置
  */
-function getStorage(key, success, fail) {
-	ajaxTemp("swagger-mg-ui/storage/data", "get", "json", {key: key}, function(json){
-		if(json.errCode == 200) {
-			if(typeof success == "function") {
-				var result = deserialize(json.data);
-				success(result);
-			}
-		} else {
-			if(typeof fail == "function") {
-				fail();
-			}
-		}
-	}, function(msg){
-		if(typeof fail == "function") {
-			fail();
-		}
-	});
-}
-
-/**
- * 存储数据，异步的操作
- */
-function setStorage(key, value, success, fail) {
-	value = $.zui.store.serialize(value);
-	ajaxTemp("swagger-mg-ui/storage/data", "post", "json", {key: key, value: value}, function(json){
-		if(json.errCode == 200) {
-			if(typeof success == "function") {
-				success();
-			}
-		} else {
-			if(typeof fail == "function") {
-				fail(getNotEmptyStr(json.errMsg));
-			}
-		}
-	}, function(msg){
-		if(typeof fail == "function") {
-			fail("");
-		}
-		console.log("存储数据到服务器失败，请检查");
-	});
+function updateUserSettings(newSetting) {
+	userSettings = newSetting;
 }
 
 /**

@@ -215,28 +215,28 @@ public class MgDocumentController {
 		}
 		String resourcesStr = null;
 		try {
-			resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
-			List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
-			if (resourceList == null || resourceList.isEmpty()) {
-				return DocResponseJson.warn("该地址未找到文档");
-			}
-			// 重新加入的时候把之前的已删除的回恢复
-			String resourcesDomain = resourcesUrl.substring(0, resourcesUrl.lastIndexOf("/") + 1);
-			for (SwaggerResource swaggerResource : resourceList) {
-				String location = swaggerResource.getLocation();
-				// 最后一个斜杠在resourcesUrl中已经加上，替换掉后面的防止两根斜杠
-				location = location.startsWith("/") ? location.replaceFirst("/", "") : location;
-				if (location.indexOf("?") >= 0) {
-					try {
-						String encode = URLEncoder.encode(swaggerResource.getName(), "utf-8");
-						location = location.substring(0, location.lastIndexOf("?")) + "?group=" + encode;
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				location = resourcesDomain + location;
-				swaggerDocsDeleteSet.remove(location);
-			}
+//			resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
+//			List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
+//			if (resourceList == null || resourceList.isEmpty()) {
+//				return DocResponseJson.warn("该地址未找到文档");
+//			}
+//			// 重新加入的时候把之前的已删除的回恢复
+//			String resourcesDomain = resourcesUrl.substring(0, resourcesUrl.lastIndexOf("/") + 1);
+//			for (SwaggerResource swaggerResource : resourceList) {
+//				String location = swaggerResource.getLocation();
+//				// 最后一个斜杠在resourcesUrl中已经加上，替换掉后面的防止两根斜杠
+//				location = location.startsWith("/") ? location.replaceFirst("/", "") : location;
+//				if (location.indexOf("?") >= 0) {
+//					try {
+//						String encode = URLEncoder.encode(swaggerResource.getName(), "utf-8");
+//						location = location.substring(0, location.lastIndexOf("?")) + "?group=" + encode;
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//				location = resourcesDomain + location;
+//				swaggerDocsDeleteSet.remove(location);
+//			}
 			resourcesSet.add(resourcesUrl);
 		} catch (Exception e) {
 //			暂不想支持直接添加地址

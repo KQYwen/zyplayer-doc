@@ -28,14 +28,14 @@
 					</div>
 				</li>
 				<li id="homePageLi"><a href="javascript:void(0)" path=""><i class="icon-home"></i> 控制台</a></li>
-				<li>
+				<li id="tabZpagesNavigationLi">
 					<a href="#"><i class="icon icon-cogs"></i> 文档管理</a>
 					<ul>
-						<li id="onlineDebugLi" class="local-storage"><a href="javascript:void(0)" path=""><i class="icon-bug"></i> 在线调试管理</a></li>
-						<li><a href="javascript:changeOpenZpage('docShowConfig', 'webjars/zpages/docShowConfig.html', 'icon-home', false)" path=""><i class="icon-cog"></i> 文档展示配置</a></li>
-						<li><a href="#" path=""><i class="icon-globe"></i> 全局参数管理</a></li>
-						<li><a href="#" path=""><i class="icon-bug"></i> 调试数据管理</a></li>
-						<li><a href="#" path=""><i class="icon-list-ul"></i> 文档地址管理</a></li>
+						<li id="onlineDebugLi1" class="local-storage"><a href="javascript:void(0)" path=""><i class="icon-bug"></i> 在线调试管理</a></li>
+						<li><a href="#" class="page-nav" data-id="docShowConfig" data-href="webjars/zpages/docShowConfig.html" data-icon="icon-cog" data-reload="0"><i class="icon-cog"></i> 文档展示配置</a></li>
+						<li><a href="#" class="page-nav" data-id="docUrlConfig" data-href="webjars/zpages/docUrlConfig.html" data-icon="icon-list-ul" data-reload="1"><i class="icon-list-ul"></i> 文档地址管理</a></li>
+						<li><a href="#" class="page-nav" data-id="globalParamConfig" data-href="webjars/zpages/globalParamConfig.html" data-icon="icon-globe" data-reload="1"><i class="icon-globe"></i> 全局参数管理</a></li>
+						<li><a href="#" class="page-nav" data-id="debugDataConfig" data-href="webjars/zpages/debugDataConfig.html" data-icon="icon-bug" data-reload="1"><i class="icon-bug"></i> 调试数据管理</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -45,85 +45,25 @@
 		</div>
 	</div>
 	<div id="resizebleLeftRight" class="ui-resizable-handle mgresizebleW"></div>
+	<div class="right-container" id="rightContentMask"></div>
 	<div class="right-container" id="rightContent">
 		<div class="tab-page tab-home-page">
-			<div id="homePageDashboard" class="dashboard dashboard-draggable" data-height="320">
+			<div id="homePageDashboard" class="dashboard" data-height="320">
 				<section class="row">
 					<div class="col-md-6 col-sm-6">
 						<div class="panel" data-id="1">
 							<div class="panel-heading">
-								<div class="title">配置中心</div>
+								<div class="title">工具介绍</div>
 							</div>
 							<div class="panel-body">
-								<div class="content">
-									<table class="table table-bordered setting-table">
-										<tr>
-											<td class="info">目录展示方式</td>
-											<td>
-												<label><input type="radio" name="catalogShowType" value="1">分路径展示</label>
-												<label><input type="radio" name="catalogShowType" value="2">分标签展示</label>
-											</td>
-										</tr>
-										<tr>
-											<td class="info">树形菜单展示方式</td>
-											<td>
-												<label><input type="radio" name="treeShowType" value="1">直角</label>
-												<label><input type="radio" name="treeShowType" value="2">导航</label>
-												<label><input type="radio" name="treeShowType" value="3">加减</label>
-												<label><input type="radio" name="treeShowType" value="4">文件夹</label>
-												<label><input type="radio" name="treeShowType" value="5">V型</label>
-											</td>
-										</tr>
-										<tr>
-											<td class="info">是否展示字段的类型</td>
-											<td>
-												<label><input type="radio" name="showParamType" value="1">是</label>
-												<label><input type="radio" name="showParamType" value="0">否</label>
-											</td>
-										</tr>
-										<tr>
-											<td class="info">仅使用上次请求参数<i class="icon icon-info-sign" title="每个接口都使用最后一次请求的header、form、body参数，参数列表有的字段但上一次请求没有使用的则不会展示在请求参数里面，从未请求过则展示所有参数"></i></td>
-											<td>
-												<label><input type="radio" name="onlyUseLastParam" value="1">是</label>
-												<label><input type="radio" name="onlyUseLastParam" value="0">否</label>
-											</td>
-										</tr>
-										<tr>
-											<td class="info">自动填充请求参数</td>
-											<td>
-												<label><input type="radio" name="autoFillParam" value="0">否</label>
-												<label><input type="radio" name="autoFillParam" value="1">智能填充</label>
-												<label><input type="radio" name="autoFillParam" value="2">全部填充</label>
-											</td>
-										</tr>
-										<tr>
-											<td class="info">文档管理</td>
-											<td>
-												<button type="button" class="btn btn-sm" data-moveable="true" id="addNewDocument">增加文档</button>
-												<button type="button" class="btn btn-sm btn-primary" data-moveable="true" id="exportDocument">导出文档</button>
-											</td>
-										</tr>
-										<tr>
-											<td class="info">配置管理</td>
-											<td>
-												<button class="btn btn-sm" type="button" data-moveable="true" id="exportSetting">导出配置</button>
-												<button class="btn btn-sm" type="button" data-moveable="true" id="importSetting">导入配置</button>
-												<button class="btn btn-sm" type="button" id="restoreDefault">恢复默认</button>
-											</td>
-										</tr>
-										<tr>
-											<td colspan="2">
-												<div align="center">简介</div>
-												zyplayer-doc-swagger是swagger-ui的一个前端实现，使用简单、解析速度快、走心的设计，
-												支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯。
-												本项目是完全从头写的，所以有任何属性未解析到、UI上有何建议都能及时处理得到。
-												使用中您有任何的意见和建议都可到源码地址处反馈哦！<br/>
-												源码地址：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc-swagger</a>，
-												前端框架：<a target="_blank" href="http://zui.sexy">zui</a>，
-												我的网站：<a target="_blank" href="http://kongjianzhou.com">空间轴</a>
-											</td>
-										</tr>
-									</table>
+								<div class="content about">
+									zyplayer-doc-swagger是swagger文档的管理工具，使用简单、解析速度快、走心的设计，
+									支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯。
+									本项目是完全从头写的，所以有任何属性未解析到、UI上有何建议都能及时处理得到。
+									使用中您有任何的意见和建议都可到源码地址处反馈哦！<br/>
+									源码地址：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc-swagger</a>（还有其他很多功能哦），
+									前端框架：<a target="_blank" href="http://zui.sexy">zui</a>（很不错），
+									我的网站：<a target="_blank" href="http://kongjianzhou.com">空间轴</a>、<a target="_blank" href="http://zyplayer.com">自由发挥</a>（都已很久未维护）
 								</div>
 							</div>
 						</div>
@@ -399,25 +339,6 @@
 			</div>
 		</div>
 	</div>
-	<!-- 增加文档弹出框 -->
-	<div class="modal fade" id="addNewDocumentModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
-					</button>
-					<h4 class="modal-title">输入文档地址</h4>
-				</div>
-				<div class="modal-body">
-					<input id="addNewDocumentInput" type="text" class="form-control" placeholder="例：http://192.168.0.172/swagger-resources">
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" id="addNewDocumentBtn">保存</button>
-				</div>
-			</div>
-		</div>
-	</div>
 	<!-- 导出文档 -->
 	<div class="modal fade" id="exportDocumentModal">
 		<div class="modal-dialog">
@@ -441,41 +362,6 @@
 					<div align="center" class="bottom-box">
 						<button class="btn btn-primary" type="button" id="doExportBtn">确认导出</button>
 					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- 导出配置 -->
-	<div class="modal fade" id="exportSettingModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
-					</button>
-					<h4 class="modal-title">导出配置</h4>
-				</div>
-				<div class="modal-body">
-					<textarea id="exportSettingText" class="form-control"></textarea>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- 导入配置 -->
-	<div class="modal fade" id="importSettingModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
-					</button>
-					<h4 class="modal-title">导入配置</h4>
-				</div>
-				<div class="modal-body">
-					<textarea id="importSettingText" class="form-control"></textarea>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" id="importSettingBtn">确定</button>
 				</div>
 			</div>
 		</div>
