@@ -1,35 +1,110 @@
 <!doctype html>
-<html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-model="http://www.w3.org/1999/xhtml">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>全局参数管理</title>
-<link rel="stylesheet" type="text/css" href="../zui/css/zui.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>全局参数管理</title>
+    <link rel="stylesheet" type="text/css" href="../zui/css/zui.min.css">
 </head>
 
 <body>
-	<div id="app">
-		全局参数管理
-	</div>
+<div id="app">
+    <div class="alert alert-primary">
+        <div class="content">Tips：所有接口的在线调试页面都将展示本页面配置的参数和值，可统一配置会话等数据</div>
+    </div>
+    <table class="table table-bordered setting-table">
+        <thead>
+        <tr>
+            <td>参数位置</td>
+            <td>参数名</td>
+            <td>参数值</td>
+            <td>操作</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(item,index) in globalParamList" :key="item.id" :data-id="item.id" :data-index="index">
+            <td>
+                <select class="form-control" v-model:value="item.position">
+                    <option value="header">header</option>
+                    <option value="form">form</option>
+                </select>
+            </td>
+            <td><input type="text" class="form-control" name="paramName" v-model:value="item.key" placeholder=""></td>
+            <td><input type="text" class="form-control" name="paramName" v-model:value="item.value" placeholder=""></td>
+            <td>
+                <button class="btn btn-danger" type="button" v-on:click="deleteParam($event)">删除</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" align="center">
+                <button class="btn" type="button" v-on:click="btnRefreshList">　刷新　</button>
+                <button class="btn btn-success" type="button" v-on:click="addGlobalParamLine()">　新增　</button>
+                <button class="btn btn-info" type="button" v-on:click="saveAllGlobalParam">全部保存</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 </body>
-<script src="../zui/js/zui.min.js"></script>
 <script src="../mg-ui/js/jquery-3.1.0.min.js"></script>
+<script src="../zui/js/zui.min.js"></script>
+<script src="../mg-ui/js/common.js"></script>
+<script src="../mg-ui/js/mg-ui-cache-keys.js"></script>
 <script src="../vue/vue.js"></script>
+<script src="../mg-ui/js/toast.js"></script>
 
 <script>
-	var app = new Vue({
-		el: '#app',
-		data: {
-			userId: "",
-		},
-		methods: {
-			
-		}
-	});
+    var urlBase = "../../";
+    var app = new Vue({
+        el: '#app',
+        data: {
+            globalParamList: []
+        },
+        methods: {
+            btnRefreshList: function () {
+                this.refreshList();
+                Toast.success("刷新成功！");
+            },
+            deleteParam: function (event) {
+                if (!confirm("确定要删除吗？")) {
+                    return;
+                }
+                var tr = $(event.currentTarget).parents("tr");
+                var index = tr.data("index");
+                var newParamList = [];
+                for (var i = 0; i < app.globalParamList.length; i++) {
+                    if (i != index) {
+                        newParamList.push(app.globalParamList[i]);
+                    }
+                }
+                app.globalParamList = newParamList;
+            },
+            addGlobalParamLine: function () {
+                app.globalParamList.push({
+                    position: 'header', key: '', value: ''
+                });
+            },
+            saveAllGlobalParam: function () {
+                setStorage(cacheKeys.globalParamList, app.globalParamList, function(){
+                    Toast.success("保存成功！");
+                });
+            },
+            refreshList: function(){
+                getStorage(cacheKeys.globalParamList, function(data){
+                    app.globalParamList = data || [];
+                });
+            },
+        },
+        mounted: function () {
+            this.refreshList();
+        }
+    });
 </script>
 
 <style>
-	
+    #app {
+        padding-top: 10px;
+    }
 </style>
 </html>
 

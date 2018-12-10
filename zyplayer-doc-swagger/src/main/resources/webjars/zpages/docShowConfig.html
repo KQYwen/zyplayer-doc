@@ -69,6 +69,7 @@
 <script src="../mg-ui/js/jquery-3.1.0.min.js"></script>
 <script src="../zui/js/zui.min.js"></script>
 <script src="../mg-ui/js/common.js"></script>
+<script src="../mg-ui/js/mg-ui-cache-keys.js"></script>
 <script src="../vue/vue.js"></script>
 
 <script>
@@ -87,7 +88,7 @@
 			
 		},
 		mounted: function(){
-			getStorage('userSettings', function(data){
+			getStorage(cacheKeys.userSettings, function(data){
 				app.userSettings = data;
 				app.catalogShowType = data.catalogShowType;
 				app.treeShowType = data.treeShowType;
@@ -100,7 +101,7 @@
 			catalogShowType: function(newVal, oldval){
 				app.userSettings.catalogShowType = newVal;
 				storeUserSettings();
-				window.parent.window.regeneratePathTree();
+				getExport().regeneratePathTree();
 			},
 			treeShowType: function(newVal, oldval){
 				app.userSettings.treeShowType = newVal;
@@ -124,8 +125,8 @@
 	
 	// 存储用户的配置信息
 	function storeUserSettings(){
-		setStorage('userSettings', app.userSettings, function(){
-			window.parent.window.updateUserSettings(app.userSettings);
+		setStorage(cacheKeys.userSettings, app.userSettings, function(){
+			getExport().updateUserSettings(app.userSettings);
 		});
 	}
 </script>

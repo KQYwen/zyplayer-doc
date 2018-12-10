@@ -58,6 +58,7 @@
 <script src="../mg-ui/js/jquery-3.1.0.min.js"></script>
 <script src="../zui/js/zui.min.js"></script>
 <script src="../mg-ui/js/common.js"></script>
+<script src="../mg-ui/js/mg-ui-cache-keys.js"></script>
 <script src="../vue/vue.js"></script>
 <script src="../mg-ui/js/toast.js"></script>
 
@@ -75,7 +76,7 @@
 				Toast.success("刷新成功！");
 			},
 			refreshList: function(){
-				getStorage('swagger-resources-list', function(data){
+				getStorage(cacheKeys.swaggerResourcesList, function(data){
 					//console.log(data);
 					app.swaggerResourcesList = data;
 				});
@@ -99,7 +100,7 @@
 				});
 			},
 			exportDocument: function(){
-				window.parent.window.exportDocument();
+				getExport().exportDocument();
 			},
 			deleteDocUrl: function(event){
 				if(!confirm("确定要删除吗？")) {
@@ -113,7 +114,7 @@
 						newDocList.push(app.swaggerResourcesList[i]);
 					}
 				}
-				setStorage('swagger-resources-list', newDocList, function(data){
+				setStorage(cacheKeys.swaggerResourcesList, newDocList, function(){
 					app.swaggerResourcesList = newDocList;
 				});
 			}
@@ -122,11 +123,6 @@
 			this.refreshList();
 		},
 		watch: {
-			catalogShowType: function(newVal, oldval){
-				app.userSettings.catalogShowType = newVal;
-				storeUserSettings();
-				window.parent.window.regeneratePathTree();
-			}
 		}
 	});
 </script>

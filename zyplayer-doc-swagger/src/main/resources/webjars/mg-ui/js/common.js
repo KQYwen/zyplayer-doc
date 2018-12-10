@@ -312,3 +312,11 @@ function setStorage(key, value, success, fail) {
 		console.log("存储数据到服务器失败，请检查");
 	});
 }
+
+/**
+ * 获取父窗口的exports
+ * @returns
+ */
+function getExport(){
+	return window.parent.window.exports;
+}
