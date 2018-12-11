@@ -133,7 +133,7 @@ function addDocumentByService(choiseDocList) {
 /**
  * 自由拖动改变左右框架的宽度
  */
-$("#resizebleLeftRight").mgResizebleWidth({
+$("#resizableLeftRight").mgResizableWidth({
 	prev:"#leftContent",
 	prevWtMin: 120, prevWtMax: 999999,
 	nextWtMin: 360, nextWtMax: 999999,
@@ -851,7 +851,7 @@ function getRequestParamObj(responsesObj, prevRef) {
  */
 function changeContentWidth(width) {
 	$("#leftContent").css("width", width + 'px');
-	$("#resizebleLeftRight").css("left", width + 'px');
+	$("#resizableLeftRight").css("left", width + 'px');
 	$("#rightContent").css("left", width + 'px');
 	var logoText = "zyplayer-doc-swagger";
 	if(width < 370 && width > 290){
@@ -995,7 +995,6 @@ function updateUserSettingsUi() {
 	$("input[name='showParamType'][value='"+userSettings.showParamType+"']").prop("checked",true);
 	$("input[name='onlyUseLastParam'][value='"+userSettings.onlyUseLastParam+"']").prop("checked",true);
 	$("input[name='autoFillParam'][value='"+userSettings.autoFillParam+"']").prop("checked",true);
-	//$(".local-storage").show();// 服务器存储了就不用管理了
 }
 
 /**

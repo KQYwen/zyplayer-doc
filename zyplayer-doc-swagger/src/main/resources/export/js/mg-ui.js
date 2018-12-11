@@ -71,7 +71,7 @@ $(document).ready(function(){
 /**
  * 自由拖动改变左右框架的宽度
  */
-$("#resizebleLeftRight").mgResizebleWidth({
+$("#resizableLeftRight").mgResizableWidth({
 	prev:"#leftContent",
 	prevWtMin: 120, prevWtMax: 999999,
 	nextWtMin: 360, nextWtMax: 999999,
@@ -585,7 +585,7 @@ function createDefinitionsMapByJson(json) {
  */
 function changeContentWidth(width) {
 	$("#leftContent").css("width", width + 'px');
-	$("#resizebleLeftRight").css("left", width + 'px');
+	$("#resizableLeftRight").css("left", width + 'px');
 	$("#rightContent").css("left", width + 'px');
 	var logoText = "swagger-mg-ui";
 	if(width < 270 && width > 140){

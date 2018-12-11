@@ -46,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		String loginPage = "/statics/manage/login.html";
 		
-		http.authorizeRequests().antMatchers("/login/**", "/document.html").permitAll()//为了测试其他功能，设置“ /** ”允许所有请求
+		http.authorizeRequests().antMatchers("/login/**").permitAll()//为了测试其他功能，设置“ /** ”允许所有请求
 				.antMatchers("/document.html").hasAuthority("DOC_ALL")
 				// 其他地址的访问均需登录
 				.anyRequest().authenticated().and()

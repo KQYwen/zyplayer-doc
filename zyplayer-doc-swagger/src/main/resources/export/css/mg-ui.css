@@ -31,9 +31,9 @@ label{font-weight: normal;}
 .setting-table tr .info{text-align: right; max-width: 150px;}
 .show-doc span{color: #aaa;}
 
-.mgresizebleW{z-index: 90;height: 100%; width: 10px; cursor: e-resize;}
+.mgresizableW{z-index: 90;height: 100%; width: 10px; cursor: e-resize;}
 .ui-resizable-handle {display: block;font-size: 0.1px;position: absolute;}
-#resizebleLeftRight{left: 360px;}
+#resizableLeftRight{left: 360px;}
 .unselect{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
 
 #homePageDashboard{overflow-y: auto;bottom: 0;top: 0;right: 0;left: 0;position: absolute;overflow-x: hidden;padding: 10px;}

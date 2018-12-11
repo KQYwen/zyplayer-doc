@@ -5,7 +5,7 @@
  * @since 2017年5月7日
  */
 (function($){
-	$.fn.mgResizebleHeight = function(options) {
+	$.fn.mgResizableHeight = function(options) {
 		var defaults = {prev:this,next:this, prevHtMin:0, prevHtMax:999, nextHtMin:0, nextHtMax:999};
 		var opts = $.extend(defaults, options);
 		var disY = 0, prevH = 0, nextH = 0, isStart = false;
@@ -52,7 +52,7 @@
 	/**
 	 * 改变宽度的功能，只是实现各种消息的通知，实际改变大小需要在回调里面自己操作
 	 */
-	$.fn.mgResizebleWidth = function(options) {
+	$.fn.mgResizableWidth = function(options) {
 		var defaults = {prev:this,next:this, prevWtMin:0, prevWtMax:999, nextWtMin:0, nextWtMax:999};
 		var opts = $.extend(defaults, options);
 		var disX = 0, prevW = 0, nextW = 0, isStart = false;

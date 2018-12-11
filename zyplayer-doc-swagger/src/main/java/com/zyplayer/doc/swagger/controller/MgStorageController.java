@@ -59,7 +59,7 @@ public class MgStorageController {
 	}
 
 	@PostMapping(value = "/like")
-	public DocResponseJson<Object> like(String key, String value) {
+	public DocResponseJson<List<MgStorage>> like(String key, String value) {
 		List<MgStorage> likeList = storageService.like(key, value);
 		return DocResponseJson.ok(likeList);
 	}
