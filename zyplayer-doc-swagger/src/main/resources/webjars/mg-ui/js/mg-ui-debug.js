@@ -101,7 +101,7 @@ $(document).ready(function(){
 		ajaxTemp("swagger-mg-ui/http/request", "post", "json", paramSendToServer, function(result){
 			//console.log(result);
 			var requestObj = result.data;
-			setStorage('p-request-obj-' + docUrl, storeRequestParam);
+			setStorage(cacheKeys.pRequestObjStart + docUrl, storeRequestParam);
 			var afterSendTime = new Date().getTime();
 			$("#httpRequestStatus").text(requestObj.status);
 			$("#httpRequestTime").text((afterSendTime - beforSendTime) + "ms");
@@ -188,7 +188,7 @@ $(document).ready(function(){
 	 */
 	$(".tab-online-debug-page").on("click", ".del-all-param", function(){
 		$.zui.store.forEach(function(key, value) {// 遍历所有本地存储的条目
-			if(!key.startWith('p-request-obj-')) {
+			if(!key.startWith(cacheKeys.pRequestObjStart)) {
 				return;
 			}
 			$.zui.store.remove(key);
@@ -212,7 +212,7 @@ $(document).ready(function(){
 		var value = $("#simulationResultText").val();
 		value = getNotEmptyStr(value, "");
 		var docUrl = $("#simulationResultUrl").text();
-		setStorage('p-simulation-response-' + docUrl, value, function() {
+		setStorage(cacheKeys.pSimulationResponse + docUrl, value, function() {
 			Toast.warn("提交成功！");
 		}, function(msg) {
 			Toast.error("提交失败！" + msg);
@@ -223,7 +223,7 @@ $(document).ready(function(){
 	 */
 	$("#simulationResultGet").click(function(){
 		var docUrl = $("#simulationResultUrl").text();
-		getStorage('p-simulation-response-' + docUrl, function(data){
+		getStorage(cacheKeys.pSimulationResponse + docUrl, function(data){
 			$("#simulationResultText").val(data);
 		});
 	});
@@ -236,7 +236,7 @@ $(document).ready(function(){
 function createOnlineDebugParamTable() {
 	$("#onlineDebugParamTable tbody").empty();
 	$.zui.store.forEach(function(key, value) {// 遍历所有本地存储的条目
-		if(!key.startWith('p-request-obj-')) {
+		if(!key.startWith(cacheKeys.pRequestObjStart)) {
 			return;
 		}
 		var newKey = key.substring(14, key.length);
@@ -257,7 +257,7 @@ function createOnlineDebugParamTable() {
  * @returns
  */
 function createOnlineDebugRequestParam(requestParamObj, url) {
-	getStorage('p-request-obj-' + url, function(data) {
+	getStorage(cacheKeys.pRequestObjStart + url, function(data) {
 		createOnlineDebugRequestParamFun(data, requestParamObj, url);
 	});
 }
@@ -296,6 +296,27 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 	var onlyUseLastForm = onlyUseLastParam && !isEmptyObject(pRequestObj.form);
 	var onlyUseLastBody = onlyUseLastParam && !isEmptyObject(pRequestObj.body);
 	var headerValueCount = 0, formValueCount = 0;
+
+	if(typeof pRequestObj != 'object') {
+		pRequestObj = {};
+	}
+	if(typeof pRequestObj.header != 'object') {
+		pRequestObj.header = {};
+	}
+	if(typeof pRequestObj.form != 'object') {
+		pRequestObj.form = {};
+	}
+	if(typeof pRequestObj.body != 'object') {
+		pRequestObj.body = {};
+	}
+	for (var i = 0; i < debugGlobalParam.length; i++) {
+		var item = debugGlobalParam[i];
+		if (item.paramIn == 'header') {
+			pRequestObj.header[item.key] = item.value;
+		} else if (item.paramIn == 'form') {
+			pRequestObj.form[item.key] = item.value;
+		}
+	}
 	Object.keys(requestParamObj).forEach(function(key){
 		var tempParam = requestParamObj[key];
 		if (key == "p-body-obj") {

@@ -10,5 +10,9 @@ var exports = {
     exportDocument: function(){
         // 定义在mg-ui.js，用于打开导出文档框
         exportDocument();
+    },
+    updateGlobalParam: function(param){
+        // 更新调试的全局参数变量
+        debugGlobalParam = param;
     }
 };

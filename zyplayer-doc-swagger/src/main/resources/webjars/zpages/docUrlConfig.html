@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,15 +14,18 @@
 				<tr>
 					<td style="width: 50px;">序号</td>
 					<td>地址</td>
+					<td>持久化时间</td>
 					<td>操作</td>
 				</tr>
 			</thead>
 			<tbody>
 				<tr v-for="(item,index) in swaggerResourcesList" :key="item.id" :data-id="item.id" :data-index="index" >
 					<td>{{index+1}}</td>
-					<td>{{item}}</td>
+					<td>{{item.url}}</td>
+					<td>{{item.lastSync}}</td>
 					<td>
 						<button class="btn btn-danger" type="button" v-on:click="deleteDocUrl($event)">删除</button>
+						<!--<button class="btn btn-danger" type="button" v-on:click="syncDocData($event)">持久化</button>-->
 					</td>
 				</tr>
 				<tr>
@@ -93,7 +96,8 @@
 				ajaxTemp(urlBase + "swagger-mg-ui/document/addSwaggerResources", "post", "json", {resourcesUrl: addNewDocumentInput}, function(json){
 					if(validateResult(json)) {
 						//window.parent.document.location.reload();
-						app.swaggerResourcesList.push(addNewDocumentInput);
+						//app.swaggerResourcesList.push(addNewDocumentInput);
+						app.refreshList();
 						$('#addNewDocumentModal').modal('hide');
 						Toast.success("保存成功，刷新后生效！");
 					}
@@ -116,6 +120,17 @@
 				}
 				setStorage(cacheKeys.swaggerResourcesList, newDocList, function(){
 					app.swaggerResourcesList = newDocList;
+				});
+			},
+			syncDocData: function(event){
+				var tr = $(event.currentTarget).parents("tr");
+				var index = tr.data("index");
+				var newDocUrl = app.swaggerResourcesList[index].url;
+				ajaxTemp(urlBase + "swagger-mg-ui/document/syncDocData", "post", "json", {resourcesUrl: newDocUrl}, function(json){
+					if(validateResult(json)) {
+						app.refreshList();
+						Toast.success("持久化成功！");
+					}
 				});
 			}
 		},

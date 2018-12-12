@@ -19,6 +19,8 @@ var projectTreeIdIndex = 1;
 var projectLoadingIndex = 0;
 // 请求到的文档列表
 var documentJsonArr = [];
+// 调试的全局参数变量
+var debugGlobalParam = [];
 // 用户的配置对象
 var userSettings = {};
 // 默认用户的配置对象
@@ -86,7 +88,7 @@ function getDocumentListByService() {
 			showGlobalLoadingMessage('等待选择需展示的文档，请选择...', true);
 			for (var i = 0; i < json.data.length; i++) {
 				var item = json.data[i];
-				$("#choiseDocListUl").append('<li value="'+item+'">'+item+'</li>');
+				$("#choiseDocListUl").append('<li value="'+item.url+'">'+item.url+'</li>');
 			}
 			$('#choiseDocModal').modal({moveable:true, backdrop:'static', keyboard: false});
 		} else {
@@ -157,48 +159,6 @@ $("#resizableLeftRight").mgResizableWidth({
 $("#changeContentWidth").click(function(){
 	var isMinWidth = ($("#leftContent").width() == 120);
 	changeContentWidth(isMinWidth ? 360 : 120);
-});
-
-/**
- * 修改tree的class
- */
-$("input[name='treeShowType']").change(function() {
-	userSettings.treeShowType = $("input[name='treeShowType']:checked").val();
-	updateTreeShowType();
-	storeUserSettings();
-});
-
-/**
- * 切换url分成一层一层的展示、整个url显示为一层展示
- */
-$("input[name='catalogShowType']").change(function() {
-	userSettings.catalogShowType = $("input[name='catalogShowType']:checked").val();
-	regeneratePathTree();
-	storeUserSettings();
-});
-
-/**
- * 是否展示参数类型
- */
-$("input[name='showParamType']").change(function() {
-	userSettings.showParamType = $("input[name='showParamType']:checked").val();
-	storeUserSettings();
-});
-
-/**
- * 是否仅使用上次请求参数
- */
-$("input[name='onlyUseLastParam']").change(function() {
-	userSettings.onlyUseLastParam = $("input[name='onlyUseLastParam']:checked").val();
-	storeUserSettings();
-});
-
-/**
- * 是否自动填充请求参数
- */
-$("input[name='autoFillParam']").change(function() {
-	userSettings.autoFillParam = $("input[name='autoFillParam']:checked").val();
-	storeUserSettings();
 });
 
 /**
@@ -1030,7 +990,7 @@ function updateTreeShowType() {
  * 存储用户设置
  */
 function storeUserSettings() {
-	setStorage('userSettings', userSettings);
+	setStorage(cacheKeys.userSettings, userSettings);
 }
 
 /**
@@ -1046,7 +1006,7 @@ function updateUserSettings(newSetting) {
  * @returns
  */
 function initUserSettings() {
-	getStorage('userSettings', function(data) {
+	getStorage(cacheKeys.userSettings, function(data) {
 		userSettings = data;
 		if(isEmpty(userSettings) || isEmptyObject(userSettings)) {
 			userSettings = defaultUserSettings;
@@ -1056,6 +1016,9 @@ function initUserSettings() {
 		updateUserSettingsUi();
 		// 增加文档
 		getDocumentListByService();
+	});
+	getStorage(cacheKeys.globalParamList, function(data) {
+		debugGlobalParam = data;
 	});
 }
 

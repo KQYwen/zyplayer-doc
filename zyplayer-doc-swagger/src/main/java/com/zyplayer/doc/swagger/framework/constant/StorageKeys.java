@@ -13,4 +13,6 @@ public class StorageKeys {
 	public static final String SWAGGER_DOCS_DELETE_LIST = "swagger-docs-delete-list";
 	// 所有详细文档地址
 	public static final String SWAGGER_LOCATION_LIST = "swagger-location-list";
+	// 文档的离线数据key
+	public static final String SWAGGER_OFFLINE_DOC_START = "swagger-offline-doc-";
 }

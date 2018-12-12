@@ -24,7 +24,7 @@
         <tbody>
         <tr v-for="(item,index) in globalParamList" :key="item.id" :data-id="item.id" :data-index="index">
             <td>
-                <select class="form-control" v-model:value="item.position">
+                <select class="form-control" v-model:value="item.paramIn">
                     <option value="header">header</option>
                     <option value="form">form</option>
                 </select>
@@ -81,11 +81,12 @@
             },
             addGlobalParamLine: function () {
                 app.globalParamList.push({
-                    position: 'header', key: '', value: ''
+                    paramIn: 'header', key: '', value: ''
                 });
             },
             saveAllGlobalParam: function () {
                 setStorage(cacheKeys.globalParamList, app.globalParamList, function(){
+                    getExport().updateGlobalParam(app.globalParamList);
                     Toast.success("保存成功！");
                 });
             },

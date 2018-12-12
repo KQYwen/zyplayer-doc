@@ -1,17 +1,15 @@
 package com.zyplayer.doc.swagger.controller;
 
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.hutool.http.HttpRequest;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.zyplayer.doc.core.json.DocResponseJson;
+import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.swagger.controller.vo.SwaggerResourcesInfoVo;
+import com.zyplayer.doc.swagger.framework.configuration.EnableSwaggerMgUi;
+import com.zyplayer.doc.swagger.framework.configuration.SpringContextUtil;
+import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
+import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,18 +19,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.zyplayer.doc.core.json.DocResponseJson;
-import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.swagger.framework.configuration.EnableSwaggerMgUi;
-import com.zyplayer.doc.swagger.framework.configuration.SpringContextUtil;
-import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
-import com.zyplayer.doc.swagger.framework.service.MgStorageService;
-
-import cn.hutool.http.HttpRequest;
 import springfox.documentation.swagger.web.SwaggerResource;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.util.*;
 
 /**
  * 文档控制器
@@ -58,11 +50,11 @@ public class MgDocumentController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/resourcesList")
-	public ResponseJson<Set<String>> resourcesList() {
+	public ResponseJson<Set<SwaggerResourcesInfoVo>> resourcesList() {
 		String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
-		Set<String> resourcesSet = new HashSet<>();
+		Set<SwaggerResourcesInfoVo> resourcesSet = new HashSet<>();
 		if (StringUtils.isNotBlank(swaggerResourcesStr)) {
-			List<String> resourcesList = JSON.parseArray(swaggerResourcesStr, String.class);
+			List<SwaggerResourcesInfoVo> resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
 			resourcesSet.addAll(resourcesList);
 		}
 		return DocResponseJson.ok(resourcesSet);
@@ -81,16 +73,18 @@ public class MgDocumentController {
 		boolean needRestorage = true;
 		String choiseDocList = request.getParameter("choiseDocList");
 		// 转成set，防止重复
-		Set<String> resourcesSet = new HashSet<>();
+		Set<SwaggerResourcesInfoVo> resourcesSet = new HashSet<>();
 		Set<String> swaggerDocsDeleteSet = new HashSet<>();
 		if (StringUtils.isNotBlank(choiseDocList)) {
 			needRestorage = false;// 选择的则不再存入
-			resourcesSet.addAll(Arrays.asList(choiseDocList.split(",")));
+			for (String url : choiseDocList.split(",")) {
+				resourcesSet.add(new SwaggerResourcesInfoVo(url));
+			}
 		} else {
 			String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
 			String swaggerDocsDeleteStr = storageService.get(StorageKeys.SWAGGER_DOCS_DELETE_LIST);
 			if (StringUtils.isNotBlank(swaggerResourcesStr)) {
-				List<String> resourcesList = JSON.parseArray(swaggerResourcesStr, String.class);
+				List<SwaggerResourcesInfoVo> resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
 				resourcesSet.addAll(resourcesList);
 			} else {
 				// 默认加上自身的文档
@@ -115,15 +109,17 @@ public class MgDocumentController {
 					}
 				}
 				if (swaggerMgUi == null) {
-					resourcesSet.add(serverPath + "/swagger-resources");
+					resourcesSet.add(new SwaggerResourcesInfoVo(serverPath + "/swagger-resources"));
 				} else {
 					if (swaggerMgUi.selfDoc()) {
-						resourcesSet.add(serverPath + "/swagger-resources");
+						resourcesSet.add(new SwaggerResourcesInfoVo(serverPath + "/swagger-resources"));
 					}
 					// 启动后第一次访问没有数据情况下需要加载进来的swagger-resources地址
 					String[] defaultResources = swaggerMgUi.defaultResources();
 					if (defaultResources != null && defaultResources.length > 0) {
-						resourcesSet.addAll(Arrays.asList(defaultResources));
+						for (String url : defaultResources) {
+							resourcesSet.add(new SwaggerResourcesInfoVo(url));
+						}
 					}
 				}
 			}
@@ -134,8 +130,9 @@ public class MgDocumentController {
 		}
 		List<Map<String, Object>> swaggerResourceList = new LinkedList<>();
 		List<String> swaggerResourceStrList = new LinkedList<>();
-		for (String resourcesUrl : resourcesSet) {
+		for (SwaggerResourcesInfoVo resourcesInfoVo : resourcesSet) {
 			List<SwaggerResource> resourceList = null;
+			String resourcesUrl = resourcesInfoVo.getUrl();
 			try {
 				String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
 				resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
@@ -208,36 +205,35 @@ public class MgDocumentController {
 			swaggerDocsDeleteSet.addAll(swaggerDocsDeleteList);
 		}
 		// 转成set，防止重复
-		Set<String> resourcesSet = new HashSet<>();
+		Set<SwaggerResourcesInfoVo> resourcesSet = new HashSet<>();
 		if (StringUtils.isNotBlank(swaggerResourcesStr)) {
-			List<String> resourcesList = JSON.parseArray(swaggerResourcesStr, String.class);
+			List<SwaggerResourcesInfoVo> resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
 			resourcesSet.addAll(resourcesList);
 		}
-		String resourcesStr = null;
 		try {
-//			resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
-//			List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
-//			if (resourceList == null || resourceList.isEmpty()) {
-//				return DocResponseJson.warn("该地址未找到文档");
-//			}
-//			// 重新加入的时候把之前的已删除的回恢复
-//			String resourcesDomain = resourcesUrl.substring(0, resourcesUrl.lastIndexOf("/") + 1);
-//			for (SwaggerResource swaggerResource : resourceList) {
-//				String location = swaggerResource.getLocation();
-//				// 最后一个斜杠在resourcesUrl中已经加上，替换掉后面的防止两根斜杠
-//				location = location.startsWith("/") ? location.replaceFirst("/", "") : location;
-//				if (location.indexOf("?") >= 0) {
-//					try {
-//						String encode = URLEncoder.encode(swaggerResource.getName(), "utf-8");
-//						location = location.substring(0, location.lastIndexOf("?")) + "?group=" + encode;
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//				}
-//				location = resourcesDomain + location;
-//				swaggerDocsDeleteSet.remove(location);
-//			}
-			resourcesSet.add(resourcesUrl);
+			String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
+			List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
+			if (resourceList == null || resourceList.isEmpty()) {
+				return DocResponseJson.warn("该地址未找到文档");
+			}
+			// 重新加入的时候把之前的已删除的回恢复
+			String resourcesDomain = resourcesUrl.substring(0, resourcesUrl.lastIndexOf("/") + 1);
+			for (SwaggerResource swaggerResource : resourceList) {
+				String location = swaggerResource.getLocation();
+				// 最后一个斜杠在resourcesUrl中已经加上，替换掉后面的防止两根斜杠
+				location = location.startsWith("/") ? location.replaceFirst("/", "") : location;
+				if (location.indexOf("?") >= 0) {
+					try {
+						String encode = URLEncoder.encode(swaggerResource.getName(), "utf-8");
+						location = location.substring(0, location.lastIndexOf("?")) + "?group=" + encode;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				location = resourcesDomain + location;
+				swaggerDocsDeleteSet.remove(location);
+			}
+			resourcesSet.add(new SwaggerResourcesInfoVo(resourcesUrl));
 		} catch (Exception e) {
 //			暂不想支持直接添加地址
 //			try {
@@ -260,6 +256,54 @@ public class MgDocumentController {
 		}
 		storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesSet));
 		storageService.put(StorageKeys.SWAGGER_DOCS_DELETE_LIST, JSON.toJSONString(swaggerDocsDeleteSet));
+		return DocResponseJson.ok();
+	}
+
+	/**
+	 * 增加/swagger-resources地址
+	 *
+	 * @author 暮光：城中城
+	 * @since 2018年8月21日
+	 * @param resourcesUrl swagger-resources地址
+	 * @return 添加结果
+	 */
+	@PostMapping(value = "/syncDocData")
+	public ResponseJson<Object> syncDocData(String resourcesUrl) {
+		String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
+		// 转成set，防止重复
+		Set<SwaggerResourcesInfoVo> resourcesSet = new HashSet<>();
+		if (StringUtils.isNotBlank(swaggerResourcesStr)) {
+			List<SwaggerResourcesInfoVo> resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
+			resourcesSet.addAll(resourcesList);
+		}
+		try {
+			String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
+			List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
+			if (resourceList == null || resourceList.isEmpty()) {
+				return DocResponseJson.warn("该地址未找到文档");
+			}
+			// 重新加入的时候把之前的已删除的回恢复
+			String resourcesDomain = resourcesUrl.substring(0, resourcesUrl.lastIndexOf("/") + 1);
+			for (SwaggerResource swaggerResource : resourceList) {
+				String location = swaggerResource.getLocation();
+				// 最后一个斜杠在resourcesUrl中已经加上，替换掉后面的防止两根斜杠
+				location = location.startsWith("/") ? location.replaceFirst("/", "") : location;
+				if (location.indexOf("?") >= 0) {
+					try {
+						String encode = URLEncoder.encode(swaggerResource.getName(), "utf-8");
+						location = location.substring(0, location.lastIndexOf("?")) + "?group=" + encode;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				location = resourcesDomain + location;
+			}
+			resourcesSet.add(new SwaggerResourcesInfoVo(resourcesUrl));
+		} catch (Exception e) {
+			logger.error("获取文档失败：{}，{}", resourcesUrl, e.getMessage());
+			return DocResponseJson.warn("该地址查找文档失败");
+		}
+		storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesSet));
 		return DocResponseJson.ok();
 	}
 
