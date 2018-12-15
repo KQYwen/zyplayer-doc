@@ -298,12 +298,20 @@
 				<div class="tab-pane tab-document-pane" id="tabSimulationResult">
 					<table class="table table-bordered doc-table">
 						<tr>
+							<td class="info">功能说明</td>
+							<td>
+								访问接口时增加参数：mgUiTestFlag=1，即可返回下面提交的模拟返回值<br/>
+								需要被访问项目增加<a href="https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-swagger/src/main/java/com/zyplayer/doc/swagger/framework/filter/MgUiTestFilter.java" target="_blank"> MgUiTestFilter.java</a>
+								过滤器才能使用，里面逻辑很简单，一看就懂~
+							</td>
+						</tr>
+						<tr>
 							<td class="info">接口地址</td>
 							<td><span id="simulationResultUrl" class="label label-warning"></span></td>
 						</tr>
 						<tr>
 							<td class="info">测试地址</td>
-							<td><a id="simulationResultUrlTest" href="" target="_blank"></a>　<i class="icon icon-info-sign" title='需要被访问项目导入zyplayer-doc包才能使用'></i></td>
+							<td><a id="simulationResultUrlTest" href="" target="_blank"></a></td>
 						</tr>
 						<tr>
 							<td class="info">返回内容</td>

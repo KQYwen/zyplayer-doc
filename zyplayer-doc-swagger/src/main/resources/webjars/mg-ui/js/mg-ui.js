@@ -1,8 +1,8 @@
 /**
- * zyplayer-doc-swagger是swagger-ui的一个前端实现，使用简单、解析速度快、走心的设计
+ * zyplayer-doc-swagger是swagger的一个前端实现，使用简单、解析速度快、走心的设计
  * 支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯。
  * 使用中您有任何的意见和建议都可到源码地址处反馈哦！
- * git地址：https://gitee.com/zyplayer/zyplayer-doc-swagger
+ * git地址：https://gitee.com/zyplayer/zyplayer-doc
  * @author 暮光：城中城
  * @since 2018年5月20日
  */
@@ -35,20 +35,8 @@ var defaultUserSettings = {
 	prevWNow : 360
 };
 
-var swaggerApiDocsArr = [];
-
 var requestParamObj = {};
-// 模板示例
-var requestParamObjTemp = {
-	taskId: {
-		value: 1,// 参数值
-		paramType: 'string',// 参数类型，string int boolean
-		required: true,// 是否必填
-		paramIn: 'body',// 参数位置，body query header
-		paramDesc: '参数说明'
-	}
-};
-
+// 文档管理的tables
 var rightContentTabs;
 
 /**
@@ -169,6 +157,7 @@ $("#searchDocInput").keyup(function(e) {
 		searchDoc();
 	}
 });
+
 /**
  * 搜索按钮点击
  */
@@ -177,7 +166,7 @@ $("#searchDocBt").click(function(){
 });
 
 /**
- * 导出文档
+ * 导出文档-子页面调用-文档地址管理
  */
 function exportDocument(){
 	// 清空
@@ -195,6 +184,9 @@ function exportDocument(){
 	$('#exportDocumentModal').modal('ajustPosition', 'fit');
 }
 
+/**
+ * 确认导出
+ */
 $("#doExportBtn").click(function(){
 	var jsonStrAll = "";
 	var mgUiDataArr = "var mgUiDataArr = [";
@@ -266,22 +258,6 @@ $("#choiseDocBtn").click(function(){
 	});
 	addDocumentByService(choiseDocList);
 	$('#choiseDocModal').modal('hide');
-});
-
-/**
- * 增加文档的保存按钮
- */
-$("#addNewDocumentBtn").click(function(){
-	var addNewDocumentInput = $("#addNewDocumentInput").val();
-	if(isEmpty(addNewDocumentInput)) {
-		Toast.error("地址不可以为空");return;
-	}
-	projectLoadingIndex = 1;
-	ajaxTemp("swagger-mg-ui/document/addSwaggerResources", "post", "json", {resourcesUrl: addNewDocumentInput}, function(json){
-		if(validateResult(json)) {
-			document.location.reload();
-		}
-	});
 });
 
 /**
@@ -578,7 +554,10 @@ function searchDoc() {
 //	}
 }
 
-// 重新生成文档
+/**
+ * 重新生成文档
+ */
+
 function regeneratePathTree(keywords){
 	projectTreeIdIndex = 1;
 	treePathDataMap = new Map();
@@ -909,39 +888,7 @@ function documentLoadFinish() {
 		globalLoadingMessager.hide();
 	}, 1000);
 	$('#apiPathTree .projects').tree();
-	$('#homePageDashboard').dashboard({draggable: false,
-		// 修改排序
-		afterOrdered:function(newOrders){
-			/*//console.log(newOrders);
-			var tempProjects = [], nowIndex = 0, settingTableIndex = 1;
-			Object.keys(newOrders).forEach(function(key){
-				if(key == 1) {
-					settingTableIndex = newOrders[key];
-					return;
-				}
-				var subCount = (newOrders[key] > settingTableIndex) ? 2 : 1;
-				tempProjects[newOrders[key] - subCount] = key;
-			});
-			userSettings.projects = tempProjects;
-			storeUserSettings();
-			*/
-			// 应该是控件问题，拖动之后单选项被值空了，需要重新设置选中，而且还必须等一会设置才有效果。。
-			setTimeout("updateUserSettingsUi();", 500);
-		},
-		// 修改大小
-		onResize:function(){
-			
-		},
-		// 被移除
-		afterPanelRemoved:function(id){
-			//console.log(id);
-			ajaxTemp("swagger-mg-ui/document/deleteSwaggerDoc", "post", "json", {docUrl: id}, function(json){
-				if(validateResult(json)) {
-					document.location.reload();
-				}
-			});
-		},
-	});
+	$('#homePageDashboard').dashboard({draggable: false});
 }
 
 /**

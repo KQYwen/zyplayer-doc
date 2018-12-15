@@ -6,6 +6,11 @@ import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerF
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 
+/**
+ * 自定义错误页面
+ * @author 暮光：城中城
+ * @since 2018年11月11日
+ */
 @Configuration
 public class CustomizationBean implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
 
