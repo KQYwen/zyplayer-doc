@@ -7,6 +7,10 @@ var exports = {
         // 定义在mg-ui.js，用于重新生成文档树目录
         regeneratePathTree();
     },
+    updateTreeShowType: function(){
+        // 定义在mg-ui.js，用于修改树形菜单展示类型
+        updateTreeShowType();
+    },
     updateUserSettings: function(setting){
         // 定义在mg-ui.js，用于更新用户设置
         updateUserSettings(setting);

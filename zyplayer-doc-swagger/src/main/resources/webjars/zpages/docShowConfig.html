@@ -101,13 +101,15 @@
 		watch: {
 			catalogShowType: function(newVal, oldval){
 				app.userSettings.catalogShowType = newVal;
-				storeUserSettings();
-				getExport().regeneratePathTree();
+				storeUserSettings(function(){
+					getExport().regeneratePathTree();
+				});
 			},
 			treeShowType: function(newVal, oldval){
 				app.userSettings.treeShowType = newVal;
-				storeUserSettings();
-				window.parent.window.updateTreeShowType();
+				storeUserSettings(function(){
+					getExport().updateTreeShowType();
+				});
 			},
 			showParamType: function(newVal, oldval){
 				app.userSettings.showParamType = newVal;
@@ -125,10 +127,13 @@
 	});
 
 	// 存储用户的配置信息
-	function storeUserSettings() {
+	function storeUserSettings(success) {
 		if (app.initCount-- <= 0) {
 			setStorage(cacheKeys.userSettings, app.userSettings, function () {
 				getExport().updateUserSettings(app.userSettings);
+				if(typeof success == "function") {
+					success();
+				}
 			});
 		}
 	}
