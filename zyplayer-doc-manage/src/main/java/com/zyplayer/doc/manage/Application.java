@@ -31,11 +31,16 @@ public class Application extends SpringBootServletInitializer {
 		String contextPath = env.getProperty("server.servlet.context-path");
 		contextPath = Optional.ofNullable(contextPath).orElse("").replaceFirst("/", "");
 		contextPath = (contextPath.length() <= 0 || contextPath.endsWith("/")) ? contextPath : contextPath + "/";
+		String hostAddress = InetAddress.getLocalHost().getHostAddress();
+		String serverPort = env.getProperty("server.port");
 		logger.info("\n----------------------------------------------------------\n\t" +
 						"\t\t地址列表\n\t" +
-						"文档地址：http://{}:{}/{}document.html\n" +
+						"文档地址：http://{}:{}/{}document.html\n\t" +
+						//"数据库地址：http://{}:{}/{}document.html\n	" +
+						"管理地址：http://{}:{}/{}statics/manage/home.html\n" +
 						"----------------------------------------------------------",
-				InetAddress.getLocalHost().getHostAddress(), env.getProperty("server.port"), contextPath
+				hostAddress, serverPort, contextPath,
+				hostAddress, serverPort, contextPath
 		);
 	}
 }

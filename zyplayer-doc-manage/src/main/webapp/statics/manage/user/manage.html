@@ -1,0 +1,232 @@
+<!doctype html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>用户管理</title>
+	<link rel="stylesheet" type="text/css" href="../../lib/zui/css/zui.min.css">
+</head>
+
+<body>
+	<div id="app">
+		<table class="table table-bordered table-hover table-striped">
+			<thead>
+				<tr>
+					<th style="width: 50px;"><input type="checkbox" v-model="allUserChecked" @change="allUserCheckedChange"></th>
+					<th style="width: 50px;">ID</th>
+					<th>登录名</th>
+					<th>密码</th>
+					<th>用户名</th>
+					<th>邮箱</th>
+					<th>创建时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="(item,index) in userList" :key="item.id" :data-id="item.id" :data-index="index" >
+					<td><label><input type="checkbox" v-model="item.checked" @change="userCheckedChange"></label></td>
+					<td>{{item.id}}</td>
+					<td>{{item.userNo}}</td>
+					<td>***</td>
+					<td>{{item.userName}}</td>
+					<td>{{item.email}}</td>
+					<td>{{item.creationTime}}</td>
+					<td>
+						<button class="btn btn-danger" type="button" @click="deleteUser(item.id)">删除</button>
+						<button class="btn btn-info" type="button" @click="editUser(index)">编辑</button>
+					</td>
+				</tr>
+				<tr v-if="showAddTr" >
+					<td></td>
+					<td></td>
+					<td><input type="text" class="form-control" v-model="newUser.userNo"></td>
+					<td><input type="text" class="form-control" v-model="newUser.password"></td>
+					<td><input type="text" class="form-control" v-model="newUser.userName"></td>
+					<td><input type="text" class="form-control" v-model="newUser.email"></td>
+					<td></td>
+					<td>
+						<button class="btn btn-info" type="button" v-on:click="saveAddUser">保存</button>
+						<button class="btn" type="button" v-on:click="addUserCancel">取消</button>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="8" align="center">
+						<button class="btn" type="button" v-on:click="btnRefreshList">　刷新　</button>
+						<button class="btn btn-primary" type="button" v-on:click="addUser">增加用户</button>
+						<button class="btn btn-info" type="button" v-on:click="addUserAuth">分配权限</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- 选择权限 -->
+		<div class="modal fade" id="choiceAuthModal">
+			<div class="modal-dialog" style="width: 650px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+						</button>
+						<h4 class="modal-title">选择分配的权限</h4>
+					</div>
+					<div class="modal-body">
+						<div class="alert alert-danger">选择多个用户时显示所有权限，不代表当前都具有此权限</div>
+						<div class="modal-table-box">
+							<ul id="choiceAuthListUl" class="choice">
+								<li v-for="(item,index) in showAuthList" :class="item.checked?'checked':''"
+									:key="item.id" :data-id="item.id" :data-index="index" @click="authClick(index)">
+									{{item.authName}}-{{item.authDesc}}
+								</li>
+							</ul>
+						</div>
+						<div align="center" class="bottom-box">
+							<button type="button" class="btn btn-primary" @click="choiceAuthOk">　　确定　　</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script src="../../lib/jquery/jquery-3.1.0.min.js"></script>
+<script src="../../lib/zui/js/zui.min.js"></script>
+<script src="../../lib/vue/vue.js"></script>
+<script src="../../lib/mg/js/common.js"></script>
+<script src="../../lib/mg/js/toast.js"></script>
+
+<script>
+	var app = new Vue({
+		el: '#app',
+		data: {
+			allUserChecked: false,
+			showAddTr: false,
+			userList: [],
+			newUser: {},
+			showAuthList: [],
+		},
+		mounted: function(){
+			this.refreshList();
+		},
+		methods: {
+			btnRefreshList: function(){
+				this.refreshList();
+				Toast.success("刷新成功！");
+			},
+			editUser: function(index){
+				app.showAddTr = true;
+				app.newUser = app.userList[index];
+			},
+			addUser: function(){
+				app.showAddTr = true;
+			},
+			addUserCancel: function(){
+				app.showAddTr = false;
+				app.newUser = {};
+			},
+			saveAddUser: function(){
+				if(isEmpty(app.newUser.userNo)) {
+					Toast.error("登录名不能为空");return;
+				}
+				if(isEmpty(app.newUser.userName)) {
+					Toast.error("用户名不能为空");return;
+				}
+				post(ctx + "user/info/update", app.newUser, function(json){
+					if(validateResult(json)) {
+						app.showAddTr = false;
+						app.newUser = {};
+						app.refreshList();
+					}
+				});
+			},
+			addUserAuth: function(){
+				var userIds = this.getCheckedUserIds();
+				if(userIds.length <= 0) {
+					Toast.error("请先选中一个用户后再分配权限");return;
+				}
+				post(ctx + "user/info/auth/list", {userIds: userIds}, function(json){
+					if(validateResult(json)) {
+						app.showAuthList = json.data;
+						$('#choiceAuthModal').modal({moveable:true});
+					}
+				});
+			},
+			choiceAuthOk: function(){
+				var userIds = this.getCheckedUserIds();
+				var authIds = "";
+				for (let i = 0; i < app.showAuthList.length; i++) {
+					if(app.showAuthList[i].checked) {
+						if (authIds.length > 0) {
+							authIds += ",";
+						}
+						authIds += app.showAuthList[i].id;
+					}
+				}
+				post(ctx + "user/info/auth/update", {userIds: userIds, authIds: authIds}, function(json){
+					if(validateResult(json)) {
+						Toast.success("保存成功！");
+						$('#choiceAuthModal').modal('hide');
+					}
+				});
+			},
+			getCheckedUserIds: function(){
+				var userIds = "";
+				for (let i = 0; i < app.userList.length; i++) {
+					if(app.userList[i].checked) {
+						if (userIds.length > 0) {
+							userIds += ",";
+						}
+						userIds += app.userList[i].id;
+					}
+				}
+				return userIds;
+			},
+			authClick: function(index){
+				var checked = app.showAuthList[index].checked;
+				app.showAuthList[index].checked = (checked == 1) ? 0 : 1;
+			},
+			userCheckedChange: function(){
+				var count = 0;
+				for (let i = 0; i < app.userList.length; i++) {
+					if(app.userList[i].checked) {
+						count++;
+					}
+				}
+				app.allUserChecked = (count == app.userList.length);
+			},
+			allUserCheckedChange: function(){
+				for (let i = 0; i < app.userList.length; i++) {
+					app.userList[i].checked = app.allUserChecked;
+				}
+			},
+			deleteUser: function(id){
+				if(!confirm("确定要删除吗？")) {
+					return;
+				}
+				post(ctx + "user/info/delete", {id: id}, function(json){
+					if(validateResult(json)) {
+						app.refreshList();
+						Toast.success("删除成功！");
+					}
+				});
+			},
+			refreshList: function () {
+				post(ctx + "user/info/list", {}, function(json){
+					if(validateResult(json)) {
+						app.userList = json.data;
+					}
+				});
+			}
+		}
+	});
+</script>
+
+<style>
+	.modal-table-box{height: 200px;overflow-y: auto;}
+	.modal-table-box ul{padding-left: 10px;list-style: none;}
+	.modal-table-box li{float: left; border: 1px solid #ccc;padding: 10px 15px; margin: 0 10px 10px 0; background-color: #ccc;cursor: pointer;}
+	.modal-table-box li.checked{border: 1px solid #3f51b5;background-color: #8666b8;color:#fff;}
+</style>
+</html>
+
+
+

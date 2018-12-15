@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<title>文档管理系统 - zyplayer</title>
+	<link rel="shortcut icon" href="../lib/mg/img/api.ico"/>
+	<link rel="stylesheet" href="../lib/zui/css/zui.min.css" />
+	<link rel="stylesheet" href="../lib/zui/lib/dashboard/zui.dashboard.min.css" />
+	<link rel="stylesheet" href="../lib/zui/lib/tabs/zui.tabs.min.css" />
+	<link rel="stylesheet" href="../lib/mg/css/mg-ui.css" />
+</head>
+<body>
+	<div class="left-body" id="leftContent">
+		<div class="left-header">
+			<span class="logo" id="logoText">zyplayer-doc-manage</span>
+			<i class="icon icon-bars" id="changeContentWidth"></i>
+		</div>
+		<div class="scrollbar-hover left-container">
+			<!-- 样式类可选：tree-menu tree-folders tree-chevrons tree-angles -->
+			<ul class="tree tree-lines tree-menu projects" data-ride="tree">
+				<li id="tabZpagesNavigationLi">
+					<a href="#"><i class="icon icon-group"></i> 系统管理</a>
+					<ul>
+						<li><a href="#" class="page-nav" data-id="userManage" data-href="./user/manage.html" data-icon="icon-user" data-reload="0"><i class="icon-user"></i> 人员管理</a></li>
+						<li><a href="#" class="page-nav" data-id="authManage" data-href="./auth/manage.html" data-icon="icon-lock" data-reload="1"><i class="icon-lock"></i> 权限列表</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div id="resizableLeftRight" class="ui-resizable-handle mgresizableW"></div>
+	<div class="right-container" id="rightContent">
+		<div class="right-container" id="rightContentMask"></div>
+		<div class="tab-page tab-zpages hide">
+			<div class="tabs" id="rightZpages"></div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../lib/jquery/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="../lib/zui/js/zui.min.js"></script>
+<script type="text/javascript" src="../lib/zui/lib/tabs/zui.tabs.min.js"></script>
+<script type="text/javascript" src="../lib/zui/lib/dashboard/zui.dashboard.min.js"></script>
+
+<script type="text/javascript" src="../lib/mg/js/toast.js"></script>
+<script type="text/javascript" src="../lib/mg/js/common.js"></script>
+<script type="text/javascript" src="../lib/mg/js/mgResizable.js"></script>
+
+<script>
+	// 文档管理的tables
+	var rightContentTabs;
+	/**
+	 * 网页加载完毕后的处理
+	 */
+	$(document).ready(function(){
+		// 定义配置的标签页
+		var tabsArr = [
+			{id: 'about', url: './about.html', type: 'iframe', icon: 'icon-info-sign', forbidClose: false},
+		];
+		$('#rightZpages').tabs({tabs: tabsArr});
+		rightContentTabs = $('#rightZpages').data('zui.tabs');
+		/**
+		 * 自由拖动改变左右框架的宽度
+		 */
+		$("#resizableLeftRight").mgResizableWidth({
+			prev:"#leftContent",
+			prevWtMin: 120, prevWtMax: 999999,
+			nextWtMin: 360, nextWtMax: 999999,
+			onresize:function(prevWNow, nextWNow){
+				changeContentWidth(prevWNow);
+			},
+			onstart:function(){
+				$("body").addClass("unselect");
+				$("#rightContentMask").show();
+			},
+			onfinish:function(){
+				$("body").removeClass("unselect");
+				$("#rightContentMask").hide();
+			}
+		});
+
+		/**
+		 * 页面导航切换
+		 */
+		$("#tabZpagesNavigationLi").on("click", ".page-nav", function(){
+			var id = $(this).data("id");
+			var href = $(this).data("href");
+			var icon = $(this).data("icon");
+			var reload = $(this).data("reload");
+			$(".tab-page").hide();
+			$(".tab-online-debug-page").hide();
+			$(".tab-zpages").show();
+			if(reload || $("#tab-"+id).length <= 0) {
+				var newTab = {id: id, url: href, type: 'iframe', icon: icon};
+				rightContentTabs.open(newTab);
+			} else {
+				$("#tab-nav-item-"+id+" .tab-nav-link").click();
+			}
+		});
+	});
+
+	/**
+	 * 修改左右框架的宽度
+	 * @param width 左侧导航栏的宽度
+	 * @returns
+	 */
+	function changeContentWidth(width) {
+		$("#leftContent").css("width", width + 'px');
+		$("#resizableLeftRight").css("left", width + 'px');
+		$("#rightContent").css("left", width + 'px');
+		var logoText = "zyplayer-doc-manage";
+		if(width < 370 && width > 290){
+			logoText = "zyplayer-doc";
+		} else if(width < 290){
+			logoText = "doc";
+		}
+		$("#logoText").text(logoText);
+		userSettings.prevWNow = width;
+	}
+</script>
+
+</html>
+

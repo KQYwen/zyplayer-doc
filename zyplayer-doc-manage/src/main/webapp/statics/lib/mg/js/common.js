@@ -6,8 +6,8 @@
 
 var ctx = "/";
 var statics = "/statics/";
-
-window.onload=function(){
+init();
+function init() {
 	ctx = getCookie("ctx");
 	statics = ctx + "statics/";
 }

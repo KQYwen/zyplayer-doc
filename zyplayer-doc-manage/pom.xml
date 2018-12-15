@@ -25,6 +25,8 @@
 		<zyplayer.doc.swagger.version>2.0.1</zyplayer.doc.swagger.version>
 		<zyplayer.doc.core.version>1.0.0</zyplayer.doc.core.version>
 		<velocity.engine.core.version>2.0</velocity.engine.core.version>
+		<dozer.core.version>6.1.0</dozer.core.version>
+		<alibaba.druid.version>1.1.9</alibaba.druid.version>
 	</properties>
 
 	<dependencies>
@@ -52,7 +54,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.1.9</version>
+            <version>${alibaba.druid.version}</version>
         </dependency>
 		<dependency>
 			<groupId>com.baomidou</groupId>
@@ -64,6 +66,11 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>${fastjson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.dozermapper</groupId>
+			<artifactId>dozer-core</artifactId>
+			<version>${dozer.core.version}</version>
 		</dependency>
 		<!-- 在线文档解析页面 -->
 		<dependency>
