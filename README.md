@@ -1,17 +1,21 @@
 # zyplayer-doc
 
 #### 项目介绍
-定位为所有文档的管理项目，swagger文档、数据库文档、、、、等，提供一整套的解决方案，处于开发期，文档尚未完善，欢迎又想法的一起来写
+定位为所有文档的管理项目，swagger文档、数据库文档、、、、等，提供一整套的解决方案，欢迎又想法的一起来写
 
 #### 软件架构
 zyplayer-doc-core 一些核心、公用的类
 
 zyplayer-doc-db 数据库文档
+> 原[zyplayer-doc-db](https://gitee.com/zyplayer/zyplayer-doc-db)，具有数据库文档的查看、管理、导出等功能
 
 zyplayer-doc-manage 可以单独部署的文档管理后台
 > 后端使用spring-boot、mybatis-plus、springfox-swagger等优秀框架，前端使用[ZUI](http://zui.sexy/)、[Vue](https://cn.vuejs.org/)等框架
 
-zyplayer-doc-swagger swagger的UI及整套解决方案
+> 已集成三套优秀文档前端：[zyplayer-doc-swagger](https://gitee.com/zyplayer/zyplayer-doc)、[swagger-bootstrap-ui](https://gitee.com/xiaoym/swagger-bootstrap-ui)、[springfox-swagger-ui](https://github.com/springfox/springfox/tree/master/springfox-swagger-ui)
+
+zyplayer-doc-swagger 原[swagger-mg-ui](https://gitee.com/zyplayer/swagger-mg-ui)，swagger的UI及整套解决方案
+> 具有 后端存储、代理请求、模拟返回、所有文档管理 等一系列原创功能，不止UI
 
 #### 打开方式
 
