@@ -26,7 +26,7 @@ zyplayer-doc-swagger swagger的UI及整套解决方案
 
 还没完！！
 
-进入http://127.0.0.1:8082/zyplayer-doc-manage/document.html管理和增加任意地址的文档，而且，在集成的三套UI中都可以直接查看和调试这里配置的文档！而且不用对UI做任何调整，只要标准的UI集成进来也可以直接用（屌不屌，原创功能，想了一夜没睡着，今天实现了）
+进入http://127.0.0.1:8082/zyplayer-doc-manage/document.html 管理和增加任意地址的文档，而且，在集成的三套UI中都可以直接查看和调试这里配置的文档！而且不用对UI做任何调整，只要标准的UI集成进来也可以直接用（屌不屌，原创功能，想了一夜没睡着，今天实现了）
 ![](https://images.gitee.com/uploads/images/2018/1216/223459_553cd220_596905.png "屏幕截图.png")
 
 ![](https://images.gitee.com/uploads/images/2018/1216/223927_a35c6cc5_596905.png "屏幕截图.png")
