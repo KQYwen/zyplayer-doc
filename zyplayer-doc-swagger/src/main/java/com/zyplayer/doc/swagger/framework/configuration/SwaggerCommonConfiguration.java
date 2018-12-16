@@ -11,7 +11,7 @@ public class SwaggerCommonConfiguration {
 
 //	不再默认开启拦截
 //	@Autowired
-//	private MgUiTestFilter mgUiTestFilter;
+//	private ZyplayerApiTestFilter mgUiTestFilter;
 //
 //	@Bean
 //	public FilterRegistrationBean mockTestFilter() {

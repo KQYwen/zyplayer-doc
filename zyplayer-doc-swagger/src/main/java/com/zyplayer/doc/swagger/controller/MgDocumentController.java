@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 文档控制器
@@ -71,13 +72,13 @@ public class MgDocumentController {
 	@PostMapping(value = "/docs")
 	public void docs(HttpServletRequest request, HttpServletResponse response) {
 		boolean needRestorage = true;
-		String choiseDocList = request.getParameter("choiseDocList");
+		String choiceDocList = request.getParameter("choiseDocList");
 		// 转成set，防止重复
-		Set<SwaggerResourcesInfoVo> resourcesSet = new HashSet<>();
+		List<SwaggerResourcesInfoVo> resourcesSet = new LinkedList<>();
 		Set<String> swaggerDocsDeleteSet = new HashSet<>();
-		if (StringUtils.isNotBlank(choiseDocList)) {
+		if (StringUtils.isNotBlank(choiceDocList)) {
 			needRestorage = false;// 选择的则不再存入
-			for (String url : choiseDocList.split(",")) {
+			for (String url : choiceDocList.split(",")) {
 				resourcesSet.add(new SwaggerResourcesInfoVo(url));
 			}
 		} else {
@@ -142,6 +143,7 @@ public class MgDocumentController {
 			if (resourceList == null || resourceList.isEmpty()) {
 				continue;
 			}
+			resourcesInfoVo.setResourceList(resourceList);
 			resourcesUrl = resourcesUrl.substring(0, resourcesUrl.lastIndexOf("/") + 1);
 			for (SwaggerResource resource : resourceList) {
 				String location = resource.getLocation();
@@ -181,6 +183,8 @@ public class MgDocumentController {
 			}
 		}
 		if (needRestorage) {
+			AtomicInteger idIndex = new AtomicInteger(1);
+			resourcesSet.forEach(val -> val.setId(idIndex.getAndIncrement()));
 			storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesSet));
 		}
 		// 用默认的json解析要内存溢出，解析不了JSONObject、、就只有这样写了~
@@ -205,10 +209,9 @@ public class MgDocumentController {
 			swaggerDocsDeleteSet.addAll(swaggerDocsDeleteList);
 		}
 		// 转成set，防止重复
-		Set<SwaggerResourcesInfoVo> resourcesSet = new HashSet<>();
+		List<SwaggerResourcesInfoVo> resourcesList = null;
 		if (StringUtils.isNotBlank(swaggerResourcesStr)) {
-			List<SwaggerResourcesInfoVo> resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
-			resourcesSet.addAll(resourcesList);
+			resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
 		}
 		try {
 			String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
@@ -233,7 +236,9 @@ public class MgDocumentController {
 				location = resourcesDomain + location;
 				swaggerDocsDeleteSet.remove(location);
 			}
-			resourcesSet.add(new SwaggerResourcesInfoVo(resourcesUrl));
+			resourcesList.add(new SwaggerResourcesInfoVo(resourcesUrl, resourceList));
+			AtomicInteger idIndex = new AtomicInteger(1);
+			resourcesList.forEach(val -> val.setId(idIndex.getAndIncrement()));
 		} catch (Exception e) {
 //			暂不想支持直接添加地址
 //			try {
@@ -254,7 +259,7 @@ public class MgDocumentController {
 				return DocResponseJson.warn("该地址查找文档失败");
 //			}
 		}
-		storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesSet));
+		storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesList));
 		storageService.put(StorageKeys.SWAGGER_DOCS_DELETE_LIST, JSON.toJSONString(swaggerDocsDeleteSet));
 		return DocResponseJson.ok();
 	}

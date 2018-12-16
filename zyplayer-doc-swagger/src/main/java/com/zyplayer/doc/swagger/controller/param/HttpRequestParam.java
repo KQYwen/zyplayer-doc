@@ -60,8 +60,7 @@ public class HttpRequestParam {
 		if (StringUtils.isBlank(header)) {
 			return null;
 		}
-		Map<String, String> headerMap = JSON.parseObject(header, new TypeReference<HashMap<String, String>>() {
-		});
+		Map<String, String> headerMap = JSON.parseObject(header, new TypeReference<HashMap<String, String>>() {});
 		return headerMap;
 	}
 

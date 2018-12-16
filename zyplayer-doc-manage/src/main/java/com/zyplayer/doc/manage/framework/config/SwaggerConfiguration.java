@@ -23,9 +23,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @since 2018年11月11日
  */
 @Configuration
-@EnableSwagger2
+//@EnableSwagger2
 @EnableSwaggerMgUi(
-	selfDoc = true,// 是否开启自身的文档
+	selfDoc = false,// 是否开启自身的文档
 	defaultResources = {// 启动后第一次访问没有数据情况下需要加载进来的swagger-resources地址
 		//"http://localhost:8080/swagger-resources"
 	}

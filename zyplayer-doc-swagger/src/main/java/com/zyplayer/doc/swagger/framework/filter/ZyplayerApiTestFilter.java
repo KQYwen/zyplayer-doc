@@ -19,8 +19,8 @@ import com.zyplayer.doc.swagger.framework.service.MgStorageService;
  * 有需要此拦截器的请自行拷贝至自身项目，需要使过滤器生效，文档不再开启@Component<br>
  * 判断是否是模拟请求，功能需求：<br>
  * 很多时候后端定义好了接口，但还未实现，这时前端已经需要数据调试了，这时就需要用到这个过滤器了！<br>
- * 在页面上先配置好模拟返回的数据，然后在url上加入参数：mgUiTestFlag=1<br>
- * 例：http://192.168.0.249:8082/openApi/case/info?mgUiTestFlag=1<br>
+ * 在页面上先配置好模拟返回的数据，然后在url上加入参数：zyplayerApiTest=1<br>
+ * 例：http://192.168.0.249:8082/openApi/case/info?zyplayerApiTest=1<br>
  * 本过滤器就直接返回了之前配置的模拟数据，而不用等到后端必须把接口实现之后才能调试，或者在前端写一大段测试数据。<br>
  * <p>
  * 例：笔者的公司后端人较少，一个需求需要10个接口，需求分析完后首先就把接口、参数、返回值定义好，然后一个个的去实现。
@@ -28,7 +28,7 @@ import com.zyplayer.doc.swagger.framework.service.MgStorageService;
  * 而不是一味的催后台，把各种锅丢给后端，然后玩自己的去了，浪费各环节等待时间。
  */
 //@Component
-public class MgUiTestFilter implements Filter {
+public class ZyplayerApiTestFilter implements Filter {
 	
 	@Autowired
 	private MgStorageService mgStorageService;
@@ -41,7 +41,7 @@ public class MgUiTestFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		// 需要使用模拟值返回的标记
-		String mockTestFlag = request.getParameter("mgUiTestFlag");
+		String mockTestFlag = request.getParameter("zyplayerApiTest");
 		if (!"1".equals(mockTestFlag)) {
 			// 未开启直接跳过
 			chain.doFilter(request, response);

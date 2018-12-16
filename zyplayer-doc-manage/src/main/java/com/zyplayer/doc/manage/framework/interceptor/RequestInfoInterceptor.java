@@ -15,32 +15,30 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class RequestInfoInterceptor implements HandlerInterceptor {
 	private static final Logger logger = LoggerFactory.getLogger(RequestInfoInterceptor.class);
-
+	
 	private ThreadLocal<Long> startTimeThreadLocal = new ThreadLocal<>();
-
+	
 	/**
 	 * 把当前请求记录到下来
 	 */
 	@Override
-	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object arg2, Exception arg3)
-			throws Exception {
+	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object arg2, Exception arg3) {
 		long startTime = startTimeThreadLocal.get();
 		long totalTime = System.currentTimeMillis() - startTime;// 结束时间
-		logger.error("总耗时：{}ms  URI：{}", totalTime, request.getRequestURI());
+		logger.error("总耗时：{}ms，URI：{}", totalTime, request.getRequestURI());
 	}
-
+	
 	@Override
-	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object haddler,
-			ModelAndView modelAndView) throws Exception {
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object haddler, ModelAndView modelAndView) {
 	}
-
+	
 	/**
 	 * 记录请求信息
 	 */
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object obj) throws Exception {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object obj) {
 		startTimeThreadLocal.set(System.currentTimeMillis());
 		return true;
 	}
-
+	
 }

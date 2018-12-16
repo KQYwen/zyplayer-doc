@@ -334,8 +334,8 @@ $("#apiPathTree").on("click", ".show-doc", function(){
 	$("#postUrlInput").val(data.domain + docUrl);
 	// 处理模拟返回
 	$("#simulationResultUrl").text(docUrl);
-	$("#simulationResultUrlTest").text(data.domain + docUrl + "?mgUiTestFlag=1");
-	$("#simulationResultUrlTest").attr("href", data.domain + docUrl + "?mgUiTestFlag=1");
+	$("#simulationResultUrlTest").text(data.domain + docUrl + "?zyplayerApiTest=1");
+	$("#simulationResultUrlTest").attr("href", data.domain + docUrl + "?zyplayerApiTest=1");
 	$("#simulationResultText").val("");
 	getStorage('p-simulation-response-' + docUrl, function(data){
 		var resultText = getNotEmptyStr(data);

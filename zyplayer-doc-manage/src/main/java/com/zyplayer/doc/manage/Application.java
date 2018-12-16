@@ -33,14 +33,17 @@ public class Application extends SpringBootServletInitializer {
 		contextPath = (contextPath.length() <= 0 || contextPath.endsWith("/")) ? contextPath : contextPath + "/";
 		String hostAddress = InetAddress.getLocalHost().getHostAddress();
 		String serverPort = env.getProperty("server.port");
+		String urlCtx = hostAddress + ":" + serverPort + "/" + contextPath;
+		// 三个UI的名字长度惊人的一致！肯定是知道我有强迫症！
 		logger.info("\n----------------------------------------------------------\n\t" +
 						"\t\t地址列表\n\t" +
-						"文档地址：http://{}:{}/{}document.html\n\t" +
-						//"数据库地址：http://{}:{}/{}document.html\n	" +
-						"管理地址：http://{}:{}/{}statics/manage/home.html\n" +
+						"zyplayer-doc-swagger：http://{}document.html\n\t" +
+						"swagger-bootstrap-ui：http://{}doc.html\n\t" +
+						"springfox-swagger-ui：http://{}swagger-ui.html\n\t" +
+						//"数据库地址：http://{}document.html\n	" +
+						"管理地址：http://{}statics/manage/home.html\n" +
 						"----------------------------------------------------------",
-				hostAddress, serverPort, contextPath,
-				hostAddress, serverPort, contextPath
+				urlCtx, urlCtx, urlCtx, urlCtx
 		);
 	}
 }
