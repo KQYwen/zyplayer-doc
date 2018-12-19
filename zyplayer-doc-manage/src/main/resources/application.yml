@@ -18,11 +18,6 @@ spring:
         encoding: UTF-8
       output:
         encoding: UTF-8
-#  datasource:
-#    driver-class-name: com.mysql.jdbc.Driver
-#    url: jdbc:mysql://127.0.0.1:3306/zyplayer-doc-manage?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;autoReconnect=true
-#    username: root
-#    password: root
 
 server:
   port: 8082
@@ -30,14 +25,28 @@ server:
     context-path: /zyplayer-doc-manage
 
 
-
 zyplayer:
-  datasource:
+  doc:
+    # zyplayer-doc-manage管理端的数据库配置
     manage:
-      driverClassName: com.mysql.jdbc.Driver
-      url: jdbc:mysql://127.0.0.1:3306/zyplayer-doc-manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
-      username: root
-      password: root
+      datasource:
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/zyplayer-doc-manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
+        username: root
+        password: root
+    # 数据库文档相关
+    # 打开/zyplayer-doc-manage/doc-db.html即可看到这里配置的数据库的文档
+    db:
+      dbConfigList:
+        - driverClassName: com.mysql.jdbc.Driver
+          url: jdbc:mysql://127.0.0.1:3306/zyplayer-doc-manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
+          username: root
+          password: root
+        # 多个数据源直接这样累加
+#        - driverClassName: com.mysql.jdbc.Driver
+#          url: jdbc:mysql://127.0.0.1:3306/zyplayer-doc-manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
+#          username: root
+#          password: root
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*Mapper.xml

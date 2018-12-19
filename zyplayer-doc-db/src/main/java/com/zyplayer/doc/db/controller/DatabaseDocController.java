@@ -50,7 +50,7 @@ import cn.hutool.core.util.ZipUtil;
 @RequestMapping("/zyplayer-doc-db/doc-db")
 public class DatabaseDocController {
 
-	@Autowired(required = false)
+	@Autowired
 	DatabaseRegistrationBean databaseRegistrationBean;
 
 	@PostMapping(value = "/getDataSourceList")

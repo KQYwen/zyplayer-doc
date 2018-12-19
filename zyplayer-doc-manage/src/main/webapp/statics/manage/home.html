@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-	<title>文档管理系统 - zyplayer</title>
+	<title>文档管理系统</title>
 	<link rel="shortcut icon" href="../lib/mg/img/api.ico"/>
 	<link rel="stylesheet" href="../lib/zui/css/zui.min.css" />
 	<link rel="stylesheet" href="../lib/zui/lib/dashboard/zui.dashboard.min.css" />
@@ -11,6 +11,9 @@
 	<link rel="stylesheet" href="../lib/mg/css/mg-ui.css" />
 </head>
 <body>
+	<div id="showLeftContent">
+		<i class="icon icon-chevron-right"></i>
+	</div>
 	<div class="left-body" id="leftContent">
 		<div class="left-header">
 			<span class="logo" id="logoText">zyplayer-doc-manage</span>
@@ -18,12 +21,30 @@
 		</div>
 		<div class="scrollbar-hover left-container">
 			<!-- 样式类可选：tree-menu tree-folders tree-chevrons tree-angles -->
-			<ul class="tree tree-lines tree-menu projects" data-ride="tree">
-				<li id="tabZpagesNavigationLi">
+			<ul class="tree tree-lines tree-menu projects" data-ride="tree" id="tabZpagesNavigationUl">
+				<li>
 					<a href="#"><i class="icon icon-group"></i> 系统管理</a>
 					<ul>
-						<li><a href="#" class="page-nav" data-id="userManage" data-href="./user/manage.html" data-icon="icon-user" data-reload="0"><i class="icon-user"></i> 人员管理</a></li>
-						<li><a href="#" class="page-nav" data-id="authManage" data-href="./auth/manage.html" data-icon="icon-lock" data-reload="1"><i class="icon-lock"></i> 权限列表</a></li>
+						<li><a href="#" class="page-nav" data-id="user-manage" data-href="./user/manage.html" data-icon="icon-user" data-reload="0"><i class="icon-user"></i> 人员管理</a></li>
+						<li><a href="#" class="page-nav" data-id="auth-manage" data-href="./auth/manage.html" data-icon="icon-lock" data-reload="1"><i class="icon-lock"></i> 权限列表</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="#"><i class="icon icon-window-alt"></i> 文档查看页面</a>
+					<ul>
+						<li><a href="#" class="page-nav" data-id="zyplayer-doc-db" data-href="../../doc-db.html" data-icon="icon-database" data-reload="1"><i class="icon-database"></i> 数据库文档</a></li>
+						<li><a href="#" class="page-nav" data-id="zyplayer-doc-swagger" data-href="../../document.html" data-icon="icon-file-code" data-reload="1"><i class="icon-file-code"></i> zyplayer-doc-swagger</a></li>
+						<li><a href="#" class="page-nav" data-id="swagger-bootstrap-ui" data-href="../../doc.html" data-icon="icon-file-code" data-reload="1"><i class="icon-file-code"></i> swagger-bootstrap-ui</a></li>
+						<li><a href="#" class="page-nav" data-id="springfox-swagger-ui" data-href="../../swagger-ui.html" data-icon="icon-file-code" data-reload="1"><i class="icon-file-code"></i> springfox-swagger-ui</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="#"><i class="icon icon-window-alt"></i> 独立文档页面</a>
+					<ul>
+						<li><a target="_blank" href="../../doc-db.html"><i class="icon-window"></i> 数据库文档</a></li>
+						<li><a target="_blank" href="../../document.html"><i class="icon-window"></i> zyplayer-doc-swagger</a></li>
+						<li><a target="_blank" href="../../doc.html"><i class="icon-window"></i> swagger-bootstrap-ui</a></li>
+						<li><a target="_blank" href="../../swagger-ui.html"><i class="icon-window"></i> springfox-swagger-ui</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -78,11 +99,26 @@
 				$("#rightContentMask").hide();
 			}
 		});
-
+		/**
+		 * 切换导航栏的隐藏或显示
+		 */
+		$("#changeContentWidth").click(function(){
+			$("#leftContent").hide();
+			$("#showLeftContent").show();
+			changeContentWidth(0);
+		});
+		/**
+		 * 切换导航栏的隐藏或显示
+		 */
+		$("#showLeftContent").click(function(){
+			$("#leftContent").show();
+			$("#showLeftContent").hide();
+			changeContentWidth(360);
+		});
 		/**
 		 * 页面导航切换
 		 */
-		$("#tabZpagesNavigationLi").on("click", ".page-nav", function(){
+		$("#tabZpagesNavigationUl").on("click", ".page-nav", function(){
 			var id = $(this).data("id");
 			var href = $(this).data("href");
 			var icon = $(this).data("icon");

@@ -3,13 +3,18 @@ package com.zyplayer.doc.db.framework.configuration;
 import java.sql.DatabaseMetaData;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sql.DataSource;
 
+import com.zyplayer.doc.db.framework.db.bean.DbConfigBean;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.context.ApplicationListener;
+import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -22,7 +27,7 @@ import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 @Component
 public class ApplicationListenerBean implements ApplicationListener<ContextRefreshedEvent> {
 
-	@Autowired(required = false)
+	@Autowired
 	DatabaseRegistrationBean databaseRegistrationBean;
 	
 	private volatile static boolean IS_INIT = false;
@@ -34,9 +39,29 @@ public class ApplicationListenerBean implements ApplicationListener<ContextRefre
 		}
 		// 会被调用两次
 		IS_INIT = true;
+		Integer dataSourceIndex = 0;
 		List<DatabaseFactoryBean> databaseFactoryBeanList = new LinkedList<>();
-		for (DataSource dataSource : databaseRegistrationBean.getDataSourceList()) {
+		for (DbConfigBean dbConfigBean : databaseRegistrationBean.getDbConfigList()) {
 			try {
+				// 数据源配置
+				Properties xaProperties = new Properties();
+				xaProperties.setProperty("driverClassName", dbConfigBean.getDriverClassName());
+				xaProperties.setProperty("url", dbConfigBean.getUrl());
+				xaProperties.setProperty("username", dbConfigBean.getUsername());
+				xaProperties.setProperty("password", dbConfigBean.getPassword());
+				xaProperties.setProperty("maxActive", "500");
+				xaProperties.setProperty("testOnBorrow", "true");
+				xaProperties.setProperty("testWhileIdle", "true");
+				xaProperties.setProperty("validationQuery", "select 'x'");
+				// 数据源
+				AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
+				dataSource.setXaProperties(xaProperties);
+				dataSource.setXaDataSourceClassName("com.alibaba.druid.pool.xa.DruidXADataSource");
+				dataSource.setUniqueResourceName("zyplayer-doc-db" + (dataSourceIndex++));
+				dataSource.setMaxPoolSize(500);
+				dataSource.setMinPoolSize(1);
+				dataSource.setMaxLifetime(60);
+				// 描述连接信息的对象
 				DatabaseFactoryBean databaseFactoryBean = new DatabaseFactoryBean();
 				DatabaseMetaData metaData = dataSource.getConnection().getMetaData();
 				String productName = metaData.getDatabaseProductName().toLowerCase();

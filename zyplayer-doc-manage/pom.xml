@@ -30,6 +30,7 @@
 		<swagger.bootstrap.ui.version>1.8.7</swagger.bootstrap.ui.version>
 		<springfox.swagger.ui.version>2.9.2</springfox.swagger.ui.version>
 		<springfox.swagger.version>2.9.2</springfox.swagger.version>
+		<zyplayer.doc.db.version>1.0.1</zyplayer.doc.db.version>
 	</properties>
 
 	<dependencies>
@@ -116,6 +117,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.zyplayer</groupId>
+			<artifactId>zyplayer-doc-db</artifactId>
+			<version>${zyplayer.doc.db.version}</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

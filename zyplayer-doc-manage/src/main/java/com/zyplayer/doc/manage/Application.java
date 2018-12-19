@@ -40,10 +40,10 @@ public class Application extends SpringBootServletInitializer {
 						"zyplayer-doc-swagger：http://{}document.html\n\t" +
 						"swagger-bootstrap-ui：http://{}doc.html\n\t" +
 						"springfox-swagger-ui：http://{}swagger-ui.html\n\t" +
-						//"数据库地址：http://{}document.html\n	" +
+						"数据库文档管理地址：http://{}doc-db.html\n\t" +
 						"管理地址：http://{}statics/manage/home.html\n" +
 						"----------------------------------------------------------",
-				urlCtx, urlCtx, urlCtx, urlCtx
+				urlCtx, urlCtx, urlCtx, urlCtx, urlCtx
 		);
 	}
 }

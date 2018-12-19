@@ -222,7 +222,7 @@ $(".choise").on("click", "li", function(){
 /**
  * 页面导航切换
  */
-$("#tabZpagesNavigationLi").on("click", ".page-nav", function(){
+$("#tabZpagesNavigationUl").on("click", ".page-nav", function(){
 	var id = $(this).data("id");
 	var href = $(this).data("href");
 	var icon = $(this).data("icon");

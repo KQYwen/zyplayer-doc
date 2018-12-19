@@ -81,13 +81,13 @@ public class MybatisPlusConfig {
 	@MapperScan(value = "com.zyplayer.doc.manage.repository.manage.mapper", sqlSessionFactoryRef = "manageSqlSessionFactory")
 	static class ManageMybatisDbConfig {
 
-		@Value("${zyplayer.datasource.manage.driverClassName}")
+		@Value("${zyplayer.doc.manage.datasource.driverClassName}")
 		private String driverClassName;
-		@Value("${zyplayer.datasource.manage.url}")
+		@Value("${zyplayer.doc.manage.datasource.url}")
 		private String url;
-		@Value("${zyplayer.datasource.manage.username}")
+		@Value("${zyplayer.doc.manage.datasource.username}")
 		private String username;
-		@Value("${zyplayer.datasource.manage.password}")
+		@Value("${zyplayer.doc.manage.datasource.password}")
 		private String password;
 
 		@Bean(name = "manageDatasource")
