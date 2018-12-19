@@ -25,6 +25,7 @@ zyplayer-doc-swagger 原[swagger-mg-ui](https://gitee.com/zyplayer/swagger-mg-ui
 
 3. 启动zyplayer-doc-manage项目
 ![](https://images.gitee.com/uploads/images/2018/1216/222322_9a8bb3ac_596905.png "屏幕截图.png")
+![](https://images.gitee.com/uploads/images/2018/1219/231332_0a95e458_596905.png "屏幕截图.png")
 
 完成！就可以看到提供的三套UI地址和一个后台管理地址，默认集成了三套优秀的swagger的UI提供选择
 
