@@ -2,7 +2,7 @@ body{width: 100%;height: 100%;margin: 0;padding: 0;}
 a:focus{outline:none;}
 ul{list-style: none;list-style-type: none;}
 .tree li a{white-space: nowrap;}
-.tree-menu li > ul{background-color: #555980;}
+.tree-menu li > ul{background-color: #353953;}
 .tree-menu li li li li a{padding-left: 68px;}
 .tree-menu li li li li li a{padding-left: 88px;}
 .tree-menu li li li li li li a{padding-left: 108px;}
@@ -47,7 +47,7 @@ label{font-weight: normal;}
 	font-size: 24px;float: right;margin: 18px 18px 0 0;color: #fff;cursor: pointer;
 }
 .left-container{
-	width: 100%;position: absolute;background: #555980;color: #fff;
+	width: 100%;position: absolute;background: #353953;color: #fff;
 	top: 60px; bottom: 0; left: 0; overflow-y: auto; padding: 10px;
 }
 .left-container .projects{border: 0px; border-radius: 0px;}

@@ -28,8 +28,9 @@ var defaultUserSettings = {
 	autoFillParam : 0,// 自动填充参数，0=否  1=智能填充  2=全部填充
 	onlyUseLastParam : 0,// 是否仅使用上次请求参数
 	showParamType : 1,// 是否展示字段的类型
-	catalogShowType : 1,// 目录的展示方式，1=url分成一层一层的展示、2=整个url显示为一层展示
+	catalogShowType : 2,// 目录的展示方式，1=url分成一层一层的展示、2=整个url显示为一层展示
 	treeShowType : 1,// 树形菜单展示方式，1=tree-angles、2=tree-menu、3=默认，4=tree-folders、5=tree-chevrons
+	forceRewriteDomain: 0,// 强制重写域名 0=否 1=是
 	projects : [],// 所有的项目列表
 	removedProjects : [],// 被移除的项目列表
 	prevWNow : 360
@@ -331,7 +332,11 @@ $("#apiPathTree").on("click", ".show-doc", function(){
 		docInfo = getNotEmptyStr(data.summary);
 	}
 	// 处理在线调试
-	$("#postUrlInput").val(data.domain + docUrl);
+	if (userSettings.forceRewriteDomain == 1 && isNotEmpty(data.rewriteDomainUrl)) {
+		$("#postUrlInput").val(data.rewriteDomainUrl + docUrl);
+	} else {
+		$("#postUrlInput").val(data.domain + docUrl);
+	}
 	// 处理模拟返回
 	$("#simulationResultUrl").text(docUrl);
 	$("#simulationResultUrlTest").text(data.domain + docUrl + "?zyplayerApiTest=1");
@@ -892,19 +897,6 @@ function documentLoadFinish() {
 }
 
 /**
- * 修改用户的选项的显示
- * @param 
- * @returns
- */
-function updateUserSettingsUi() {
-	$("input[name='treeShowType'][value='"+userSettings.treeShowType+"']").prop("checked",true);
-	$("input[name='catalogShowType'][value='"+userSettings.catalogShowType+"']").prop("checked",true);
-	$("input[name='showParamType'][value='"+userSettings.showParamType+"']").prop("checked",true);
-	$("input[name='onlyUseLastParam'][value='"+userSettings.onlyUseLastParam+"']").prop("checked",true);
-	$("input[name='autoFillParam'][value='"+userSettings.autoFillParam+"']").prop("checked",true);
-}
-
-/**
  * 修改树形菜单展示类型
  * @param 
  * @returns
@@ -960,7 +952,6 @@ function initUserSettings() {
 		}
 		changeContentWidth(userSettings.prevWNow);
 		updateTreeShowType();
-		updateUserSettingsUi();
 		// 增加文档
 		getDocumentListByService();
 	});

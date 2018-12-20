@@ -17,6 +17,7 @@ function createTreeViewByTag(json, keywords) {
 	var pathIndex = {};
 	var paths = json.paths;
 	var domain = json.domainUrl;// 服务器代理会返回此属性
+	var rewriteDomainUrl = json.rewriteDomainUrl;// 服务器代理会返回此属性
 	if(isEmpty(domain)) {
 		domain = "http://" + json.host + json.basePath;
 	}
@@ -32,14 +33,14 @@ function createTreeViewByTag(json, keywords) {
 		if(!findInPathsValue(key, paths[key], keywords)) {
 			return;
 		}
-		setRequestMethodForTag(domain, paths[key], pathIndex, key, "get");
-		setRequestMethodForTag(domain, paths[key], pathIndex, key, "head");
-		setRequestMethodForTag(domain, paths[key], pathIndex, key, "post");
-		setRequestMethodForTag(domain, paths[key], pathIndex, key, "put");
-		setRequestMethodForTag(domain, paths[key], pathIndex, key, "patch");
-		setRequestMethodForTag(domain, paths[key], pathIndex, key, "delete");
-		setRequestMethodForTag(domain, paths[key], pathIndex, key, "options");
-		setRequestMethodForTag(domain, paths[key], pathIndex, key, "trace");
+		setRequestMethodForTag(rewriteDomainUrl, domain, paths[key], pathIndex, key, "get");
+		setRequestMethodForTag(rewriteDomainUrl, domain, paths[key], pathIndex, key, "head");
+		setRequestMethodForTag(rewriteDomainUrl, domain, paths[key], pathIndex, key, "post");
+		setRequestMethodForTag(rewriteDomainUrl, domain, paths[key], pathIndex, key, "put");
+		setRequestMethodForTag(rewriteDomainUrl, domain, paths[key], pathIndex, key, "patch");
+		setRequestMethodForTag(rewriteDomainUrl, domain, paths[key], pathIndex, key, "delete");
+		setRequestMethodForTag(rewriteDomainUrl, domain, paths[key], pathIndex, key, "options");
+		setRequestMethodForTag(rewriteDomainUrl, domain, paths[key], pathIndex, key, "trace");
 	});
 	//console.log(pathIndex);
 	var htmlStr = '<li>';
@@ -60,7 +61,7 @@ function createTreeViewByTag(json, keywords) {
  * @param method 请求方式，post、get...
  * @returns
  */
-function setRequestMethodForTag(domain, source, pathObj, url, method) {
+function setRequestMethodForTag(rewriteDomainUrl, domain, source, pathObj, url, method) {
 	if (isEmpty(source[method])) {
 		return;
 	}
@@ -79,6 +80,7 @@ function setRequestMethodForTag(domain, source, pathObj, url, method) {
 		tempUrlObj[method].url = url;
 		tempUrlObj[method].method = method;
 		tempUrlObj[method].domain = domain;
+		tempUrlObj[method].rewriteDomainUrl = rewriteDomainUrl;
 		treePathDataMap.set(tempPath, source[method]);
 	});
 }

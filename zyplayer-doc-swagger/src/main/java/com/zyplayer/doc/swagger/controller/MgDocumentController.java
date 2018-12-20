@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 文档控制器
@@ -76,16 +77,24 @@ public class MgDocumentController {
 		// 转成set，防止重复
 		List<SwaggerResourcesInfoVo> resourcesSet = new LinkedList<>();
 		Set<String> swaggerDocsDeleteSet = new HashSet<>();
+		
+		List<SwaggerResourcesInfoVo> resourcesList = new LinkedList<>();
+		String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
+		String swaggerDocsDeleteStr = storageService.get(StorageKeys.SWAGGER_DOCS_DELETE_LIST);
+		if (StringUtils.isNotBlank(swaggerResourcesStr)) {
+			resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
+		}
 		if (StringUtils.isNotBlank(choiceDocList)) {
 			needRestorage = false;// 选择的则不再存入
+			Map<String, SwaggerResourcesInfoVo> infoVoMap = resourcesList.stream().collect(Collectors.toMap(SwaggerResourcesInfoVo::getUrl, val -> val));
 			for (String url : choiceDocList.split(",")) {
-				resourcesSet.add(new SwaggerResourcesInfoVo(url));
+				SwaggerResourcesInfoVo resourcesInfoVo = infoVoMap.get(url);
+				if (resourcesInfoVo != null) {
+					resourcesSet.add(resourcesInfoVo);
+				}
 			}
 		} else {
-			String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
-			String swaggerDocsDeleteStr = storageService.get(StorageKeys.SWAGGER_DOCS_DELETE_LIST);
-			if (StringUtils.isNotBlank(swaggerResourcesStr)) {
-				List<SwaggerResourcesInfoVo> resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
+			if (resourcesList.size() > 0) {
 				resourcesSet.addAll(resourcesList);
 			} else {
 				// 默认加上自身的文档
@@ -172,9 +181,11 @@ public class MgDocumentController {
 					swaggerResourceList.add(jsonObject);
 					// 本来想转对象之后赋值，但是在此转成JSON字符串之后格式就不是之前的了，所有不能转。。。
 					// 直接字符串拼接，坑真多~
+					String rewriteDomainUrl = Optional.ofNullable(resourcesInfoVo.getRewriteDomainUrl()).orElse("");
 					resourceStr = resourceStr.substring(1);
 					resourceStr = "{\"fullUrl\":\"" + location + "\","
 							+ "\"domainUrl\":\"" + resourcesUrl + "\","
+							+ "\"rewriteDomainUrl\":\"" + rewriteDomainUrl + "\","
 							+ resourceStr;
 					swaggerResourceStrList.add(resourceStr);
 				} catch (Exception e) {
@@ -200,7 +211,7 @@ public class MgDocumentController {
 	 * @return 添加结果
 	 */
 	@PostMapping(value = "/addSwaggerResources")
-	public ResponseJson<Object> addSwaggerResources(String resourcesUrl) {
+	public ResponseJson<Object> addSwaggerResources(String resourcesUrl, String rewriteDomainUrl, String oldUrl) {
 		String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
 		String swaggerDocsDeleteStr = storageService.get(StorageKeys.SWAGGER_DOCS_DELETE_LIST);
 		Set<String> swaggerDocsDeleteSet = new HashSet<>();
@@ -209,9 +220,13 @@ public class MgDocumentController {
 			swaggerDocsDeleteSet.addAll(swaggerDocsDeleteList);
 		}
 		// 转成set，防止重复
-		List<SwaggerResourcesInfoVo> resourcesList = null;
+		List<SwaggerResourcesInfoVo> resourcesList = new LinkedList<>();
 		if (StringUtils.isNotBlank(swaggerResourcesStr)) {
 			resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
+			// 如果是编辑，把之前的删除掉，再在后面添加
+			if (StringUtils.isNotBlank(oldUrl)) {
+				resourcesList = resourcesList.stream().filter(val -> !Objects.equals(val.getUrl(), oldUrl)).collect(Collectors.toList());
+			}
 		}
 		try {
 			String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
@@ -236,7 +251,9 @@ public class MgDocumentController {
 				location = resourcesDomain + location;
 				swaggerDocsDeleteSet.remove(location);
 			}
-			resourcesList.add(new SwaggerResourcesInfoVo(resourcesUrl, resourceList));
+			SwaggerResourcesInfoVo resourcesInfoVo = new SwaggerResourcesInfoVo(resourcesUrl, resourceList);
+			resourcesInfoVo.setRewriteDomainUrl(rewriteDomainUrl);
+			resourcesList.add(resourcesInfoVo);
 			AtomicInteger idIndex = new AtomicInteger(1);
 			resourcesList.forEach(val -> val.setId(idIndex.getAndIncrement()));
 		} catch (Exception e) {

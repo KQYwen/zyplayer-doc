@@ -18,6 +18,7 @@ function createTreeViewByTree(json, keywords) {
 	var pathIndex = {};
 	var paths = json.paths;
 	var domain = json.domainUrl;// 服务器代理会返回此属性
+	var rewriteDomainUrl = json.rewriteDomainUrl;// 服务器代理会返回此属性
 	if(isEmpty(domain)) {
 		domain = "http://" + json.host + json.basePath;
 	}
@@ -56,14 +57,14 @@ function createTreeViewByTree(json, keywords) {
 			nowPathObj = tempPathObj;
 			if(index == keyArr.length - 1) {
 				//get, head, post, put, patch, delete, options, trace
-				setRequestMethodForTree(domain, paths[key], tempPathObj, key, "get");
-				setRequestMethodForTree(domain, paths[key], tempPathObj, key, "head");
-				setRequestMethodForTree(domain, paths[key], tempPathObj, key, "post");
-				setRequestMethodForTree(domain, paths[key], tempPathObj, key, "put");
-				setRequestMethodForTree(domain, paths[key], tempPathObj, key, "patch");
-				setRequestMethodForTree(domain, paths[key], tempPathObj, key, "delete");
-				setRequestMethodForTree(domain, paths[key], tempPathObj, key, "options");
-				setRequestMethodForTree(domain, paths[key], tempPathObj, key, "trace");
+				setRequestMethodForTree(rewriteDomainUrl, domain, paths[key], tempPathObj, key, "get");
+				setRequestMethodForTree(rewriteDomainUrl, domain, paths[key], tempPathObj, key, "head");
+				setRequestMethodForTree(rewriteDomainUrl, domain, paths[key], tempPathObj, key, "post");
+				setRequestMethodForTree(rewriteDomainUrl, domain, paths[key], tempPathObj, key, "put");
+				setRequestMethodForTree(rewriteDomainUrl, domain, paths[key], tempPathObj, key, "patch");
+				setRequestMethodForTree(rewriteDomainUrl, domain, paths[key], tempPathObj, key, "delete");
+				setRequestMethodForTree(rewriteDomainUrl, domain, paths[key], tempPathObj, key, "options");
+				setRequestMethodForTree(rewriteDomainUrl, domain, paths[key], tempPathObj, key, "trace");
 			}
 		});
 	});
@@ -85,7 +86,7 @@ function createTreeViewByTree(json, keywords) {
  * @param method 请求方式，post、get...
  * @returns
  */
-function setRequestMethodForTree(domain, source, pathObj, url, method) {
+function setRequestMethodForTree(rewriteDomainUrl, domain, source, pathObj, url, method) {
 	if (isEmpty(source[method])) {
 		return;
 	}
@@ -95,6 +96,7 @@ function setRequestMethodForTree(domain, source, pathObj, url, method) {
 	pathObj[method].url = url;
 	pathObj[method].method = method;
 	pathObj[method].domain = domain;
+	pathObj[method].rewriteDomainUrl = rewriteDomainUrl;
 	treePathDataMap.set(tempPath, source[method]);
 }
 

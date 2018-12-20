@@ -12,6 +12,7 @@ public class SwaggerResourcesInfoVo implements Serializable {
 	private Integer id;
 	private String url;
 	private String storageKey;
+	private String rewriteDomainUrl;
 	private List<SwaggerResource> resourceList;
 	private Date creationTime;
 	private Date lastSync;
@@ -79,5 +80,13 @@ public class SwaggerResourcesInfoVo implements Serializable {
 	
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	
+	public String getRewriteDomainUrl() {
+		return rewriteDomainUrl;
+	}
+	
+	public void setRewriteDomainUrl(String rewriteDomainUrl) {
+		this.rewriteDomainUrl = rewriteDomainUrl;
 	}
 }
