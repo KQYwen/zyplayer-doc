@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.DataSource;
 
 import com.zyplayer.doc.db.framework.db.bean.DbConfigBean;
+import com.zyplayer.doc.db.framework.db.interceptor.SqlLogInterceptor;
+import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +28,12 @@ import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 
 @Component
 public class ApplicationListenerBean implements ApplicationListener<ContextRefreshedEvent> {
-
+	
 	@Autowired
 	DatabaseRegistrationBean databaseRegistrationBean;
 	
 	private volatile static boolean IS_INIT = false;
-
+	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		if (databaseRegistrationBean == null || IS_INIT) {
@@ -40,6 +42,7 @@ public class ApplicationListenerBean implements ApplicationListener<ContextRefre
 		// 会被调用两次
 		IS_INIT = true;
 		Integer dataSourceIndex = 0;
+		SqlLogInterceptor sqlLogInterceptor = new SqlLogInterceptor();
 		List<DatabaseFactoryBean> databaseFactoryBeanList = new LinkedList<>();
 		for (DbConfigBean dbConfigBean : databaseRegistrationBean.getDbConfigList()) {
 			try {
@@ -99,6 +102,7 @@ public class ApplicationListenerBean implements ApplicationListener<ContextRefre
 				SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
 				sqlSessionFactoryBean.setDataSource(dataSource);
 				sqlSessionFactoryBean.setMapperLocations(resources);
+				sqlSessionFactoryBean.setPlugins(new Interceptor[]{sqlLogInterceptor});
 				SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactoryBean.getObject());
 				// 组装自定义的bean
 				databaseFactoryBean.setDataSource(dataSource);
@@ -111,5 +115,5 @@ public class ApplicationListenerBean implements ApplicationListener<ContextRefre
 		}
 		databaseRegistrationBean.setDatabaseFactoryBeanList(databaseFactoryBeanList);
 	}
-
+	
 }

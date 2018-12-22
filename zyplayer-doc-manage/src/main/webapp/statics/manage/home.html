@@ -47,6 +47,13 @@
 						<li><a target="_blank" href="../../swagger-ui.html"><i class="icon-window"></i> springfox-swagger-ui</a></li>
 					</ul>
 				</li>
+				<li>
+					<a href="#"><i class="icon icon-window-alt"></i> 信息管理</a>
+					<ul>
+						<li><a href="#" class="page-nav" data-id="operation-log" data-href="./user/operation-log.html" data-icon="icon-check-board" data-reload="1"><i class="icon-check-board"></i> 操作日志</a></li>
+						<li><a href="#" class="user-signout"><i class="icon-signout"></i> 退出登录</a></li>
+					</ul>
+				</li>
 			</ul>
 		</div>
 	</div>
@@ -114,6 +121,14 @@
 			$("#leftContent").show();
 			$("#showLeftContent").hide();
 			changeContentWidth(360);
+		});
+		/**
+		 * 退出登录
+		 */
+		$(".user-signout").click(function () {
+			post(ctx + "logout", {}, function () {}, function () {}, function () {
+				location.reload();
+			});
 		});
 		/**
 		 * 页面导航切换

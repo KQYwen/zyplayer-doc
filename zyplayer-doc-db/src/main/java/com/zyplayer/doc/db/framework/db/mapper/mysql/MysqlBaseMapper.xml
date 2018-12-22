@@ -34,6 +34,7 @@
 		SELECT COLUMN_NAME NAME,column_comment DESCRIPTION,column_type TYPE,if(is_nullable='YES',1,0) NULLABLE
 		FROM INFORMATION_SCHEMA.Columns
 		WHERE table_schema=#{dbName} AND table_name=#{tableName}
+		ORDER BY ordinal_position
 	</select>
 	
 	<select id="getTableColumnDescList" resultMap="TableColumnDescDtoMap">

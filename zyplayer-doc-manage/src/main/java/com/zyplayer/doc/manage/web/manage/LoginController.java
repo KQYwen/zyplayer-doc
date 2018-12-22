@@ -10,6 +10,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -18,15 +19,21 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 @RestController
 public class LoginController {
 	private RequestCache requestCache = new HttpSessionRequestCache();
-
+	
 	@GetMapping(value = "/login")
 	public ModelAndView loginPage(HttpServletRequest request) {
 		return new ModelAndView("/statics/manage/login.html");
 	}
-
+	
+//	@PostMapping(value = "/logout")
+//	public DocResponseJson<Object> logout(HttpServletRequest request) {
+//
+//		return DocResponseJson.ok();
+//	}
+	
 	/**
 	 * 如果是访问受限页面后，跳转到登录页的，则在targetUrl保存之前受限页面的路径，供页面调用
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @return
@@ -43,9 +50,10 @@ public class LoginController {
 		}
 		return DocResponseJson.ok(targetUrl);
 	}
-
+	
 	/**
 	 * 获取异常信息返回给页面
+	 *
 	 * @param request
 	 * @param response
 	 * @return

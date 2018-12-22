@@ -12,7 +12,9 @@ ul{list-style: none;list-style-type: none;}
 .tree-menu li li li li li li li li li li a{padding-left: 188px;}
 .table td, .table th {vertical-align: middle;}
 #tabDocInfo{position: absolute; bottom: 0;top: 60px;overflow-y: auto; right: 0; left: 10px;}
-#tabOnlineDebug .param-response-box{position: absolute; bottom: 0;top: 100px;overflow-y: auto; right: 0; left: 10px;}
+#tabOnlineDebug .param-response-box{position: absolute; bottom: 0;top: 100px;overflow-y: auto; right: 0; left: 10px;padding-right: 10px;}
+#tabOnlineDebug .panel{margin-bottom: 10px;}
+#requestParamForm .nav > li > a{padding: 6px 15px;}
 
 .local-storage{display: none;}
 
@@ -20,6 +22,7 @@ ul{list-style: none;list-style-type: none;}
 .label{font-size: 100%;}
 .label-warning {background-color: #f9f5ee; color: #f1a325;}
 label{font-weight: normal;}
+.overwrite-label{margin-bottom: 0;}
 
 .nav.gray{background-color: #f1f1f1;margin-bottom: 10px;}
 
@@ -83,11 +86,12 @@ label{font-weight: normal;}
 .post-url-box .send-request .hide{display: none;}
 
 .param-box{}
-.param-box .panel-collapse{padding: 10px;}
+.param-box .panel-collapse{padding: 10px 10px 0 10px;}
 .param-box .nav{background-color: #f1f1f1;}
+.param-box .table{margin-bottom: 0;}
 /* .param-box .nav > li > *{padding: 8px 25px;} */
 .param-box .nav > li > span{position: relative; display: block;background-color: #ccc;padding: 9px 25px;}
-.param-box .nav > .form-to-url{position: relative; display: block;padding: 10px 0 0 25px;}
+.param-box .nav > .form-to-url{position: relative; display: block;padding: 8px 0 0 25px;}
 .param-box .nav > .form-to-url label{margin: 0;}
 .param-box .nav > .form-to-url input{margin: 0;}
 .param-box .tab-content .tab-param-pane{padding: 10px 10px 0 10px;}
@@ -98,10 +102,10 @@ label{font-weight: normal;}
 .param-box .param-table tbody td:nth-child(3) i{cursor: pointer;color: #ccc;}
 .param-box .param-table tbody td:nth-child(3) i:hover{color: #888;}
 .param-box .param-table tbody tr.base td:last-child i{display: none;}
-#bulkEditHeaderCheck{margin-left: 10px;}
+#bulkEditHeaderCheck{margin: 0 0 0 10px;}
 #bulkEditHeader,#bulkEditForm{display: none;}
 
-.response-box{margin-top: 20px;}
+.response-box{margin-top: 10px;}
 .response-box .nav > li > *{padding: 8px 25px;}
 .response-box .nav > li span{position: relative; display: block;padding: 9px 25px;}
 .response-box .nav > li.info span{background-color: #ccc;}
@@ -113,7 +117,7 @@ label{font-weight: normal;}
 #responseBodyJsonIframe{width: 100%;height: 300px;border: 0;}
 
 /* S-模拟请求 */
-#tabSimulationResult{padding: 10px 0;}
+#tabSimulationResult{padding: 0 10px 0 0;position: absolute; bottom: 0;top: 60px;overflow-y: auto; right: 0; left: 10px;}
 /* E-模拟请求 */
 
 /* S-JSON展示的样式 */

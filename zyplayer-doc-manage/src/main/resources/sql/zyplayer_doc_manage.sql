@@ -5,13 +5,13 @@
  Source Server Type    : MySQL
  Source Server Version : 80012
  Source Host           : localhost:3306
- Source Schema         : zyplayer-doc-manage
+ Source Schema         : zyplayer_doc_manage
 
  Target Server Type    : MySQL
  Target Server Version : 80012
  File Encoding         : 65001
 
- Date: 15/12/2018 22:34:43
+ Date: 22/12/2018 22:58:00
 */
 
 SET NAMES utf8mb4;
@@ -25,11 +25,11 @@ CREATE TABLE `auth_info`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `auth_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '权限名',
   `auth_desc` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '权限说明',
-  `can_edit` tinyint(4) NULL DEFAULT NULL COMMENT '是否可编辑 0=否 1=是',
+  `can_edit` tinyint(4) NULL DEFAULT 1 COMMENT '是否可编辑 0=否 1=是',
   `create_uid` bigint(20) NULL DEFAULT NULL COMMENT '创建人用户ID',
   `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '权限信息表' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of auth_info
@@ -53,19 +53,11 @@ CREATE TABLE `user_auth`  (
   `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 28 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户权限表' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of user_auth
 -- ----------------------------
-INSERT INTO `user_auth` VALUES (1, 1, 1, 1, 1, 1, '2018-12-01 11:41:13', '2018-12-15 22:19:59');
-INSERT INTO `user_auth` VALUES (2, 1, 2, 1, 1, 1, '2018-12-15 19:51:13', '2018-12-15 22:19:59');
-INSERT INTO `user_auth` VALUES (3, 1, 3, 1, 1, 1, '2018-12-15 19:51:28', '2018-12-15 22:19:59');
-INSERT INTO `user_auth` VALUES (4, 1, 4, 1, 1, 1, '2018-12-15 19:51:40', '2018-12-15 22:19:59');
-INSERT INTO `user_auth` VALUES (5, 1, 1, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
-INSERT INTO `user_auth` VALUES (6, 1, 2, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
-INSERT INTO `user_auth` VALUES (7, 1, 3, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
-INSERT INTO `user_auth` VALUES (8, 1, 4, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
 INSERT INTO `user_auth` VALUES (9, 2, 1, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
 INSERT INTO `user_auth` VALUES (10, 2, 2, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
 INSERT INTO `user_auth` VALUES (11, 2, 3, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
@@ -74,6 +66,10 @@ INSERT INTO `user_auth` VALUES (13, 3, 1, 1, NULL, 0, '2018-12-15 22:19:59', NUL
 INSERT INTO `user_auth` VALUES (14, 3, 2, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
 INSERT INTO `user_auth` VALUES (15, 3, 3, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
 INSERT INTO `user_auth` VALUES (16, 3, 4, 1, NULL, 0, '2018-12-15 22:19:59', NULL);
+INSERT INTO `user_auth` VALUES (24, 1, 1, 1, NULL, 0, '2018-12-16 21:41:01', NULL);
+INSERT INTO `user_auth` VALUES (25, 1, 2, 1, NULL, 0, '2018-12-16 21:41:01', NULL);
+INSERT INTO `user_auth` VALUES (26, 1, 3, 1, NULL, 0, '2018-12-16 21:41:01', NULL);
+INSERT INTO `user_auth` VALUES (27, 1, 4, 1, NULL, 0, '2018-12-16 21:41:01', NULL);
 
 -- ----------------------------
 -- Table structure for user_info
@@ -92,7 +88,7 @@ CREATE TABLE `user_info`  (
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_userNo`(`user_no`) USING BTREE COMMENT '登录用户名'
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户信息表' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of user_info
@@ -106,17 +102,16 @@ INSERT INTO `user_info` VALUES (3, '2', NULL, '11', '11', NULL, 0, '2018-12-15 2
 -- ----------------------------
 DROP TABLE IF EXISTS `zyplayer_storage`;
 CREATE TABLE `zyplayer_storage`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `doc_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
-  `doc_value` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
-  `creation_time` datetime(0) NULL DEFAULT NULL,
-  `update_time` datetime(0) NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `doc_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数名字',
+  `doc_value` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数值',
+  `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `key`(`doc_key`) USING BTREE COMMENT 'key唯一索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储网页上相关的数据' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of zyplayer_storage
 -- ----------------------------
-
 SET FOREIGN_KEY_CHECKS = 1;
