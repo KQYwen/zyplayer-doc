@@ -22,11 +22,11 @@ $(document).ready(function(){
 	 */
 	$(".send-request").click(function(){
 		// 多行编辑状态下转成表单，下面读取表单内容
-		if($("#bulkEditFormCheck").prop('checked')) {
+		if ($("#bulkEditFormCheck").prop('checked')) {
 			var bulkEdit = $("#bulkEditForm").val();
 			bulkEditToTable("#tabParamTypeForm", bulkEdit);
 		}
-		if($("#bulkEditHeaderCheck").prop('checked')) {
+		if ($("#bulkEditHeaderCheck").prop('checked')) {
 			var bulkEdit = $("#bulkEditHeader").val();
 			bulkEditToTable("#tabParamHeader", bulkEdit);
 		}
@@ -34,13 +34,15 @@ $(document).ready(function(){
 		$("#tabResponseCookie table tbody").empty();
 		$("#responseBodyTextArea").val("");
 		$("#responseBodyJsonDiv").html("暂无数据");
-		
+
 		var storeRequestParam = {};
 		var docUrl = $("#docUrl").text();
 		var options = $("#debugRequstType .btn .options").text();
 		var postUrl = $("#postUrlInput").val();
 		var requestHeaderForm = $("#requestHeaderForm").serializeArray();
 		var requestParamForm = $("#requestParamForm").serializeArray();
+		var paramHeaderSend = {};
+		var paramFormSend = {};
 		var paramBodySend = $("[name=paramBody]").val();
 		var formToUrl = $("[name=formToUrl]").prop('checked') ? 1 : 0;
 		var paramSendToServer = {};
@@ -48,93 +50,92 @@ $(document).ready(function(){
 		requestParamForm = serializeArrayToObj(requestParamForm);
 		storeRequestParam.formToUrl = formToUrl;
 		paramSendToServer.formToUrl = formToUrl;
-		if(isNotEmpty(paramBodySend)) {
+		if (isNotEmpty(paramBodySend)) {
 			try {
 				paramBodySend = JSON.stringify(JSON.parse(paramBodySend));
-			} catch (e) {
-				// e
-			}
+			} catch (e) {}
 			storeRequestParam.body = paramBodySend;
 			paramSendToServer.body = paramBodySend;
 			// 替换path参数
-			Object.keys(requestParamForm).forEach(function(key){
-				postUrl = postUrl.replace("{"+key+"}", requestParamForm[key]);
+			Object.keys(requestParamForm).forEach(function (key) {
+				postUrl = postUrl.replace("{" + key + "}", requestParamForm[key]);
 			});
-		} else {
-			var reqParamStr = "";
-			paramBodySend = {};
-			Object.keys(requestParamForm).forEach(function(key){
-				var value = requestParamForm[key];
-				if(isNotEmpty(key) && isNotEmpty(value)) {
-					if(isNotEmpty(reqParamStr)) {
-						reqParamStr += "&";
-					}
-					reqParamStr += key + "=" + value;
-					paramBodySend[key] = value;
-					// 替换path参数
-					postUrl = postUrl.replace("{"+key+"}", value);
-				}
-			});
-			storeRequestParam.form = paramBodySend;
-			if(formToUrl == 1) {
-				postUrl += "?" + reqParamStr;
-				paramBodySend = "";
-			} else {
-				paramSendToServer.form = JSON.stringify(paramBodySend);
-			}
 		}
+		var reqParamStr = "";
+		Object.keys(requestParamForm).forEach(function (key) {
+			var value = requestParamForm[key];
+			if (isNotEmpty(key) && isNotEmpty(value)) {
+				if (isNotEmpty(reqParamStr)) {
+					reqParamStr += "&";
+				}
+				reqParamStr += key + "=" + value;
+				paramFormSend[key] = value;
+				// 替换path参数
+				postUrl = postUrl.replace("{" + key + "}", value);
+			}
+		});
+		storeRequestParam.form = paramFormSend;
+		// 表单参数是否拼在url上
+		if(formToUrl == 1) {
+			postUrl += "?" + reqParamStr;
+			paramFormSend = "";
+		} else {
+			paramSendToServer.form = JSON.stringify(paramFormSend);
+		}
+		// 显示加载中图标
 		$(".send-request .icon").removeClass("hide");
 		// 获取header
-		var requestHeaderStore = {};
 		Object.keys(requestHeaderForm).forEach(function(key){
 			var value = requestHeaderForm[key];
 			if(isNotEmpty(key) && isNotEmpty(value)) {
-				requestHeaderStore[key] = value;
+				paramHeaderSend[key] = value;
 			}
 		});
-		storeRequestParam.header = requestHeaderStore;
-		paramSendToServer.header = JSON.stringify(requestHeaderStore);
-		//console.log(paramBodySend);
-		var beforSendTime = new Date().getTime();
+		storeRequestParam.header = paramHeaderSend;
+		paramSendToServer.header = JSON.stringify(paramHeaderSend);
 		paramSendToServer.url = postUrl;
 		paramSendToServer.method = options;
+		//console.log(paramBodySend);
+		var beforeSendTime = new Date().getTime();
+		// 模拟请求开始
 		ajaxTemp("swagger-mg-ui/http/request", "post", "json", paramSendToServer, function(result){
+			var afterSendTime = new Date().getTime();
 			//console.log(result);
 			var requestObj = result.data;
 			setStorage(cacheKeys.pRequestObjStart + docUrl, storeRequestParam);
-			var afterSendTime = new Date().getTime();
 			$("#httpRequestStatus").text(requestObj.status);
-			$("#httpRequestTime").text((afterSendTime - beforSendTime) + "ms");
+			$("#httpRequestTime").text((afterSendTime - beforeSendTime) + "ms");
 			try {
 				var htmlStr = Formatjson.processObjectToHtmlPre(JSON.parse(requestObj.data), 0, false, false, false, false);
 				$("#responseBodyJsonDiv").html(htmlStr);
 			} catch (e) {
+				// 转json失败，应该是个页面，输出到iframe里，不能影响当前页面
 				$("#responseBodyJsonDiv").html("<iframe id='responseBodyJsonIframe'></iframe>");
-				setTimeout(function(){
+				setTimeout(function () {
 					$("#responseBodyJsonIframe").contents().find("body").html(requestObj.data);
 				}, 300);
 			}
 			$("#tabResponseHeader table tbody").empty();
 			$("#tabResponseCookie table tbody").empty();
-			var headers = requestObj.header||[];
+			var headers = requestObj.header || [];
 			for (var i = 0; i < headers.length; i++) {
 				var name = getNotEmptyStr(headers[i].name);
 				var value = getNotEmptyStr(headers[i].value);
 				$("#tabResponseHeader table tbody").append(
-						'<tr>'+'<td>'+name+'</td>' + '<td>'+value+'</td>'+'</tr>'
+					'<tr>' + '<td>' + name + '</td>' + '<td>' + value + '</td>' + '</tr>'
 				);
 			}
-			var cookies = requestObj.cookie||[];
+			var cookies = requestObj.cookie || [];
 			for (var i = 0; i < cookies.length; i++) {
 				var name = getNotEmptyStr(cookies[i].name);
 				var value = getNotEmptyStr(cookies[i].value);
 				$("#tabResponseCookie table tbody").append(
-						'<tr>'+'<td>'+name+'</td>' + '<td>'+value+'</td>'+'</tr>'
+					'<tr>' + '<td>' + name + '</td>' + '<td>' + value + '</td>' + '</tr>'
 				);
 			}
-		}, function(){
+		}, function () {
 			Toast.error("请求失败！");
-		}, function(){
+		}, function () {
 			$(".send-request .icon").addClass("hide");
 		});
 	});
@@ -173,14 +174,14 @@ $(document).ready(function(){
 	 * 在线调试管理-展开所有
 	 */
 	$(".tab-online-debug-page .expand-all").click(function(){
-		$("#onlineDebugParamTable .option-img").attr("src", "webjars/mg-ui/img/expanded.png")
+		$("#onlineDebugParamTable .option-img").attr("src", "webjars/mg-ui/img/expanded.png");
 		$("#onlineDebugParamTable .option-img").parent().next().show();
 	});
 	/**
 	 * 在线调试管理-收起所有
 	 */
 	$(".tab-online-debug-page .collapse-all").click(function(){
-		$("#onlineDebugParamTable .option-img").attr("src", "webjars/mg-ui/img/collapsed.png")
+		$("#onlineDebugParamTable .option-img").attr("src", "webjars/mg-ui/img/collapsed.png");
 		$("#onlineDebugParamTable .option-img").parent().next().hide();
 	});
 	/**
@@ -257,6 +258,7 @@ function createOnlineDebugParamTable() {
  * @returns
  */
 function createOnlineDebugRequestParam(requestParamObj, url) {
+	// 查询之前的调试参数信息
 	getStorage(cacheKeys.pRequestObjStart + url, function(data) {
 		createOnlineDebugRequestParamFun(data, requestParamObj, url);
 	});
@@ -264,7 +266,9 @@ function createOnlineDebugRequestParam(requestParamObj, url) {
 
 /**
  * 生成在线调试相关数据
- * @param requestParamObj
+ * @param pRequestObj 之前的调试参数
+ * @param requestParamObj 参数列表的参数
+ * @param url 请求url
  * @returns
  */
 function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
@@ -306,9 +310,6 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 	if(typeof pRequestObj.form != 'object') {
 		pRequestObj.form = {};
 	}
-	if(typeof pRequestObj.body != 'object') {
-		pRequestObj.body = {};
-	}
 	for (var i = 0; i < debugGlobalParam.length; i++) {
 		var item = debugGlobalParam[i];
 		if (item.paramIn == 'header') {
@@ -330,7 +331,7 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 				}
 				$("#tabParamTypeBody textarea").val(JSON.stringify(paramObj, null, 4));
 			} catch (e) {
-				var tempText = isEmpty(bodyObj) ? JSON.stringify(paramObj, null, 4) : bodyObj;
+				var tempText = isEmptyObject(bodyObj) ? JSON.stringify(paramObj, null, 4) : bodyObj;
 				$("#tabParamTypeBody textarea").val(tempText);
 			}
 			$("#tabParamBody .nav li").eq(1).find("a").click();

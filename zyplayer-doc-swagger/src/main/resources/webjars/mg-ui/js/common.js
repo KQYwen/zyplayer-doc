@@ -88,7 +88,7 @@ function getNotEmptyStr(str, def) {
  * @returns
  */
 function isEmptyObject(obj){
-	return $.isEmptyObject(obj);
+	return isEmpty(obj) || $.isEmptyObject(obj);
 }
 
 /**
