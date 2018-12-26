@@ -1,8 +1,15 @@
 package com.zyplayer.doc.swagger.controller.param;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.BytesResource;
+import cn.hutool.core.io.resource.MultiFileResource;
 import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -10,6 +17,7 @@ import com.alibaba.fastjson.TypeReference;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.Method;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 请求参数对象
@@ -23,6 +31,8 @@ public class HttpRequestParam {
 	private String header;
 	private String form;
 	private String body;
+	private String[] fileNames;
+	private MultipartFile[] files;
 
 	public String getUrl() {
 		return url;
@@ -83,6 +93,28 @@ public class HttpRequestParam {
 		Map<String, Object> formMap = this.getFormMap();
 		if (formMap != null) {
 			request.form(formMap);
+		}
+		// 拼文件
+		if (this.getFiles() != null && this.getFiles().length > 0) {
+			Map<String, MultiFileResource> bytesResourceMap = new HashMap<>();
+			for (int i = 0; i < this.getFiles().length; i++) {
+				try {
+					String fileName = this.getFileNames()[i].replace("[", "").replace("]", "");
+					MultipartFile file = this.getFiles()[i];
+					BytesResource bytesResource = new BytesResource(file.getBytes(), file.getOriginalFilename());
+					MultiFileResource multiFileResource = bytesResourceMap.get(fileName);
+					if (multiFileResource == null) {
+						multiFileResource = new MultiFileResource();
+					}
+					multiFileResource.add(bytesResource);
+					bytesResourceMap.put(fileName, multiFileResource);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			for (Map.Entry<String, MultiFileResource> entry : bytesResourceMap.entrySet()) {
+				request.form(entry.getKey(), entry.getValue());
+			}
 		}
 		if (StringUtils.isNotBlank(body) && request.getMethod() != Method.GET) {
 			request.body(body);
@@ -192,5 +224,20 @@ public class HttpRequestParam {
 	public void setMethod(String method) {
 		this.method = method;
 	}
-
+	
+	public MultipartFile[] getFiles() {
+		return files;
+	}
+	
+	public void setFiles(MultipartFile[] files) {
+		this.files = files;
+	}
+	
+	public String[] getFileNames() {
+		return fileNames;
+	}
+	
+	public void setFileNames(String[] fileNames) {
+		this.fileNames = fileNames;
+	}
 }

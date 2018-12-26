@@ -375,8 +375,15 @@ $("#apiPathTree").on("click", ".show-doc", function(){
 			var paramIn = getNotEmptyStr(tempParameters.in);
 			var example = getNotEmptyStr(tempParameters.example, tempParameters.default);
 			if(isNotEmpty(tempParameters.items)) {
-				htmlStr = paramName + "[0]";
-				htmlStrExample = paramName + "[0]";
+				if(tempParameters.items.$ref == '#/definitions/MultipartFile') {
+					htmlStr = paramName;
+					htmlStrExample = paramName;
+					paramType = 'file';
+					addRequestParamObj(requestParamObj, paramName, paramType, paramIn, required, paramDesc, example);
+				} else {
+					htmlStr = paramName + "[0]";
+					htmlStrExample = paramName + "[0]";
+				}
 			} else if(isNotEmpty(tempParameters.schema)) {
 				if("array" == tempParameters.schema.type) {
 					var responsesObj = definitionsDataMap.get(tempParameters.schema.items.$ref);

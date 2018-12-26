@@ -1,24 +1,22 @@
 package com.zyplayer.doc.swagger.controller;
 
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import com.zyplayer.doc.core.json.DocResponseJson;
+import com.zyplayer.doc.swagger.controller.param.HttpRequestParam;
+import com.zyplayer.doc.swagger.controller.vo.HttpCookieVo;
+import com.zyplayer.doc.swagger.controller.vo.HttpHeaderVo;
+import com.zyplayer.doc.swagger.controller.vo.HttpRequestVo;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.zyplayer.doc.core.json.DocResponseJson;
-import com.zyplayer.doc.swagger.controller.param.HttpRequestParam;
-import com.zyplayer.doc.swagger.controller.vo.HttpCookieVo;
-import com.zyplayer.doc.swagger.controller.vo.HttpHeaderVo;
-import com.zyplayer.doc.swagger.controller.vo.HttpRequestVo;
-
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
 
 /**
  * 后台代理网络请求的控制器
@@ -39,9 +37,7 @@ public class MgHttpRequestController {
 		httpRequestVo.setStatus(response.getStatus());
 		List<HttpCookie> cookies = response.getCookies();
 		if (cookies != null && cookies.size() > 0) {
-			List<HttpCookieVo> cookie = cookies.stream().map(val -> {
-				return new HttpCookieVo(val.getName(), val.getValue());
-			}).collect(Collectors.toList());
+			List<HttpCookieVo> cookie = cookies.stream().map(val -> new HttpCookieVo(val.getName(), val.getValue())).collect(Collectors.toList());
 			httpRequestVo.setCookie(cookie);
 		}
 		Map<String, List<String>> headers = response.headers();

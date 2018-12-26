@@ -197,7 +197,7 @@ function ajaxTemp(url, dataSentType, dataReceiveType, paramsStr, successFunction
 			}
 		},
 		beforeSend : function() {
-			
+		
 		},
 		complete : function(msg) {
 			if(typeof completeFunction == "function") {
@@ -207,6 +207,36 @@ function ajaxTemp(url, dataSentType, dataReceiveType, paramsStr, successFunction
 		error : function(msg) {
 			if(typeof errorFunction == "function") {
 				errorFunction(msg,id);
+			}
+		}
+	});
+}
+
+function postWithFile(url, paramsStr, successFunction, errorFunction, completeFunction, id) {
+	$.ajax({
+		url: url, // 后台处理程序
+		sync: false,
+		type: "POST", // 数据发送方式
+		dataType: "JSON", // 接受数据格式
+		data: eval(paramsStr),
+		processData: false,
+		contentType: false,
+		success: function (msg) {
+			if (typeof successFunction == "function") {
+				successFunction(msg, id);
+			}
+		},
+		beforeSend: function () {
+		
+		},
+		complete: function (msg) {
+			if (typeof completeFunction == "function") {
+				completeFunction(msg, id);
+			}
+		},
+		error: function (msg) {
+			if (typeof errorFunction == "function") {
+				errorFunction(msg, id);
 			}
 		}
 	});

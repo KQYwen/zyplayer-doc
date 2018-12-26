@@ -52,14 +52,13 @@ public class MgDocumentController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/resourcesList")
-	public ResponseJson<Set<SwaggerResourcesInfoVo>> resourcesList() {
+	public ResponseJson<List<SwaggerResourcesInfoVo>> resourcesList() {
 		String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
-		Set<SwaggerResourcesInfoVo> resourcesSet = new HashSet<>();
+		List<SwaggerResourcesInfoVo> resourcesList = new LinkedList<>();
 		if (StringUtils.isNotBlank(swaggerResourcesStr)) {
-			List<SwaggerResourcesInfoVo> resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
-			resourcesSet.addAll(resourcesList);
+			resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
 		}
-		return DocResponseJson.ok(resourcesSet);
+		return DocResponseJson.ok(resourcesList);
 	}
 
 	/**

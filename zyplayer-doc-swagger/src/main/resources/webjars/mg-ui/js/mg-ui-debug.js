@@ -45,17 +45,19 @@ $(document).ready(function(){
 		var paramFormSend = {};
 		var paramBodySend = $("[name=paramBody]").val();
 		var formToUrl = $("[name=formToUrl]").prop('checked') ? 1 : 0;
-		var paramSendToServer = {};
+		// 组装空的表单对象
+		var formDataToServer = new FormData();
+		
 		requestHeaderForm = serializeArrayToObj(requestHeaderForm);
 		requestParamForm = serializeArrayToObj(requestParamForm);
 		storeRequestParam.formToUrl = formToUrl;
-		paramSendToServer.formToUrl = formToUrl;
+		formDataToServer.append("formToUrl", formToUrl);
 		if (isNotEmpty(paramBodySend)) {
 			try {
 				paramBodySend = JSON.stringify(JSON.parse(paramBodySend));
 			} catch (e) {}
 			storeRequestParam.body = paramBodySend;
-			paramSendToServer.body = paramBodySend;
+			formDataToServer.append("body", paramBodySend);
 			// 替换path参数
 			Object.keys(requestParamForm).forEach(function (key) {
 				postUrl = postUrl.replace("{" + key + "}", requestParamForm[key]);
@@ -74,13 +76,14 @@ $(document).ready(function(){
 				postUrl = postUrl.replace("{" + key + "}", value);
 			}
 		});
+		
 		storeRequestParam.form = paramFormSend;
 		// 表单参数是否拼在url上
 		if(formToUrl == 1) {
 			postUrl += "?" + reqParamStr;
 			paramFormSend = "";
 		} else {
-			paramSendToServer.form = JSON.stringify(paramFormSend);
+			formDataToServer.append("form", JSON.stringify(paramFormSend));
 		}
 		// 显示加载中图标
 		$(".send-request .icon").removeClass("hide");
@@ -92,13 +95,23 @@ $(document).ready(function(){
 			}
 		});
 		storeRequestParam.header = paramHeaderSend;
-		paramSendToServer.header = JSON.stringify(paramHeaderSend);
-		paramSendToServer.url = postUrl;
-		paramSendToServer.method = options;
 		//console.log(paramBodySend);
 		var beforeSendTime = new Date().getTime();
+		// 拼装文件
+		var fileInput = $('#requestParamForm').find(".file-input");
+		for (var i = 0; i < fileInput.length; i++) {
+			var fileName = $(fileInput[i]).parents("tr").find("[name=paramName]").val();
+			for (var j = 0; j < fileInput[i].files.length; j++) {
+				formDataToServer.append('files', fileInput[i].files[j]);
+				formDataToServer.append('fileNames', fileName);
+			}
+		}
+		formDataToServer.append("header", JSON.stringify(paramHeaderSend));
+		formDataToServer.append("url", postUrl);
+		formDataToServer.append("method", options);
+		// debugger;
 		// 模拟请求开始
-		ajaxTemp("swagger-mg-ui/http/request", "post", "json", paramSendToServer, function(result){
+		postWithFile("swagger-mg-ui/http/request", formDataToServer, function(result){
 			var afterSendTime = new Date().getTime();
 			//console.log(result);
 			var requestObj = result.data;
@@ -361,6 +374,7 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 						|| (tempParam.paramIn == "path")
 						|| (tempParam.paramIn == "body")
 						|| (tempParam.paramIn == "form")
+						|| (tempParam.paramIn == "formData")
 						|| isNotEmpty(tempParam.paramIn);
 				if (paramInForm && !onlyUseLastForm) {
 					//console.log(tempParam);
@@ -374,10 +388,21 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 						formVal = getAutoFillValue(tempParam.paramType, key);
 					}
 					if(formValueCount > 0) {
-						$("#tabParamTypeForm table tbody").append(getParamTableTr(key, formVal, "", tempParam.paramDesc));
+						$("#tabParamTypeForm table tbody").append(getParamTableTr(key, formVal, "", tempParam.paramDesc, tempParam.paramType));
 					} else {
+						// 文件的input特殊处理
+						if(tempParam.paramType == 'file'){
+							$("#tabParamTypeForm table tbody .base input[name=paramValue]")
+								.attr("type", "file").attr("multiple", "multiple")
+								.addClass("file-input")
+								.val(formVal);
+						} else {
+							$("#tabParamTypeForm table tbody .base input[name=paramValue]")
+								.attr("type", "text")
+								.removeClass("file-input")
+								.val(formVal);
+						}
 						$("#tabParamTypeForm table tbody .base input[name=paramName]").val(key);
-						$("#tabParamTypeForm table tbody .base input[name=paramValue]").val(formVal);
 						$("#tabParamTypeForm table tbody .base input[name=paramValue]").attr("placeholder", getNotEmptyStr(tempParam.paramDesc));
 					}
 					$("#tabParamBody .nav li").eq(0).find("a").click();
@@ -462,8 +487,8 @@ function serializeArrayToObj(formArr) {
 	for (var i = 0; i < formArr.length; i++) {
 		if (formArr[i].name == "paramName" && i < formArr.length) {
 			var key = formArr[i].value;
-			var value = formArr[i+1].value;
-			if(isNotEmpty(key)) {
+			var value = formArr[i + 1].value;
+			if (isNotEmpty(key) && formArr[i + 1].name != "paramName") {
 				paramObj[key] = value;
 			}
 		}
@@ -503,7 +528,7 @@ function bulkEditToTable(tableId, bulkEdit) {
  * @param valuePl
  * @returns
  */
-function getParamTableTr(name, value, namePl, valuePl) {
+function getParamTableTr(name, value, namePl, valuePl, paramType) {
 	name = getNotEmptyStr(name);
 	namePl = getNotEmptyStr(namePl);
 	value = getNotEmptyStr(value);
@@ -514,12 +539,18 @@ function getParamTableTr(name, value, namePl, valuePl) {
 	namePl = (typeof namePl === 'string') ? namePl.replace(regExp, "&quot;") : namePl;
 	value = (typeof value === 'string') ? value.replace(regExp, "&quot;") : value;
 	valuePl = (typeof valuePl === 'string') ? valuePl.replace(regExp, "&quot;") : valuePl;
-	var resultStr = 
-	'<tr class="new">'
-		+'<td><input type="text" class="form-control" name="paramName" value="'+name+'" placeholder="'+namePl+'"></td>'
-		+'<td><input type="text" class="form-control" name="paramValue" value="'+value+'" placeholder="'+valuePl+'"></td>'
-		+'<td><i class="icon-times"></i></td>'
-	+'</tr>';
+	
+	var resultStr =
+		'<tr class="new">'
+			+'<td><input type="text" class="form-control" name="paramName" value="'+name+'" placeholder="'+namePl+'"></td>';
+	// 文件的input特殊处理
+	if(paramType == 'file') {
+		resultStr += '<td><input type="file" multiple class="form-control file-input" name="paramValue" value="'+value+'" placeholder="'+valuePl+'"></td>';
+	} else {
+		resultStr += '<td><input type="text" class="form-control" name="paramValue" value="'+value+'" placeholder="'+valuePl+'"></td>'
+	}
+	resultStr += '<td><i class="icon-times"></i></td>'
+		+'</tr>';
 	return resultStr;
 }
 

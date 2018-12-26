@@ -82,21 +82,31 @@
 			<version>${springfox.swagger.version}</version>
 		</dependency>
 		<!-- 在线文档解析页面 -->
-		<dependency>
-			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-doc-swagger</artifactId>
-			<version>${zyplayer.doc.swagger.version}</version>
-		</dependency>
+		<!--zyplayer-doc-core-->
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-core</artifactId>
 			<version>${zyplayer.doc.core.version}</version>
 		</dependency>
+		<!--zyplayer-doc-db-->
+		<dependency>
+			<groupId>com.zyplayer</groupId>
+			<artifactId>zyplayer-doc-db</artifactId>
+			<version>${zyplayer.doc.db.version}</version>
+		</dependency>
+		<!--zyplayer-doc-swagger-->
+		<dependency>
+			<groupId>com.zyplayer</groupId>
+			<artifactId>zyplayer-doc-swagger</artifactId>
+			<version>${zyplayer.doc.swagger.version}</version>
+		</dependency>
+		<!--swagger-bootstrap-ui-->
 		<dependency>
 			<groupId>com.github.xiaoymin</groupId>
 			<artifactId>swagger-bootstrap-ui</artifactId>
 			<version>${swagger.bootstrap.ui.version}</version>
 		</dependency>
+		<!--springfox-swagger-ui-->
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
@@ -117,12 +127,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-doc-db</artifactId>
-			<version>${zyplayer.doc.db.version}</version>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
