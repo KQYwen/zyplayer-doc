@@ -78,13 +78,6 @@ $(document).ready(function(){
 		});
 		
 		storeRequestParam.form = paramFormSend;
-		// 表单参数是否拼在url上
-		if(formToUrl == 1) {
-			postUrl += "?" + reqParamStr;
-			paramFormSend = "";
-		} else {
-			formDataToServer.append("form", JSON.stringify(paramFormSend));
-		}
 		// 显示加载中图标
 		$(".send-request .icon").removeClass("hide");
 		// 获取header
@@ -105,10 +98,18 @@ $(document).ready(function(){
 				formDataToServer.append('files', fileInput[i].files[j]);
 				formDataToServer.append('fileNames', fileName);
 			}
+			paramFormSend[fileName] = "-";
 		}
 		formDataToServer.append("header", JSON.stringify(paramHeaderSend));
 		formDataToServer.append("url", postUrl);
 		formDataToServer.append("method", options);
+		// 表单参数是否拼在url上
+		if(formToUrl == 1) {
+			postUrl += "?" + reqParamStr;
+			paramFormSend = "";
+		} else {
+			formDataToServer.append("form", JSON.stringify(paramFormSend));
+		}
 		// debugger;
 		// 模拟请求开始
 		postWithFile("swagger-mg-ui/http/request", formDataToServer, function(result){
@@ -279,14 +280,14 @@ function createOnlineDebugRequestParam(requestParamObj, url) {
 
 /**
  * 生成在线调试相关数据
- * @param pRequestObj 之前的调试参数
+ * @param oldRequestObj 之前的调试参数
  * @param requestParamObj 参数列表的参数
  * @param url 请求url
  * @returns
  */
-function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
-	if(isEmptyObject(pRequestObj)) {
-		pRequestObj = {};
+function createOnlineDebugRequestParamFun(oldRequestObj, requestParamObj, url) {
+	if(isEmptyObject(oldRequestObj)) {
+		oldRequestObj = {};
 	}
 	// 清空参数列表
 	$("#tabParamHeader table tbody .new").remove();
@@ -302,33 +303,36 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 	$("#bulkEditHeader,#bulkEditForm").hide();
 	$("#tabParamTypeForm table").show();
 	$("#requestHeaderForm table").show();
+	$("#tabParamTypeForm table tbody .base input[name=paramValue]")
+		.attr("type", "text").removeClass("file-input")
+		.removeAttr("multiple").attr("placeholder", "").val("");
 	
 	var options = $("#debugRequstType .btn .options").text();
-	var formToUrl = pRequestObj.formToUrl || 0;
+	var formToUrl = oldRequestObj.formToUrl || 0;
 	var formToUrlChecked = (options != "GET" && formToUrl == 1);
 	$("input[name='formToUrl']").prop("checked", formToUrlChecked);
 	
 	var onlyUseLastParam = (userSettings.onlyUseLastParam == 1);
-	var onlyUseLastHeader = onlyUseLastParam && !isEmptyObject(pRequestObj.header);
-	var onlyUseLastForm = onlyUseLastParam && !isEmptyObject(pRequestObj.form);
-	var onlyUseLastBody = onlyUseLastParam && !isEmptyObject(pRequestObj.body);
+	var onlyUseLastHeader = onlyUseLastParam && !isEmptyObject(oldRequestObj.header);
+	var onlyUseLastForm = onlyUseLastParam && !isEmptyObject(oldRequestObj.form);
+	var onlyUseLastBody = onlyUseLastParam && !isEmptyObject(oldRequestObj.body);
 	var headerValueCount = 0, formValueCount = 0;
 
-	if(typeof pRequestObj != 'object') {
-		pRequestObj = {};
+	if(typeof oldRequestObj != 'object') {
+		oldRequestObj = {};
 	}
-	if(typeof pRequestObj.header != 'object') {
-		pRequestObj.header = {};
+	if(typeof oldRequestObj.header != 'object') {
+		oldRequestObj.header = {};
 	}
-	if(typeof pRequestObj.form != 'object') {
-		pRequestObj.form = {};
+	if(typeof oldRequestObj.form != 'object') {
+		oldRequestObj.form = {};
 	}
 	for (var i = 0; i < debugGlobalParam.length; i++) {
 		var item = debugGlobalParam[i];
 		if (item.paramIn == 'header') {
-			pRequestObj.header[item.key] = item.value;
+			oldRequestObj.header[item.key] = item.value;
 		} else if (item.paramIn == 'form') {
-			pRequestObj.form[item.key] = item.value;
+			oldRequestObj.form[item.key] = item.value;
 		}
 	}
 	Object.keys(requestParamObj).forEach(function(key){
@@ -336,7 +340,7 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 		if (key == "p-body-obj") {
 			//console.log(tempParam);
 			var paramObj = onlyUseLastBody ? {} : getParamBodyTransObj(tempParam);
-			var bodyObj = pRequestObj.body;
+			var bodyObj = oldRequestObj.body;
 			try {
 				bodyObj = JSON.parse(bodyObj);
 				if(!isEmptyObject(bodyObj)) {
@@ -352,7 +356,7 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 			if (tempParam.paramIn == "header" && !onlyUseLastHeader) {
 				//console.log(tempParam);
 				var headerVal = getNotEmptyStr(tempParam.value);
-				var headerObj = pRequestObj.header;
+				var headerObj = oldRequestObj.header;
 				if(!isEmptyObject(headerObj) && isNotEmpty(headerObj[key])) {
 					headerVal = headerObj[key];
 					headerObj[key] = "";// 赋值为空，后面不再使用
@@ -376,10 +380,14 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 						|| (tempParam.paramIn == "form")
 						|| (tempParam.paramIn == "formData")
 						|| isNotEmpty(tempParam.paramIn);
-				if (paramInForm && !onlyUseLastForm) {
+				paramInForm = paramInForm && !onlyUseLastForm;
+				var formObj = oldRequestObj.form;
+				if (onlyUseLastForm && !isEmptyObject(formObj) && isNotEmpty(formObj[key])) {
+					paramInForm = onlyUseLastForm || true;
+				}
+				if (paramInForm) {
 					//console.log(tempParam);
 					var formVal = getNotEmptyStr(tempParam.value);
-					var formObj = pRequestObj.form;
 					if(!isEmptyObject(formObj) && isNotEmpty(formObj[key])) {
 						formVal = formObj[key];
 						formObj[key] = "";// 赋值为空，后面不再使用
@@ -394,13 +402,9 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 						if(tempParam.paramType == 'file'){
 							$("#tabParamTypeForm table tbody .base input[name=paramValue]")
 								.attr("type", "file").attr("multiple", "multiple")
-								.addClass("file-input")
-								.val(formVal);
+								.addClass("file-input");
 						} else {
-							$("#tabParamTypeForm table tbody .base input[name=paramValue]")
-								.attr("type", "text")
-								.removeClass("file-input")
-								.val(formVal);
+							$("#tabParamTypeForm table tbody .base input[name=paramValue]").val(formVal);
 						}
 						$("#tabParamTypeForm table tbody .base input[name=paramName]").val(key);
 						$("#tabParamTypeForm table tbody .base input[name=paramValue]").attr("placeholder", getNotEmptyStr(tempParam.paramDesc));
@@ -412,7 +416,7 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 		}
 	});
 	// 处理参数外的header
-	var headerObj = pRequestObj.header;
+	var headerObj = oldRequestObj.header;
 	if(!isEmptyObject(headerObj)) {
 		Object.keys(headerObj).forEach(function(key){
 			if(isNotEmpty(headerObj[key])) {
@@ -427,7 +431,7 @@ function createOnlineDebugRequestParamFun(pRequestObj, requestParamObj, url) {
 		});
 	}
 	// 处理参数外的form
-	var formObj = pRequestObj.form;
+	var formObj = oldRequestObj.form;
 	if(!isEmptyObject(formObj)) {
 		Object.keys(formObj).forEach(function(key){
 			if(isNotEmpty(formObj[key])) {
@@ -545,7 +549,7 @@ function getParamTableTr(name, value, namePl, valuePl, paramType) {
 			+'<td><input type="text" class="form-control" name="paramName" value="'+name+'" placeholder="'+namePl+'"></td>';
 	// 文件的input特殊处理
 	if(paramType == 'file') {
-		resultStr += '<td><input type="file" multiple class="form-control file-input" name="paramValue" value="'+value+'" placeholder="'+valuePl+'"></td>';
+		resultStr += '<td><input type="file" multiple class="form-control file-input" name="paramValue" placeholder="'+valuePl+'"></td>';
 	} else {
 		resultStr += '<td><input type="text" class="form-control" name="paramValue" value="'+value+'" placeholder="'+valuePl+'"></td>'
 	}

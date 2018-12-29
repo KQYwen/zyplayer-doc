@@ -374,15 +374,18 @@ $("#apiPathTree").on("click", ".show-doc", function(){
 			var paramDesc = getNotEmptyStr(tempParameters.description);
 			var paramIn = getNotEmptyStr(tempParameters.in);
 			var example = getNotEmptyStr(tempParameters.example, tempParameters.default);
-			if(isNotEmpty(tempParameters.items)) {
-				if(tempParameters.items.$ref == '#/definitions/MultipartFile') {
+			if (isNotEmpty(tempParameters.items)) {
+				// 判断文件类型
+				var refTmp = getNotEmptyStr(tempParameters.items.$ref).toLowerCase();
+				if (refTmp == '#/definitions/multipartfile'
+					|| refTmp == '#/definitions/file') {
 					htmlStr = paramName;
 					htmlStrExample = paramName;
 					paramType = 'file';
 					addRequestParamObj(requestParamObj, paramName, paramType, paramIn, required, paramDesc, example);
 				} else {
-					htmlStr = paramName + "[0]";
-					htmlStrExample = paramName + "[0]";
+					htmlStr = paramName + "[]";
+					htmlStrExample = paramName + "[]";
 				}
 			} else if(isNotEmpty(tempParameters.schema)) {
 				if("array" == tempParameters.schema.type) {
