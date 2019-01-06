@@ -12,7 +12,9 @@ zyplayer-doc-db 数据库文档
 zyplayer-doc-manage 可以单独部署的文档管理后台
 > 后端使用spring-boot、mybatis-plus、springfox-swagger等优秀框架，前端使用[ZUI](http://zui.sexy/)、[Vue](https://cn.vuejs.org/)等框架
 
-> 已集成三套优秀文档前端：[zyplayer-doc-swagger](https://gitee.com/zyplayer/zyplayer-doc)、[swagger-bootstrap-ui](https://gitee.com/xiaoym/swagger-bootstrap-ui)、[springfox-swagger-ui](https://github.com/springfox/springfox/tree/master/springfox-swagger-ui)
+> 已集成三套优秀swagger文档前端：[zyplayer-doc-swagger](https://gitee.com/zyplayer/zyplayer-doc)、[swagger-bootstrap-ui](https://gitee.com/xiaoym/swagger-bootstrap-ui)、[springfox-swagger-ui](https://github.com/springfox/springfox/tree/master/springfox-swagger-ui)
+
+> 已集成[zyplayer-doc-db](https://gitee.com/zyplayer/zyplayer-doc)数据库文档
 
 zyplayer-doc-swagger 原[swagger-mg-ui](https://gitee.com/zyplayer/swagger-mg-ui)，swagger的UI及整套解决方案
 > 具有 后端存储、代理请求、模拟返回、所有文档管理 等一系列原创功能，不止UI
@@ -27,11 +29,9 @@ zyplayer-doc-swagger 原[swagger-mg-ui](https://gitee.com/zyplayer/swagger-mg-ui
 ![](https://images.gitee.com/uploads/images/2018/1216/222322_9a8bb3ac_596905.png "屏幕截图.png")
 ![](https://images.gitee.com/uploads/images/2018/1219/231332_0a95e458_596905.png "屏幕截图.png")
 
-完成！就可以看到提供的三套UI地址和一个后台管理地址，默认集成了三套优秀的swagger的UI提供选择
+完成，就可以看到提供的三套UI地址和一个后台管理地址，默认集成了三套优秀的swagger的UI提供选择
 
-还没完！！
-
-进入http://127.0.0.1:8082/zyplayer-doc-manage/document.html 管理和增加任意地址的文档，而且，在集成的三套UI中都可以直接查看和调试这里配置的文档！而且不用对UI做任何调整，只要标准的UI集成进来也可以直接用（屌不屌，原创功能，想了一夜没睡着，今天实现了）
+进入：http://127.0.0.1:8082/zyplayer-doc-manage/document.html 管理和增加任意地址的文档，在集成的三套UI中都可以直接查看和调试这里配置的文档，不用对UI做任何调整，只要标准的UI集成进来也可以直接用
 ![](https://images.gitee.com/uploads/images/2018/1216/223459_553cd220_596905.png "屏幕截图.png")
 
 ![](https://images.gitee.com/uploads/images/2018/1216/223927_a35c6cc5_596905.png "屏幕截图.png")
