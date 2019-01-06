@@ -1,9 +1,10 @@
 package com.zyplayer.doc.db.framework.db.bean;
 
 /**
- * @Author
- * @Date 2018/11/11
- **/
+ * 数据库配置信息
+ * @author 暮光：城中城
+ * @since 2018年8月8日
+ */
 public class DbConfigBean {
 	private String driverClassName;
 	private String url;

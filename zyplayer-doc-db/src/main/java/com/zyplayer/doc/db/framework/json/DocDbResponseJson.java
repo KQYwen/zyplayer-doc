@@ -1,15 +1,13 @@
 package com.zyplayer.doc.db.framework.json;
 
-import java.io.IOException;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * 数据库文档返回数据格式
@@ -85,7 +83,8 @@ public class DocDbResponseJson implements ResponseJson {
 	 * 
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
+	 * @param errMsg 提示信息
+	 * @return 对象
 	 */
 	public static DocDbResponseJson warn(String errMsg) {
 		return new DocDbResponseJson(300, errMsg);
@@ -96,7 +95,8 @@ public class DocDbResponseJson implements ResponseJson {
 	 * 
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
+	 * @param errMsg 错误信息
+	 * @return 对象
 	 */
 	public static DocDbResponseJson error(String errMsg) {
 		return new DocDbResponseJson(500, errMsg);
@@ -107,7 +107,7 @@ public class DocDbResponseJson implements ResponseJson {
 	 * 
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
+	 * @return 对象
 	 */
 	public static DocDbResponseJson ok() {
 		return new DocDbResponseJson();
@@ -118,7 +118,8 @@ public class DocDbResponseJson implements ResponseJson {
 	 * 
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
+	 * @param data 数据
+	 * @return 对象
 	 */
 	public static DocDbResponseJson ok(Object data) {
 		return new DocDbResponseJson(data);
