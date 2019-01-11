@@ -27,6 +27,7 @@
 
 3. 启动zyplayer-doc-manage项目，访问地址：
 http://127.0.0.1:8082/zyplayer-doc-manage/statics/manage/home.html
+未登录会进入登录页面，登陆后自动跳回，默认账号：zyplayer 密码:123456
 
 #### 功能介绍
 
