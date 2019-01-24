@@ -39,12 +39,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/statics/lib/**", "/css/**", "/js/**", "/img/**");
+		web.ignoring().antMatchers("/static/lib/**", "/css/**", "/js/**", "/img/**");
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		String loginPage = "/statics/manage/login.html";
+		String loginPage = "/static/manage/login.html";
 		
 		http.authorizeRequests().antMatchers("/login/**").permitAll()//为了测试其他功能，设置“ /** ”允许所有请求
 				.antMatchers("/document.html", "/doc.html").hasAuthority("DOC_ALL")

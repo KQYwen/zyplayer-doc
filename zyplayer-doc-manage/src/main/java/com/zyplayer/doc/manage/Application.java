@@ -36,7 +36,7 @@ public class Application extends SpringBootServletInitializer {
 		String urlCtx = hostAddress + ":" + serverPort + "/" + contextPath;
 		logger.info("\n----------------------------------------------------------\n\t" +
 						"\t\t地址列表\n\t" +
-						"管理地址：http://{}statics/manage/home.html\n" +
+						"管理地址：http://{}static/manage/home.html\n" +
 						"----------------------------------------------------------",
 				urlCtx
 		);

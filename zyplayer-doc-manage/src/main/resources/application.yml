@@ -1,29 +1,13 @@
 spring:
   application:
     name: zyplayer-doc-manage
-  velocity:
-    layout-url: common/default.vm
-    cache: false
-    suffix: .vm
-    expose-spring-macro-helpers: true
-    date-tool-attribute: dateTool
-    number-tool-attribute: numberTool
-    contentType: text/html;charset=UTF-8
-    resource-loader-path: classpath:/vm/
-    default-content-type: text/html
-    ignore-accept-header: true
-    charset: UTF-8
-    properties:
-      input:
-        encoding: UTF-8
-      output:
-        encoding: UTF-8
+#  mvc:
+#    static-path-pattern: /**
 
 server:
   port: 8082
   servlet:
     context-path: /zyplayer-doc-manage
-
 
 zyplayer:
   doc:
@@ -74,8 +58,8 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: false
-  
-  
+
+
 #一些测试地址
 #https://gitee.com/GeekPerson/central-platform 项目的文档
 #http://47.99.88.28:9200/swagger-resources
