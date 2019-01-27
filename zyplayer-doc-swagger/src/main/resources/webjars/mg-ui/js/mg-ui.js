@@ -49,13 +49,13 @@ $(document).ready(function(){
 	ajaxTemp("swagger-mg-ui/storage/checkConfig", "post", "json", {
 		}, function(json){
 		}, function(msg){
-		}, function(xhr){
+		}, function (xhr) {
 			showGlobalLoadingMessage('服务检查完成，请稍候...', true);
 			var serverStorage = false;
-			if(!isEmptyObject(xhr.responseJSON)) {
+			if (!isEmptyObject(xhr.responseJSON)) {
 				serverStorage = (xhr.responseJSON.errCode == 200);
 			}
-			if(!serverStorage) {
+			if (!serverStorage) {
 				Toast.error("服务器端能力配置有误，新版本必须开启才能使用", 999999);
 				documentLoadFinish();
 			} else {
@@ -63,6 +63,12 @@ $(document).ready(function(){
 			}
 		}
 	);
+	// 定义配置的标签页
+	var tabsArr = [
+		{id: 'docShowConfig', url: 'webjars/zpages/docShowConfig.html', type: 'iframe', icon: 'icon-cog', forbidClose: true}
+	];
+	$('#rightZpages').tabs({tabs: tabsArr});
+	rightContentTabs = $('#rightZpages').data('zui.tabs');
 });
 
 /**
@@ -72,16 +78,28 @@ $(document).ready(function(){
 function getDocumentListByService() {
 	$("#choiseDocListUl").empty();
 	showGlobalLoadingMessage('获取文档列表中，请稍候...', true);
-	ajaxTemp("swagger-mg-ui/document/resourcesList", "post", "json", {}, function(json){
-		if(validateResult(json) && json.data.length > 1) {
-			showGlobalLoadingMessage('等待选择需展示的文档，请选择...', true);
+	// ajaxTemp("swagger-mg-ui/document/resourcesList", "post", "json", {}, function(json){
+	// 	if(validateResult(json) && json.data.length > 1) {
+	// 		showGlobalLoadingMessage('等待选择需展示的文档，请选择...', true);
+	// 		for (var i = 0; i < json.data.length; i++) {
+	// 			var item = json.data[i];
+	// 			$("#choiseDocListUl").append('<li value="'+item.url+'">'+item.url+'</li>');
+	// 		}
+	// 		$('#choiseDocModal').modal({moveable:true, backdrop:'static', keyboard: false});
+	// 	} else {
+	// 		addDocumentByService();
+	// 	}
+	// });
+	ajaxTemp("swagger-mg-ui/document/getLocationList", "post", "json", {}, function (json) {
+		if (validateResult(json) && json.data.length >= 1) {
 			for (var i = 0; i < json.data.length; i++) {
 				var item = json.data[i];
-				$("#choiseDocListUl").append('<li value="'+item.url+'">'+item.url+'</li>');
+				$("#choiceLocationList .dropdown-menu").append('<li><a href="javascript:void(0);" data-location="' + item.location + '">' + item.name + '</a></li>');
 			}
-			$('#choiseDocModal').modal({moveable:true, backdrop:'static', keyboard: false});
+			$("#choiceLocationList .choice-text").text(json.data[0].name);
+			addDocumentByLocationService(json.data[0].location);
 		} else {
-			addDocumentByService();
+			addDocumentByLocationService();
 		}
 	});
 }
@@ -90,13 +108,13 @@ function getDocumentListByService() {
  * 增加文档-通过服务器接口
  * @returns
  */
-function addDocumentByService(choiseDocList) {
+function addDocumentByService(choiceDocList) {
 	// 获取原始的swagger的json对象
 	showGlobalLoadingMessage('通过服务器端获取文档中，请稍候...', true);
-	ajaxTemp("swagger-mg-ui/document/docs", "post", "json", {choiseDocList: choiseDocList}, function(json){
+	ajaxTemp("swagger-mg-ui/document/docs", "post", "json", {choiceDocList: choiceDocList}, function(json){
 		//console.log(json);
 		showGlobalLoadingMessage('文档获取成功，解析中，请稍候...', true);
-		if(isEmptyObject(json) || json.errCode != 200) {
+		if(isEmptyObject(json) || json.errCode !== 200) {
 			Toast.error("获取文档错误，请检查！");
 			return;
 		}
@@ -110,6 +128,48 @@ function addDocumentByService(choiseDocList) {
 			if(userSettings.catalogShowType == 1) {
 				createTreeViewByTree(tempDoc);// url分成一层一层的展示
 			} else if(userSettings.catalogShowType == 2){
+				createTreeViewByTag(tempDoc);// tag方式，整个url显示为一层
+			} else {
+				createTreeViewByTree(tempDoc);// url分成一层一层的展示
+			}
+		}
+		documentLoadFinish();
+	}, function(msg){
+		Toast.error("获取文档失败，请检查！");
+	});
+}
+
+/**
+ * 增加文档-通过服务器接口
+ * @returns
+ */
+function addDocumentByLocationService(choiceDocList) {
+	// 获取原始的swagger的json对象
+	globalLoadingMessager.show();
+	showGlobalLoadingMessage('通过服务器端获取文档中，请稍候...', true);
+	ajaxTemp("swagger-mg-ui/document/docs", "post", "json", {choiceLocationList: choiceDocList}, function(json){
+		//console.log(json);
+		showGlobalLoadingMessage('文档获取成功，解析中，请稍候...', true);
+		if(isEmptyObject(json) || json.errCode !== 200) {
+			Toast.error("获取文档错误，请检查！");
+			return;
+		}
+		documentJsonArr = [];
+		var template = $('#homePageDashboardTemplate').html();
+		$('#homePageDashboard').empty();
+		$('#homePageDashboard').append('<div class="dashboard" data-height="320"></div>');
+		$('#homePageDashboard .dashboard').append(template);
+
+		for (var i = 0; i < json.data.length; i++) {
+			showGlobalLoadingMessage('解析第' + (i + 1) + '份文档，请稍候...', true);
+			var tempDoc = deserialize(json.data[i]);
+			console.log(tempDoc);
+			documentJsonArr.push(tempDoc);// 加到所有文档
+			addHomePageDashboard(tempDoc, tempDoc.fullUrl);
+			createDefinitionsMapByJson(tempDoc);
+			if (userSettings.catalogShowType == 1) {
+				createTreeViewByTree(tempDoc);// url分成一层一层的展示
+			} else if (userSettings.catalogShowType == 2) {
 				createTreeViewByTag(tempDoc);// tag方式，整个url显示为一层
 			} else {
 				createTreeViewByTree(tempDoc);// url分成一层一层的展示
@@ -148,6 +208,17 @@ $("#resizableLeftRight").mgResizableWidth({
 $("#changeContentWidth").click(function(){
 	var isMinWidth = ($("#leftContent").width() == 120);
 	changeContentWidth(isMinWidth ? 360 : 120);
+});
+
+/**
+ * 切换文档
+ */
+$("#choiceLocationList").on("click", ".dropdown-menu li", function(){
+	var text = $(this).find("a").text();
+	var location = $(this).find("a").data("location");
+	$("#choiceLocationList .choice-text").text(text);
+	// 切换文档
+	addDocumentByLocationService(location);
 });
 
 /**
@@ -344,7 +415,7 @@ $("#apiPathTree").on("click", ".show-doc", function(){
 	$("#simulationResultText").val("");
 	getStorage('p-simulation-response-' + docUrl, function(data){
 		var resultText = getNotEmptyStr(data);
-		resultText = (typeof resultText === 'string') ? resultText : JSON.stringify(resultText, null, 4);
+		resultText = (typeof resultText == 'string') ? resultText : JSON.stringify(resultText, null, 4);
 		$("#simulationResultText").val(resultText);
 	});
 	// 处理在线文档
@@ -886,29 +957,8 @@ function addHomePageDashboard(json, fullUrl) {
 }
 
 /**
- * 初始化用户的设置
- * @param 
- * @returns
- */
-function documentLoadFinish() {
-	showGlobalLoadingMessage('文档解析完成！', false);
-	// 定义配置的标签页
-	var tabsArr = [
-		{id: 'docShowConfig', url: 'webjars/zpages/docShowConfig.html', type: 'iframe', icon: 'icon-cog', forbidClose: true},
-	];
-	$('#rightZpages').tabs({tabs: tabsArr});
-	rightContentTabs = $('#rightZpages').data('zui.tabs');
-	// 隐藏提示框
-	setTimeout(function() {
-		globalLoadingMessager.hide();
-	}, 1000);
-	$('#apiPathTree .projects').tree();
-	$('#homePageDashboard').dashboard({draggable: false});
-}
-
-/**
  * 修改树形菜单展示类型
- * @param 
+ * @param
  * @returns
  */
 function updateTreeShowType() {
@@ -933,6 +983,22 @@ function updateTreeShowType() {
 	if(isNotEmpty(treeShowType)) {
 		$('#apiPathTree .projects').addClass(treeShowType);
 	}
+}
+
+/**
+ * 初始化用户的设置
+ * @param
+ * @returns
+ */
+function documentLoadFinish() {
+	showGlobalLoadingMessage('文档解析完成！', false);
+	// 隐藏提示框
+	setTimeout(function() {
+		globalLoadingMessager.hide();
+	}, 1000);
+	regeneratePathTree();
+	//$('#apiPathTree .projects').tree();
+	$('#homePageDashboard .dashboard').dashboard({draggable: false});
 }
 
 /**

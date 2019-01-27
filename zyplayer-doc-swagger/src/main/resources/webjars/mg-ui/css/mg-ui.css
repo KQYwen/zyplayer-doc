@@ -18,6 +18,11 @@ ul{list-style: none;list-style-type: none;}
 
 .local-storage{display: none;}
 
+.choice-location-list{margin-bottom: 10px; width: 100%;}
+.choice-location-list .btn.dropdown-toggle{width: 100%; text-align: left;}
+.choice-location-list .dropdown-menu{width: 100%;}
+.choice-location-list .caret{float: right;margin-top: 8px;}
+
 /**lable的覆盖样式*/
 .label{font-size: 100%;}
 .label-warning {background-color: #f9f5ee; color: #f1a325;}
