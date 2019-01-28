@@ -46,7 +46,8 @@ var rightContentTabs;
 $(document).ready(function(){
 	globalLoadingMessager = new $.zui.Messager({type: 'primary', close: false, time: 0}).show();
 	showGlobalLoadingMessage('检查服务中，请稍候...', true);
-	ajaxTemp("swagger-mg-ui/storage/checkConfig", "post", "json", {
+	// open-doc：请求地址不同
+	ajaxTemp("swagger-mg-ui/open-doc/checkConfig", "post", "json", {
 		}, function(json){
 		}, function(msg){
 		}, function (xhr) {

@@ -34,6 +34,11 @@ public class MgOpenDocController {
 	@Resource
 	private MgStorageService storageService;
 	
+	@PostMapping(value = "/checkConfig")
+	public DocResponseJson<Object> checkConfig() {
+		return DocResponseJson.ok();
+	}
+	
 	/**
 	 * @author 暮光：城中城
 	 * @since 2019年1月27日
