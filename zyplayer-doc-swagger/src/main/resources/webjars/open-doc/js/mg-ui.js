@@ -63,12 +63,7 @@ $(document).ready(function(){
 			}
 		}
 	);
-	// 定义配置的标签页
-	var tabsArr = [
-		{id: 'docShowConfig', url: 'webjars/zpages/docShowConfig.html', type: 'iframe', icon: 'icon-cog', forbidClose: true}
-	];
-	$('#rightZpages').tabs({tabs: tabsArr});
-	rightContentTabs = $('#rightZpages').data('zui.tabs');
+	// open-doc：去掉定义配置的标签页
 });
 
 /**
@@ -76,34 +71,10 @@ $(document).ready(function(){
  * @returns
  */
 function getDocumentListByService() {
-	$("#choiseDocListUl").empty();
+	// open-doc：整个方法不同
 	showGlobalLoadingMessage('获取文档列表中，请稍候...', true);
-	// ajaxTemp("swagger-mg-ui/document/resourcesList", "post", "json", {}, function(json){
-	// 	if(validateResult(json) && json.data.length > 1) {
-	// 		showGlobalLoadingMessage('等待选择需展示的文档，请选择...', true);
-	// 		for (var i = 0; i < json.data.length; i++) {
-	// 			var item = json.data[i];
-	// 			$("#choiseDocListUl").append('<li value="'+item.url+'">'+item.url+'</li>');
-	// 		}
-	// 		$('#choiseDocModal').modal({moveable:true, backdrop:'static', keyboard: false});
-	// 	} else {
-	// 		addDocumentByService();
-	// 	}
-	// });
-	ajaxTemp("swagger-mg-ui/document/getLocationList", "post", "json", {}, function (json) {
-		if (validateResult(json) && json.data.length >= 1) {
-			for (var i = 0; i < json.data.length; i++) {
-				var item = json.data[i];
-				$("#choiceLocationList .dropdown-menu").append('<li><a href="javascript:void(0);" data-location="' + item.location + '">' + item.name + '</a></li>');
-			}
-			$("#choiceLocationList .choice-text").text(json.data[0].name);
-			addDocumentByLocationService(json.data[0].location);
-		} else {
-			initDashboard();
-			documentLoadFinish();
-			$("#choiceLocationList .choice-text").text("请先至 文档地址管理 处增加文档");
-		}
-	});
+	var doc = getQueryString("doc");
+	addDocumentByLocationService(doc);
 }
 
 /**
@@ -149,7 +120,8 @@ function addDocumentByLocationService(choiceDocList) {
 	// 获取原始的swagger的json对象
 	globalLoadingMessager.show();
 	showGlobalLoadingMessage('通过服务器端获取文档中，请稍候...', true);
-	ajaxTemp("swagger-mg-ui/document/docs", "post", "json", {choiceLocationList: choiceDocList}, function(json){
+	// open-doc：请求地址不同
+	ajaxTemp("swagger-mg-ui/open-doc/docs", "post", "json", {choiceLocationList: choiceDocList}, function(json){
 		//console.log(json);
 		showGlobalLoadingMessage('文档获取成功，解析中，请稍候...', true);
 		if(isEmptyObject(json) || json.errCode !== 200) {
@@ -412,11 +384,7 @@ $("#apiPathTree").on("click", ".show-doc", function(){
 	$("#simulationResultUrlTest").text(data.domain + docUrl + "?zyplayerApiTest=1");
 	$("#simulationResultUrlTest").attr("href", data.domain + docUrl + "?zyplayerApiTest=1");
 	$("#simulationResultText").val("");
-	getStorage('p-simulation-response-' + docUrl, function(data){
-		var resultText = getNotEmptyStr(data);
-		resultText = (typeof resultText == 'string') ? resultText : JSON.stringify(resultText, null, 4);
-		$("#simulationResultText").val(resultText);
-	});
+	// open-doc：去掉了模拟返回
 	// 处理在线文档
 	$("#docUrl").text(docUrl);
 	$("#docRequestMethod").text(getNotEmptyStr(data.method));
@@ -1004,7 +972,7 @@ function documentLoadFinish() {
  * 存储用户设置
  */
 function storeUserSettings() {
-	setStorage(cacheKeys.userSettings, userSettings);
+	// open-doc：去掉存储设置
 }
 
 /**
@@ -1020,19 +988,12 @@ function updateUserSettings(newSetting) {
  * @returns
  */
 function initUserSettings() {
-	getStorage(cacheKeys.userSettings, function(data) {
-		userSettings = data;
-		if(isEmpty(userSettings) || isEmptyObject(userSettings)) {
-			userSettings = defaultUserSettings;
-		}
-		changeContentWidth(userSettings.prevWNow);
-		updateTreeShowType();
-		// 增加文档
-		getDocumentListByService();
-	});
-	getStorage(cacheKeys.globalParamList, function(data) {
-		debugGlobalParam = data;
-	});
+	// open-doc：去掉了获取配置和全局参数
+	userSettings = defaultUserSettings;
+	changeContentWidth(userSettings.prevWNow);
+	updateTreeShowType();
+	// 增加文档
+	getDocumentListByService();
 }
 
 function showGlobalLoadingMessage(text, loading) {

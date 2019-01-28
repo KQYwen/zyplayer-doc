@@ -1,11 +1,14 @@
 package com.zyplayer.doc.swagger.controller.vo;
 
+import cn.hutool.core.util.RandomUtil;
+
 import java.net.URLDecoder;
 import java.util.Objects;
 
 public class LocationListVo {
 	private Integer id;
 	private String name;
+	private String uuid;
 	private String location;
 	private String resources;
 	private String rewriteDomainUrl;
@@ -18,6 +21,7 @@ public class LocationListVo {
 		this.location = location;
 		this.resources = resources;
 		this.name = location;
+		this.uuid = RandomUtil.simpleUUID();
 		// 修正名字
 		int indexGroup = location.indexOf("group=");
 		int indexV2 = location.indexOf("/v2");
@@ -83,5 +87,13 @@ public class LocationListVo {
 	
 	public void setRewriteDomainUrl(String rewriteDomainUrl) {
 		this.rewriteDomainUrl = rewriteDomainUrl;
+	}
+	
+	public String getUuid() {
+		return uuid;
+	}
+	
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 }

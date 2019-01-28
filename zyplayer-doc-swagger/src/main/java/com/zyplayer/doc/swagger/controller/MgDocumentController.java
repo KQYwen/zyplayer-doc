@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 /**
  * 文档控制器
- * 
+ *
  * @author 暮光：城中城
  * @since 2018年8月21日
  */
@@ -46,7 +46,7 @@ public class MgDocumentController {
 	
 	/**
 	 * 获取所有的文档地址
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月21日
 	 * @return 文档内容
@@ -301,7 +301,7 @@ public class MgDocumentController {
 
 	/**
 	 * 增加/swagger-resources地址
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月21日
 	 * @param resourcesUrl swagger-resources地址
@@ -341,6 +341,8 @@ public class MgDocumentController {
 			logger.error("获取文档失败：{}，{}", resourcesUrl, e.getMessage());
 			return DocResponseJson.warn("该地址查找文档失败");
 		}
+		// 去重
+		resourcesList = resourcesList.stream().distinct().collect(Collectors.toList());
 		storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesList));
 		return DocResponseJson.ok();
 	}
@@ -379,7 +381,7 @@ public class MgDocumentController {
 
 	/**
 	 * 删除/v2/api-docs
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月21日
 	 * @param docUrl 文档地址
@@ -489,6 +491,10 @@ public class MgDocumentController {
 	 * url编码参数
 	 */
 	private String encodeUrlParam(String resourcesUrl) {
+		if (StringUtils.isBlank(resourcesUrl)) {
+			return resourcesUrl;
+		}
+		resourcesUrl = resourcesUrl.trim();
 		int indexOf = resourcesUrl.indexOf("?");
 		if (indexOf < 0) {
 			return resourcesUrl;

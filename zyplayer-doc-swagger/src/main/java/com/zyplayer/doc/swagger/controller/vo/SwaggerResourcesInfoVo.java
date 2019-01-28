@@ -7,6 +7,7 @@ import springfox.documentation.swagger.web.SwaggerResource;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class SwaggerResourcesInfoVo implements Serializable {
 	private Integer id;
@@ -88,5 +89,18 @@ public class SwaggerResourcesInfoVo implements Serializable {
 	
 	public void setRewriteDomainUrl(String rewriteDomainUrl) {
 		this.rewriteDomainUrl = rewriteDomainUrl;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		return Objects.equals(this.url, ((SwaggerResourcesInfoVo) obj).getUrl());
+	}
+	
+	@Override
+	public int hashCode() {
+		return url.hashCode();
 	}
 }

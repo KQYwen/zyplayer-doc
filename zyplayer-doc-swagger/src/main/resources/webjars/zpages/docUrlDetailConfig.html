@@ -14,6 +14,7 @@
 				<tr>
 					<td style="width: 50px;">序号</td>
 					<td>地址</td>
+					<td>唯一文档地址</td>
 					<td>重写域名地址</td>
 					<td>操作</td>
 				</tr>
@@ -22,6 +23,7 @@
 				<tr v-for="(item,index) in swaggerLocationList" :key="item.id" :data-id="item.id" :data-index="index" >
 					<td>{{index+1}}</td>
 					<td>{{item.location}}</td>
+					<td><a :href="'../../open-doc.html?doc='+item.uuid" target="_blank">{{item.uuid}}</a></td>
 					<td>{{item.rewriteDomainUrl}}</td>
 					<td>
 						<button class="btn btn-danger" type="button" v-on:click="deleteDocUrl($event)">删除</button>
@@ -30,7 +32,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td colspan="4" align="center">
+					<td colspan="5" align="center">
 						<button class="btn" type="button" v-on:click="btnRefreshList">　刷新　</button>
 						<button class="btn btn-info" type="button" v-on:click="exportDocument">导出文档</button>
 						<button class="btn btn-primary" type="button" v-on:click="addNewDocument">增加文档</button>
