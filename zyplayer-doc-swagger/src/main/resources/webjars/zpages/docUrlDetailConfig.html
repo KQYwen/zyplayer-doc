@@ -9,12 +9,15 @@
 
 <body>
 	<div id="app">
+		<div class="alert alert-primary">
+			<div class="content">Tips：开放文档地址 可以不需要登录即可访问</div>
+		</div>
 		<table class="table table-bordered setting-table">
 			<thead>
 				<tr>
 					<td style="width: 50px;">序号</td>
 					<td>地址</td>
-					<td>唯一文档地址</td>
+					<td>开放文档地址</td>
 					<td>重写域名地址</td>
 					<td>操作</td>
 				</tr>
@@ -34,7 +37,6 @@
 				<tr>
 					<td colspan="5" align="center">
 						<button class="btn" type="button" v-on:click="btnRefreshList">　刷新　</button>
-						<button class="btn btn-info" type="button" v-on:click="exportDocument">导出文档</button>
 						<button class="btn btn-primary" type="button" v-on:click="addNewDocument">增加文档</button>
 					</td>
 				</tr>
@@ -53,7 +55,7 @@
 					<div class="modal-body">
 						<div class="input-line">
 							地址：
-							<input v-model="addNewDocumentInput" type="text" class="form-control" placeholder="例：http://192.168.0.172/swagger-resources 或 http://192.168.0.172/v2/api-docs">
+							<input v-model="addNewDocumentInput" type="text" class="form-control" placeholder="例：http://127.0.0.1/swagger-resources 或 http://127.0.0.1/v2/api-docs">
 						</div>
 						<div class="input-line">
 							重写域名地址：
@@ -133,9 +135,6 @@
 						Toast.success("保存成功，刷新后生效！");
 					}
 				});
-			},
-			exportDocument: function () {
-				getExport().exportDocument();
 			},
 			deleteDocUrl: function (event) {
 				if (!confirm("确定要删除吗？")) {

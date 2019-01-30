@@ -1,12 +1,13 @@
 package com.zyplayer.doc.swagger.framework.configuration;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 /**
  * context工具类
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 public class SpringContextUtil implements ApplicationContextAware {
 	
 	public static ApplicationContext context;
+	private static EnableSwaggerMgUi ENABLE_SWAGGER_MG_UI;
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -47,6 +49,39 @@ public class SpringContextUtil implements ApplicationContextAware {
 			for (Object element : beansWithAnnotation.values()) {
 				return element;
 			}
+		}
+		return null;
+	}
+	
+	/**
+	 * 获取EnableSwaggerMgUi
+	 * @date 2019/1/29 12:58
+	**/
+	public static EnableSwaggerMgUi getEnableSwaggerMgUi() {
+		if (ENABLE_SWAGGER_MG_UI != null) {
+			return ENABLE_SWAGGER_MG_UI;
+		}
+		Object annotation = SpringContextUtil.getBeanWithAnnotation(EnableSwaggerMgUi.class);
+		if (annotation != null) {
+			EnableSwaggerMgUi swaggerMgUi = annotation.getClass().getAnnotation(EnableSwaggerMgUi.class);
+			if (swaggerMgUi == null) {
+				// 直接通过superclass去找
+				Class<?> superclass = annotation.getClass().getSuperclass();
+				if (superclass != null) {
+					swaggerMgUi = superclass.getAnnotation(EnableSwaggerMgUi.class);
+				}
+			}
+			if (swaggerMgUi == null) {
+				// 再通过AopUtils去找
+				Class<?> targetClass = AopUtils.getTargetClass(annotation);
+				if (targetClass != null) {
+					swaggerMgUi = targetClass.getAnnotation(EnableSwaggerMgUi.class);
+				}
+			}
+			if (swaggerMgUi != null) {
+				ENABLE_SWAGGER_MG_UI = swaggerMgUi;
+			}
+			return swaggerMgUi;
 		}
 		return null;
 	}

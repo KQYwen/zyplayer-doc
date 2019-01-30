@@ -45,4 +45,11 @@ public interface MgStorageService {
 	 */
 	void remove(String key);
 	
+	/**
+	 * 获取代理请求白名单
+	 * @author 暮光：城中城
+	 * @since 2018年8月19日
+	 */
+	List<String> getProxyRequestWhiteDomain();
+	
 }

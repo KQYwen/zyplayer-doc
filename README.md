@@ -26,7 +26,7 @@
 2. 修改zyplayer-doc-manage项目的application.yml配置文件里面的数据库账号密码
 
 3. 启动zyplayer-doc-manage项目，访问地址：
-http://127.0.0.1:8082/zyplayer-doc-manage/statics/manage/home.html
+http://127.0.0.1:8082/zyplayer-doc-manage/static/manage/home.html
 未登录会进入登录页面，登陆后自动跳回，默认账号：zyplayer 密码:123456
 > 项目页面全是静态的html，如果使用idea启动，有可能访问不了静态页面，需要在这里配置下工作目录，然后重新启动即可
 ![](https://images.gitee.com/uploads/images/2019/0127/222951_4ce343fe_596905.png "配置工作目录")

@@ -7,10 +7,12 @@ import com.zyplayer.doc.swagger.controller.param.HttpRequestParam;
 import com.zyplayer.doc.swagger.controller.vo.HttpCookieVo;
 import com.zyplayer.doc.swagger.controller.vo.HttpHeaderVo;
 import com.zyplayer.doc.swagger.controller.vo.HttpRequestVo;
+import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * 后台代理网络请求的控制器
- * 
+ *
  * @author 暮光：城中城
  * @since 2018年8月21日
  */
@@ -28,8 +30,20 @@ import java.util.stream.Collectors;
 @RequestMapping("/swagger-mg-ui/http")
 public class MgHttpRequestController {
 
+	@Resource
+	MgStorageService mgStorageService;
+
 	@PostMapping(value = "/request")
 	public DocResponseJson<HttpRequestVo> post(HttpRequestParam param) {
+		String paramUrl = param.getUrl();
+		List<String> whiteDomain = mgStorageService.getProxyRequestWhiteDomain();
+		if (whiteDomain == null || whiteDomain.isEmpty()) {
+			return DocResponseJson.warn("未设置代理请求白名单，不能代理请求");
+		}
+		long inWhiteList = whiteDomain.stream().filter(paramUrl::startsWith).count();
+		if (inWhiteList <= 0) {
+			return DocResponseJson.warn("该域名不在白名单内，不能代理请求");
+		}
 		HttpRequest request = param.createRequest();
 		HttpResponse response = request.execute();
 		HttpRequestVo httpRequestVo = new HttpRequestVo();

@@ -39,41 +39,52 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/static/lib/**", "/css/**", "/js/**", "/img/**");
+		web.ignoring().antMatchers();
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		String loginPage = "/static/manage/login.html";
-		
+		// 无需登录即可访问的接口
+		String[] permitAllAntPatterns = {
+			// 登录接口
+			"/login/**",
+			// 开放接口的静态文件和接口
+			"/open-doc.html", "/webjars/open-doc/**", "/swagger-mg-ui/open-doc/**",
+			// http代理请求接口，有白名单限制，也不怕随便请求到内网资源了
+			"/swagger-mg-ui/http/**",
+			// 静态资源
+			"/webjars/zui/**", "/webjars/vue/**", "/static/lib/**"
+		};
+		// 文档页面需要具有文档权限
+		String[] docAntPatterns = {
+			"/document.html", "/doc-db.html", "/doc.html", "/swagger-ui.html",
+			"/swagger-mg-ui/document/**", "/swagger-mg-ui/storage/**", "/swagger-resources/**"
+		};
 		http.authorizeRequests()
-				.antMatchers(
-						"/login/**", "/open-doc.html",
-						"/webjars/open-doc/**", "/swagger-mg-ui/open-doc/**",
-						"/webjars/zui/**", "/webjars/vue/**"
-				).permitAll()//为了测试其他功能，设置“ /** ”允许所有请求
-				.antMatchers("/document.html", "/doc.html").hasAuthority("DOC_ALL")
-				// 其他地址的访问均需登录
-				.anyRequest().authenticated().and()
-				// 添加验证码验证
-				.addFilterAt(myUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-				.exceptionHandling()
-				.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint(loginPage))
-				.and().addFilterAt(rememberMeAuthenticationFilter(), RememberMeAuthenticationFilter.class)
-				// 指定登录页面的请求路径
-				.formLogin().loginPage(loginPage)
-				// 登陆处理路径
-				.loginProcessingUrl("/login").permitAll()
-				// 退出请求的默认路径为logout
-				.and().logout().deleteCookies("remember-me")
-				.logoutUrl("/logout").logoutSuccessUrl(loginPage)
-				.permitAll()
-				// 开启rememberMe，设置一个私钥专供testall项目使用，注意与下面TokenBasedRememberMeServices的key保持一致
-				// .rememberMe().key("testallKey").and()
-				// 关闭csrf
-				.and().csrf().disable()
-				// X-Frame-Options: SAMEORIGIN 表示该页面可以在相同域名页面的 frame 中展示
-				.headers().frameOptions().sameOrigin();
+			.antMatchers(permitAllAntPatterns).permitAll()
+			.antMatchers(docAntPatterns).hasAuthority("DOC_ALL")
+			// 其他地址的访问均需登录
+			.anyRequest().authenticated().and()
+			// 添加验证码验证
+			.addFilterAt(myUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+			.exceptionHandling()
+			.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint(loginPage))
+			.and().addFilterAt(rememberMeAuthenticationFilter(), RememberMeAuthenticationFilter.class)
+			// 指定登录页面的请求路径
+			.formLogin().loginPage(loginPage)
+			// 登陆处理路径
+			.loginProcessingUrl("/login").permitAll()
+			// 退出请求的默认路径为logout
+			.and().logout().deleteCookies("remember-me")
+			.logoutUrl("/logout").logoutSuccessUrl(loginPage)
+			.permitAll()
+			// 开启rememberMe，设置一个私钥专供testall项目使用，注意与下面TokenBasedRememberMeServices的key保持一致
+			// .rememberMe().key("testallKey").and()
+			// 关闭csrf
+			.and().csrf().disable()
+			// X-Frame-Options: SAMEORIGIN 表示该页面可以在相同域名页面的 frame 中展示
+			.headers().frameOptions().sameOrigin();
 	}
 
 	@Override

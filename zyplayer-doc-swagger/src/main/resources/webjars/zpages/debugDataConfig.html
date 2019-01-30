@@ -58,9 +58,6 @@
 				Toast.success("刷新成功！");
 			},
 			deleteDebugData: function(event){
-				if(!confirm("确定要删除吗？")) {
-					return;
-				}
 				var tr = $(event.currentTarget).parents("tr");
 				var index = tr.data("index");
 				var delKey = app.debugDataList[index].key;

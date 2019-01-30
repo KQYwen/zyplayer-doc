@@ -11,6 +11,10 @@ server:
 
 zyplayer:
   doc:
+    swagger:
+      proxy-request:
+        # 内部访问时可以代理请求的域名，使用 ; 分割，必须设置，防止访问到内部地址资源
+        white-domain: http://127.0.0.1/;http://www.baidu.com/;http://swagger-bootstrap-ui.xiaominfo.com/
     # zyplayer_doc_manage管理端的数据库配置
     manage:
       datasource:

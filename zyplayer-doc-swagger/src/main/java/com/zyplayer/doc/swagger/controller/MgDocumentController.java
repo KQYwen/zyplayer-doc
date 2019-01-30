@@ -15,7 +15,6 @@ import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -86,38 +85,21 @@ public class MgDocumentController {
 					+ ":" + request.getServerPort() // 端口号
 					+ request.getContextPath();
 			// 是否加入自身的文档
-			Object enableSwaggerMgUi = SpringContextUtil.getBeanWithAnnotation(EnableSwaggerMgUi.class);
-			if (enableSwaggerMgUi != null) {
-				EnableSwaggerMgUi swaggerMgUi = enableSwaggerMgUi.getClass().getAnnotation(EnableSwaggerMgUi.class);
-				if (swaggerMgUi == null) {
-					// 直接通过superclass去找
-					Class<?> superclass = enableSwaggerMgUi.getClass().getSuperclass();
-					if (superclass != null) {
-						swaggerMgUi = superclass.getAnnotation(EnableSwaggerMgUi.class);
-					}
-				}
-				if (swaggerMgUi == null) {
-					// 再通过AopUtils去找
-					Class<?> targetClass = AopUtils.getTargetClass(enableSwaggerMgUi);
-					if (targetClass != null) {
-						swaggerMgUi = targetClass.getAnnotation(EnableSwaggerMgUi.class);
-					}
-				}
-				if (swaggerMgUi == null) {
+			EnableSwaggerMgUi swaggerMgUi = SpringContextUtil.getEnableSwaggerMgUi();
+			if (swaggerMgUi == null) {
+				resourcesSet.add(new SwaggerResourcesInfoVo(serverPath + "/swagger-resources"));
+			} else {
+				if (swaggerMgUi.selfDoc()) {
 					resourcesSet.add(new SwaggerResourcesInfoVo(serverPath + "/swagger-resources"));
-				} else {
-					if (swaggerMgUi.selfDoc()) {
-						resourcesSet.add(new SwaggerResourcesInfoVo(serverPath + "/swagger-resources"));
-					}
-					// 启动后第一次访问没有数据情况下需要加载进来的swagger-resources地址
-					String[] defaultResources = swaggerMgUi.defaultResources();
-					for (String url : defaultResources) {
-						resourcesSet.add(new SwaggerResourcesInfoVo(url));
-					}
-					String[] defaultLocation = swaggerMgUi.defaultLocation();
-					for (String url : defaultLocation) {
-						locationList.add(new LocationListVo(url, ""));
-					}
+				}
+				// 启动后第一次访问没有数据情况下需要加载进来的swagger-resources地址
+				String[] defaultResources = swaggerMgUi.defaultResources();
+				for (String url : defaultResources) {
+					resourcesSet.add(new SwaggerResourcesInfoVo(url));
+				}
+				String[] defaultLocation = swaggerMgUi.defaultLocation();
+				for (String url : defaultLocation) {
+					locationList.add(new LocationListVo(url, ""));
 				}
 			}
 		}

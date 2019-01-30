@@ -113,6 +113,9 @@ $(document).ready(function(){
 		// debugger;
 		// 模拟请求开始
 		postWithFile("swagger-mg-ui/http/request", formDataToServer, function(result){
+			if (!validateResult(result)) {
+				return;
+			}
 			var afterSendTime = new Date().getTime();
 			//console.log(result);
 			var requestObj = result.data;
