@@ -11,6 +11,7 @@ public class LocationListVo {
 	private String uuid;
 	private String location;
 	private String resources;
+	private Integer openVisit;
 	private String rewriteDomainUrl;
 	
 	public LocationListVo(){
@@ -95,5 +96,13 @@ public class LocationListVo {
 	
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
+	}
+	
+	public Integer getOpenVisit() {
+		return openVisit;
+	}
+	
+	public void setOpenVisit(Integer openVisit) {
+		this.openVisit = openVisit;
 	}
 }

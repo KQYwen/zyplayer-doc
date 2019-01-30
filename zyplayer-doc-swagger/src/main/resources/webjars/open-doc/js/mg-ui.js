@@ -131,10 +131,14 @@ function addDocumentByLocationService(choiceDocList) {
 		}
 		documentJsonArr = [];
 		initDashboard();
-
-		for (var i = 0; i < json.data.length; i++) {
+		var data = json.data || [];
+		if (data.length <= 0) {
+			documentLoadError('未找到相关文档，请确认地址是否正确');
+			return;
+		}
+		for (var i = 0; i < data.length; i++) {
 			showGlobalLoadingMessage('解析第' + (i + 1) + '份文档，请稍候...', true);
-			var tempDoc = deserialize(json.data[i]);
+			var tempDoc = deserialize(data[i]);
 			console.log(tempDoc);
 			documentJsonArr.push(tempDoc);// 加到所有文档
 			addHomePageDashboard(tempDoc, tempDoc.fullUrl);
@@ -954,9 +958,7 @@ function updateTreeShowType() {
 }
 
 /**
- * 初始化用户的设置
- * @param
- * @returns
+ * 文档正常加载完成
  */
 function documentLoadFinish() {
 	showGlobalLoadingMessage('文档解析完成！', false);
@@ -966,6 +968,19 @@ function documentLoadFinish() {
 	}, 1000);
 	regeneratePathTree();
 	//$('#apiPathTree .projects').tree();
+	$('#homePageDashboard .dashboard').dashboard({draggable: false});
+}
+
+/**
+ * 文档加载完成-有错误
+ */
+function documentLoadError(toastInfo) {
+	showGlobalLoadingMessage(toastInfo);
+	// 隐藏提示框
+	setTimeout(function() {
+		globalLoadingMessager.hide();
+	}, 3000);
+	regeneratePathTree();
 	$('#homePageDashboard .dashboard').dashboard({draggable: false});
 }
 

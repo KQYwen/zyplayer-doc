@@ -61,6 +61,12 @@
 							重写域名地址：
 							<input v-model="rewriteDomainUrl" type="text" name="rewriteDomainUrl" class="form-control" placeholder="文档展示配置页 勾选“重写域名”重写的地址">
 						</div>
+						<div class="input-line">
+							<div class="switch switch-inline">
+								<input type="checkbox" v-model="openVisit">
+								<label>是否开启开放文档</label>
+							</div>
+						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary" v-on:click="addNewDocumentBtn">保存</button>
@@ -85,6 +91,7 @@
 			swaggerLocationList: [],
 			addNewDocumentInput: '',
 			rewriteDomainUrl: '',
+			openVisit: '',
 			oldLocation: ''
 		},
 		methods: {
@@ -109,9 +116,11 @@
 				app.oldLocation = item.location;
 				app.addNewDocumentInput = item.location;
 				app.rewriteDomainUrl = item.rewriteDomainUrl;
+				app.openVisit = (item.openVisit == 1);
 				$('#addNewDocumentModal').modal({moveable: true});
 			},
 			addNewDocument: function(){
+				app.openVisit = false;
 				app.oldLocation = '';
 				app.addNewDocumentInput = '';
 				$('#addNewDocumentModal').modal({moveable:true});
@@ -122,6 +131,7 @@
 					Toast.error("地址不可以为空");return;
 				}
 				var param = {
+					openVisit: app.openVisit ? 1 : 0,
 					resourcesUrl: addNewDocumentInput,
 					rewriteDomainUrl: app.rewriteDomainUrl,
 					oldUrl: app.oldLocation

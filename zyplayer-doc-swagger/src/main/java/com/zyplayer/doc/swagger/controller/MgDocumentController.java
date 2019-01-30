@@ -290,7 +290,7 @@ public class MgDocumentController {
 	 * @return 添加结果
 	 */
 	@PostMapping(value = "/addSwaggerResources")
-	public ResponseJson<Object> addSwaggerResources(String resourcesUrl, String rewriteDomainUrl, String oldUrl) {
+	public ResponseJson<Object> addSwaggerResources(String resourcesUrl, String rewriteDomainUrl, String oldUrl, Integer openVisit) {
 		String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
 		// 转成set，防止重复
 		List<SwaggerResourcesInfoVo> resourcesList = new LinkedList<>();
@@ -306,13 +306,13 @@ public class MgDocumentController {
 			oldUrl = this.encodeUrlParam(oldUrl);
 			resourcesUrl = this.encodeUrlParam(resourcesUrl);
 			String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
-			boolean isLocation = this.addSwaggerLocationList(resourcesStr, rewriteDomainUrl, resourcesUrl, oldUrl);
+			boolean isLocation = this.addSwaggerLocationList(resourcesStr, rewriteDomainUrl, resourcesUrl, oldUrl, openVisit);
 			if (!isLocation) {
 				List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 				if (resourceList == null || resourceList.isEmpty()) {
 					return DocResponseJson.warn("该地址未找到文档");
 				}
-				this.addSwaggerLocationList(resourceList, resourcesUrl);
+				this.addSwaggerLocationList(resourceList, resourcesUrl, rewriteDomainUrl, openVisit);
 				SwaggerResourcesInfoVo resourcesInfoVo = new SwaggerResourcesInfoVo(resourcesUrl, resourceList);
 				resourcesInfoVo.setRewriteDomainUrl(rewriteDomainUrl);
 				resourcesList.add(resourcesInfoVo);
@@ -398,14 +398,24 @@ public class MgDocumentController {
 	/**
 	 * 直接添加地址
  	 */
-	private boolean addSwaggerLocationList(String resourcesStr, String rewriteDomainUrl, String locationUrl, String oldUrl) {
+	private boolean addSwaggerLocationList(String resourcesStr, String rewriteDomainUrl, String locationUrl, String oldUrl, Integer openVisit) {
 		try {
 			SwaggerLocationVo swaggerLocationVo = JSON.parseObject(resourcesStr, SwaggerLocationVo.class);
 			if (swaggerLocationVo != null && StringUtils.isNotBlank(swaggerLocationVo.getSwagger())) {
 				List<LocationListVo> locationList = this.getLocationSet();
-				locationList = locationList.stream().filter(val -> !Objects.equals(val.getLocation(), oldUrl)).collect(Collectors.toList());
+				// 组装新的对象
 				LocationListVo locationListVo = new LocationListVo(locationUrl, "");
 				locationListVo.setRewriteDomainUrl(rewriteDomainUrl);
+				locationListVo.setOpenVisit(openVisit);
+				// 如果旧的不为空，使用旧的uuid
+				for (LocationListVo location : locationList) {
+					if (Objects.equals(location.getLocation(), oldUrl) && StringUtils.isNotBlank(location.getUuid())) {
+						locationListVo.setUuid(location.getUuid());
+						break;
+					}
+				}
+				// 去除旧的，加入新的
+				locationList = locationList.stream().filter(val -> !Objects.equals(val.getLocation(), oldUrl)).collect(Collectors.toList());
 				locationList.add(locationListVo);
 				this.storageSwaggerLocationList(locationList);
 				return true;
@@ -419,13 +429,16 @@ public class MgDocumentController {
 	/**
 	 * 直接添加地址
  	 */
-	private void addSwaggerLocationList(List<SwaggerResource> resourceList, String resourcesUrl) {
+	private void addSwaggerLocationList(List<SwaggerResource> resourceList, String resourcesUrl, String rewriteDomainUrl, Integer openVisit) {
 		List<LocationListVo> locationList = this.getLocationSet();
 		// 加入到location列表
 		String resourcesDomain = resourcesUrl.substring(0, resourcesUrl.lastIndexOf("/") + 1);
 		for (SwaggerResource swaggerResource : resourceList) {
 			String location = this.getLocationUrl(resourcesDomain, swaggerResource.getLocation(), swaggerResource.getName());
-			locationList.add(new LocationListVo(location, resourcesUrl));
+			LocationListVo locationListVo = new LocationListVo(location, resourcesUrl);
+			locationListVo.setRewriteDomainUrl(rewriteDomainUrl);
+			locationListVo.setOpenVisit(openVisit);
+			locationList.add(locationListVo);
 		}
 		this.storageSwaggerLocationList(locationList);
 	}

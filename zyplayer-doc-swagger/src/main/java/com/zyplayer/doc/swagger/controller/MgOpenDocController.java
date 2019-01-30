@@ -68,12 +68,15 @@ public class MgOpenDocController {
 			locationList = JSON.parseArray(swaggerLocationListStr, LocationListVo.class);
 		}
 		if (StringUtils.isNotBlank(choiceLocationList)) {
-			locationList = locationList.stream().filter(val -> Objects.equals(val.getUuid(), choiceLocationList)).collect(Collectors.toList());
+			// uuid相同而且开启了文档
+			locationList = locationList.stream().filter(val -> Objects.equals(val.getUuid(), choiceLocationList) && Objects.equals(val.getOpenVisit(), 1)).collect(Collectors.toList());
 		} else {
 			DocResponseJson.ok().send(response);
+			return;
 		}
 		if (locationList.size() <= 0) {
 			DocResponseJson.ok().send(response);
+			return;
 		}
 		List<String> swaggerResourceStrList = new LinkedList<>();
 		for (LocationListVo location : locationList) {
