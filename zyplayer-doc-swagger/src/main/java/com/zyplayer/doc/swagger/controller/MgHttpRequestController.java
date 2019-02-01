@@ -40,12 +40,20 @@ public class MgHttpRequestController {
 		if (whiteDomain == null || whiteDomain.isEmpty()) {
 			return DocResponseJson.warn("未设置代理请求白名单，不能代理请求");
 		}
-		long inWhiteList = whiteDomain.stream().filter(paramUrl::startsWith).count();
+		paramUrl = paramUrl.replace("http://", "").replace("https://", "");
+		String regexStr = paramUrl.substring(0, paramUrl.indexOf("/"));
+		long inWhiteList = whiteDomain.stream().filter(val -> regexStr.matches(val)).count();
 		if (inWhiteList <= 0) {
 			return DocResponseJson.warn("该域名不在白名单内，不能代理请求");
 		}
 		HttpRequest request = param.createRequest();
-		HttpResponse response = request.execute();
+		HttpResponse response;
+		try{
+			response = request.execute();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return DocResponseJson.warn("请求失败，请检查域名是否正确");
+		}
 		HttpRequestVo httpRequestVo = new HttpRequestVo();
 		httpRequestVo.setData(response.body());
 		httpRequestVo.setStatus(response.getStatus());
