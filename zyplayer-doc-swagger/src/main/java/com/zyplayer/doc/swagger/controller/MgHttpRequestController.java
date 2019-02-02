@@ -42,7 +42,7 @@ public class MgHttpRequestController {
 		}
 		paramUrl = paramUrl.replace("http://", "").replace("https://", "");
 		String regexStr = paramUrl.substring(0, paramUrl.indexOf("/"));
-		long inWhiteList = whiteDomain.stream().filter(val -> regexStr.matches(val)).count();
+		long inWhiteList = whiteDomain.stream().filter(regexStr::matches).count();
 		if (inWhiteList <= 0) {
 			return DocResponseJson.warn("该域名不在白名单内，不能代理请求");
 		}

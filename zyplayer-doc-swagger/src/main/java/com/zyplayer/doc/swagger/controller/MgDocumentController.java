@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -126,9 +125,11 @@ public class MgDocumentController {
 			}
 			locationList.addAll(locationListStorage);
 			this.storageSwaggerLocationList(locationListStorage);
-			
-			AtomicInteger idIndex = new AtomicInteger(1);
-			resourcesSet.forEach(val -> val.setId(idIndex.getAndIncrement()));
+			resourcesSet.forEach(val -> {
+				if (val.getId() == null) {
+					val.setId(storageService.getNextId());
+				}
+			});
 			storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesSet));
 		}
 		List<String> swaggerResourceStrList = new LinkedList<>();
@@ -316,15 +317,18 @@ public class MgDocumentController {
 				SwaggerResourcesInfoVo resourcesInfoVo = new SwaggerResourcesInfoVo(resourcesUrl, resourceList);
 				resourcesInfoVo.setRewriteDomainUrl(rewriteDomainUrl);
 				resourcesList.add(resourcesInfoVo);
-				AtomicInteger idIndex = new AtomicInteger(1);
-				resourcesList.forEach(val -> val.setId(idIndex.getAndIncrement()));
+				resourcesList.forEach(val -> {
+					if (val.getId() == null) {
+						val.setId(storageService.getNextId());
+					}
+				});
 			}
 		} catch (Exception e) {
 			logger.error("获取文档失败：{}，{}", resourcesUrl, e.getMessage());
 			return DocResponseJson.warn("该地址查找文档失败");
 		}
 		// 去重
-		resourcesList = resourcesList.stream().distinct().collect(Collectors.toList());
+		resourcesList = resourcesList.stream().distinct().sorted(Comparator.comparing(SwaggerResourcesInfoVo::getId)).collect(Collectors.toList());
 		storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesList));
 		return DocResponseJson.ok();
 	}
@@ -366,20 +370,16 @@ public class MgDocumentController {
 	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月21日
-	 * @param docUrl 文档地址
+	 * @param location 文档地址
 	 * @return 删除结果
 	 */
 	@Deprecated
 	@PostMapping(value = "/deleteSwaggerDoc")
-	public ResponseJson<Object> deleteSwaggerDoc(String docUrl) {
-//		String swaggerDocsDeleteStr = storageService.get(StorageKeys.SWAGGER_DOCS_DELETE_LIST);
-//		Set<String> swaggerDocsDeleteSet = new HashSet<>();
-//		if (StringUtils.isNotBlank(swaggerDocsDeleteStr)) {
-//			List<String> swaggerDocsDeleteList = JSON.parseArray(swaggerDocsDeleteStr, String.class);
-//			swaggerDocsDeleteSet.addAll(swaggerDocsDeleteList);
-//		}
-//		swaggerDocsDeleteSet.add(docUrl);
-//		storageService.put(StorageKeys.SWAGGER_DOCS_DELETE_LIST, JSON.toJSONString(swaggerDocsDeleteSet));
+	public ResponseJson<Object> deleteSwaggerDoc(String location) {
+		List<LocationListVo> locationList = this.getLocationSet();
+		String locationDel = this.encodeUrlParam(location);
+		locationList = locationList.stream().filter(val -> !Objects.equals(val.getLocation(), locationDel)).collect(Collectors.toList());
+		this.storageSwaggerLocationList(locationList);
 		return DocResponseJson.ok();
 	}
 
@@ -405,15 +405,16 @@ public class MgDocumentController {
 				List<LocationListVo> locationList = this.getLocationSet();
 				// 组装新的对象
 				LocationListVo locationListVo = new LocationListVo(locationUrl, "");
-				locationListVo.setRewriteDomainUrl(rewriteDomainUrl);
-				locationListVo.setOpenVisit(openVisit);
 				// 如果旧的不为空，使用旧的uuid
 				for (LocationListVo location : locationList) {
 					if (Objects.equals(location.getLocation(), oldUrl) && StringUtils.isNotBlank(location.getUuid())) {
-						locationListVo.setUuid(location.getUuid());
+						locationListVo = location;
 						break;
 					}
 				}
+				locationListVo.setLocation(locationUrl);
+				locationListVo.setRewriteDomainUrl(rewriteDomainUrl);
+				locationListVo.setOpenVisit(openVisit);
 				// 去除旧的，加入新的
 				locationList = locationList.stream().filter(val -> !Objects.equals(val.getLocation(), oldUrl)).collect(Collectors.toList());
 				locationList.add(locationListVo);
@@ -431,14 +432,18 @@ public class MgDocumentController {
  	 */
 	private void addSwaggerLocationList(List<SwaggerResource> resourceList, String resourcesUrl, String rewriteDomainUrl, Integer openVisit) {
 		List<LocationListVo> locationList = this.getLocationSet();
+		Map<String, LocationListVo> locationListVoMap = locationList.stream().collect(Collectors.toMap(LocationListVo::getLocation, val -> val));
 		// 加入到location列表
 		String resourcesDomain = resourcesUrl.substring(0, resourcesUrl.lastIndexOf("/") + 1);
 		for (SwaggerResource swaggerResource : resourceList) {
 			String location = this.getLocationUrl(resourcesDomain, swaggerResource.getLocation(), swaggerResource.getName());
-			LocationListVo locationListVo = new LocationListVo(location, resourcesUrl);
+			LocationListVo locationListVo = locationListVoMap.get(location);
+			if (locationListVo == null) {
+				locationListVo = new LocationListVo(location, resourcesUrl);
+				locationList.add(locationListVo);
+			}
 			locationListVo.setRewriteDomainUrl(rewriteDomainUrl);
 			locationListVo.setOpenVisit(openVisit);
-			locationList.add(locationListVo);
 		}
 		this.storageSwaggerLocationList(locationList);
 	}
@@ -447,9 +452,13 @@ public class MgDocumentController {
 	 * 保存location列表
  	 */
 	private void storageSwaggerLocationList(List<LocationListVo> locationSet) {
-		AtomicInteger idIndex = new AtomicInteger(1);
 		locationSet = locationSet.stream().distinct().collect(Collectors.toList());
-		locationSet.forEach(val -> val.setId(idIndex.getAndIncrement()));
+		locationSet.forEach(val -> {
+			if (val.getId() == null) {
+				val.setId(storageService.getNextId());
+			}
+		});
+		locationSet = locationSet.stream().sorted(Comparator.comparing(LocationListVo::getId)).collect(Collectors.toList());
 		storageService.put(StorageKeys.SWAGGER_LOCATION_LIST, JSON.toJSONString(locationSet));
 	}
 	

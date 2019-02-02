@@ -22,6 +22,8 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.util.DigestUtils;
 
+import java.util.Objects;
+
 @Order(1)
 @Configuration
 @EnableWebSecurity
@@ -98,7 +100,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			@Override
 			public boolean matches(CharSequence charSequence, String s) {
 				String digestAsHex = DigestUtils.md5DigestAsHex(charSequence.toString().getBytes());
-				return s.equals(digestAsHex);
+				return Objects.equals(s, digestAsHex);
 			}
 		}).and().authenticationProvider(rememberMeAuthenticationProvider());
 	}

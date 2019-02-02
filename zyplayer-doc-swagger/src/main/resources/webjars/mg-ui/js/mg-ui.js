@@ -96,6 +96,7 @@ function getDocumentListByService() {
 				var item = json.data[i];
 				$("#choiceLocationList .dropdown-menu").append('<li><a href="javascript:void(0);" data-location="' + item.location + '">' + item.name + '</a></li>');
 			}
+			$("#choiceLocationList .dropdown-menu").append('<li><a href="javascript:void(0);" data-location="">全部文档</a></li>');
 			$("#choiceLocationList .choice-text").text(json.data[0].name);
 			addDocumentByLocationService(json.data[0].location);
 		} else {
@@ -412,7 +413,7 @@ $("#apiPathTree").on("click", ".show-doc", function(){
 	$("#simulationResultUrlTest").text(data.domain + docUrl + "?zyplayerApiTest=1");
 	$("#simulationResultUrlTest").attr("href", data.domain + docUrl + "?zyplayerApiTest=1");
 	$("#simulationResultText").val("");
-	getStorage('p-simulation-response-' + docUrl, function(data){
+	getStorage(cacheKeys.pSimulationResponse + docUrl, function(data){
 		var resultText = getNotEmptyStr(data);
 		resultText = (typeof resultText == 'string') ? resultText : JSON.stringify(resultText, null, 4);
 		$("#simulationResultText").val(resultText);

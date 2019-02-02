@@ -11,6 +11,7 @@ ul{list-style: none;list-style-type: none;}
 .tree-menu li li li li li li li li li a{padding-left: 168px;}
 .tree-menu li li li li li li li li li li a{padding-left: 188px;}
 .table td, .table th {vertical-align: middle;}
+.dropdown-menu>li>a{max-width: 100%;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
 #tabDocInfo{position: absolute; bottom: 0;top: 60px;overflow-y: auto; right: 0; left: 10px;}
 #tabOnlineDebug .param-response-box{position: absolute; bottom: 0;top: 100px;overflow-y: auto; right: 0; left: 10px;padding-right: 10px;}
 #tabOnlineDebug .panel{margin-bottom: 10px;}
@@ -21,6 +22,7 @@ ul{list-style: none;list-style-type: none;}
 .choice-location-list{margin-bottom: 10px; width: 100%;}
 .choice-location-list .btn.dropdown-toggle{width: 100%; text-align: left;}
 .choice-location-list .dropdown-menu{width: 100%;}
+.choice-location-list .choice-text{max-width: calc(100% - 15px);overflow: hidden;float: left;white-space: nowrap;text-overflow: ellipsis;}
 .choice-location-list .caret{float: right;margin-top: 8px;}
 
 /**lable的覆盖样式*/

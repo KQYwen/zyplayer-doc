@@ -2,7 +2,7 @@ package com.zyplayer.doc.swagger.framework.constant;
 
 /**
  * 存储数据的KEY常量类
- * 
+ *
  * @author 暮光：城中城
  * @since 2018年8月21日
  */
@@ -15,4 +15,6 @@ public class StorageKeys {
 	public static final String SWAGGER_LOCATION_LIST = "swagger-location-list";
 	// 文档的离线数据key
 	public static final String SWAGGER_OFFLINE_DOC_START = "swagger-offline-doc-";
+	// 自增ID的key
+	public static final String SWAGGER_ID_WORKER = "swagger-id-worker";
 }

@@ -25,15 +25,12 @@ public class LocationListVo {
 		this.uuid = RandomUtil.simpleUUID();
 		// 修正名字
 		int indexGroup = location.indexOf("group=");
-		int indexV2 = location.indexOf("/v2");
 		if (indexGroup >= 0 && location.length() > indexGroup) {
 			try {
 				this.name = URLDecoder.decode(location.substring(indexGroup + 6), "utf-8");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else if (indexV2 >= 0) {
-			this.name = location.substring(indexV2 + 3);
 		}
 	}
 	

@@ -1,5 +1,8 @@
 package com.zyplayer.doc.swagger.framework.service;
 
+import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
+import org.apache.commons.lang.math.NumberUtils;
+
 import java.util.List;
 
 /**
@@ -52,4 +55,17 @@ public interface MgStorageService {
 	 */
 	List<String> getProxyRequestWhiteDomain();
 	
+	/**
+	 * 获取一个自增的ID
+	 * @author 暮光：城中城
+	 * @since 2019年1月27日
+	 */
+	default Integer getNextId() {
+		synchronized (StorageKeys.SWAGGER_ID_WORKER) {
+			String idWorker = this.get(StorageKeys.SWAGGER_ID_WORKER);
+			Integer nextId = NumberUtils.toInt(idWorker, 1);
+			this.put(StorageKeys.SWAGGER_ID_WORKER, String.valueOf(nextId + 1));
+			return nextId;
+		}
+	}
 }

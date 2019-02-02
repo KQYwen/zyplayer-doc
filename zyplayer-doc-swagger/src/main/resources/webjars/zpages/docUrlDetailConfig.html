@@ -10,7 +10,7 @@
 <body>
 	<div id="app">
 		<div class="alert alert-primary">
-			<div class="content">Tips：开放文档地址 可以不需要登录即可访问</div>
+			<div class="content">Tips：开放文档地址 可以不需要登录即可访问，重写域名地址 填写后需开启：文档展示配置->强制重写域名 后才生效</div>
 		</div>
 		<table class="table table-bordered setting-table">
 			<thead>
@@ -26,10 +26,14 @@
 				<tr v-for="(item,index) in swaggerLocationList" :key="item.id" :data-id="item.id" :data-index="index" >
 					<td>{{index+1}}</td>
 					<td>{{item.location}}</td>
-					<td><a :href="'../../open-doc.html?doc='+item.uuid" target="_blank">{{item.uuid}}</a></td>
+					<td>
+						<!--未开放时即使访问这个地址也看不了-->
+						<a v-if="item.openVisit == 1" :href="'../../open-doc.html?doc='+item.uuid" target="_blank">{{item.uuid}}</a>
+						<span v-else>暂未开放</span>
+					</td>
 					<td>{{item.rewriteDomainUrl}}</td>
 					<td>
-						<button class="btn btn-danger" type="button" v-on:click="deleteDocUrl($event)">删除</button>
+						<button class="btn btn-danger" type="button" @click="deleteDocUrl(item.location)">删除</button>
 						<button class="btn btn-info" type="button" v-on:click="editDocUrl($event)">编辑</button>
 						<!--<button class="btn btn-danger" type="button" v-on:click="syncDocData($event)">持久化</button>-->
 					</td>
@@ -146,20 +150,14 @@
 					}
 				});
 			},
-			deleteDocUrl: function (event) {
+			deleteDocUrl: function (location) {
 				if (!confirm("确定要删除吗？")) {
 					return;
 				}
-				var tr = $(event.currentTarget).parents("tr");
-				var index = tr.data("index");
-				var newDocList = [];
-				for (var i = 0; i < app.swaggerLocationList.length; i++) {
-					if (i !== index) {
-						newDocList.push(app.swaggerLocationList[i]);
+				ajaxTemp(urlBase + "swagger-mg-ui/document/deleteSwaggerDoc", "post", "json", {location: location}, function (json) {
+					if (validateResult(json)) {
+						app.refreshList();
 					}
-				}
-				setStorage(cacheKeys.swaggerLocationList, newDocList, function () {
-					app.swaggerLocationList = newDocList;
 				});
 			},
 			syncDocData: function (event) {
