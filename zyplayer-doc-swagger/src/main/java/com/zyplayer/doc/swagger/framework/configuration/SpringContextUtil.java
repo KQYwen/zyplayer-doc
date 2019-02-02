@@ -55,7 +55,8 @@ public class SpringContextUtil implements ApplicationContextAware {
 	
 	/**
 	 * 获取EnableSwaggerMgUi
-	 * @date 2019/1/29 12:58
+	 * @since 2019/1/29 12:58
+	 * @return EnableSwaggerMgUi注解对象
 	**/
 	public static EnableSwaggerMgUi getEnableSwaggerMgUi() {
 		if (ENABLE_SWAGGER_MG_UI != null) {

@@ -288,6 +288,9 @@ public class MgDocumentController {
 	 * @author 暮光：城中城
 	 * @since 2018年8月21日
 	 * @param resourcesUrl swagger-resources地址
+	 * @param oldUrl 老地址
+	 * @param openVisit 是否开放展示
+	 * @param rewriteDomainUrl 重写域名地址
 	 * @return 添加结果
 	 */
 	@PostMapping(value = "/addSwaggerResources")
@@ -388,6 +391,7 @@ public class MgDocumentController {
 	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月21日
+	 * @return Location列表
 	 */
 	@PostMapping(value = "/getLocationList")
 	public ResponseJson<List<LocationListVo>> getLocationList() {

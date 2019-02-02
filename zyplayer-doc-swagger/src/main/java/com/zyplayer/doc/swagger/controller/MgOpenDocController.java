@@ -4,15 +4,16 @@ import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.zyplayer.doc.core.json.DocResponseJson;
-import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.swagger.controller.vo.LocationListVo;
-import com.zyplayer.doc.swagger.controller.vo.SwaggerResourcesInfoVo;
 import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
 import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -38,18 +39,6 @@ public class MgOpenDocController {
 	public DocResponseJson<Object> checkConfig() {
 		return DocResponseJson.ok();
 	}
-	
-	/**
-	 * @author 暮光：城中城
-	 * @since 2019年1月27日
-	 */
-	@ResponseBody
-	@PostMapping(value = "/{source}")
-	public ResponseJson<List<SwaggerResourcesInfoVo>> resourcesList(@PathVariable("source") String source) {
-		
-		return DocResponseJson.ok();
-	}
-	
 	
 	/**
 	 * 获取所有的文档

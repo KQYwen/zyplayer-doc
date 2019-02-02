@@ -52,6 +52,7 @@ public interface MgStorageService {
 	 * 获取代理请求白名单
 	 * @author 暮光：城中城
 	 * @since 2018年8月19日
+	 * @return 白名单列表
 	 */
 	List<String> getProxyRequestWhiteDomain();
 	
@@ -59,6 +60,7 @@ public interface MgStorageService {
 	 * 获取一个自增的ID
 	 * @author 暮光：城中城
 	 * @since 2019年1月27日
+	 * @return 自增ID
 	 */
 	default Integer getNextId() {
 		synchronized (StorageKeys.SWAGGER_ID_WORKER) {
