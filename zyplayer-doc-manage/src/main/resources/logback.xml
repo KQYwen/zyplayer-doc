@@ -1,16 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>
-                [%d{yyyy-MM-dd HH:mm:ss}][%-5level][%logger{0}] %msg%n
-            </pattern>
-        </encoder>
-    </appender>
-    <logger name="com.atomikos.jdbc" level="warn"/>
-    <logger name="com.atomikos.datasource.xa" level="warn"/>
-    <logger name="com.atomikos.icatch.imp" level="warn"/>
-    <root level="info">
-        <appender-ref ref="STDOUT"/>
-    </root>
+	<property name="outPattern" value="[%d{yyyy-MM-dd HH:mm:ss}][%-5level][%logger{0}] %msg%n"/>
+	<!-- 文件历史数 -->
+	<property name="maxHistory" value="7"/>
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${outPattern}</pattern>
+		</encoder>
+	</appender>
+	<appender name="LOG_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/web/logs/zyplayer-doc-manage/error.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>/web/logs/zyplayer-doc-manage/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>${maxHistory}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${outPattern}</pattern>
+		</encoder>
+	</appender>
+	<appender name="LOG_COMMON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/web/logs/zyplayer-doc-manage/common.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>/web/logs/zyplayer-doc-manage/common.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>${maxHistory}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${outPattern}</pattern>
+		</encoder>
+	</appender>
+	<logger name="com.zyplayer.doc.manage.repository" level="warn" />
+	<logger name="com.atomikos.jdbc" level="warn" />
+	<logger name="com.atomikos.datasource.xa" level="warn" />
+	<logger name="com.atomikos.icatch.imp" level="warn" />
+	<root level="info">
+		<appender-ref ref="STDOUT" />
+	</root>
+	<logger name="LOG_ERROR" level="info">
+		<appender-ref ref="LOG_ERROR_FILE" />
+	</logger>
+	<logger name="LOG_COMMON" level="info">
+		<appender-ref ref="LOG_COMMON_FILE" />
+	</logger>
 </configuration>
