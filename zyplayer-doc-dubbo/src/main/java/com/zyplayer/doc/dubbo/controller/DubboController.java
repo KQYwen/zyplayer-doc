@@ -54,7 +54,7 @@ public class DubboController {
 		} else {
 			providerList = this.getDubboInfoByZookeeper();
 		}
-		GenericService bean = ReferenceConfigHolder.getBean(providerList.get(0));
+		GenericService bean = ReferenceConfigHolder.getBean(providerList.get(0).getNodeList().get(0));
 		Object o = bean.$invoke("getUserList", new String[]{}, new String[]{});
 		System.out.println(o);
 		return DocResponseJson.ok(providerList);
@@ -67,15 +67,19 @@ public class DubboController {
 			String resultStr = HttpUtil.get(nacosUrl + "/v1/ns/instance/list?serviceName=" + service);
 			NacosDubboInfo dubboInstance = JSON.parseObject(resultStr, NacosDubboInfo.class);
 			List<NacosDubboInfo.HostsBean> hosts = dubboInstance.getHosts();
+			DubboInfo dubboInfo = new DubboInfo();
+			List<DubboInfo.DubboNodeInfo> nodeList = new LinkedList<>();
 			for (NacosDubboInfo.HostsBean host : hosts) {
-				DubboInfo dubboInfo = new DubboInfo();
-				dubboInfo.setIp(host.getIp());
-				dubboInfo.setPort(host.getPort());
-				dubboInfo.setInterfaceX(host.getMetadata().getInterfaceX());
-				dubboInfo.setMethods(host.getMetadata().getMethods().split(","));
-				dubboInfo.setApplication(host.getMetadata().getApplication());
-				providerList.add(dubboInfo);
+				DubboInfo.DubboNodeInfo dubboNodeInfo = new DubboInfo.DubboNodeInfo();
+				dubboNodeInfo.setIp(host.getIp());
+				dubboNodeInfo.setPort(host.getPort());
+				dubboNodeInfo.setInterfaceX(host.getMetadata().getInterfaceX());
+				dubboNodeInfo.setMethods(host.getMetadata().getMethods().split(","));
+				dubboNodeInfo.setApplication(host.getMetadata().getApplication());
 			}
+			dubboInfo.setInterfaceX(service.substring(service.indexOf(":") + 1));
+			dubboInfo.setNodeList(nodeList);
+			providerList.add(dubboInfo);
 		}
 		return providerList;
 	}
@@ -91,7 +95,8 @@ public class DubboController {
 		List<DubboInfo> providerList = new LinkedList<>();
 		for (String dubboStr : dubboList) {
 			List<String> providers = client.getChildren().forPath("/dubbo/" + dubboStr + "/providers");
-			List<DubboInfo> dubboInfoList = providers.stream().map(val -> {
+			
+			List<DubboInfo.DubboNodeInfo> nodeList = providers.stream().map(val -> {
 				String tempStr = val;
 				try {
 					tempStr = URLDecoder.decode(val, "utf-8");
@@ -110,15 +115,18 @@ public class DubboController {
 					String[] split = param.split("=");
 					paramMap.put(split[0], split[1]);
 				}
-				DubboInfo dubboInfo = new DubboInfo();
-				dubboInfo.setIp(ipPortArr[0]);
-				dubboInfo.setPort(NumberUtils.toInt(ipPortArr[1]));
-				dubboInfo.setInterfaceX(paramMap.get("interface"));
-				dubboInfo.setMethods(paramMap.get("methods").split(","));
-				dubboInfo.setApplication(paramMap.get("application"));
-				return dubboInfo;
+				DubboInfo.DubboNodeInfo dubboNodeInfo = new DubboInfo.DubboNodeInfo();
+				dubboNodeInfo.setIp(ipPortArr[0]);
+				dubboNodeInfo.setPort(NumberUtils.toInt(ipPortArr[1]));
+				dubboNodeInfo.setInterfaceX(paramMap.get("interface"));
+				dubboNodeInfo.setMethods(paramMap.get("methods").split(","));
+				dubboNodeInfo.setApplication(paramMap.get("application"));
+				return dubboNodeInfo;
 			}).collect(Collectors.toList());
-			providerList.addAll(dubboInfoList);
+			DubboInfo dubboInfo = new DubboInfo();
+			dubboInfo.setInterfaceX(dubboStr);
+			dubboInfo.setNodeList(nodeList);
+			providerList.add(dubboInfo);
 		}
 		return providerList;
 	}

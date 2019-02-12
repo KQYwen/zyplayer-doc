@@ -14,10 +14,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ReferenceConfigHolder {
 	private static Map<String, ReferenceConfig> referenceConfigMap = new ConcurrentHashMap<>();
 	
-	public static GenericService getBean(DubboInfo dubboInfo) {
-		String name = dubboInfo.getInterfaceX();
-		String url = "dubbo://" + dubboInfo.getIp() + ":" + dubboInfo.getPort() + "/" + dubboInfo.getInterfaceX();
-		ReferenceConfig referenceConfig = referenceConfigMap.get(name);
+	public static GenericService getBean(DubboInfo.DubboNodeInfo dubboNodeInfo) {
+		String name = dubboNodeInfo.getInterfaceX();
+		String url = "dubbo://" + dubboNodeInfo.getIp() + ":" + dubboNodeInfo.getPort() + "/" + dubboNodeInfo.getInterfaceX();
+		ReferenceConfig referenceConfig = referenceConfigMap.get(url);
 		if (referenceConfig == null) {
 			ApplicationConfig application = new ApplicationConfig();
 			application.setName("zyplayer-doc-consume");
@@ -31,7 +31,7 @@ public class ReferenceConfigHolder {
 			referenceConfig.setInterface(name.substring(name.lastIndexOf(".") + 1));
 			referenceConfig.setGeneric(true);
 			referenceConfig.setApplication(application);
-			referenceConfigMap.put(name, referenceConfig);
+			referenceConfigMap.put(url, referenceConfig);
 		}
 		return (GenericService) referenceConfig.get();
 	}
