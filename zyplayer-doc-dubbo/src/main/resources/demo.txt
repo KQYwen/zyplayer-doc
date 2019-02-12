@@ -1,0 +1,57 @@
+
+zookeeper 格式：
+路劲：ls /dubbo/com.zyplayer.dubbo.service.UserService/providers
+格式：
+dubbo://127.0.0.1:22223/com.zyplayer.dubbo.service.UserService
+    ?anyhost=true
+    &application=dubbo-provider
+    &bean.name=ServiceBean:com.zyplayer.dubbo.service.UserService
+    &dubbo=2.0.2
+    &generic=false
+    &interface=com.zyplayer.dubbo.service.UserService
+    &methods=getUserDetail,getUserList
+    &pid=36580
+    &side=provider
+    &timestamp=1549955979708
+
+nacos 格式：
+文档：https://nacos.io/zh-cn/docs/open-API.html
+请求地址：http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=providers:com.zyplayer.dubbo.service.UserService
+格式：
+{
+	"metadata": {},
+	"dom": "providers:com.zyplayer.dubbo.service.UserService",
+	"cacheMillis": 10000,
+	"useSpecifiedURL": false,
+	"hosts": [{
+		"valid": true,
+		"marked": false,
+		"metadata": {
+			"side": "provider",
+			"protocol": "dubbo",
+			"application": "dubbo-provider",
+			"methods": "getUserDetail,getUserList",
+			"dubbo": "2.0.2",
+			"pid": "8164",
+			"interface": "com.zyplayer.dubbo.service.UserService",
+			"category": "providers",
+			"generic": "false",
+			"anyhost": "true",
+			"bean.name": "ServiceBean:com.zyplayer.dubbo.service.UserService",
+			"timestamp": "1549953970871"
+		},
+		"instanceId": "127.0.0.1#22223#DEFAULT#providers:com.zyplayer.dubbo.service.UserService",
+		"port": 22223,
+		"ip": "127.0.0.1",
+		"clusterName": "DEFAULT",
+		"weight": 1.0,
+		"serviceName": "providers:com.zyplayer.dubbo.service.UserService",
+		"enabled": true
+	}],
+	"checksum": "2489ae2874f2f490caf7d6195192d6c71549955797122",
+	"lastRefTime": 1549955797122,
+	"env": "",
+	"clusters": ""
+}
+
+

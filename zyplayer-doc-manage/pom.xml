@@ -31,6 +31,7 @@
 		<springfox.swagger.ui.version>2.9.2</springfox.swagger.ui.version>
 		<springfox.swagger.version>2.9.2</springfox.swagger.version>
 		<zyplayer.doc.db.version>1.0.1</zyplayer.doc.db.version>
+		<zyplayer.doc.dubbo.version>1.0.1</zyplayer.doc.dubbo.version>
 	</properties>
 
 	<dependencies>
@@ -93,6 +94,12 @@
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-db</artifactId>
 			<version>${zyplayer.doc.db.version}</version>
+		</dependency>
+		<!--zyplayer-doc-dubbo-->
+		<dependency>
+			<groupId>com.zyplayer</groupId>
+			<artifactId>zyplayer-doc-dubbo</artifactId>
+			<version>${zyplayer.doc.dubbo.version}</version>
 		</dependency>
 		<!--zyplayer-doc-swagger-->
 		<dependency>

@@ -11,6 +11,15 @@ server:
 
 zyplayer:
   doc:
+    # dubbo相关配置
+    dubbo:
+#      zookeeper:
+#        url: 127.0.0.1:2181
+      nacos:
+        url: http://127.0.0.1:8848/nacos
+        # 服务名称，多个使用 ; 分割
+        service: providers:com.zyplayer.dubbo.service.UserService;providers:com.zyplayer.dubbo.service.AnnotateService;
+    # swagger相关配置
     swagger:
       proxy-request:
         # 允许代理请求的域名，正则表达式，多个使用 ; 分割，必须设置，防止通过代理接口访问到内部资源，实在觉得没必要可设置为：.+
