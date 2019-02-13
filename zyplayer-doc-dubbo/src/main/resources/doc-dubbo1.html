@@ -1,0 +1,244 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<title>dubbo文档管理系统</title>
+	<link rel="shortcut icon" href="webjars/doc-dubbo/img/api.ico"/>
+	<link rel="stylesheet" href="webjars/doc-dubbo/zui/css/zui.min.css" />
+	<link rel="stylesheet" href="webjars/doc-dubbo/zui/lib/dashboard/zui.dashboard.min.css" />
+	<link rel="stylesheet" href="webjars/doc-dubbo/zui/lib/tabs/zui.tabs.min.css" />
+	<link rel="stylesheet" href="webjars/doc-dubbo/css/doc-dubbo.css" />
+</head>
+<body>
+	<div class="left-body" id="leftContent">
+		<div class="left-header">
+			<span class="logo" id="logoText">zyplayer-doc-dubbo</span>
+			<i class="icon icon-bars" id="changeContentWidth"></i>
+		</div>
+		<div class="scrollbar-hover left-container">
+			<!-- 样式类可选：tree-menu tree-folders tree-chevrons tree-angles -->
+			<ul class="tree tree-lines tree-menu projects" data-ride="tree">
+				<li>
+					<div class="input-group">
+						<input type="text" class="form-control" id="searchDocInput">
+						<span class="input-group-btn">
+							<button class="btn btn-default" type="button" id="searchDocBt">搜索</button>
+						</span>
+					</div>
+				</li>
+				<li id="homePageLi"><a href="javascript:void(0)" path=""><i class="icon-home"></i> 控制台</a></li>
+				<li id="tabZpagesNavigationUl">
+					<a href="#"><i class="icon icon-cogs"></i> 文档管理</a>
+					<ul>
+						<li id="onlineDebugLi1" class="local-storage"><a href="javascript:void(0)" path=""><i class="icon-bug"></i> 在线调试管理</a></li>
+						<li><a href="#" class="page-nav" data-id="docShowConfig" data-href="webjars/zpages/docShowConfig.html" data-icon="icon-cog" data-reload="0"><i class="icon-cog"></i> 文档展示配置</a></li>
+						<li><a href="#" class="page-nav" data-id="docUrlConfig" data-href="webjars/zpages/docUrlConfig.html" data-icon="icon-list" data-reload="1"><i class="icon-list"></i> 文档地址管理</a></li>
+						<li><a href="#" class="page-nav" data-id="docUrlDetailConfig" data-href="webjars/zpages/docUrlDetailConfig.html" data-icon="icon-list-alt" data-reload="1"><i class="icon-list-alt"></i> 详细地址管理</a></li>
+						<li><a href="#" class="page-nav" data-id="globalParamConfig" data-href="webjars/zpages/globalParamConfig.html" data-icon="icon-globe" data-reload="1"><i class="icon-globe"></i> 全局参数管理</a></li>
+						<li><a href="#" class="page-nav" data-id="debugDataConfig" data-href="webjars/zpages/debugDataConfig.html" data-icon="icon-bug" data-reload="1"><i class="icon-bug"></i> 调试数据管理</a></li>
+					</ul>
+				</li>
+			</ul>
+			<div id="apiPathTree">
+				<ul class="tree tree-lines projects"></ul>
+			</div>
+		</div>
+	</div>
+	<div id="resizableLeftRight" class="ui-resizable-handle mgresizableW"></div>
+	<div class="right-container" id="rightContent">
+		<div class="right-container" id="rightContentMask"></div>
+		<div class="tab-page tab-home-page">
+			<div id="homePageDashboard">
+				<div class="dashboard" data-height="320"></div>
+			</div>
+			<div id="homePageDashboardTemplate" class="hidden">
+				<section class="row">
+					<div class="col-md-6 col-sm-6">
+						<div class="panel" data-id="1">
+							<div class="panel-heading">
+								<div class="title">工具介绍</div>
+							</div>
+							<div class="panel-body">
+								<div class="content about">
+									zyplayer-doc-swagger是swagger文档的管理工具，使用简单、解析速度快、走心的设计，
+									支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯。
+									本项目是完全从头写的，所以有任何属性未解析到、UI上有何建议都能及时处理得到。
+									使用中您有任何的意见和建议都可到源码地址处反馈哦！<br/>
+									源码地址：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc-swagger</a>（还有其他很多功能哦），
+									前端框架：<a target="_blank" href="http://zui.sexy">zui</a>（很不错），
+									我的网站：<a target="_blank" href="http://kongjianzhou.com">空间轴</a>、<a target="_blank" href="http://zyplayer.com">自由发挥</a>（都已很久未维护）
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+		<div class="tab-page tab-zpages hide">
+			<div class="tabs" id="rightZpages"></div>
+		</div>
+		<div class="tab-page tab-document hide">
+			<ul class="nav nav-tabs">
+				<li class="active"><a data-tab href="#tabDocInfo">接口说明</a></li>
+				<li><a data-tab href="#tabOnlineDebug">在线调试</a></li>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane tab-document-pane active" id="tabDocInfo">
+					<table class="table table-bordered doc-table">
+						<tr>
+							<td class="info">服务地址</td>
+							<td><span id="docUrl" class="label label-warning"></span></td>
+						</tr>
+						<tr>
+							<td class="info">方法</td>
+							<td><span id="docRequestMethod" class="label label-warning"></span></td>
+						</tr>
+						<tr>
+							<td class="info">说明</td>
+							<td id="docInfo"></td>
+						</tr>
+						<tr>
+							<td class="info">请求参数</td>
+							<td>
+								<div class="tab-pane tab-param-type-pane active" id="docRequestParam">
+									<table class="table table-bordered table-condensed">
+										<thead>
+										<tr><th>参数名</th><th>说明</th><th>类型</th><th>参数位置</th><th>是否必填</th></tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="info">响应Model</td>
+							<td>
+								<div class="tab-pane tab-param-type-pane active" id="docResponseModel">
+									<table class="table table-bordered">
+										<thead>
+										<tr><th>状态码</th><th>说明</th></tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div class="tab-pane tab-document-pane" id="tabOnlineDebug">
+					<div class="post-url-box">
+						<div class="input-group">
+							<input type="text" class="form-control" id="postUrlInput" placeholder="请求的完整地址">
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="button">保存参数到文档</button>
+							</span>
+							<span class="input-group-btn">
+								<button class="btn btn-default send-request" type="button">发送请求 <i class="icon icon-spin icon-spinner-snake hide"></i></button>
+							</span>
+						</div>
+					</div>
+					<div class="param-response-box">
+						<div class="param-box">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h4 class="panel-title">
+										<a data-toggle="collapse" href="#tabParamBody">请求参数</a>
+									</h4>
+								</div>
+								<div id="tabParamBody" class="panel-collapse collapse in">
+									<form id="requestParamForm">
+										<div class="tab-pane tab-param-type-pane active" id="tabParamTypeForm">
+											<table class="table table-bordered param-table">
+												<thead>
+												<tr><th>参数名</th><th>参数类型</th><th>参数值</th><th>说明</th><th></th></tr>
+												</thead>
+												<tbody>
+												<tr class="base">
+													<td><input type="text" class="form-control" name="paramName" placeholder=""></td>
+													<td>
+														<div style="position: relative;">
+															<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+																<span class="options">String</span> <span class="caret"></span>
+															</button>
+															<ul class="dropdown-menu pull-left" role="menu">
+																<li><a href="javascript:void(0);">String</a></li>
+																<li><a href="javascript:void(0);">Integer</a></li>
+																<li><a href="javascript:void(0);">Double</a></li>
+															</ul>
+														</div>
+													</td>
+													<td><input type="text" class="form-control" name="paramValue" placeholder=""></td>
+													<td><input type="text" class="form-control" name="paramDesc" placeholder=""></td>
+													<td><i class="icon-times"></i></td>
+												</tr>
+												</tbody>
+											</table>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+						<div class="response-box">
+							<ul class="nav nav-secondary">
+								<li class="info"><span>结果集</span></li>
+								<li class="active"><a data-tab href="#tabResponseBody">Body</a></li>
+								<li class="local-storage"><a data-tab href="#tabResponseCookie">Cookie</a></li>
+								<li><a data-tab href="#tabResponseHeader">Header</a></li>
+								<li class="right"><span>状态：<i id="httpRequestStatus">200</i>，耗时：<i id="httpRequestTime">0ms</i></span></li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane tab-response-pane active" id="tabResponseBody">
+									<!-- <textarea class="form-control" id="responseBodyTextArea" rows="20" placeholder=""></textarea> -->
+									<div id="responseBodyJsonDiv"></div>
+								</div>
+								<div class="tab-pane tab-response-pane" id="tabResponseCookie">
+									<table class="table table-bordered param-table">
+										<thead>
+											<tr>
+												<th>名字</th>
+												<th>值</th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+								<div class="tab-pane tab-response-pane" id="tabResponseHeader">
+									<table class="table table-bordered param-table">
+										<thead>
+											<tr>
+												<th>名字</th>
+												<th>值</th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="webjars/doc-dubbo/js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/zui/js/zui.min.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/zui/lib/tabs/zui.tabs.min.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/zui/lib/dashboard/zui.dashboard.min.js"></script>
+
+<!--
+<script type="text/javascript" src="webjars/doc-dubbo/js/doc-dubbo.min.js"></script>
+ -->
+<script type="text/javascript" src="webjars/doc-dubbo/js/formatjson.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/toast.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/common.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/mgResizable.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/mg-ui-tree.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/mg-ui-tag.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/mg-ui-debug.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/mg-ui-export.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/mg-ui-cache-keys.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/doc-dubbo.js"></script>
+</html>
+
