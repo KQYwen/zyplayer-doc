@@ -15,7 +15,7 @@ zyplayer:
     dubbo:
       # 优先使用zookeeper，未配置时找nacos的配置
       zookeeper:
-#        url: 127.0.0.1:2181
+        url: 127.0.0.1:2181
       nacos:
         url: http://127.0.0.1:8848/nacos
         # 服务名称，多个使用 ; 分割，nacos没办法获取所有的服务列表，所以需要指定

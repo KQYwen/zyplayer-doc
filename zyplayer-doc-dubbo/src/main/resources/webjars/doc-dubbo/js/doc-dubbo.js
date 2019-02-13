@@ -20,9 +20,9 @@ $(document).ready(function(){
 	globalLoadingMessager = new $.zui.Messager({type: 'primary', close: false, time: 0}).show();
 	showGlobalLoadingMessage('获取文档列表中，请稍候...', true);
 	ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/getDocList", "get", "json", {}, function (json) {
-		if (validateResult(json) && json.data.length >= 1) {
-			dubboDocList = json.data;
-			createTreeViewByTree(json.data);
+		if (validateResult(json)) {
+			dubboDocList = json.data || [];
+			createTreeViewByTree(dubboDocList);
 			initDashboard();
 			documentLoadFinish();
 		}
