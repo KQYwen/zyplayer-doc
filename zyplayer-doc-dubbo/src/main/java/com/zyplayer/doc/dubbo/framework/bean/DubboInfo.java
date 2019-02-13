@@ -11,6 +11,7 @@ import java.util.List;
 public class DubboInfo {
 	@JSONField(name = "interface")
 	private String interfaceX;
+	private DubboDocInfo docInfo;
 	private List<DubboNodeInfo> nodeList;
 	
 	public static class DubboNodeInfo {
@@ -78,4 +79,11 @@ public class DubboInfo {
 		this.interfaceX = interfaceX;
 	}
 	
+	public DubboDocInfo getDocInfo() {
+		return docInfo;
+	}
+	
+	public void setDocInfo(DubboDocInfo docInfo) {
+		this.docInfo = docInfo;
+	}
 }

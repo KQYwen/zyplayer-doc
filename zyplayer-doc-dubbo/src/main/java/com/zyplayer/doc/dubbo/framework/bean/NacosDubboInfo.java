@@ -239,8 +239,6 @@ public class NacosDubboInfo {
 			private String category;
 			private String generic;
 			private String anyhost;
-			@JSONField(name = "bean.name")
-			private String _$BeanName0; // FIXME check this code
 			private String timestamp;
 			
 			public String getSide() {
@@ -321,14 +319,6 @@ public class NacosDubboInfo {
 			
 			public void setAnyhost(String anyhost) {
 				this.anyhost = anyhost;
-			}
-			
-			public String get_$BeanName0() {
-				return _$BeanName0;
-			}
-			
-			public void set_$BeanName0(String _$BeanName0) {
-				this._$BeanName0 = _$BeanName0;
 			}
 			
 			public String getTimestamp() {

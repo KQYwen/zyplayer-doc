@@ -33,6 +33,8 @@ public class ReferenceConfigHolder {
 			referenceConfig.setApplication(application);
 			referenceConfigMap.put(url, referenceConfig);
 		}
+		// 本项目没有dubbo里面申明的类，快放弃时看源码发现可以设置generic返回一个GenericService对象，通过$invoke去操作具体方法，感觉又打开了一扇大门
+		// 本项目选择的不入侵的方式管理文档，所以文档里面就必须手动加参数，写文档那些了
 		return (GenericService) referenceConfig.get();
 	}
 	

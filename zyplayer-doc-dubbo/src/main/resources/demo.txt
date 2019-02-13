@@ -1,4 +1,9 @@
 
+一些地址：
+http://127.0.0.1:8082/zyplayer-doc-manage/zyplayer-doc-dubbo/doc-dubbo/getList
+http://127.0.0.1.56:8848/nacos/index.html
+
+
 zookeeper 格式：
 路劲：ls /dubbo/com.zyplayer.dubbo.service.UserService/providers
 格式：
