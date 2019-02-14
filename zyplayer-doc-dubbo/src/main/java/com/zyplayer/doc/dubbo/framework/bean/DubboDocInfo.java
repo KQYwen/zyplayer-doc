@@ -11,11 +11,13 @@ import java.util.List;
 public class DubboDocInfo {
 	private String service;
 	private String method;
+	private String function;
 	private String explain;
+	private String result;
 	private Integer version;
 	private List<DubboDocParam> params;
 	
-	public class DubboDocParam {
+	public static class DubboDocParam {
 		private String paramName;
 		private String paramType;
 		private String paramDesc;
@@ -100,5 +102,21 @@ public class DubboDocInfo {
 	
 	public void setParams(List<DubboDocParam> params) {
 		this.params = params;
+	}
+	
+	public String getFunction() {
+		return function;
+	}
+	
+	public void setFunction(String function) {
+		this.function = function;
+	}
+	
+	public String getResult() {
+		return result;
+	}
+	
+	public void setResult(String result) {
+		this.result = result;
 	}
 }

@@ -6,31 +6,40 @@
 	<title>dubbo文档管理系统</title>
 	<link rel="shortcut icon" href="webjars/doc-dubbo/img/api.ico"/>
 	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<link rel="stylesheet" href="webjars/doc-dubbo/css/doc-dubbo.css" />
 </head>
 <body>
 	<div id="app">
 		<el-container style="height: 100%;">
-			<el-aside width="auto" style="height: 100%;padding-top: 10px;">
-				<el-row><el-button type="primary" v-on:click="reloadService">重新加载服务列表</el-button></el-row>
-				<el-row><el-switch v-model="isCollapse"></el-switch></el-row>
-				<el-menu default-active="" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" :collapse="isCollapse">
-					<el-submenu index="1">
-						<template slot="title">
-							<i class="el-icon-location"></i>
-							<span slot="title">导航一</span>
-						</template>
-						<el-submenu index="1-4">
-							<span slot="title">选项4</span>
-							<el-menu-item index="1-4-1">选项1</el-menu-item>
-						</el-submenu>
-					</el-submenu>
-				</el-menu>
-				<el-tree :data="pathIndex" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+			<el-aside width="auto" style="height: 100%;">
+				<div style="background: linear-gradient(-90deg, #03DDE4 0%, #30AFED 51%, #8755FF 100%);width: 100%; height:60px;line-height:60px;font-size: 25px;color: #fff;text-align: center;">
+					zyplayer-doc-dubbo
+				</div>
+				<div style="padding: 10px;">
+					<div align="center"><el-button type="primary" v-on:click="reloadService" icon="el-icon-refresh" style="width: 100%;">重新加载服务列表</el-button></div>
+					<!--<el-row><el-switch v-model="isCollapse"></el-switch></el-row>-->
+					<el-input v-model="searchKeywords" placeholder="搜索文档" style="margin: 10px 0;">
+						<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
+					</el-input>
+					<!--<el-menu default-active="" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" :collapse="isCollapse">-->
+						<!--<el-submenu index="1">-->
+							<!--<template slot="title">-->
+								<!--<i class="el-icon-setting"></i>-->
+								<!--<span slot="title">文档管理</span>-->
+							<!--</template>-->
+							<!--<el-menu-item index="1-1">管理服务列表</el-menu-item>-->
+						<!--</el-submenu>-->
+					<!--</el-menu>-->
+					<el-tree :data="pathIndex" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+				</div>
 			</el-aside>
 			<el-container>
 				<el-tabs type="border-card" style="width: 100%;">
 					<el-tab-pane label="接口说明">
-						<el-form label-width="80px">
+						<div v-if="!dubboInfo.interface">
+							请先选择服务
+						</div>
+						<el-form v-else label-width="80px">
 							<el-form-item label="服务：">
 								{{dubboInfo.interface}}
 							</el-form-item>
@@ -38,18 +47,90 @@
 								{{dubboInfo.method}}
 							</el-form-item>
 							<el-form-item label="说明：">
-
+								<div v-if="dubboInfoExplainShow">
+									<pre>{{dubboInfo.docInfo.explain}}<el-button @click.prevent="dubboInfoExplainShow = false;" style="float: right;">编辑</el-button></pre>
+								</div>
+								<div v-else>
+									<el-input type="textarea" :rows="4" placeholder="请输入说明内容" v-model="docInfoExplainInput"></el-input>
+									<el-button @click.prevent="dubboInfoExplainShow = true;" style="float: right;margin: 5px;">取消</el-button>
+									<el-button type="primary" @click.prevent="saveDocInfoExplain" style="float: right;margin: 5px;">保存</el-button>
+								</div>
+							</el-form-item>
+							<el-form-item label="节点：">
+								<el-table :data="dubboInfo.nodeList" border style="width: 100%">
+									<el-table-column prop="application" label="应用"></el-table-column>
+									<el-table-column prop="ip" label="IP"></el-table-column>
+									<el-table-column prop="port" label="端口"></el-table-column>
+								</el-table>
 							</el-form-item>
 							<el-form-item label="参数：">
-
+								<el-table :data="docParamList" border style="width: 100%; margin-bottom: 5px;">
+									<el-table-column label="顺序" width="100">
+										<template slot-scope="scope">{{scope.$index + 1}}</template>
+									</el-table-column>
+									<el-table-column label="类型" width="200">
+										<template slot-scope="scope">
+											<el-select v-model="scope.row.paramType" clearable placeholder="请选择">
+												<el-option v-for="item in paramTypeOptions" :key="item.value" :label="item.value" :value="item.value"></el-option>
+											</el-select>
+										</template>
+									</el-table-column>
+									<el-table-column label="说明">
+										<template slot-scope="scope">
+											<el-input v-model="scope.row.paramDesc"></el-input>
+										</template>
+									</el-table-column>
+								</el-table>
+								<el-button @click.prevent="saveDocInfoParam" style="float: right;margin: 5px;">保存</el-button>
+								<el-button @click.prevent="addDocParam" style="float: right;margin: 5px;">添加</el-button>
 							</el-form-item>
 							<el-form-item label="结果：">
-
+								<div v-if="dubboInfoResultShow">
+									<pre>{{dubboInfo.docInfo.result}}<el-button @click.prevent="dubboInfoResultShow = false;" style="float: right;">编辑</el-button></pre>
+								</div>
+								<div v-else>
+									<el-input type="textarea" :rows="4" placeholder="请输入说明内容" v-model="docInfoResultInput"></el-input>
+									<el-button @click.prevent="dubboInfoResultShow = true;" style="float: right;margin: 5px;">取消</el-button>
+									<el-button type="primary" @click.prevent="saveDocInfoResult" style="float: right;margin: 5px;">保存</el-button>
+								</div>
 							</el-form-item>
 						</el-form>
 					</el-tab-pane>
 					<el-tab-pane label="在线调试">
-						在线调试页面
+						<div v-if="!dubboInfo.interface">
+							请先选择服务
+						</div>
+						<div v-else>
+							<el-input placeholder="请输入内容" v-model="dubboInfo.function" class="input-with-select">
+								<el-select v-model="requestHostValue" slot="prepend" placeholder="请选择" style="width: 200px;">
+									<el-option v-for="item in requestHostOptions" :key="item.value" :label="item.value" :value="item.value"></el-option>
+								</el-select>
+								<el-button slot="append" @click.prevent="requestExecute">执行</el-button>
+							</el-input>
+							<el-form label-width="100px"label-position="top">
+								<el-form-item label="请求参数：">
+									<el-table :data="docParamRequestList" border style="width: 100%; margin: 10px 0;">
+										<el-table-column label="顺序" width="100">
+											<template slot-scope="scope">{{scope.$index + 1}}</template>
+										</el-table-column>
+										<el-table-column label="类型" width="200">
+											<template slot-scope="scope">{{scope.row.paramType}}</template>
+										</el-table-column>
+										<el-table-column label="参数值" width="300">
+											<template slot-scope="scope">
+												<el-input v-model="scope.row.paramValue"></el-input>
+											</template>
+										</el-table-column>
+										<el-table-column label="说明">
+											<template slot-scope="scope">{{scope.row.paramDesc}}</template>
+										</el-table-column>
+									</el-table>
+								</el-form-item>
+								<el-form-item label="请求结果：">
+									<div v-html="requestResult"></div>
+								</el-form-item>
+							</el-form>
+						</div>
 					</el-tab-pane>
 				</el-tabs>
 			</el-container>
@@ -60,6 +141,8 @@
 <script type="text/javascript" src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script type="text/javascript" src="webjars/doc-dubbo/js/jquery-3.1.0.min.js"></script>
 <script type="text/javascript" src="webjars/doc-dubbo/js/common.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/toast.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/formatjson.js"></script>
 <script type="text/javascript" src="webjars/doc-dubbo/js/doc-dubbo-tree.js"></script>
 
 <script>
@@ -75,21 +158,41 @@
 				},
 				// 展示的信息
 				dubboInfo: {},
-				// 树的下表
-				projectTreeIdIndex: 1,
+				dubboInfoExplainShow: true,
+				docInfoExplainInput: "",
+				dubboInfoResultShow: true,
+				docInfoResultInput: "",
+				// 请求的IP端口下拉选项
+				requestHostOptions: [],
+				requestHostValue: "",
+				requestResult: "",
 				// 依据目录树存储的map全局对象
 				treePathDataMap: new Map(),
 				// dubbo列表
 				dubboDocList: [],
+				dubboDocMap: [],
+				// 搜索的输入内容
+				searchKeywords: "",
+				docParamList: [],
+				docParamRequestList: [],
+				// 参数类型选项
+				paramTypeOptions: [{
+					value: 'java.lang.String'
+				}, {
+					value: 'java.lang.Long'
+				}, {
+					value: 'java.lang.Integer'
+				}, {
+					value: 'other'
+				}],
+				paramTypeValue: "java.lang.String",
 			}
 		},
-		mounted: function(){
-			ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/getDocList", "get", "json", {}, function (json) {
-				if (validateResult(json)) {
-					dubboDocList = json.data || [];
-					app.pathIndex = createTreeViewByTree(dubboDocList);
-				}
-			});
+		watch: {
+		
+		},
+		mounted: function () {
+			this.doGetServiceList();
 		},
 		methods: {
 			handleOpen(key, keyPath) {
@@ -103,17 +206,152 @@
 					var path = data.interface;
 					var dubboInfo = app.treePathDataMap.get(path);
 					dubboInfo.method = data.method;
+					dubboInfo.function = path;
+					dubboInfo.docInfo = app.dubboDocMap[path] || {};
+					// 清空再赋值才会重新渲染
+					app.dubboInfo = {};
 					app.dubboInfo = dubboInfo;
-					console.log(data);
+					app.docInfoExplainInput = dubboInfo.docInfo.explain;
+					app.docParamList = [];
+					app.docParamList = dubboInfo.docInfo.params || [];
+					this.createDocParamRequestList();
+					// 请求相关
+					app.requestResult = "";
+					app.requestHostValue = "";
+					app.requestHostOptions = [];
+					for (var i = 0; i < dubboInfo.nodeList.length; i++) {
+						var item = dubboInfo.nodeList[i];
+						app.requestHostOptions.push({
+							value: item.ip + ":" + item.port
+						});
+					}
+					if (app.requestHostOptions.length > 0) {
+						app.requestHostValue = app.requestHostOptions[0].value;
+					}
+					//console.log(app.dubboInfo);
 				}
 			},
 			reloadService(){
-				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/reloadService", "get", "json", {}, function (json) {
+				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/reloadService", "post", "json", {}, function (json) {
 					if (validateResult(json)) {
 						app.$message({
 							message: '加载成功！',
 							type: 'success'
 						});
+						app.doGetServiceList();
+					}
+				});
+			},
+			searchByKeywords() {
+				app.pathIndex = createTreeViewByTreeWithMerge(app.dubboDocList, app.searchKeywords);
+			},
+			doGetServiceList() {
+				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/getDocList", "post", "json", {}, function (json) {
+					if (validateResult(json)) {
+						app.dubboDocList = json.data.serverList || [];
+						app.dubboDocMap = json.data.docMap || {};
+						app.pathIndex = createTreeViewByTreeWithMerge(app.dubboDocList);
+					}
+				});
+			},
+			saveDocInfoExplain(){
+				this.doSaveDocInfo(app.docInfoExplainInput, null, null);
+			},
+			saveDocInfoResult(){
+				this.doSaveDocInfo(null, null, app.docInfoResultInput);
+			},
+			saveDocInfoParam() {
+				var docParamList = [];
+				for (var i = 0; i < app.docParamList.length; i++) {
+					var item = app.docParamList[i];
+					if (isNotEmpty(item.paramType) || isNotEmpty(item.paramDesc)) {
+						docParamList.push(item);
+					}
+				}
+				var paramsJson = JSON.stringify(docParamList);
+				this.doSaveDocInfo(null, paramsJson, null);
+			},
+			createDocParamRequestList() {
+				var docParamList = [];
+				for (var i = 0; i < app.docParamList.length; i++) {
+					var item = app.docParamList[i];
+					if (isNotEmpty(item.paramType) || isNotEmpty(item.paramDesc)) {
+						docParamList.push(item);
+					}
+				}
+				app.docParamRequestList = docParamList;
+			},
+			doSaveDocInfo(explain, params, result){
+				var param = {
+					service: app.dubboInfo.interface,
+					method: app.dubboInfo.method,
+					version: app.dubboInfo.docInfo.version || 0,
+					explain: explain,
+					result: result,
+					paramsJson: params,
+				};
+				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/saveDoc", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						app.dubboDocMap[json.data.function] = json.data;
+						app.dubboInfo.docInfo = json.data;
+						app.dubboInfoExplainShow = true;
+						app.dubboInfoResultShow = true;
+						app.docParamList = json.data.params || [];
+						app.createDocParamRequestList();
+					}
+				});
+			},
+			addDocParam() {
+				var leadAdd = app.docParamList.length <= 0;
+				if (!leadAdd) {
+					var last = app.docParamList[app.docParamList.length - 1];
+					if (isNotEmpty(last.paramType) || isNotEmpty(last.paramDesc)) {
+						leadAdd = true;
+					}
+				}
+				if (leadAdd) {
+					app.docParamList.push({
+						paramType: '',
+						paramDesc: '',
+						paramValue: '',
+					});
+				}
+			},
+			requestExecute() {
+				var fuc = app.dubboInfo.function;
+				var hostValue = app.requestHostValue;
+				var service = fuc.substring(0, fuc.lastIndexOf("."));
+				var method = fuc.substring(fuc.lastIndexOf(".") + 1, fuc.length);
+				var ip = hostValue.substring(0, hostValue.lastIndexOf(":"));
+				var port = hostValue.substring(hostValue.lastIndexOf(":") + 1, hostValue.length);
+				var paramTypes = [];
+				var params = [];
+				for (var i = 0; i < app.docParamList.length; i++) {
+					var item = app.docParamList[i];
+					if (isNotEmpty(item.paramType) && isNotEmpty(item.paramValue)) {
+						paramTypes.push(item.paramType);
+						params.push(item.paramValue);
+					}
+				}
+				var param = {
+					service: service,
+					method: method,
+					ip: ip,
+					port: port,
+					paramTypes: paramTypes,
+					params: params,
+				};
+				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/request", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						try {
+							app.requestResult = Formatjson.processObjectToHtmlPre(JSON.parse(json.data), 0, false, false, false, false);
+						} catch (e) {
+							try {
+								app.requestResult = Formatjson.processObjectToHtmlPre(json.data, 0, false, false, false, false);
+							} catch (e) {
+								app.requestResult = json.data;
+							}
+						}
 					}
 				});
 			}
@@ -133,12 +371,15 @@
 	.el-tree-node__content{
 		padding-right: 20px;
 	}
+	.el-tabs--border-card>.el-tabs__content{
+		height: calc(100vh - 70px);overflow-y: auto;
+	}
 	html,body,#app {
 		margin: 0;
 		padding: 0;
 		height: 100%;
 	}
-	
+	pre{margin: 0;}
 </style>
 </html>
 

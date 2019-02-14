@@ -20,6 +20,7 @@ function createTreeViewByTree(json, keywords) {
 		return;
 	}
 	//console.log(paths);
+	var lastId = "";
 	for (var i = 0; i < json.length; i++) {
 		var interface = json[i].interface;
 		//console.log(key, paths[key]);
@@ -40,39 +41,30 @@ function createTreeViewByTree(json, keywords) {
 					return;
 				}
 				var nowPath = val;
-				// if(nowPathObj == null) {
-				// 	nowPathObj = [];
-				// 	var temp = nowPathObj[0] = {};
-				// 	temp[nowPath] = findNode(pathIndex, nowPath);
-				// 	if (temp[nowPath] == null) {
-				// 		temp[nowPath] = {};
-				// 		pathIndex.push(nowPathObj);
-				// 	}
-				// }
-				// var tempPathObj = findNode(nowPathObj, nowPath);
-				// if(isEmpty(tempPathObj)) {
-				// 	var temp = [];
-				// 	tempPathObj = temp[0] = {};
-				// 	nowPathObj.push(temp);
-				// }
-				// nowPathObj = tempPathObj;
-				// nowPathObj.label = nowPath;
 				if (nowPathObj == null) {
 					nowPathObj = findNode(pathIndex, nowPath);
 					if (nowPathObj == null) {
-						nowPathObj = {label: nowPath, children: []};
+						nowPathObj = {
+							id: pathIndex.length,
+							label: nowPath, children: []
+						};
 						pathIndex.push(nowPathObj);
 					}
+					lastId = nowPathObj.id;
 					nowPathObj = nowPathObj.children;
 				} else {
 					var tempPathObj = findNode(nowPathObj, nowPath);
 					if(tempPathObj == null) {
-						tempPathObj = {label: nowPath, children: []};
+						tempPathObj = {
+							id: lastId + "." + nowPathObj.length,
+							label: nowPath, children: []
+						};
 						nowPathObj.push(tempPathObj);
 					}
+					lastId = tempPathObj.id;
 					nowPathObj = tempPathObj.children;
 					if (index == keyArr.length - 1) {
-						var tempPath = app.projectTreeIdIndex + ":" + interfaceTemp;
+						var tempPath = interfaceTemp;
 						tempPathObj.children = null;
 						tempPathObj.method = methods[j];
 						tempPathObj.interface = tempPath;
@@ -82,12 +74,19 @@ function createTreeViewByTree(json, keywords) {
 			});
 		}
 	}
-	app.projectTreeIdIndex++;
-	//var htmlStr = getTreeHtmlForTree(pathIndex, app.projectTreeIdIndex);
-	console.log(pathIndex);
+	// console.log(pathIndex);
 	return pathIndex;
 }
 
+function createTreeViewByTreeWithMerge(json, keywords) {
+	var pathIndex = createTreeViewByTree(json, keywords);
+	mergeNode(pathIndex);
+	return pathIndex;
+}
+
+/**
+ * 查找node节点
+ */
 function findNode(arr, service){
 	for (var i = 0; i < arr.length; i++) {
 		if(arr[i].label == service) {
@@ -98,30 +97,23 @@ function findNode(arr, service){
 }
 
 /**
- * 将对象列表递归的方式转换成文档格式html字符串
- * @param pathData 处理后的对象列表
- * @returns 生成的html字符串
+ * 多层级合并
  */
-function getTreeHtmlForTree(pathData, treeIdStr) {
-	var tempStr = "";
-	var indexNow = 1;
-	Object.keys(pathData).forEach(function (key) {
-		var tempNode = pathData[key];
-		var tempTreeId = treeIdStr + "_" + indexNow;
-		if (isNotEmpty(tempNode.interface)) {
-			tempNode.treeId = tempTreeId;
-			tempStr += '<li m-id="' + tempTreeId + '"><a href="#" class="show-doc" method="' + tempNode.method + '" path="' + tempNode.interface + '">' + key + '</a></li>';
-		} else {
-			tempStr += '<li>';
-			tempStr += '<a href="#">' + key + '</a>';
-			tempStr += '<ul>';
-			tempStr += getTreeHtmlForTree(tempNode, tempTreeId);
-			tempStr += '</ul>';
-			tempStr += '</li>';
+function mergeNode(node) {
+	for (var i = 0; i < node.length; i++) {
+		var tempNode = node[i];
+		if (tempNode.children == null
+			|| tempNode.children[0].children == null
+			|| tempNode.children[0].children[0].children == null) {
+			continue;
 		}
-		indexNow++;
-	});
-	return tempStr;
+		if (tempNode.children.length == 1) {
+			tempNode.label = tempNode.label + "." + tempNode.children[0].label;
+			tempNode.children = tempNode.children[0].children;
+			i--;
+		}
+		mergeNode(tempNode.children);
+	}
 }
 
 function findInPathsValue(pathsValue, keywords) {

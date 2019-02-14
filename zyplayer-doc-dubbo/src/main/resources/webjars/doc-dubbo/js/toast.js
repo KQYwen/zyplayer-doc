@@ -4,37 +4,35 @@
  * @since 2017年5月7日
  */
 var Toast = {
-    notOpen: function () {
-        var data = {
-            message: "该功能暂未开放，敬请期待！",
-            icon: 'exclamation-sign', type: "warning",
-        };
-        this.show(data);
-    },
-    success: function (msg, time) {
-        var data = {
-            message: msg, time: time,
-            icon: 'check-circle-o', type: 'success',
-        };
-        this.show(data);
-    },
-    warn: function (msg, time) {
-        var data = {
-            message: msg, time: time,
-            icon: 'exclamation-sign', type: 'warning',
-        };
-        this.show(data);
-    },
-    error: function (msg, time) {
-        var data = {
-            message: msg, time: time,
-            icon: 'exclamation-sign', type: 'danger',
-        };
-        this.show(data);
-    },
-    show: function (data) {
-        data.time = isEmpty(data.time) ? 2000 : data.time;
-        data.placement = isEmpty(data.placement) ? 'top' : data.placement;
-        new $.zui.Messager(data.message, data).show();
-    }
-}
+	notOpen: function () {
+		app.$message({
+			message: '该功能暂未开放，敬请期待！',
+			type: 'warning',
+			showClose: true
+		});
+	},
+	success: function (msg, time) {
+		app.$message({
+			message: msg,
+			duration: time || 3000,
+			type: 'success',
+			showClose: true
+		});
+	},
+	warn: function (msg, time) {
+		app.$message({
+			message: msg,
+			duration: time || 3000,
+			type: 'warning',
+			showClose: true
+		});
+	},
+	error: function (msg, time) {
+		app.$message({
+			message: msg,
+			duration: time || 3000,
+			type: 'error',
+			showClose: true
+		});
+	},
+};

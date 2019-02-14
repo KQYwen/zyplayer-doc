@@ -175,7 +175,7 @@ function getObjectFirstAttributeIfOnly(data) {
 
 /**
  * ajax处理事件模板
- * 
+ *
  * @url 后台处理的url，即action
  * @dataSentType 数据发送的方式，有post，get方式
  * @dataReceiveType 数据接收格式，有html json text等
@@ -189,6 +189,7 @@ function ajaxTemp(url, dataSentType, dataReceiveType, paramsStr, successFunction
 		sync : false,
 		type : dataSentType, // 数据发送方式
 		dataType : dataReceiveType, // 接受数据格式
+		traditional: true,
 		data : eval(paramsStr),
 		contentType : "application/x-www-form-urlencoded; charset=UTF-8",
 		success : function(msg) {

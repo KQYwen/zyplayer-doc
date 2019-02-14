@@ -5,6 +5,7 @@ import com.alibaba.dubbo.rpc.service.GenericService;
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.dubbo.controller.param.DubboRequestParam;
+import com.zyplayer.doc.dubbo.controller.vo.DubboInfoVo;
 import com.zyplayer.doc.dubbo.framework.bean.DubboDocInfo;
 import com.zyplayer.doc.dubbo.framework.bean.DubboInfo;
 import com.zyplayer.doc.dubbo.framework.bean.NacosDubboInfo;
@@ -20,7 +21,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -55,7 +56,7 @@ public class DubboController {
 	 * @author 暮光：城中城
 	 * @since 2019年2月10日
 	 **/
-	@GetMapping(value = "/reloadService")
+	@PostMapping(value = "/reloadService")
 	public DocResponseJson loadService() throws Exception {
 		List<DubboInfo> providerList;
 		if (StringUtils.isBlank(zookeeperUrl)) {
@@ -77,7 +78,7 @@ public class DubboController {
 	 * @author 暮光：城中城
 	 * @since 2019年2月10日
 	 **/
-	@GetMapping(value = "/request")
+	@PostMapping(value = "/request")
 	public DocResponseJson request(DubboRequestParam param) {
 		DubboInfo.DubboNodeInfo dubboNodeInfo = new DubboInfo.DubboNodeInfo();
 		dubboNodeInfo.setIp(param.getIp());
@@ -101,22 +102,22 @@ public class DubboController {
 	 * @author 暮光：城中城
 	 * @since 2019年2月10日
 	 **/
-	@GetMapping(value = "/getDocList")
+	@PostMapping(value = "/getDocList")
 	public DocResponseJson getDocList() {
 		String dubboServiceList = mgDubboStorageService.get(StorageKeys.DUBBO_SERVICE_LIST);
 		String dubboServiceDoc = mgDubboStorageService.get(StorageKeys.DUBBO_SERVICE_DOC);
 		if (StringUtils.isBlank(dubboServiceList)) {
 			return DocResponseJson.ok();
 		}
+		DubboInfoVo dubboInfoVo = new DubboInfoVo();
 		List<DubboInfo> providerList = JSON.parseArray(dubboServiceList, DubboInfo.class);
+		dubboInfoVo.setServerList(providerList);
 		if (StringUtils.isNotBlank(dubboServiceDoc)) {
 			List<DubboDocInfo> docInfoList = JSON.parseArray(dubboServiceDoc, DubboDocInfo.class);
-			Map<String, DubboDocInfo> docInfoMap = docInfoList.stream().collect(Collectors.toMap(DubboDocInfo::getService, val -> val));
-			for (DubboInfo dubboInfo : providerList) {
-				dubboInfo.setDocInfo(docInfoMap.get(dubboInfo.getInterfaceX()));
-			}
+			Map<String, DubboDocInfo> docInfoMap = docInfoList.stream().collect(Collectors.toMap(DubboDocInfo::getFunction, val -> val));
+			dubboInfoVo.setDocMap(docInfoMap);
 		}
-		return DocResponseJson.ok(providerList);
+		return DocResponseJson.ok(dubboInfoVo);
 	}
 	
 	/**
@@ -125,15 +126,16 @@ public class DubboController {
 	 * @author 暮光：城中城
 	 * @since 2019年2月10日
 	 **/
-	@GetMapping(value = "/saveDoc")
-	public DocResponseJson saveDoc(DubboDocInfo param) {
+	@PostMapping(value = "/saveDoc")
+	public DocResponseJson saveDoc(DubboDocInfo param, String paramsJson) {
 		String dubboServiceDoc = mgDubboStorageService.get(StorageKeys.DUBBO_SERVICE_DOC);
 		Map<String, DubboDocInfo> docInfoMap = new HashMap<>();
 		if (StringUtils.isNotBlank(dubboServiceDoc)) {
 			List<DubboDocInfo> docInfoList = JSON.parseArray(dubboServiceDoc, DubboDocInfo.class);
-			docInfoMap = docInfoList.stream().collect(Collectors.toMap(DubboDocInfo::getService, val -> val));
+			docInfoMap = docInfoList.stream().collect(Collectors.toMap(DubboDocInfo::getFunction, val -> val));
 		}
-		DubboDocInfo dubboDocInfo = docInfoMap.get(param.getService());
+		String function = param.getService() + "." + param.getMethod();
+		DubboDocInfo dubboDocInfo = docInfoMap.get(function);
 		if (dubboDocInfo != null) {
 			Integer newVersion = Optional.ofNullable(param.getVersion()).orElse(1);
 			Integer oldVersion = Optional.ofNullable(dubboDocInfo.getVersion()).orElse(1);
@@ -141,13 +143,24 @@ public class DubboController {
 				return DocResponseJson.warn("已有用户在您之前修改过文档，请刷新后再修改");
 			}
 			param.setVersion(oldVersion + 1);
+			if (StringUtils.isEmpty(param.getExplain())) {
+				param.setExplain(dubboDocInfo.getExplain());
+			}
+			if (StringUtils.isEmpty(param.getResult())) {
+				param.setResult(dubboDocInfo.getResult());
+			}
+			param.setParams(dubboDocInfo.getParams());
 		} else {
 			param.setVersion(1);
 		}
-		docInfoMap.put(param.getService(), param);
+		if (StringUtils.isNotBlank(paramsJson)) {
+			param.setParams(JSON.parseArray(paramsJson, DubboDocInfo.DubboDocParam.class));
+		}
+		param.setFunction(function);
+		docInfoMap.put(function, param);
 		List<DubboDocInfo> docInfoList = new ArrayList<>(docInfoMap.values());
 		mgDubboStorageService.put(StorageKeys.DUBBO_SERVICE_DOC, JSON.toJSONString(docInfoList));
-		return DocResponseJson.ok();
+		return DocResponseJson.ok(param);
 	}
 	
 	/**
@@ -231,6 +244,7 @@ public class DubboController {
 			dubboInfo.setNodeList(nodeList);
 			providerList.add(dubboInfo);
 		}
+		client.close();
 		return providerList;
 	}
 }
