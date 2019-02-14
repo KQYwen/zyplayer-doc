@@ -1,11 +1,11 @@
 # zyplayer-doc
 
 #### 说明
-1. 本项目暂时只有swagger文档（服务端的接口文档）、数据库文档（数据库表、字段文档的查看修改）功能
+1. 本项目暂时只有swagger文档（服务端的接口文档）、dubbo文档、数据库文档（数据库表、字段文档的查看修改）功能
 2. 如果需要类似文件夹、目录类的在线文档、文件管理，访问权限控制，暂时还没有，可以提交Issues或评论说明具体需求，整理需求后开发，已有这方面打算（最近接到比较多的这种需求）
 
 #### 项目介绍
-定位为所有文档的管理项目，swagger文档、数据库文档....等，提供一整套的解决方案，欢迎有想法的一起来写
+定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档....等，提供一整套的解决方案，欢迎有想法的一起来写
 
 #### 软件架构
 ##### 一、zyplayer-doc-core 一些核心、公用的类
@@ -22,6 +22,9 @@
 
 ##### 四、zyplayer-doc-swagger 原[swagger-mg-ui](https://gitee.com/zyplayer/swagger-mg-ui)，swagger的UI及整套解决方案
 > 具有 后端存储、代理请求、模拟返回、所有文档管理 等一系列原创功能，不止UI
+
+##### 五、zyplayer-doc-dubbo 将dubbo的文档在线化管理
+> 支持zookeeper、nacos的注册中心文档获取，支持在线调试接口
 
 #### 运行方式
 
@@ -59,7 +62,16 @@ http://127.0.0.1:8082/zyplayer-doc-manage/static/manage/home.html
 
 2. 支持多数据源，在`zyplayer-doc-manage` -> `application.yml` -> `zyplayer.doc.db.dbConfigList` 处配置多个数据库连接即可
 
-##### 三、zyplayer-doc-manage
+##### 三、zyplayer-doc-dubbo
+1. `zyplayer-doc-manage` -> `application.yml` -> `zyplayer.dubbo.zookeeper.url` 配置zookeeper地址
+
+2. `zyplayer-doc-manage` -> `application.yml` -> `zyplayer.dubbo.nacos.url` 配置nacos服务地址
+
+3. 默认找zookeeper，未配置再找nacos的配置，访问地址：http://127.0.0.1:8082/zyplayer-doc-manage/doc-dubbo.html
+
+4. 支持文档查找、文档编辑、在线调试接口
+
+##### 四、zyplayer-doc-manage
 1. 整合了上面两个功能到此项目，较少熟悉成本，`git clone`下来即可运行
 
 2. 具有简单的`权限管理`、`人员管理`功能（还没想好具体怎么控制，没需求）
@@ -71,6 +83,10 @@ http://127.0.0.1:8082/zyplayer-doc-manage/static/manage/home.html
 ![](https://images.gitee.com/uploads/images/2018/1216/224050_3f93dd4a_596905.png "屏幕截图.png")
 数据库文档：
 ![](https://images.gitee.com/uploads/images/2018/1219/231332_0a95e458_596905.png "屏幕截图.png")
+dubbo文档：
+![](https://images.gitee.com/uploads/images/2019/0214/224530_1cac5a99_596905.png "屏幕截图.png")
+dubbo接口调试：
+![](https://images.gitee.com/uploads/images/2019/0214/224600_8dfeb0c2_596905.png "屏幕截图.png")
 增加文档处：
 ![](https://images.gitee.com/uploads/images/2019/0108/225208_6f4a9a64_596905.png "屏幕截图.png")
 使用springfox-swagger-ui访问增加的文档：
