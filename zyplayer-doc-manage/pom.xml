@@ -8,7 +8,7 @@
 	<packaging>war</packaging>
 
 	<name>zyplayer-doc-manage</name>
-	<description>定位为所有文档的管理项目，swagger文档、数据库文档、、、、等</description>
+	<description>定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档、、、、等</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

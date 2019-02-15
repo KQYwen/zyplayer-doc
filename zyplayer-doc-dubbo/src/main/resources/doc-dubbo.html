@@ -4,17 +4,15 @@
 	<meta charset="UTF-8">
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 	<title>dubbo文档管理系统</title>
-	<link rel="shortcut icon" href="webjars/doc-dubbo/img/api.ico"/>
-	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<link rel="shortcut icon" href="webjars/doc-dubbo/img/dubbo.ico"/>
+	<link rel="stylesheet" href="webjars/doc-dubbo/css/element-ui.css">
 	<link rel="stylesheet" href="webjars/doc-dubbo/css/doc-dubbo.css" />
 </head>
 <body>
 	<div id="app">
 		<el-container style="height: 100%;">
 			<el-aside width="auto" style="height: 100%;">
-				<div style="background: linear-gradient(-90deg, #03DDE4 0%, #30AFED 51%, #8755FF 100%);width: 100%; height:60px;line-height:60px;font-size: 25px;color: #fff;text-align: center;">
-					zyplayer-doc-dubbo
-				</div>
+				<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-dubbo</div>
 				<div style="padding: 10px;">
 					<div align="center"><el-button type="primary" v-on:click="reloadService" icon="el-icon-refresh" style="width: 100%;">重新加载服务列表</el-button></div>
 					<!--<el-row><el-switch v-model="isCollapse"></el-switch></el-row>-->
@@ -64,13 +62,25 @@
 								</el-table>
 							</el-form-item>
 							<el-form-item label="参数：">
+								<div slot="label">
+									<el-tooltip placement="top">
+										<div slot="content">1. 顺序必须和参数的顺序一致<br/>2. 参数名意义不大，可不填<br/>3. 类型必填，可手动输入，必须是全类名</div>
+										<i class="el-icon-info" style="color: #aaa;"></i>
+									</el-tooltip>
+									参数：
+								</div>
 								<el-table :data="docParamList" border style="width: 100%; margin-bottom: 5px;">
 									<el-table-column label="顺序" width="100">
 										<template slot-scope="scope">{{scope.$index + 1}}</template>
 									</el-table-column>
-									<el-table-column label="类型" width="200">
+									<el-table-column label="参数名" width="200">
 										<template slot-scope="scope">
-											<el-select v-model="scope.row.paramType" clearable placeholder="请选择">
+											<el-input v-model="scope.row.paramName"></el-input>
+										</template>
+									</el-table-column>
+									<el-table-column label="类型" width="300">
+										<template slot-scope="scope">
+											<el-select v-model="scope.row.paramType" filterable allow-create clearable placeholder="请选择" style="width: 100%;">
 												<el-option v-for="item in paramTypeOptions" :key="item.value" :label="item.value" :value="item.value"></el-option>
 											</el-select>
 										</template>
@@ -81,7 +91,7 @@
 										</template>
 									</el-table-column>
 								</el-table>
-								<el-button @click.prevent="saveDocInfoParam" style="float: right;margin: 5px;">保存</el-button>
+								<el-button @click.prevent="saveDocInfoParam" type="primary" style="float: right;margin: 5px;">保存</el-button>
 								<el-button @click.prevent="addDocParam" style="float: right;margin: 5px;">添加</el-button>
 							</el-form-item>
 							<el-form-item label="结果：">
@@ -100,7 +110,7 @@
 						<div v-if="!dubboInfo.interface">
 							请先选择服务
 						</div>
-						<div v-else>
+						<div v-loading="onlineDebugLoading" v-else>
 							<el-input placeholder="请输入内容" v-model="dubboInfo.function" class="input-with-select">
 								<el-select v-model="requestHostValue" slot="prepend" placeholder="请选择" style="width: 200px;">
 									<el-option v-for="item in requestHostOptions" :key="item.value" :label="item.value" :value="item.value"></el-option>
@@ -112,6 +122,9 @@
 									<el-table :data="docParamRequestList" border style="width: 100%; margin: 10px 0;">
 										<el-table-column label="顺序" width="100">
 											<template slot-scope="scope">{{scope.$index + 1}}</template>
+										</el-table-column>
+										<el-table-column label="参数名" width="200">
+											<template slot-scope="scope">{{scope.row.paramName}}</template>
 										</el-table-column>
 										<el-table-column label="类型" width="200">
 											<template slot-scope="scope">{{scope.row.paramType}}</template>
@@ -135,10 +148,24 @@
 				</el-tabs>
 			</el-container>
 		</el-container>
+		<el-dialog title="关于zyplayer-doc-dubbo" :visible.sync="aboutDialogVisible" width="600px">
+			<el-form>
+				<el-form-item label="项目地址：">
+					<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>
+				</el-form-item>
+				<el-form-item label="开发人员：">
+					<a target="_blank" href="http://zyplayer.com">暮光：城中城</a>
+				</el-form-item>
+				<el-form-item label="">
+					欢迎加群讨论，QQ群号：466363173，欢迎提交需求，欢迎使用和加入开发！
+				</el-form-item>
+			</el-form>
+		</el-dialog>
 	</div>
 </body>
-<script type="text/javascript" src="https://unpkg.com/vue/dist/vue.js"></script>
-<script type="text/javascript" src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/vue/vue.js"></script>
+<script type="text/javascript" src="webjars/doc-dubbo/js/element-ui.js"></script>
+<!-- ajax 用到了jquery -->
 <script type="text/javascript" src="webjars/doc-dubbo/js/jquery-3.1.0.min.js"></script>
 <script type="text/javascript" src="webjars/doc-dubbo/js/common.js"></script>
 <script type="text/javascript" src="webjars/doc-dubbo/js/toast.js"></script>
@@ -151,6 +178,8 @@
 		data() {
 			return {
 				isCollapse: false,
+				aboutDialogVisible: false,
+				onlineDebugLoading: false,
 				pathIndex: [],
 				defaultProps: {
 					children: 'children',
@@ -182,8 +211,6 @@
 					value: 'java.lang.Long'
 				}, {
 					value: 'java.lang.Integer'
-				}, {
-					value: 'other'
 				}],
 				paramTypeValue: "java.lang.String",
 			}
@@ -264,7 +291,7 @@
 				var docParamList = [];
 				for (var i = 0; i < app.docParamList.length; i++) {
 					var item = app.docParamList[i];
-					if (isNotEmpty(item.paramType) || isNotEmpty(item.paramDesc)) {
+					if (isNotEmpty(item.paramType)) {
 						docParamList.push(item);
 					}
 				}
@@ -311,6 +338,7 @@
 				}
 				if (leadAdd) {
 					app.docParamList.push({
+						paramName: '',
 						paramType: '',
 						paramDesc: '',
 						paramValue: '',
@@ -341,7 +369,10 @@
 					paramTypes: paramTypes,
 					params: params,
 				};
+				app.requestResult = "";
+				app.onlineDebugLoading = true;
 				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/request", "post", "json", param, function (json) {
+					app.onlineDebugLoading = false;
 					if (validateResult(json)) {
 						try {
 							app.requestResult = Formatjson.processObjectToHtmlPre(JSON.parse(json.data), 0, false, false, false, false);
@@ -360,6 +391,12 @@
 
 </script>
 <style>
+	html,body,#app {
+		margin: 0;
+		padding: 0;
+		height: 100%;
+	}
+	pre{margin: 0;}
 	.el-menu {
 		box-sizing: border-box;
 		border-right: 0;
@@ -374,12 +411,10 @@
 	.el-tabs--border-card>.el-tabs__content{
 		height: calc(100vh - 70px);overflow-y: auto;
 	}
-	html,body,#app {
-		margin: 0;
-		padding: 0;
-		height: 100%;
+	.logo{
+		background: linear-gradient(-90deg, #03DDE4 0%, #30AFED 51%, #8755FF 100%); cursor: pointer;
+		width: 100%; height:60px;line-height:60px;font-size: 25px;color: #fff;text-align: center;
 	}
-	pre{margin: 0;}
 </style>
 </html>
 

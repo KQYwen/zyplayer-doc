@@ -281,7 +281,7 @@ String.prototype.format = function(args) {
 	} else {
 		return this;
 	}
-}
+};
 
 String.prototype.endWith = function(str) {
 	if (str == null || str == "" || this.length == 0 || str.length > this.length) {
@@ -296,99 +296,6 @@ String.prototype.startWith = function(str) {
 	}
 	return (this.substr(0, str.length) == str);
 };
-
-/**
- * 获取数据，异步的操作
- */
-function getStorageLike(key, success, fail) {
-	var start = (typeof urlBase === 'string') ? urlBase : '';
-	ajaxTemp(start + "swagger-mg-ui/storage/like", "post", "json", {key: key}, function(json){
-		if(json.errCode == 200) {
-			if(typeof success == "function") {
-				var result = deserialize(json.data);
-				success(result);
-			}
-		} else {
-			if(typeof fail == "function") {
-				fail();
-			}
-		}
-	}, function(msg){
-		if(typeof fail == "function") {
-			fail();
-		}
-	});
-}
-
-/**
- * 获取数据，异步的操作
- */
-function getStorage(key, success, fail) {
-	var start = (typeof urlBase === 'string') ? urlBase : '';
-	ajaxTemp(start + "swagger-mg-ui/storage/data", "get", "json", {key: key}, function(json){
-		if(json.errCode == 200) {
-			if(typeof success == "function") {
-				var result = deserialize(json.data);
-				success(result);
-			}
-		} else {
-			if(typeof fail == "function") {
-				fail();
-			}
-		}
-	}, function(msg){
-		if(typeof fail == "function") {
-			fail();
-		}
-	});
-}
-
-/**
- * 存储数据，异步的操作
- */
-function setStorage(key, value, success, fail) {
-	value = $.zui.store.serialize(value);
-	var start = (typeof urlBase === 'string') ? urlBase : '';
-	ajaxTemp(start + "swagger-mg-ui/storage/data", "post", "json", {key: key, value: value}, function(json){
-		if(json.errCode == 200) {
-			if(typeof success == "function") {
-				success();
-			}
-		} else {
-			if(typeof fail == "function") {
-				fail(getNotEmptyStr(json.errMsg));
-			}
-		}
-	}, function(msg){
-		if(typeof fail == "function") {
-			fail("");
-		}
-		console.log("存储数据到服务器失败，请检查");
-	});
-}
-
-/**
- * 删除数据
- */
-function deleteStorage(key, success, fail) {
-	var start = (typeof urlBase === 'string') ? urlBase : '';
-	ajaxTemp(start + "swagger-mg-ui/storage/delete", "post", "json", {key: key}, function(json){
-		if(json.errCode == 200) {
-			if(typeof success == "function") {
-				success();
-			}
-		} else {
-			if(typeof fail == "function") {
-				fail(getNotEmptyStr(json.errMsg));
-			}
-		}
-	}, function(msg){
-		if(typeof fail == "function") {
-			fail("");
-		}
-		console.log("存储数据到服务器失败，请检查");
-	});
-}
 
 /**
  * 获取父窗口的exports

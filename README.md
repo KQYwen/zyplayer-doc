@@ -3,6 +3,7 @@
 #### 说明
 1. 本项目暂时只有swagger文档（服务端的接口文档）、dubbo文档、数据库文档（数据库表、字段文档的查看修改）功能
 2. 如果需要类似文件夹、目录类的在线文档、文件管理，访问权限控制，暂时还没有，可以提交Issues或评论说明具体需求，整理需求后开发，已有这方面打算（最近接到比较多的这种需求）
+3. 欢迎加群讨论，QQ群号：466363173
 
 #### 项目介绍
 定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档....等，提供一整套的解决方案，欢迎有想法的一起来写
@@ -16,7 +17,7 @@
 ##### 三、zyplayer-doc-manage 可以单独部署的文档管理后台
 > 后端使用spring-boot、mybatis-plus、springfox-swagger等框架，前端使用[zui](http://zui.sexy/)、[Vue](https://cn.vuejs.org/)等框架
 
-> 已集成三套优秀swagger文档前端：[zyplayer-doc-swagger](https://gitee.com/zyplayer/zyplayer-doc)、[swagger-bootstrap-ui](https://gitee.com/xiaoym/swagger-bootstrap-ui)、[springfox-swagger-ui](https://github.com/springfox/springfox/tree/master/springfox-swagger-ui)
+> 已集成三套优秀swagger文档前端：[zyplayer-doc-swagger](https://gitee.com/zyplayer/zyplayer-doc)、[swagger-bootstrap-ui](https://gitee.com/xiaoym/swagger-bootstrap-ui)、[springfox-swagger-ui](https://github.com/springfox/springfox/tree/master/springfox-swagger-ui)、[element-ui](http://element-cn.eleme.io)
 
 > 已集成[zyplayer-doc-db](https://gitee.com/zyplayer/zyplayer-doc)数据库文档
 

@@ -60,7 +60,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		};
 		// 文档页面需要具有文档权限
 		String[] docAntPatterns = {
-			"/document.html", "/doc-db.html", "/doc.html", "/swagger-ui.html",
+			"/document.html", "/doc-db.html", "/doc.html", "/swagger-ui.html", "/doc-dubbo.html",
 			"/swagger-mg-ui/document/**", "/swagger-mg-ui/storage/**", "/swagger-resources/**"
 		};
 		http.authorizeRequests()

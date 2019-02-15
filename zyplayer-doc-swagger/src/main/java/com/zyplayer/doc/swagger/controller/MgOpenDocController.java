@@ -2,7 +2,6 @@ package com.zyplayer.doc.swagger.controller;
 
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.swagger.controller.vo.LocationListVo;
 import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
@@ -18,7 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -71,11 +73,6 @@ public class MgOpenDocController {
 		for (LocationListVo location : locationList) {
 			try {
 				String resourceStr = HttpRequest.get(location.getLocation()).timeout(3000).execute().body();
-				Map<String, Object> jsonObject = JSON.parseObject(resourceStr, new TypeReference<HashMap<String, Object>>(){});
-				if (jsonObject == null || jsonObject.isEmpty()) {
-					continue;
-				}
-				jsonObject.put("fullUrl", location);
 				String resourcesUrl = location.getLocation();
 				int indexV2 = location.getLocation().indexOf("/v2");
 				if (indexV2 >= 0) {

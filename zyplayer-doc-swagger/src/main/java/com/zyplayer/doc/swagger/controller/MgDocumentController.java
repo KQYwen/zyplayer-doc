@@ -2,7 +2,6 @@ package com.zyplayer.doc.swagger.controller;
 
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.swagger.controller.vo.LocationListVo;
@@ -136,12 +135,6 @@ public class MgDocumentController {
 		for (LocationListVo location : locationList) {
 			try {
 				String resourceStr = HttpRequest.get(location.getLocation()).timeout(3000).execute().body();
-				Map<String, Object> jsonObject = JSON.parseObject(resourceStr, new TypeReference<HashMap<String, Object>>(){});
-				if (jsonObject == null || jsonObject.isEmpty()) {
-					continue;
-				}
-				jsonObject.put("fullUrl", location);
-				
 				String resourcesUrl = location.getLocation();
 				int indexV2 = location.getLocation().indexOf("/v2");
 				if (indexV2 >= 0) {
@@ -404,7 +397,17 @@ public class MgDocumentController {
  	 */
 	private boolean addSwaggerLocationList(String resourcesStr, String rewriteDomainUrl, String locationUrl, String oldUrl, Integer openVisit) {
 		try {
-			SwaggerLocationVo swaggerLocationVo = JSON.parseObject(resourcesStr, SwaggerLocationVo.class);
+			SwaggerLocationVo swaggerLocationVo = null;
+			try {
+				swaggerLocationVo = JSON.parseObject(resourcesStr, SwaggerLocationVo.class);
+			} catch (Exception e) {
+				logger.error("获取文档失败，尝试字符串匹配：{}", e.getMessage());
+				// 由于存在$ref这样的字符串，JSON解析可能会失败，尝试字符串匹配
+				if (resourcesStr.startsWith("{\"swagger\":\"")) {
+					swaggerLocationVo = new SwaggerLocationVo();
+					swaggerLocationVo.setSwagger("maybe");
+				}
+			}
 			if (swaggerLocationVo != null && StringUtils.isNotBlank(swaggerLocationVo.getSwagger())) {
 				List<LocationListVo> locationList = this.getLocationSet();
 				// 组装新的对象
