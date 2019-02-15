@@ -140,6 +140,9 @@ $(document).ready(function(){
 	$("#doSearch").click(function(){
 		fuzzySearchByDesc();
 	});
+	$("#aboutBtn").click(function(){
+		$('#aboutModal').modal({moveable:true, backdrop: 'static'});
+	});
 	$("#tableCloumnsTable tbody").on("click", ".column-desc", function(event){
 		$(this).find("span").hide();
 		$(this).find(".desc-input").show().focus();
