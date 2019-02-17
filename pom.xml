@@ -49,5 +49,6 @@
 		<module>zyplayer-doc-swagger</module>
 		<module>zyplayer-doc-core</module>
 		<module>zyplayer-doc-dubbo</module>
+		<module>zyplayer-doc-wiki</module>
 	</modules>
 </project>
