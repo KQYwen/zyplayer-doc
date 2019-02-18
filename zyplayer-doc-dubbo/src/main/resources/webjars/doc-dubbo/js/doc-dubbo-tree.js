@@ -126,6 +126,32 @@ function findInPathsValue(pathsValue, keywords) {
 	if (isNotEmpty(interface) && interface.toLowerCase().indexOf(keywords) >= 0) {
 		return true;
 	}
+	if (pathsValue.nodeList.length > 0) {
+		for (var i = 0; i < pathsValue.nodeList.length; i++) {
+			var node = pathsValue.nodeList[i];
+			if (getNotEmptyStr(node.application).toLowerCase().indexOf(keywords) >= 0) {
+				return true;
+			}
+			if (!!node.methods && node.methods.length > 0) {
+				for (var j = 0; j < node.methods.length; j++) {
+					var method = node.methods[j];
+					if (method.toLowerCase().indexOf(keywords) >= 0) {
+						return true;
+					}
+					var path = interface + "." + method;
+					var docInfo = app.dubboDocMap[path];
+					if (!!docInfo) {
+						if (getNotEmptyStr(docInfo.explain).toLowerCase().indexOf(keywords) >= 0) {
+							return true;
+						}
+						if (getNotEmptyStr(docInfo.result).toLowerCase().indexOf(keywords) >= 0) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
 	return false;
 }
 
