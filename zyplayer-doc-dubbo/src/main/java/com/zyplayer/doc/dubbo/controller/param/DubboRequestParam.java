@@ -11,14 +11,14 @@ public class DubboRequestParam {
 	private String method;
 	private String ip;
 	private Integer port;
-	private String[] paramTypes;
-	private Object[] params;
+	private String paramTypes;
+	private String params;
 	
-	public String[] getParamTypes() {
+	public String getParamTypes() {
 		return paramTypes;
 	}
 	
-	public void setParamTypes(String[] paramTypes) {
+	public void setParamTypes(String paramTypes) {
 		this.paramTypes = paramTypes;
 	}
 	
@@ -54,11 +54,11 @@ public class DubboRequestParam {
 		this.port = port;
 	}
 	
-	public Object[] getParams() {
+	public String getParams() {
 		return params;
 	}
 	
-	public void setParams(Object[] params) {
+	public void setParams(String params) {
 		this.params = params;
 	}
 }

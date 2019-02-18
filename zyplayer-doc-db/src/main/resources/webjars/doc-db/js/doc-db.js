@@ -8,6 +8,8 @@ var pageConfig = {
 var tableRelationCharts;
 
 $(document).ready(function(){
+	// 无论发布在哪、如何修改源码，请勿删除本行原作者信息，感谢
+	console.log("%c项目信息：\n开发者列表：暮光：城中城\n项目地址：https://gitee.com/zyplayer/zyplayer-doc","color:red");
 	$('select.chosen-select').chosen({
 		no_results_text: '没有找到',    // 当检索时没有找到匹配项时显示的提示文本
 		disable_search_threshold: 0, // 10 个以下的选择项则不显示检索框

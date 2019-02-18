@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 	<!--无论发布在哪、如何修改源码，请勿删除本行原作者信息，感谢-->
-	<meta name="author" content="暮光：城中城，项目地址：https://gitee.com/zyplayer/zyplayer-doc" />
+	<meta name="author" content="开发者列表：暮光：城中城，项目地址：https://gitee.com/zyplayer/zyplayer-doc" />
 	<title>dubbo文档管理系统</title>
 	<link rel="shortcut icon" href="webjars/doc-dubbo/img/dubbo.ico"/>
 	<link rel="stylesheet" href="webjars/doc-dubbo/css/element-ui.css">
@@ -51,7 +51,7 @@
 									<pre>{{dubboInfo.docInfo.explain}}<el-button @click.prevent="dubboInfoExplainShow = false;" style="float: right;">编辑</el-button></pre>
 								</div>
 								<div v-else>
-									<el-input type="textarea" :rows="4" placeholder="请输入说明内容" v-model="docInfoExplainInput"></el-input>
+									<el-input type="textarea" :rows="4" placeholder="维护人员、使用说明、便于搜索的信息" v-model="docInfoExplainInput"></el-input>
 									<el-button @click.prevent="dubboInfoExplainShow = true;" style="float: right;margin: 5px;">取消</el-button>
 									<el-button type="primary" @click.prevent="saveDocInfoExplain" style="float: right;margin: 5px;">保存</el-button>
 								</div>
@@ -64,13 +64,13 @@
 								</el-table>
 							</el-form-item>
 							<el-form-item label="参数：">
-								<div slot="label">
-									<el-tooltip placement="top">
-										<div slot="content">1. 顺序必须和参数的顺序一致<br/>2. 参数名意义不大，可不填<br/>3. 类型必填，可手动输入，必须是全类名</div>
-										<i class="el-icon-info" style="color: #aaa;"></i>
-									</el-tooltip>
-									参数：
-								</div>
+								<!--<div slot="label">-->
+									<!--<el-tooltip placement="top">-->
+										<!--<div slot="content">1. 顺序必须和参数的顺序一致<br/>2. 参数名意义不大，可不填</div>-->
+										<!--<i class="el-icon-info" style="color: #aaa;"></i>-->
+									<!--</el-tooltip>-->
+									<!--参数：-->
+								<!--</div>-->
 								<el-table :data="docParamList" border style="width: 100%; margin-bottom: 5px;">
 									<el-table-column label="顺序" width="100">
 										<template slot-scope="scope">{{scope.$index + 1}}</template>
@@ -81,11 +81,12 @@
 										</template>
 									</el-table-column>
 									<el-table-column label="类型" width="300">
-										<template slot-scope="scope">
-											<el-select v-model="scope.row.paramType" filterable allow-create clearable placeholder="请选择" style="width: 100%;">
-												<el-option v-for="item in paramTypeOptions" :key="item.value" :label="item.value" :value="item.value"></el-option>
-											</el-select>
-										</template>
+										<template slot-scope="scope">{{scope.row.paramType}}</template>
+										<!--<template slot-scope="scope">-->
+											<!--<el-select v-model="scope.row.paramType" filterable allow-create clearable placeholder="请选择" style="width: 100%;">-->
+												<!--<el-option v-for="item in paramTypeOptions" :key="item.value" :label="item.value" :value="item.value"></el-option>-->
+											<!--</el-select>-->
+										<!--</template>-->
 									</el-table-column>
 									<el-table-column label="说明">
 										<template slot-scope="scope">
@@ -94,14 +95,14 @@
 									</el-table-column>
 								</el-table>
 								<el-button @click.prevent="saveDocInfoParam" type="primary" style="float: right;margin: 5px;">保存</el-button>
-								<el-button @click.prevent="addDocParam" style="float: right;margin: 5px;">添加</el-button>
+								<!--<el-button @click.prevent="addDocParam" style="float: right;margin: 5px;">添加</el-button>-->
 							</el-form-item>
 							<el-form-item label="结果：">
 								<div v-if="dubboInfoResultShow">
 									<pre>{{dubboInfo.docInfo.result}}<el-button @click.prevent="dubboInfoResultShow = false;" style="float: right;">编辑</el-button></pre>
 								</div>
 								<div v-else>
-									<el-input type="textarea" :rows="4" placeholder="请输入说明内容" v-model="docInfoResultInput"></el-input>
+									<el-input type="textarea" :rows="4" placeholder="结果集说明等" v-model="docInfoResultInput"></el-input>
 									<el-button @click.prevent="dubboInfoResultShow = true;" style="float: right;margin: 5px;">取消</el-button>
 									<el-button type="primary" @click.prevent="saveDocInfoResult" style="float: right;margin: 5px;">保存</el-button>
 								</div>
@@ -128,7 +129,7 @@
 										<el-table-column label="参数名" width="200">
 											<template slot-scope="scope">{{scope.row.paramName}}</template>
 										</el-table-column>
-										<el-table-column label="类型" width="200">
+										<el-table-column label="类型" width="300">
 											<template slot-scope="scope">{{scope.row.paramType}}</template>
 										</el-table-column>
 										<el-table-column label="参数值" width="300">
@@ -221,6 +222,8 @@
 		
 		},
 		mounted: function () {
+			// 无论发布在哪、如何修改源码，请勿删除本行原作者信息，感谢
+			console.log("%c项目信息：\n开发者列表：暮光：城中城\n项目地址：https://gitee.com/zyplayer/zyplayer-doc","color:red");
 			this.doGetServiceList();
 		},
 		methods: {
@@ -233,31 +236,50 @@
 			handleNodeClick(data) {
 				if (data.children == null) {
 					var path = data.interface;
-					var dubboInfo = app.treePathDataMap.get(path);
-					dubboInfo.method = data.method;
-					dubboInfo.function = path;
-					dubboInfo.docInfo = app.dubboDocMap[path] || {};
-					// 清空再赋值才会重新渲染
-					app.dubboInfo = {};
-					app.dubboInfo = dubboInfo;
-					app.docInfoExplainInput = dubboInfo.docInfo.explain;
-					app.docParamList = [];
-					app.docParamList = dubboInfo.docInfo.params || [];
-					this.createDocParamRequestList();
-					// 请求相关
-					app.requestResult = "";
-					app.requestHostValue = "";
-					app.requestHostOptions = [];
-					for (var i = 0; i < dubboInfo.nodeList.length; i++) {
-						var item = dubboInfo.nodeList[i];
-						app.requestHostOptions.push({
-							value: item.ip + ":" + item.port
+					var docInfo = app.dubboDocMap[path];
+					if (!!docInfo) {
+						this.createDocInfo(path, data.method);
+					} else {
+						var service = path.substring(0, path.lastIndexOf("."));
+						var method = path.substring(path.lastIndexOf(".") + 1, path.length);
+						var param = {service: service, method: method};
+						ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/findDocInfo", "post", "json", param, function (json) {
+							if (validateResult(json)) {
+								if (!!json.data) {
+									app.dubboDocMap[json.data.function] = json.data;
+								}
+								app.createDocInfo(path, method);
+							}
 						});
 					}
-					if (app.requestHostOptions.length > 0) {
-						app.requestHostValue = app.requestHostOptions[0].value;
-					}
 					//console.log(app.dubboInfo);
+				}
+			},
+			createDocInfo(path, method) {
+				var docInfo = app.dubboDocMap[path];
+				var dubboInfo = app.treePathDataMap.get(path);
+				dubboInfo.method = method;
+				dubboInfo.function = path;
+				dubboInfo.docInfo = docInfo || {};
+				// 清空再赋值才会重新渲染
+				app.dubboInfo = {};
+				app.dubboInfo = dubboInfo;
+				app.docInfoExplainInput = dubboInfo.docInfo.explain;
+				app.docParamList = [];
+				app.docParamList = dubboInfo.docInfo.params || [];
+				this.createDocParamRequestList();
+				// 请求相关
+				app.requestResult = "";
+				app.requestHostValue = "";
+				app.requestHostOptions = [];
+				for (var i = 0; i < dubboInfo.nodeList.length; i++) {
+					var item = dubboInfo.nodeList[i];
+					app.requestHostOptions.push({
+						value: item.ip + ":" + item.port
+					});
+				}
+				if (app.requestHostOptions.length > 0) {
+					app.requestHostValue = app.requestHostOptions[0].value;
 				}
 			},
 			reloadService(){
@@ -327,6 +349,7 @@
 						app.dubboInfoResultShow = true;
 						app.docParamList = json.data.params || [];
 						app.createDocParamRequestList();
+						Toast.success("保存成功！");
 					}
 				});
 			},
@@ -368,8 +391,8 @@
 					method: method,
 					ip: ip,
 					port: port,
-					paramTypes: paramTypes,
-					params: params,
+					paramTypes: JSON.stringify(paramTypes),
+					params: JSON.stringify(params),
 				};
 				app.requestResult = "";
 				app.onlineDebugLoading = true;

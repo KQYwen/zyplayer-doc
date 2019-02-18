@@ -44,6 +44,8 @@ var rightContentTabs;
  * 网页加载完毕后的处理
  */
 $(document).ready(function(){
+	// 无论发布在哪、如何修改源码，请勿删除本行原作者信息，感谢
+	console.log("%c项目信息：\n开发者列表：暮光：城中城\n项目地址：https://gitee.com/zyplayer/zyplayer-doc","color:red");
 	globalLoadingMessager = new $.zui.Messager({type: 'primary', close: false, time: 0}).show();
 	showGlobalLoadingMessage('检查服务中，请稍候...', true);
 	ajaxTemp("swagger-mg-ui/storage/checkConfig", "post", "json", {

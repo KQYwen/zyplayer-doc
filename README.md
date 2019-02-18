@@ -72,6 +72,10 @@ http://127.0.0.1:8082/zyplayer-doc-manage/static/manage/home.html
 
 4. 支持文档查找、文档编辑、在线调试接口
 
+5. 自动获取参数列表需要指定的类存在，所以请在 pom.xml -> dependencies 最后加上服务所在的包，后端才能通过Class.forName("xx");来找到参数列表，减少录入成本
+
+6. 数组或List参数，调试参数录入格式例：[1,2] ，后端通过JSON工具转成指定类型，有不支持的类型时欢迎反馈
+
 ##### 四、zyplayer-doc-manage
 1. 整合了上面两个功能到此项目，较少熟悉成本，`git clone`下来即可运行
 

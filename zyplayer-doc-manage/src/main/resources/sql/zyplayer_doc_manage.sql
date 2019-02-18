@@ -104,7 +104,7 @@ DROP TABLE IF EXISTS `zyplayer_storage`;
 CREATE TABLE `zyplayer_storage`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `doc_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数名字',
-  `doc_value` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数值',
+  `doc_value` mediumtext COMMENT '参数值',
   `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
