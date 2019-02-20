@@ -15,9 +15,9 @@ zyplayer:
     dubbo:
       # 优先使用zookeeper，未配置时找nacos的配置
       zookeeper:
-        url: 127.0.0.1:2181
+#        url: 127.0.0.1:2181
       nacos:
-        url: http://127.0.0.1:8848/nacos
+#        url: http://127.0.0.1:8848/nacos
         # 服务名称，多个使用 ; 分割，nacos没办法获取所有的服务列表，所以需要指定
         service: "com.zyplayer.dubbo.service.UserService;\
                   com.zyplayer.dubbo.service.AnnotateService;"
@@ -33,6 +33,9 @@ zyplayer:
         url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
         username: root
         password: root
+      # 通过nginx代理之后没端口，但tomcat容器有端口，spring security会判断如果是http开头的则直接跳
+      # 如果你也遇到了这个问题，可以把登陆地址写成http://开头的一个地址
+      login-page: /static/manage/login.html
     # 数据库文档相关
     # 打开/zyplayer_doc_manage/doc-db.html即可看到这里配置的数据库的文档
     db:

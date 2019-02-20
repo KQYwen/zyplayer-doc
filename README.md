@@ -8,6 +8,8 @@
 #### 项目介绍
 定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档....等，提供一整套的解决方案，为开发者服务，欢迎有想法的一起来写，给个Star鼓励下呗！（您的一个Star是快速迭代的动力源泉！）
 
+体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/static/manage/home.html) 账号：zyplayer 密码：123456 (不能体验数据库文档和dubbo文档)
+
 #### 软件架构
 ##### 一、zyplayer-doc-core 一些核心、公用的类
 

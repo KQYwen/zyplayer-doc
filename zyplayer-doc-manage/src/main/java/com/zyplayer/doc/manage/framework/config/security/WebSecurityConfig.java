@@ -1,8 +1,8 @@
 package com.zyplayer.doc.manage.framework.config.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -12,24 +12,21 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.util.DigestUtils;
 
 import java.util.Objects;
 
-@Order(1)
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
+	
+	@Value("${zyplayer.doc.manage.login-page}")
+	private String loginPage;
+	
 	@Bean
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -46,11 +43,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		String loginPage = "/static/manage/login.html";
 		// 无需登录即可访问的接口
 		String[] permitAllAntPatterns = {
 			// 登录接口
-			"/login/**",
+			"/login/**", "/static/manage/login.html",
 			// 开放接口的静态文件和接口
 			"/open-doc.html", "/webjars/open-doc/**", "/swagger-mg-ui/open-doc/**",
 			// http代理请求接口，有白名单限制，也不怕随便请求到内网资源了

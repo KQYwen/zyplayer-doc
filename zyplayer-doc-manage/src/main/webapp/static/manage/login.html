@@ -79,6 +79,9 @@
 					} else {
 						app.passwordError = "登录失败，" + result.errMsg;
 					}
+				}, function(){
+					// 通过nginx代理之后没端口，但tomcat容器有端口，会跨域异常，但正常登陆了的，直接跳
+					location.href = ctx + "static/manage/home.html";
 				});
 			},
 			init: function () {
