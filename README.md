@@ -29,6 +29,10 @@
 ##### 五、zyplayer-doc-dubbo 将dubbo的文档在线化管理
 > 支持zookeeper、nacos的注册中心文档获取，支持在线调试接口
 
+##### 六、zyplayer-doc-wiki wiki文档工具
+> 暂时处于开发阶段，暂不能使用
+> 目标是支持文档创建、展示，文件上传、下载，空间隔离，页面权限控制等
+
 #### 运行方式
 
 1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.sql)
@@ -84,6 +88,8 @@ http://127.0.0.1:8082/zyplayer-doc-manage/static/manage/home.html
 2. 具有简单的`权限管理`、`人员管理`功能（还没想好具体怎么控制，没需求）
 
 3. 使用最新的一些技术框架，很简单，初学者拿来学习也是很不错的
+
+如果觉得此项目对您有帮助，就捐赠一个吧！无关金额，主要是对作者的认可。
 
 #### 界面展示
 权限和用户管理：
