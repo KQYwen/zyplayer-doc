@@ -100,16 +100,15 @@ $(document).ready(function(){
 			}
 			paramFormSend[fileName] = "-";
 		}
-		formDataToServer.append("header", JSON.stringify(paramHeaderSend));
-		formDataToServer.append("url", postUrl);
-		formDataToServer.append("method", options);
 		// 表单参数是否拼在url上
 		if(formToUrl == 1) {
 			postUrl += "?" + reqParamStr;
-			paramFormSend = "";
 		} else {
 			formDataToServer.append("form", JSON.stringify(paramFormSend));
 		}
+		formDataToServer.append("url", postUrl);
+		formDataToServer.append("method", options);
+		formDataToServer.append("header", JSON.stringify(paramHeaderSend));
 		// debugger;
 		// 模拟请求开始
 		postWithFile("swagger-mg-ui/http/request", formDataToServer, function(result){

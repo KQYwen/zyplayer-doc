@@ -25,7 +25,7 @@ public class RequestInfoInterceptor implements HandlerInterceptor {
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object arg2, Exception arg3) {
 		long startTime = startTimeThreadLocal.get();
 		long totalTime = System.currentTimeMillis() - startTime;// 结束时间
-		logger.error("总耗时：{}ms，URI：{}", totalTime, request.getRequestURI());
+		logger.info("总耗时：{}ms，URI：{}", totalTime, request.getRequestURI());
 	}
 	
 	@Override
