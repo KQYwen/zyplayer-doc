@@ -1,8 +1,8 @@
 package com.zyplayer.doc.dubbo.framework.bean;
 
-import com.alibaba.dubbo.config.ApplicationConfig;
-import com.alibaba.dubbo.config.ReferenceConfig;
-import com.alibaba.dubbo.rpc.service.GenericService;
+import org.apache.dubbo.config.ApplicationConfig;
+import org.apache.dubbo.config.ReferenceConfig;
+import org.apache.dubbo.rpc.service.GenericService;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

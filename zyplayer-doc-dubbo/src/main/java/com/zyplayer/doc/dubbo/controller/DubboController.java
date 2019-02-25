@@ -1,7 +1,6 @@
 package com.zyplayer.doc.dubbo.controller;
 
 import cn.hutool.http.HttpUtil;
-import com.alibaba.dubbo.rpc.service.GenericService;
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.dubbo.controller.param.DubboRequestParam;
@@ -18,6 +17,7 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.dubbo.rpc.service.GenericService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,7 +122,7 @@ public class DubboController {
 				}
 			} catch (Exception e) {
 				// 未找到对应类型，请手动引入项目包
-				logger.error("未找到对应类型，请手动引入项目包：{}", typeStr);
+				logger.warn("未找到对应类型，请手动引入项目包：{}", typeStr);
 				queryParamList.add(paramStr);
 				queryTypeList.add(typeStr);
 			}

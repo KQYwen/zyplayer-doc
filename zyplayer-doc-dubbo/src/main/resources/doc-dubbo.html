@@ -126,13 +126,13 @@
 										<el-table-column label="顺序" width="100">
 											<template slot-scope="scope">{{scope.$index + 1}}</template>
 										</el-table-column>
-										<el-table-column label="参数名" width="200">
+										<el-table-column label="参数名">
 											<template slot-scope="scope">{{scope.row.paramName}}</template>
 										</el-table-column>
-										<el-table-column label="类型" width="300">
+										<el-table-column label="类型">
 											<template slot-scope="scope">{{scope.row.paramType}}</template>
 										</el-table-column>
-										<el-table-column label="参数值" width="300">
+										<el-table-column label="参数值">
 											<template slot-scope="scope">
 												<el-input v-model="scope.row.paramValue"></el-input>
 											</template>
@@ -434,7 +434,7 @@
 		padding-right: 20px;
 	}
 	.el-tabs--border-card>.el-tabs__content{
-		height: calc(100vh - 70px);overflow-y: auto;
+		height: calc(100vh - 100px);overflow-y: auto;
 	}
 	.logo{
 		background: linear-gradient(-90deg, #03DDE4 0%, #30AFED 51%, #8755FF 100%); cursor: pointer;
