@@ -50,5 +50,6 @@
 		<module>zyplayer-doc-core</module>
 		<module>zyplayer-doc-dubbo</module>
 		<module>zyplayer-doc-wiki</module>
+		<module>zyplayer-doc-data</module>
 	</modules>
 </project>

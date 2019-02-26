@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.dubbo.framework.service.MgDubboStorage;
 import com.zyplayer.doc.dubbo.framework.service.MgDubboStorageService;
-import com.zyplayer.doc.manage.repository.manage.entity.ZyplayerStorage;
-import com.zyplayer.doc.manage.service.manage.ZyplayerStorageService;
+import com.zyplayer.doc.data.repository.manage.entity.ZyplayerStorage;
+import com.zyplayer.doc.data.service.manage.ZyplayerStorageService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 

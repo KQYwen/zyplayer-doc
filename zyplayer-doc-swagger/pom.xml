@@ -36,7 +36,7 @@
 		<!-- 打包跳过单元测试 -->
 		<skipTests>true</skipTests>
 		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
-		<zyplayer.doc.core.version>1.0.0</zyplayer.doc.core.version>
+		<zyplayer.doc.version>1.0.1</zyplayer.doc.version>
 	</properties>
 
 	<dependencies>
@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-core</artifactId>
-			<version>${zyplayer.doc.core.version}</version>
+			<version>${zyplayer.doc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-fileupload</groupId>

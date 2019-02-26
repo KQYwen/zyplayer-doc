@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zyplayer.doc.manage.repository.manage.mapper.ZyplayerStorageMapper;
+import com.zyplayer.doc.data.repository.manage.mapper.ZyplayerStorageMapper;
 
 @RestController
 @RequestMapping("/zyplayer/storage")

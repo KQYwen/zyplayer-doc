@@ -2,8 +2,8 @@ package com.zyplayer.doc.manage.framework.config.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.zyplayer.doc.manage.repository.manage.entity.ZyplayerStorage;
-import com.zyplayer.doc.manage.service.manage.ZyplayerStorageService;
+import com.zyplayer.doc.data.repository.manage.entity.ZyplayerStorage;
+import com.zyplayer.doc.data.service.manage.ZyplayerStorageService;
 import com.zyplayer.doc.swagger.framework.service.MgStorage;
 import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 import org.apache.commons.lang.StringUtils;

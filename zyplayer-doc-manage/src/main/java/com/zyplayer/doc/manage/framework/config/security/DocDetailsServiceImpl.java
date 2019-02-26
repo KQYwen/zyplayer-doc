@@ -1,10 +1,13 @@
 package com.zyplayer.doc.manage.framework.config.security;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
+import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
+import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
+import com.zyplayer.doc.data.service.manage.AuthInfoService;
+import com.zyplayer.doc.data.service.manage.UserAuthService;
+import com.zyplayer.doc.data.service.manage.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,13 +16,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.zyplayer.doc.manage.repository.manage.entity.AuthInfo;
-import com.zyplayer.doc.manage.repository.manage.entity.UserAuth;
-import com.zyplayer.doc.manage.repository.manage.entity.UserInfo;
-import com.zyplayer.doc.manage.service.manage.AuthInfoService;
-import com.zyplayer.doc.manage.service.manage.UserAuthService;
-import com.zyplayer.doc.manage.service.manage.UserInfoService;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DocDetailsServiceImpl implements UserDetailsService {

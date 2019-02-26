@@ -1,20 +1,19 @@
 package com.zyplayer.doc.manage.web.manage;
 
-import java.util.Date;
-import java.util.List;
-
+import com.zyplayer.doc.core.json.DocResponseJson;
+import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
+import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zyplayer.doc.core.json.DocResponseJson;
-import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.manage.framework.config.security.DocUserDetails;
-import com.zyplayer.doc.manage.framework.config.security.DocUserUtil;
-import com.zyplayer.doc.manage.repository.manage.entity.AuthInfo;
-import com.zyplayer.doc.manage.service.manage.AuthInfoService;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth/info")

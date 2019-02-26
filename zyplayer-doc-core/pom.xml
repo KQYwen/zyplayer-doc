@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>zyplayer-doc-core</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>zyplayer-doc-core</name>
 
 	<url>http://maven.apache.org</url>

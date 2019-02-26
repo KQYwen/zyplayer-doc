@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>com.zyplayer</groupId>
+	<artifactId>zyplayer-doc-data</artifactId>
+	<version>1.0.1</version>
+	
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.6.RELEASE</version>
+	</parent>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<mybatis.plus.boot.starter.version>3.0.6</mybatis.plus.boot.starter.version>
+		<fastjson.version>1.2.53</fastjson.version>
+		<zyplayer.doc.swagger.version>2.0.1</zyplayer.doc.swagger.version>
+		<zyplayer.doc.core.version>1.0.0</zyplayer.doc.core.version>
+		<velocity.engine.core.version>2.0</velocity.engine.core.version>
+		<dozer.core.version>6.1.0</dozer.core.version>
+		<alibaba.druid.version>1.1.9</alibaba.druid.version>
+		<swagger.bootstrap.ui.version>1.8.9</swagger.bootstrap.ui.version>
+		<springfox.swagger.ui.version>2.9.2</springfox.swagger.ui.version>
+		<springfox.swagger.version>2.9.2</springfox.swagger.version>
+		<zyplayer.doc.db.version>1.0.1</zyplayer.doc.db.version>
+		<zyplayer.doc.dubbo.version>1.0.1</zyplayer.doc.dubbo.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jta-atomikos</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<version>${mybatis.plus.boot.starter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>${alibaba.druid.version}</version>
+		</dependency>
+		<!-- json -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>${fastjson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.dozermapper</groupId>
+			<artifactId>dozer-core</artifactId>
+			<version>${dozer.core.version}</version>
+		</dependency>
+		<!-- 在线文档解析页面 -->
+		<!--zyplayer-doc-core-->
+		<dependency>
+			<groupId>com.zyplayer</groupId>
+			<artifactId>zyplayer-doc-core</artifactId>
+			<version>${zyplayer.doc.core.version}</version>
+		</dependency>
+		<!-- velocity 模板引擎, 默认 -->
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity-engine-core</artifactId>
+			<version>${velocity.engine.core.version}</version>
+		</dependency>
+		<!-- freemarker 模板引擎 -->
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+		</dependency>
+		<!-- 整合spring security -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+

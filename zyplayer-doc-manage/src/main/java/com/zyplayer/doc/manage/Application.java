@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
@@ -16,6 +17,7 @@ import java.util.Optional;
  * 程序启动器
  */
 @SpringBootApplication
+@ComponentScan(basePackages = {"com.zyplayer.doc.manage", "com.zyplayer.doc.data"})
 public class Application extends SpringBootServletInitializer {
 
 	private static Logger logger = LoggerFactory.getLogger(Application.class);
