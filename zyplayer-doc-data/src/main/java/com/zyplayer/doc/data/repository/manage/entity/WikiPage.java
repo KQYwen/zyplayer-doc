@@ -1,17 +1,18 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-26
+ * @since 2019-02-27
  */
 public class WikiPage implements Serializable {
 
@@ -37,6 +38,11 @@ public class WikiPage implements Serializable {
      * 父ID
      */
     private Long parentId;
+
+    /**
+     * 节点类型 0=有子节点 1=终节点
+     */
+    private Integer nodeType;
 
     /**
      * 创建人ID
@@ -91,6 +97,13 @@ public class WikiPage implements Serializable {
     public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
+    public Integer getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(Integer nodeType) {
+        this.nodeType = nodeType;
+    }
     public Long getCreateUid() {
         return createUid;
     }
@@ -134,6 +147,7 @@ public class WikiPage implements Serializable {
         ", spaceId=" + spaceId +
         ", name=" + name +
         ", parentId=" + parentId +
+        ", nodeType=" + nodeType +
         ", createUid=" + createUid +
         ", createTime=" + createTime +
         ", updateUid=" + updateUid +
