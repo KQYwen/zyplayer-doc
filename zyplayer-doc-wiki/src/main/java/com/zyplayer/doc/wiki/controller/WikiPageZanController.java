@@ -52,7 +52,7 @@ public class WikiPageZanController {
 			return DocResponseJson.warn("您已经赞过了哦~");
 		}
 		wikiPageZan.setCreateTime(new Date());
-		wikiPageZan.setCreateUid(currentUser.getUserId());
+		wikiPageZan.setCreateUserId(currentUser.getUserId());
 		wikiPageZanService.save(wikiPageZan);
 		return DocResponseJson.ok();
 	}

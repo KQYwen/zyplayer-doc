@@ -1,10 +1,9 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.io.Serializable;
 import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
 
 /**
  * <p>
@@ -12,7 +11,7 @@ import java.util.Date;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-26
+ * @since 2019-02-24
  */
 public class WikiPageZan implements Serializable {
 
@@ -37,7 +36,12 @@ public class WikiPageZan implements Serializable {
     /**
      * 创建人ID
      */
-    private Long createUid;
+    private Long createUserId;
+
+    /**
+     * 创建人名字
+     */
+    private String createUserName;
 
     /**
      * 创建时间
@@ -65,12 +69,19 @@ public class WikiPageZan implements Serializable {
     public void setCommentId(Long commentId) {
         this.commentId = commentId;
     }
-    public Long getCreateUid() {
-        return createUid;
+    public Long getCreateUserId() {
+        return createUserId;
     }
 
-    public void setCreateUid(Long createUid) {
-        this.createUid = createUid;
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
     }
     public Date getCreateTime() {
         return createTime;
@@ -86,7 +97,8 @@ public class WikiPageZan implements Serializable {
         "id=" + id +
         ", pageId=" + pageId +
         ", commentId=" + commentId +
-        ", createUid=" + createUid +
+        ", createUserId=" + createUserId +
+        ", createUserName=" + createUserName +
         ", createTime=" + createTime +
         "}";
     }

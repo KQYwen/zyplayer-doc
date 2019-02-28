@@ -7,11 +7,11 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-26
+ * @since 2019-02-24
  */
 public class WikiPageComment implements Serializable {
 
@@ -41,7 +41,12 @@ public class WikiPageComment implements Serializable {
     /**
      * 创建人ID
      */
-    private Long createUid;
+    private Long createUserId;
+
+    /**
+     * 创建人名字
+     */
+    private String createUserName;
 
     /**
      * 创建时间
@@ -81,12 +86,19 @@ public class WikiPageComment implements Serializable {
     public void setContent(String content) {
         this.content = content;
     }
-    public Long getCreateUid() {
-        return createUid;
+    public Long getCreateUserId() {
+        return createUserId;
     }
 
-    public void setCreateUid(Long createUid) {
-        this.createUid = createUid;
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
     }
     public Date getCreateTime() {
         return createTime;
@@ -110,7 +122,8 @@ public class WikiPageComment implements Serializable {
         ", pageId=" + pageId +
         ", parentId=" + parentId +
         ", content=" + content +
-        ", createUid=" + createUid +
+        ", createUserId=" + createUserId +
+        ", createUserName=" + createUserName +
         ", createTime=" + createTime +
         ", delFlag=" + delFlag +
         "}";

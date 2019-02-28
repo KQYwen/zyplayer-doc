@@ -7,11 +7,11 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-26
+ * @since 2019-02-24
  */
 public class WikiPageContent implements Serializable {
 
@@ -36,7 +36,12 @@ public class WikiPageContent implements Serializable {
     /**
      * 创建人ID
      */
-    private Long createUid;
+    private Long createUserId;
+
+    /**
+     * 创建人名字
+     */
+    private String createUserName;
 
     /**
      * 创建时间
@@ -46,7 +51,12 @@ public class WikiPageContent implements Serializable {
     /**
      * 修改人ID
      */
-    private Long updateUid;
+    private Long updateUserId;
+
+    /**
+     * 修改人名字
+     */
+    private String updateUserName;
 
     /**
      * 修改时间
@@ -74,12 +84,19 @@ public class WikiPageContent implements Serializable {
     public void setContent(String content) {
         this.content = content;
     }
-    public Long getCreateUid() {
-        return createUid;
+    public Long getCreateUserId() {
+        return createUserId;
     }
 
-    public void setCreateUid(Long createUid) {
-        this.createUid = createUid;
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
     }
     public Date getCreateTime() {
         return createTime;
@@ -88,12 +105,19 @@ public class WikiPageContent implements Serializable {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
-    public Long getUpdateUid() {
-        return updateUid;
+    public Long getUpdateUserId() {
+        return updateUserId;
     }
 
-    public void setUpdateUid(Long updateUid) {
-        this.updateUid = updateUid;
+    public void setUpdateUserId(Long updateUserId) {
+        this.updateUserId = updateUserId;
+    }
+    public String getUpdateUserName() {
+        return updateUserName;
+    }
+
+    public void setUpdateUserName(String updateUserName) {
+        this.updateUserName = updateUserName;
     }
     public Date getUpdateTime() {
         return updateTime;
@@ -109,9 +133,11 @@ public class WikiPageContent implements Serializable {
         "id=" + id +
         ", pageId=" + pageId +
         ", content=" + content +
-        ", createUid=" + createUid +
+        ", createUserId=" + createUserId +
+        ", createUserName=" + createUserName +
         ", createTime=" + createTime +
-        ", updateUid=" + updateUid +
+        ", updateUserId=" + updateUserId +
+        ", updateUserName=" + updateUserName +
         ", updateTime=" + updateTime +
         "}";
     }

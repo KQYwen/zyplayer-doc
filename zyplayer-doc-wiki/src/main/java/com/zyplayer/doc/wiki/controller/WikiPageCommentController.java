@@ -48,7 +48,7 @@ public class WikiPageCommentController {
 		} else {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			pageComment.setCreateTime(new Date());
-			pageComment.setCreateUid(currentUser.getUserId());
+			pageComment.setCreateUserId(currentUser.getUserId());
 			wikiPageCommentService.save(pageComment);
 		}
 		return DocResponseJson.ok();

@@ -40,7 +40,7 @@ public class WikiSpaceController {
 			wrapper.in("type", 1, 2);
 		} else if(wikiSpace.getType() == 1 || wikiSpace.getType() == 2) {
 			wrapper.eq(wikiSpace.getType() != null, "type", wikiSpace.getType());
-			wrapper.eq(Objects.equals(wikiSpace.getType(), 2), "create_uid", wikiSpace.getCreateUid());
+			wrapper.eq(Objects.equals(wikiSpace.getType(), 2), "create_uid", wikiSpace.getCreateUserId());
 		} else if(wikiSpace.getType() == 3) {
 			wrapper.eq("create_uid", currentUser.getUserId());
 		}
@@ -56,7 +56,7 @@ public class WikiSpaceController {
 		} else {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			wikiSpace.setCreateTime(new Date());
-			wikiSpace.setCreateUid(currentUser.getUserId());
+			wikiSpace.setCreateUserId(currentUser.getUserId());
 			wikiSpaceService.save(wikiSpace);
 		}
 		return DocResponseJson.ok();

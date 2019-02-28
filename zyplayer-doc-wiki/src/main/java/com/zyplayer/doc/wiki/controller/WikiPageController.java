@@ -7,8 +7,11 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageContent;
+import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.service.manage.WikiPageContentService;
+import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
+import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +37,8 @@ public class WikiPageController {
 	WikiPageService wikiPageService;
 	@Resource
 	WikiPageContentService wikiPageContentService;
+	@Resource
+	WikiPageFileService wikiPageFileService;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPage>> list(WikiPage wikiPage) {
@@ -47,6 +52,26 @@ public class WikiPageController {
 		return DocResponseJson.ok(authList);
 	}
 	
+	@PostMapping("/detail")
+	public ResponseJson<WikiPageContentVo> detail(WikiPage wikiPage) {
+		WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
+		
+		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
+		wrapper.eq("page_id", wikiPage.getId());
+		WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
+		
+		UpdateWrapper<WikiPageFile> wrapperFile = new UpdateWrapper<>();
+		wrapperFile.eq("page_id", wikiPage.getId());
+		wrapper.eq("del_flag", 0);
+		List<WikiPageFile> pageFiles = wikiPageFileService.list(wrapperFile);
+		
+		WikiPageContentVo vo = new WikiPageContentVo();
+		vo.setWikiPage(wikiPageSel);
+		vo.setPageContent(pageContent);
+		vo.setFileList(pageFiles);
+		return DocResponseJson.ok(vo);
+	}
+	
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPage wikiPage, String content) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -56,24 +81,25 @@ public class WikiPageController {
 		Long id = wikiPage.getId();
 		if (id != null && id > 0) {
 			wikiPage.setUpdateTime(new Date());
-			wikiPage.setUpdateUid(currentUser.getUserId());
+			wikiPage.setUpdateUserId(currentUser.getUserId());
 			wikiPageService.updateById(wikiPage);
 			// 详情
 			pageContent.setUpdateTime(new Date());
-			pageContent.setUpdateUid(currentUser.getUserId());
+			pageContent.setUpdateUserId(currentUser.getUserId());
 			UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
 			wrapper.eq("page_id", id);
 			wikiPageContentService.update(pageContent, wrapper);
 		} else {
 			wikiPage.setCreateTime(new Date());
-			wikiPage.setCreateUid(currentUser.getUserId());
+			wikiPage.setCreateUserId(currentUser.getUserId());
 			wikiPageService.save(wikiPage);
 			// 详情
+			pageContent.setPageId(wikiPage.getId());
 			pageContent.setCreateTime(new Date());
-			pageContent.setCreateUid(currentUser.getUserId());
+			pageContent.setCreateUserId(currentUser.getUserId());
 			wikiPageContentService.save(pageContent);
 		}
-		return DocResponseJson.ok();
+		return DocResponseJson.ok(wikiPage);
 	}
 }
 

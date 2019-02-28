@@ -49,7 +49,7 @@ public class WikiPageFileController {
 		} else {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			wikiPageFile.setCreateTime(new Date());
-			wikiPageFile.setCreateUid(currentUser.getUserId());
+			wikiPageFile.setCreateUserId(currentUser.getUserId());
 			wikiPageFileService.save(wikiPageFile);
 		}
 		return DocResponseJson.ok();

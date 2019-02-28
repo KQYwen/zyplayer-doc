@@ -12,7 +12,7 @@ import java.util.Date;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-26
+ * @since 2019-02-24
  */
 public class WikiPageFile implements Serializable {
 
@@ -30,6 +30,11 @@ public class WikiPageFile implements Serializable {
     private Long pageId;
 
     /**
+     * 文件名
+     */
+    private String fileName;
+
+    /**
      * 文件URL
      */
     private String fileUrl;
@@ -37,7 +42,12 @@ public class WikiPageFile implements Serializable {
     /**
      * 创建人ID
      */
-    private Long createUid;
+    private Long createUserId;
+
+    /**
+     * 创建人名字
+     */
+    private String createUserName;
 
     /**
      * 创建时间
@@ -47,7 +57,12 @@ public class WikiPageFile implements Serializable {
     /**
      * 修改人ID
      */
-    private Long updateUid;
+    private Long updateUserId;
+
+    /**
+     * 修改人名字
+     */
+    private String updateUserName;
 
     /**
      * 修改时间
@@ -73,6 +88,13 @@ public class WikiPageFile implements Serializable {
     public void setPageId(Long pageId) {
         this.pageId = pageId;
     }
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
     public String getFileUrl() {
         return fileUrl;
     }
@@ -80,12 +102,19 @@ public class WikiPageFile implements Serializable {
     public void setFileUrl(String fileUrl) {
         this.fileUrl = fileUrl;
     }
-    public Long getCreateUid() {
-        return createUid;
+    public Long getCreateUserId() {
+        return createUserId;
     }
 
-    public void setCreateUid(Long createUid) {
-        this.createUid = createUid;
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
     }
     public Date getCreateTime() {
         return createTime;
@@ -94,12 +123,19 @@ public class WikiPageFile implements Serializable {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
-    public Long getUpdateUid() {
-        return updateUid;
+    public Long getUpdateUserId() {
+        return updateUserId;
     }
 
-    public void setUpdateUid(Long updateUid) {
-        this.updateUid = updateUid;
+    public void setUpdateUserId(Long updateUserId) {
+        this.updateUserId = updateUserId;
+    }
+    public String getUpdateUserName() {
+        return updateUserName;
+    }
+
+    public void setUpdateUserName(String updateUserName) {
+        this.updateUserName = updateUserName;
     }
     public Date getUpdateTime() {
         return updateTime;
@@ -121,10 +157,13 @@ public class WikiPageFile implements Serializable {
         return "WikiPageFile{" +
         "id=" + id +
         ", pageId=" + pageId +
+        ", fileName=" + fileName +
         ", fileUrl=" + fileUrl +
-        ", createUid=" + createUid +
+        ", createUserId=" + createUserId +
+        ", createUserName=" + createUserName +
         ", createTime=" + createTime +
-        ", updateUid=" + updateUid +
+        ", updateUserId=" + updateUserId +
+        ", updateUserName=" + updateUserName +
         ", updateTime=" + updateTime +
         ", delFlag=" + delFlag +
         "}";
