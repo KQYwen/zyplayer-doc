@@ -25,8 +25,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.*;
@@ -46,13 +49,37 @@ public class DubboController {
 	private static Logger logger = LoggerFactory.getLogger(DubboController.class);
 	
 	@Value("${zyplayer.doc.dubbo.zookeeper.url:}")
-	private String zookeeperUrl;
+	private String serviceZookeeperUrl;
+	@Value("${zyplayer.doc.dubbo.zookeeper.metadata-url:}")
+	private String metadataZookeeperUrl;
 	@Value("${zyplayer.doc.dubbo.nacos.url:}")
 	private String nacosUrl;
 	@Value("${zyplayer.doc.dubbo.nacos.service:}")
 	private String nacosService;
 	@Resource
 	private MgDubboStorageService mgDubboStorageService;
+	
+	private CuratorFramework serverClient;
+	private CuratorFramework metadataClient;
+	
+	@PostConstruct
+	private void init() {
+		if (StringUtils.isNotBlank(serviceZookeeperUrl)) {
+			RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+			serverClient = CuratorFrameworkFactory.newClient(serviceZookeeperUrl, retryPolicy);
+			serverClient.start();
+		}
+		if (StringUtils.isNotBlank(metadataZookeeperUrl)) {
+			RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+			metadataClient = CuratorFrameworkFactory.newClient(metadataZookeeperUrl, retryPolicy);
+			metadataClient.start();
+		}
+	}
+	
+	@PreDestroy
+	private void preDestroy() {
+		serverClient.close();
+	}
 	
 	/**
 	 * 重新获取所有的服务列表
@@ -63,7 +90,7 @@ public class DubboController {
 	@PostMapping(value = "/reloadService")
 	public DocResponseJson loadService() throws Exception {
 		List<DubboInfo> providerList;
-		if (StringUtils.isBlank(zookeeperUrl)) {
+		if (StringUtils.isBlank(serviceZookeeperUrl)) {
 			if (StringUtils.isBlank(nacosUrl) || StringUtils.isBlank(nacosService)) {
 				return DocResponseJson.warn("zyplayer.doc.dubbo.zookeeper.url、zyplayer.doc.dubbo.nacos.url 参数均未配置");
 			}
@@ -169,6 +196,7 @@ public class DubboController {
 	 **/
 	@PostMapping(value = "/findDocInfo")
 	public DocResponseJson findDocInfo(DubboRequestParam param) {
+		String resultType = null;
 		List<DubboDocInfo.DubboDocParam> paramList = new LinkedList<>();
 		try {
 			Class clazz = Class.forName(param.getService());
@@ -176,19 +204,19 @@ public class DubboController {
 			for (Method method : methods) {
 				String methodName = method.getName();
 				if (methodName.equals(param.getMethod())) {
+					resultType = method.getGenericReturnType().getTypeName();
 					Type[] parameterTypes = method.getGenericParameterTypes();
-					for (Type clas : parameterTypes) {
+					Parameter[] parameters = method.getParameters();
+					for (int i = 0; i < parameterTypes.length; i++) {
 						DubboDocInfo.DubboDocParam docParam = new DubboDocInfo.DubboDocParam();
-						docParam.setParamType(clas.getTypeName());
+						docParam.setParamName(parameters[i].getName());
+						docParam.setParamType(parameterTypes[i].getTypeName());
 						paramList.add(docParam);
 					}
 				}
 			}
 		} catch (ClassNotFoundException e) {
 			return DocResponseJson.warn("未找到指定类，请引入相关包，类名：" + param.getService());
-		}
-		if (paramList.isEmpty()) {
-			return DocResponseJson.ok();
 		}
 		Map<String, DubboDocInfo> docInfoMap = new HashMap<>();
 		String dubboServiceDoc = mgDubboStorageService.get(StorageKeys.DUBBO_SERVICE_DOC);
@@ -203,6 +231,7 @@ public class DubboController {
 			dubboDocInfo.setParams(paramList);
 			dubboDocInfo.setFunction(function);
 			dubboDocInfo.setVersion(1);
+			dubboDocInfo.setResultType(resultType);
 			dubboDocInfo.setService(param.getService());
 			dubboDocInfo.setMethod(param.getMethod());
 			docInfoMap.put(function, dubboDocInfo);
@@ -293,16 +322,13 @@ public class DubboController {
 	 * @since 2019年2月10日
 	 **/
 	private List<DubboInfo> getDubboInfoByZookeeper() throws Exception {
-		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-		CuratorFramework client = CuratorFrameworkFactory.newClient(zookeeperUrl, retryPolicy);
-		client.start();
-		List<String> dubboList = client.getChildren().forPath("/dubbo");
+		List<String> dubboList = serverClient.getChildren().forPath("/dubbo");
 		if (dubboList == null || dubboList.isEmpty()) {
 			return Collections.emptyList();
 		}
 		List<DubboInfo> providerList = new LinkedList<>();
 		for (String dubboStr : dubboList) {
-			List<String> providers = client.getChildren().forPath("/dubbo/" + dubboStr + "/providers");
+			List<String> providers = serverClient.getChildren().forPath("/dubbo/" + dubboStr + "/providers");
 			
 			List<DubboInfo.DubboNodeInfo> nodeList = providers.stream().map(val -> {
 				String tempStr = val;
@@ -336,7 +362,6 @@ public class DubboController {
 			dubboInfo.setNodeList(nodeList);
 			providerList.add(dubboInfo);
 		}
-		client.close();
 		return providerList;
 	}
 }

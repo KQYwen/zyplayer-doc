@@ -73,7 +73,7 @@
 								<!--</div>-->
 								<el-table :data="docParamList" border style="width: 100%; margin-bottom: 5px;">
 									<el-table-column label="顺序" width="100">
-										<template slot-scope="scope">{{scope.$index + 1}}</template>
+										<template slot-scope="scope">{{scope.$index}}</template>
 									</el-table-column>
 									<el-table-column label="参数名" width="200">
 										<template slot-scope="scope">
@@ -96,6 +96,9 @@
 								</el-table>
 								<el-button @click.prevent="saveDocInfoParam" type="primary" style="float: right;margin: 5px;">保存</el-button>
 								<!--<el-button @click.prevent="addDocParam" style="float: right;margin: 5px;">添加</el-button>-->
+							</el-form-item>
+							<el-form-item label="返回值：">
+								{{dubboInfo.docInfo.resultType}}
 							</el-form-item>
 							<el-form-item label="结果：">
 								<div v-if="dubboInfoResultShow">
@@ -120,11 +123,11 @@
 								</el-select>
 								<el-button slot="append" @click.prevent="requestExecute">执行</el-button>
 							</el-input>
-							<el-form label-width="100px"label-position="top">
+							<el-form label-width="100px" label-position="top">
 								<el-form-item label="请求参数：">
 									<el-table :data="docParamRequestList" border style="width: 100%; margin: 10px 0;">
 										<el-table-column label="顺序" width="100">
-											<template slot-scope="scope">{{scope.$index + 1}}</template>
+											<template slot-scope="scope">{{scope.$index}}</template>
 										</el-table-column>
 										<el-table-column label="参数名">
 											<template slot-scope="scope">{{scope.row.paramName}}</template>
@@ -306,10 +309,10 @@
 				});
 			},
 			saveDocInfoExplain(){
-				this.doSaveDocInfo(app.docInfoExplainInput, null, null);
+				this.doSaveDocInfo(app.docInfoExplainInput, null, null, true);
 			},
 			saveDocInfoResult(){
-				this.doSaveDocInfo(null, null, app.docInfoResultInput);
+				this.doSaveDocInfo(null, null, app.docInfoResultInput, true);
 			},
 			saveDocInfoParam() {
 				var docParamList = [];
@@ -320,7 +323,7 @@
 					}
 				}
 				var paramsJson = JSON.stringify(docParamList);
-				this.doSaveDocInfo(null, paramsJson, null);
+				this.doSaveDocInfo(null, paramsJson, null, true);
 			},
 			createDocParamRequestList() {
 				var docParamList = [];
@@ -332,10 +335,12 @@
 				}
 				app.docParamRequestList = docParamList;
 			},
-			doSaveDocInfo(explain, params, result){
+			doSaveDocInfo(explain, params, result, showSuccess){
 				var param = {
 					service: app.dubboInfo.interface,
 					method: app.dubboInfo.method,
+					resultType: app.dubboInfo.resultType,
+					paramValue: app.dubboInfo.paramValue,
 					version: app.dubboInfo.docInfo.version || 0,
 					explain: explain,
 					result: result,
@@ -349,7 +354,9 @@
 						app.dubboInfoResultShow = true;
 						app.docParamList = json.data.params || [];
 						app.createDocParamRequestList();
-						Toast.success("保存成功！");
+						if (showSuccess) {
+							Toast.success("保存成功！");
+						}
 					}
 				});
 			},
@@ -398,7 +405,7 @@
 				app.onlineDebugLoading = true;
 				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/request", "post", "json", param, function (json) {
 					app.onlineDebugLoading = false;
-					if (validateResult(json)) {
+					if (json.errCode == 200) {
 						try {
 							app.requestResult = Formatjson.processObjectToHtmlPre(JSON.parse(json.data), 0, false, false, false, false);
 						} catch (e) {
@@ -408,6 +415,10 @@
 								app.requestResult = json.data;
 							}
 						}
+						var paramsJson = JSON.stringify(app.docParamRequestList);
+						app.doSaveDocInfo(null, paramsJson, null, false);
+					} else {
+						app.requestResult = json.errMsg;
 					}
 				});
 			}

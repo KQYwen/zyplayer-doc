@@ -14,6 +14,7 @@ public class DubboDocInfo {
 	private String function;
 	private String explain;
 	private String result;
+	private String resultType;
 	private Integer version;
 	private List<DubboDocParam> params;
 	
@@ -21,7 +22,7 @@ public class DubboDocInfo {
 		private String paramName;
 		private String paramType;
 		private String paramDesc;
-		private Object paramVal;
+		private Object paramValue;
 		private Integer required;
 		
 		public String getParamName() {
@@ -48,12 +49,12 @@ public class DubboDocInfo {
 			this.paramDesc = paramDesc;
 		}
 		
-		public Object getParamVal() {
-			return paramVal;
+		public Object getParamValue() {
+			return paramValue;
 		}
 		
-		public void setParamVal(Object paramVal) {
-			this.paramVal = paramVal;
+		public void setParamValue(Object paramValue) {
+			this.paramValue = paramValue;
 		}
 		
 		public Integer getRequired() {
@@ -118,5 +119,13 @@ public class DubboDocInfo {
 	
 	public void setResult(String result) {
 		this.result = result;
+	}
+	
+	public String getResultType() {
+		return resultType;
+	}
+	
+	public void setResultType(String resultType) {
+		this.resultType = resultType;
 	}
 }
