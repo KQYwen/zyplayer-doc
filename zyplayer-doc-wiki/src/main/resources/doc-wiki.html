@@ -41,17 +41,17 @@
 					<div class="wiki-files">
 						<div style="margin-bottom: 5px; height: 40px;">
 							<div style="float: right;">
+								<!--:on-preview="handlePreview"-->
+								<!--:on-remove="handleRemove"-->
+								<!--:before-remove="beforeRemove"-->
+								<!--:on-exceed="handleExceed"-->
 								<el-upload
 										class="upload-demo"
-										action="https://jsonplaceholder.typicode.com/posts/"
-										:on-preview="handlePreview"
-										:on-remove="handleRemove"
-										:before-remove="beforeRemove"
-										multiple
+										action="zyplayer-doc-wiki/common/upload"
+										name="files"
 										show-file-list
-										:limit="3"
-										:on-exceed="handleExceed"
-										:file-list="fileList">
+										multiple
+										:limit="3">
 									<el-button icon="el-icon-upload">上传附件</el-button>
 								</el-upload>
 							</div>
@@ -140,6 +140,7 @@
 				wikiPage: {},
 				pageContent: {},
 				pageFileList: [],
+				uploadFileList: [],
 			}
 		},
 		watch: {
@@ -247,7 +248,7 @@
 			init(){
 				var E = window.wangEditor;
 				page.newPageContentEditor = new E('#newPageContentDiv');
-				page.newPageContentEditor.customConfig.uploadImgServer = '/upload-img';
+				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
 				page.newPageContentEditor.create();
 			}
 		}

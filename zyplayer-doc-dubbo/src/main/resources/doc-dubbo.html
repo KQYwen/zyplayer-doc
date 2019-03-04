@@ -226,7 +226,7 @@
 		},
 		mounted: function () {
 			// 无论发布在哪、如何修改源码，请勿删除本行原作者信息，感谢
-			console.log("%c项目信息：\n开发者列表：暮光：城中城\n项目地址：https://gitee.com/zyplayer/zyplayer-doc","color:red");
+			console.log("%c项目信息：\n开发者列表：暮光：城中城\n项目地址：https://gitee.com/zyplayer/zyplayer-doc", "color:red");
 			this.doGetServiceList();
 		},
 		methods: {
@@ -238,14 +238,16 @@
 			},
 			handleNodeClick(data) {
 				if (data.children == null) {
+					console.log(data);
 					var path = data.interface;
+					var application = data.application;
 					var docInfo = app.dubboDocMap[path];
 					if (!!docInfo) {
 						this.createDocInfo(path, data.method);
 					} else {
 						var service = path.substring(0, path.lastIndexOf("."));
 						var method = path.substring(path.lastIndexOf(".") + 1, path.length);
-						var param = {service: service, method: method};
+						var param = {service: service, method: method, application: application};
 						ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/findDocInfo", "post", "json", param, function (json) {
 							if (validateResult(json)) {
 								if (!!json.data) {

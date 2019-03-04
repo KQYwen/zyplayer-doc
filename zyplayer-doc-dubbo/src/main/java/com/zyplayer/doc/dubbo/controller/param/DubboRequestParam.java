@@ -7,6 +7,7 @@ package com.zyplayer.doc.dubbo.controller.param;
  * @since 2019年2月10日
  */
 public class DubboRequestParam {
+	private String application;
 	private String service;
 	private String method;
 	private String ip;
@@ -60,5 +61,13 @@ public class DubboRequestParam {
 	
 	public void setParams(String params) {
 		this.params = params;
+	}
+	
+	public String getApplication() {
+		return application;
+	}
+	
+	public void setApplication(String application) {
+		this.application = application;
 	}
 }

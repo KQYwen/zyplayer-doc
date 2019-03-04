@@ -17,10 +17,17 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.dubbo.common.Constants;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.utils.UrlUtils;
+import org.apache.dubbo.metadata.definition.model.FullServiceDefinition;
+import org.apache.dubbo.metadata.definition.model.MethodDefinition;
+import org.apache.dubbo.metadata.identifier.MetadataIdentifier;
 import org.apache.dubbo.rpc.service.GenericService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +55,10 @@ import java.util.stream.Collectors;
 public class DubboController {
 	private static Logger logger = LoggerFactory.getLogger(DubboController.class);
 	
+	private final static String DEFAULT_ROOT = "dubbo";
+	private final static String METADATA_NODE_NAME = "service.data";
+	private String root;
+	
 	@Value("${zyplayer.doc.dubbo.zookeeper.url:}")
 	private String serviceZookeeperUrl;
 	@Value("${zyplayer.doc.dubbo.zookeeper.metadata-url:}")
@@ -70,6 +81,12 @@ public class DubboController {
 			serverClient.start();
 		}
 		if (StringUtils.isNotBlank(metadataZookeeperUrl)) {
+			URL url = UrlUtils.parseURL(metadataZookeeperUrl, Collections.emptyMap());
+			String group = url.getParameter(Constants.GROUP_KEY, DEFAULT_ROOT);
+			if (!group.startsWith(Constants.PATH_SEPARATOR)) {
+				group = Constants.PATH_SEPARATOR + group;
+			}
+			this.root = group;
 			RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
 			metadataClient = CuratorFrameworkFactory.newClient(metadataZookeeperUrl, retryPolicy);
 			metadataClient.start();
@@ -194,29 +211,31 @@ public class DubboController {
 	 * @author 暮光：城中城
 	 * @since 2019年2月10日
 	 **/
+	@GetMapping(value = "/test")
+	public DocResponseJson test() throws Exception {
+		String path = getNodePath("com.zyplayer.dubbo.service.UserService", null, null, "dubbo-provider");
+		if (metadataClient.checkExists().forPath(path) == null) {
+			return DocResponseJson.ok(path);
+		}
+		String metadata = new String(metadataClient.getData().forPath(path));
+		FullServiceDefinition fullServiceDefinition = JSON.parseObject(metadata, FullServiceDefinition.class);
+		return DocResponseJson.ok(fullServiceDefinition);
+	}
+	
+	/**
+	 * 获取文档详情，依据类名生成
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年2月10日
+	 **/
 	@PostMapping(value = "/findDocInfo")
 	public DocResponseJson findDocInfo(DubboRequestParam param) {
-		String resultType = null;
-		List<DubboDocInfo.DubboDocParam> paramList = new LinkedList<>();
-		try {
-			Class clazz = Class.forName(param.getService());
-			Method[] methods = clazz.getMethods();
-			for (Method method : methods) {
-				String methodName = method.getName();
-				if (methodName.equals(param.getMethod())) {
-					resultType = method.getGenericReturnType().getTypeName();
-					Type[] parameterTypes = method.getGenericParameterTypes();
-					Parameter[] parameters = method.getParameters();
-					for (int i = 0; i < parameterTypes.length; i++) {
-						DubboDocInfo.DubboDocParam docParam = new DubboDocInfo.DubboDocParam();
-						docParam.setParamName(parameters[i].getName());
-						docParam.setParamType(parameterTypes[i].getTypeName());
-						paramList.add(docParam);
-					}
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			return DocResponseJson.warn("未找到指定类，请引入相关包，类名：" + param.getService());
+		DubboDocInfo definition = this.getDefinitionByJar(param);
+		if (definition == null) {
+			definition = this.getDefinitionByMetadata(param);
+		}
+		if (definition == null) {
+			return DocResponseJson.warn("未找到指定类，请引入相关包或开启metadata，类名：" + param.getService());
 		}
 		Map<String, DubboDocInfo> docInfoMap = new HashMap<>();
 		String dubboServiceDoc = mgDubboStorageService.get(StorageKeys.DUBBO_SERVICE_DOC);
@@ -228,10 +247,10 @@ public class DubboController {
 		DubboDocInfo dubboDocInfo = docInfoMap.get(function);
 		if (dubboDocInfo == null) {
 			dubboDocInfo = new DubboDocInfo();
-			dubboDocInfo.setParams(paramList);
+			dubboDocInfo.setParams(definition.getParams());
 			dubboDocInfo.setFunction(function);
 			dubboDocInfo.setVersion(1);
-			dubboDocInfo.setResultType(resultType);
+			dubboDocInfo.setResultType(definition.getResultType());
 			dubboDocInfo.setService(param.getService());
 			dubboDocInfo.setMethod(param.getMethod());
 			docInfoMap.put(function, dubboDocInfo);
@@ -328,8 +347,11 @@ public class DubboController {
 		}
 		List<DubboInfo> providerList = new LinkedList<>();
 		for (String dubboStr : dubboList) {
-			List<String> providers = serverClient.getChildren().forPath("/dubbo/" + dubboStr + "/providers");
-			
+			String path = "/dubbo/" + dubboStr + "/providers";
+			if (metadataClient.checkExists().forPath(path) == null) {
+				continue;
+			}
+			List<String> providers = serverClient.getChildren().forPath(path);
 			List<DubboInfo.DubboNodeInfo> nodeList = providers.stream().map(val -> {
 				String tempStr = val;
 				try {
@@ -364,5 +386,80 @@ public class DubboController {
 		}
 		return providerList;
 	}
+	
+	private DubboDocInfo getDefinitionByMetadata(DubboRequestParam param) {
+		try {
+			String path = getNodePath(param.getService(), null, null, param.getApplication());
+			if (metadataClient.checkExists().forPath(path) == null) {
+				return null;
+			}
+			String resultType = null;
+			String metadata = new String(metadataClient.getData().forPath(path));
+			FullServiceDefinition definition = JSON.parseObject(metadata, FullServiceDefinition.class);
+			List<DubboDocInfo.DubboDocParam> paramList = new LinkedList<>();
+			for (MethodDefinition method : definition.getMethods()) {
+				if (Objects.equals(method.getName(), param.getMethod())) {
+					String[] parameterTypes = method.getParameterTypes();
+					resultType = method.getReturnType();
+					for (int i = 0; i < parameterTypes.length; i++) {
+						DubboDocInfo.DubboDocParam docParam = new DubboDocInfo.DubboDocParam();
+						docParam.setParamType(parameterTypes[i]);
+						docParam.setParamName("arg" + i);
+						paramList.add(docParam);
+					}
+				}
+			}
+			DubboDocInfo dubboDocInfo = new DubboDocInfo();
+			dubboDocInfo.setParams(paramList);
+			dubboDocInfo.setResultType(resultType);
+			return dubboDocInfo;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private DubboDocInfo getDefinitionByJar(DubboRequestParam param) {
+		String resultType = null;
+		List<DubboDocInfo.DubboDocParam> paramList = new LinkedList<>();
+		try {
+			Class clazz = Class.forName(param.getService());
+			Method[] methods = clazz.getMethods();
+			for (Method method : methods) {
+				String methodName = method.getName();
+				if (methodName.equals(param.getMethod())) {
+					resultType = method.getGenericReturnType().getTypeName();
+					Type[] parameterTypes = method.getGenericParameterTypes();
+					Parameter[] parameters = method.getParameters();
+					for (int i = 0; i < parameterTypes.length; i++) {
+						DubboDocInfo.DubboDocParam docParam = new DubboDocInfo.DubboDocParam();
+						docParam.setParamName(parameters[i].getName());
+						docParam.setParamType(parameterTypes[i].getTypeName());
+						paramList.add(docParam);
+					}
+				}
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		DubboDocInfo dubboDocInfo = new DubboDocInfo();
+		dubboDocInfo.setParams(paramList);
+		dubboDocInfo.setResultType(resultType);
+		return dubboDocInfo;
+	}
+	
+	String toRootDir() {
+		if (root.equals(Constants.PATH_SEPARATOR)) {
+			return root;
+		}
+		return root + Constants.PATH_SEPARATOR;
+	}
+	
+	String getNodePath(String serviceInterface, String version, String group, String application) {
+		MetadataIdentifier metadataIdentifier = new MetadataIdentifier(serviceInterface, version, group, Constants.PROVIDER_SIDE, application);
+		return toRootDir() + metadataIdentifier.getUniqueKey(MetadataIdentifier.KeyTypeEnum.PATH) + Constants.PATH_SEPARATOR + METADATA_NODE_NAME;
+	}
+	
+	
 }
 

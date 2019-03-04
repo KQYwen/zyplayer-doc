@@ -9,6 +9,11 @@ server:
   servlet:
     context-path: /zyplayer-doc-manage
 
+multipart:
+  enabled: true
+  max-file-size: 100MB
+  max-request-size: 100MB
+
 zyplayer:
   doc:
     # dubbo相关配置
@@ -51,6 +56,8 @@ zyplayer:
 #          url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
 #          username: root
 #          password: root
+    wiki:
+      upload-path: e:/tmp/wikiFiles
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*Mapper.xml

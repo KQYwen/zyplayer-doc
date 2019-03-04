@@ -31,6 +31,7 @@ function createTreeViewByTree(json, keywords) {
 			continue;
 		}
 		var methods = json[i].nodeList[0].methods;
+		var application = json[i].nodeList[0].application;
 		for (var j = 0; j < methods.length; j++) {
 			var interfaceTemp = interface + "." + methods[j];
 			var keyArr = interfaceTemp.split(".");
@@ -68,6 +69,7 @@ function createTreeViewByTree(json, keywords) {
 						tempPathObj.children = null;
 						tempPathObj.method = methods[j];
 						tempPathObj.interface = tempPath;
+						tempPathObj.application = application;
 						app.treePathDataMap.set(tempPath, json[i]);
 					}
 				}
