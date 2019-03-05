@@ -1,9 +1,10 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -11,7 +12,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-24
+ * @since 2019-03-05
  */
 public class WikiPageZan implements Serializable {
 
@@ -47,6 +48,11 @@ public class WikiPageZan implements Serializable {
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 是否有效 0=无效 1=有效
+     */
+    private Integer yn;
 
     public Long getId() {
         return id;
@@ -90,6 +96,13 @@ public class WikiPageZan implements Serializable {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
+    }
 
     @Override
     public String toString() {
@@ -100,6 +113,7 @@ public class WikiPageZan implements Serializable {
         ", createUserId=" + createUserId +
         ", createUserName=" + createUserName +
         ", createTime=" + createTime +
+        ", yn=" + yn +
         "}";
     }
 }

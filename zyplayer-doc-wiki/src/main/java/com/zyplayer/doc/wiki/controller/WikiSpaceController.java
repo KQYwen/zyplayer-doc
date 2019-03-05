@@ -40,9 +40,9 @@ public class WikiSpaceController {
 			wrapper.in("type", 1, 2);
 		} else if(wikiSpace.getType() == 1 || wikiSpace.getType() == 2) {
 			wrapper.eq(wikiSpace.getType() != null, "type", wikiSpace.getType());
-			wrapper.eq(Objects.equals(wikiSpace.getType(), 2), "create_uid", wikiSpace.getCreateUserId());
+			wrapper.eq(Objects.equals(wikiSpace.getType(), 2), "create_user_id", wikiSpace.getCreateUserId());
 		} else if(wikiSpace.getType() == 3) {
-			wrapper.eq("create_uid", currentUser.getUserId());
+			wrapper.eq("create_user_id", currentUser.getUserId());
 		}
 		List<WikiSpace> authList = wikiSpaceService.list(wrapper);
 		return DocResponseJson.ok(authList);

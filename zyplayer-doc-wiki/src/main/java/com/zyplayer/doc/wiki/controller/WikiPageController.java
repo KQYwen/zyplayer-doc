@@ -8,9 +8,11 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageContent;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
+import com.zyplayer.doc.data.repository.manage.entity.WikiPageZan;
 import com.zyplayer.doc.data.service.manage.WikiPageContentService;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
+import com.zyplayer.doc.data.service.manage.WikiPageZanService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,8 @@ public class WikiPageController {
 	WikiPageContentService wikiPageContentService;
 	@Resource
 	WikiPageFileService wikiPageFileService;
+	@Resource
+	WikiPageZanService wikiPageZanService;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPage>> list(WikiPage wikiPage) {
@@ -54,21 +58,31 @@ public class WikiPageController {
 	
 	@PostMapping("/detail")
 	public ResponseJson<WikiPageContentVo> detail(WikiPage wikiPage) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
 		
 		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
 		wrapper.eq("page_id", wikiPage.getId());
 		WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
 		
+		// TODO 检查space是否开放访问
 		UpdateWrapper<WikiPageFile> wrapperFile = new UpdateWrapper<>();
 		wrapperFile.eq("page_id", wikiPage.getId());
-		wrapper.eq("del_flag", 0);
+		wrapperFile.eq("del_flag", 0);
 		List<WikiPageFile> pageFiles = wikiPageFileService.list(wrapperFile);
-		
+		for (WikiPageFile pageFile : pageFiles) {
+			pageFile.setFileUrl("zyplayer-doc-wiki/common/file?fileId=" + pageFile.getId());
+		}
+		UpdateWrapper<WikiPageZan> wrapperZan = new UpdateWrapper<>();
+		wrapperZan.eq("page_id", wikiPage.getId());
+		wrapperZan.eq("create_user_id", currentUser.getUserId());
+		wrapperZan.eq("yn", 1);
+		WikiPageZan pageZan = wikiPageZanService.getOne(wrapperZan);
 		WikiPageContentVo vo = new WikiPageContentVo();
 		vo.setWikiPage(wikiPageSel);
 		vo.setPageContent(pageContent);
 		vo.setFileList(pageFiles);
+		vo.setSelfZan((pageZan != null) ? 1 : 0);
 		return DocResponseJson.ok(vo);
 	}
 	

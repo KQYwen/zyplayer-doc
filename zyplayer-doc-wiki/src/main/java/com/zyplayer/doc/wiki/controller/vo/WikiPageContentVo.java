@@ -10,6 +10,7 @@ public class WikiPageContentVo {
 	private WikiPage wikiPage;
 	private WikiPageContent pageContent;
 	private List<WikiPageFile> fileList;
+	private Integer selfZan;
 	
 	public WikiPage getWikiPage() {
 		return wikiPage;
@@ -33,5 +34,13 @@ public class WikiPageContentVo {
 	
 	public void setFileList(List<WikiPageFile> fileList) {
 		this.fileList = fileList;
+	}
+	
+	public Integer getSelfZan() {
+		return selfZan;
+	}
+	
+	public void setSelfZan(Integer selfZan) {
+		this.selfZan = selfZan;
 	}
 }

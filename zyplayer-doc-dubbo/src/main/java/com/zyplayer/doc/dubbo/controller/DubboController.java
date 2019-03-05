@@ -27,13 +27,10 @@ import org.apache.dubbo.rpc.service.GenericService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -73,29 +70,34 @@ public class DubboController {
 	private CuratorFramework serverClient;
 	private CuratorFramework metadataClient;
 	
-	@PostConstruct
-	private void init() {
-		if (StringUtils.isNotBlank(serviceZookeeperUrl)) {
-			RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-			serverClient = CuratorFrameworkFactory.newClient(serviceZookeeperUrl, retryPolicy);
-			serverClient.start();
-		}
-		if (StringUtils.isNotBlank(metadataZookeeperUrl)) {
-			URL url = UrlUtils.parseURL(metadataZookeeperUrl, Collections.emptyMap());
-			String group = url.getParameter(Constants.GROUP_KEY, DEFAULT_ROOT);
-			if (!group.startsWith(Constants.PATH_SEPARATOR)) {
-				group = Constants.PATH_SEPARATOR + group;
+	private void initServerClient() {
+		if (serverClient == null && StringUtils.isNotBlank(serviceZookeeperUrl)) {
+			synchronized (DEFAULT_ROOT) {
+				if (serverClient == null) {
+					RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+					serverClient = CuratorFrameworkFactory.newClient(serviceZookeeperUrl, retryPolicy);
+					serverClient.start();
+				}
 			}
-			this.root = group;
-			RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-			metadataClient = CuratorFrameworkFactory.newClient(metadataZookeeperUrl, retryPolicy);
-			metadataClient.start();
 		}
 	}
 	
-	@PreDestroy
-	private void preDestroy() {
-		serverClient.close();
+	private void initMetadataClient() {
+		if (metadataClient == null && StringUtils.isNotBlank(metadataZookeeperUrl)) {
+			synchronized (DEFAULT_ROOT) {
+				if (metadataClient == null) {
+					URL url = UrlUtils.parseURL(metadataZookeeperUrl, Collections.emptyMap());
+					String group = url.getParameter(Constants.GROUP_KEY, DEFAULT_ROOT);
+					if (!group.startsWith(Constants.PATH_SEPARATOR)) {
+						group = Constants.PATH_SEPARATOR + group;
+					}
+					this.root = group;
+					RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+					metadataClient = CuratorFrameworkFactory.newClient(metadataZookeeperUrl, retryPolicy);
+					metadataClient.start();
+				}
+			}
+		}
 	}
 	
 	/**
@@ -203,23 +205,6 @@ public class DubboController {
 			dubboInfoVo.setDocMap(docInfoMap);
 		}
 		return DocResponseJson.ok(dubboInfoVo);
-	}
-	
-	/**
-	 * 获取文档详情，依据类名生成
-	 *
-	 * @author 暮光：城中城
-	 * @since 2019年2月10日
-	 **/
-	@GetMapping(value = "/test")
-	public DocResponseJson test() throws Exception {
-		String path = getNodePath("com.zyplayer.dubbo.service.UserService", null, null, "dubbo-provider");
-		if (metadataClient.checkExists().forPath(path) == null) {
-			return DocResponseJson.ok(path);
-		}
-		String metadata = new String(metadataClient.getData().forPath(path));
-		FullServiceDefinition fullServiceDefinition = JSON.parseObject(metadata, FullServiceDefinition.class);
-		return DocResponseJson.ok(fullServiceDefinition);
 	}
 	
 	/**
@@ -341,6 +326,7 @@ public class DubboController {
 	 * @since 2019年2月10日
 	 **/
 	private List<DubboInfo> getDubboInfoByZookeeper() throws Exception {
+		this.initServerClient();
 		List<String> dubboList = serverClient.getChildren().forPath("/dubbo");
 		if (dubboList == null || dubboList.isEmpty()) {
 			return Collections.emptyList();
@@ -348,7 +334,7 @@ public class DubboController {
 		List<DubboInfo> providerList = new LinkedList<>();
 		for (String dubboStr : dubboList) {
 			String path = "/dubbo/" + dubboStr + "/providers";
-			if (metadataClient.checkExists().forPath(path) == null) {
+			if (serverClient.checkExists().forPath(path) == null) {
 				continue;
 			}
 			List<String> providers = serverClient.getChildren().forPath(path);
@@ -389,6 +375,7 @@ public class DubboController {
 	
 	private DubboDocInfo getDefinitionByMetadata(DubboRequestParam param) {
 		try {
+			this.initMetadataClient();
 			String path = getNodePath(param.getService(), null, null, param.getApplication());
 			if (metadataClient.checkExists().forPath(path) == null) {
 				return null;

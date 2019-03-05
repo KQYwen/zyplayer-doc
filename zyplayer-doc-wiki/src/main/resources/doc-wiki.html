@@ -46,12 +46,14 @@
 								<!--:before-remove="beforeRemove"-->
 								<!--:on-exceed="handleExceed"-->
 								<el-upload
-										class="upload-demo"
+										class="upload-page-file"
 										action="zyplayer-doc-wiki/common/upload"
+										:on-success="uploadFileSuccess"
 										name="files"
 										show-file-list
 										multiple
-										:limit="3">
+										:data="uploadFormData"
+										:limit="999">
 									<el-button icon="el-icon-upload">上传附件</el-button>
 								</el-upload>
 							</div>
@@ -68,6 +70,25 @@
 					</div>
 					<div class="wiki-content">
 						<div v-html="pageContent.content"></div>
+					</div>
+					<div style="margin-top: 10px; font-size: 14px;">
+						<span style="vertical-align: top;" class="is-link">
+							<img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;">
+							<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)">赞</span>
+							<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)">踩</span>
+						</span>
+						<span style="margin-left: 10px;vertical-align: top;">
+							<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
+							<span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0"><span class="is-link" v-on:click="showZanPageUser">{{wikiPage.zanNum}}人</span>赞了它</span>
+							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
+							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1"><span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它</span>
+						</span>
+					</div>
+					<div style="margin-top: 10px;">
+						<el-input type="textarea" v-model="commentTextInput" :rows="2" placeholder="请输入评论内容"></el-input>
+						<div align="right" style="margin-top: 5px;">
+							<el-button v-on:click="submitPageComment">提交评论</el-button>
+						</div>
 					</div>
 				</el-row>
 				<el-row type="border-card" v-show="rightContentType == 2">
@@ -141,6 +162,9 @@
 				pageContent: {},
 				pageFileList: [],
 				uploadFileList: [],
+				uploadFormData: {pageId: 0},
+				// 评论相关
+				commentTextInput: ""
 			}
 		},
 		watch: {
@@ -151,7 +175,26 @@
 			this.init();
 		},
 		methods: {
-			editWiki(){
+			zanPage(yn) {
+				var param = {yn: yn, pageId: app.wikiPage.id};
+				ajaxTemp("zyplayer-doc-wiki/page/zan/update", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						app.wikiPage.selfZan = yn;
+						app.wikiPage.zanNum = app.wikiPage.zanNum + (yn == 1 ? 1 : -1);
+					}
+				});
+			},
+			showZanPageUser() {
+			
+			},
+			submitPageComment() {
+				Toast.success(app.commentTextInput);
+			},
+			uploadFileSuccess(response) {
+				app.pageFileList.push(response.data);
+				Toast.success("上传成功！");
+			},
+			editWiki() {
 				this.rightContentType = 2;
 				this.newPageId = app.wikiPage.id;
 				this.newPageTitle = app.wikiPage.name;
@@ -183,7 +226,7 @@
 				ajaxTemp("zyplayer-doc-wiki/page/update", "post", "json", param, function (json) {
 					if (validateResult(json)) {
 						Toast.success("保存成功！");
-						this.loadPageDetail(json.data.id);
+						app.loadPageDetail(json.data.id);
 					}
 				});
 			},
@@ -201,9 +244,12 @@
 				var param = {id: pageId};
 				ajaxTemp("zyplayer-doc-wiki/page/detail", "post", "json", param, function (json) {
 					if (validateResult(json)) {
-						app.wikiPage = json.data.wikiPage || {};
+						var wikiPage = json.data.wikiPage || {};
+						wikiPage.selfZan = json.data.selfZan || 0;
+						app.wikiPage = wikiPage;
 						app.pageContent = json.data.pageContent || {};
 						app.pageFileList = json.data.fileList || [];
+						app.uploadFormData = {pageId: app.wikiPage.id};
 					}
 				});
 			},
@@ -278,6 +324,9 @@
 	.wiki-title{font-size: 20px;}
 	.wiki-author{font-size: 14px;padding: 10px 0;}
 	.wiki-content{font-size: 14px;}
+	
+	.upload-page-file .el-upload-list{display: none;}
+	.is-link{color: #1e88e5;cursor: pointer;}
 </style>
 </html>
 

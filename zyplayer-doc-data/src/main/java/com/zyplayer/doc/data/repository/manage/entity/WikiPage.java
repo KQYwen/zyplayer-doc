@@ -12,7 +12,7 @@ import java.util.Date;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-24
+ * @since 2019-03-05
  */
 public class WikiPage implements Serializable {
 
@@ -43,6 +43,11 @@ public class WikiPage implements Serializable {
      * 节点类型 0=有子节点 1=终节点
      */
     private Integer nodeType;
+
+    /**
+     * 赞的数量
+     */
+    private Integer zanNum;
 
     /**
      * 创建人ID
@@ -114,6 +119,13 @@ public class WikiPage implements Serializable {
     public void setNodeType(Integer nodeType) {
         this.nodeType = nodeType;
     }
+    public Integer getZanNum() {
+        return zanNum;
+    }
+
+    public void setZanNum(Integer zanNum) {
+        this.zanNum = zanNum;
+    }
     public Long getCreateUserId() {
         return createUserId;
     }
@@ -172,6 +184,7 @@ public class WikiPage implements Serializable {
         ", name=" + name +
         ", parentId=" + parentId +
         ", nodeType=" + nodeType +
+        ", zanNum=" + zanNum +
         ", createUserId=" + createUserId +
         ", createUserName=" + createUserName +
         ", createTime=" + createTime +
