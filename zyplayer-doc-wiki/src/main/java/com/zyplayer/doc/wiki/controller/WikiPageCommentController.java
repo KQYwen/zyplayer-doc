@@ -49,9 +49,10 @@ public class WikiPageCommentController {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			pageComment.setCreateTime(new Date());
 			pageComment.setCreateUserId(currentUser.getUserId());
+			pageComment.setCreateUserName(currentUser.getUsername());
 			wikiPageCommentService.save(pageComment);
 		}
-		return DocResponseJson.ok();
+		return DocResponseJson.ok(pageComment);
 	}
 }
 

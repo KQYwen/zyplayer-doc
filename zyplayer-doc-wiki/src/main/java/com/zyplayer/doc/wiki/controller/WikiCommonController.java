@@ -2,12 +2,14 @@ package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +45,6 @@ public class WikiCommonController {
 	
 	@PostMapping("/upload")
 	public ResponseJson<Object> upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
-		//通过CommonsMultipartFile的方法直接写文件（注意这个时候）
 		String fileName = file.getOriginalFilename();
 		String fileSuffix = "";
 		if (fileName != null && fileName.lastIndexOf(".") >= 0) {
@@ -55,7 +56,8 @@ public class WikiCommonController {
 		if (!newFile.exists() && !newFile.mkdir()) {
 			return DocResponseJson.warn("创建文件夹失败");
 		}
-		path += RandomUtil.simpleUUID() + fileSuffix;
+		String simpleUUID = RandomUtil.simpleUUID();
+		path += simpleUUID + fileSuffix;
 		newFile = new File(path);
 		try {
 			file.transferTo(newFile);
@@ -63,6 +65,7 @@ public class WikiCommonController {
 			e.printStackTrace();
 			return DocResponseJson.warn("保存文件失败");
 		}
+		wikiPageFile.setUuid(simpleUUID);
 		wikiPageFile.setFileUrl(path);
 		wikiPageFile.setFileName(fileName);
 		wikiPageFile.setCreateTime(new Date());
@@ -70,16 +73,18 @@ public class WikiCommonController {
 		wikiPageFile.setCreateUserName(currentUser.getUsername());
 		wikiPageFile.setDelFlag(0);
 		wikiPageFileService.save(wikiPageFile);
-		wikiPageFile.setFileUrl("zyplayer-doc-wiki/common/file?fileId=" + wikiPageFile.getId());
+		wikiPageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + wikiPageFile.getUuid());
 		return DocResponseJson.ok(wikiPageFile);
 	}
 	
 	@GetMapping("/file")
-	public ResponseJson<Object> file(Long fileId, HttpServletResponse response) {
-		if (fileId == null || fileId <= 0) {
+	public ResponseJson<Object> file(String uuid, HttpServletResponse response) {
+		if (StringUtils.isBlank(uuid)) {
 			return DocResponseJson.warn("请指定文件ID");
 		}
-		WikiPageFile pageFile = wikiPageFileService.getById(fileId);
+		UpdateWrapper<WikiPageFile> wrapperFile = new UpdateWrapper<>();
+		wrapperFile.eq("uuid", uuid);
+		WikiPageFile pageFile = wikiPageFileService.getOne(wrapperFile);
 		if (pageFile == null) {
 			return DocResponseJson.warn("未找到指定文件");
 		}

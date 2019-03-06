@@ -47,6 +47,7 @@ public class WikiPageZanServiceImpl extends ServiceImpl<WikiPageZanMapper, WikiP
 		} else {
 			wikiPageZan.setCreateTime(new Date());
 			wikiPageZan.setCreateUserId(currentUser.getUserId());
+			wikiPageZan.setCreateUserName(currentUser.getUsername());
 			this.save(wikiPageZan);
 		}
 		int numAdd = wikiPageZan.getYn() == 1 ? 1 : -1;

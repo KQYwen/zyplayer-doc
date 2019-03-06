@@ -12,7 +12,7 @@ import java.util.Date;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-24
+ * @since 2019-03-06
  */
 public class WikiPageFile implements Serializable {
 
@@ -38,6 +38,11 @@ public class WikiPageFile implements Serializable {
      * 文件URL
      */
     private String fileUrl;
+
+    /**
+     * 文件UUID
+     */
+    private String uuid;
 
     /**
      * 创建人ID
@@ -102,6 +107,13 @@ public class WikiPageFile implements Serializable {
     public void setFileUrl(String fileUrl) {
         this.fileUrl = fileUrl;
     }
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
     public Long getCreateUserId() {
         return createUserId;
     }
@@ -159,6 +171,7 @@ public class WikiPageFile implements Serializable {
         ", pageId=" + pageId +
         ", fileName=" + fileName +
         ", fileUrl=" + fileUrl +
+        ", uuid=" + uuid +
         ", createUserId=" + createUserId +
         ", createUserName=" + createUserName +
         ", createTime=" + createTime +

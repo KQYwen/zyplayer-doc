@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-24
+ * @since 2019-03-06
  */
 @Service
 public class WikiPageFileServiceImpl extends ServiceImpl<WikiPageFileMapper, WikiPageFile> implements WikiPageFileService {

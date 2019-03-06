@@ -71,7 +71,7 @@ public class WikiPageController {
 		wrapperFile.eq("del_flag", 0);
 		List<WikiPageFile> pageFiles = wikiPageFileService.list(wrapperFile);
 		for (WikiPageFile pageFile : pageFiles) {
-			pageFile.setFileUrl("zyplayer-doc-wiki/common/file?fileId=" + pageFile.getId());
+			pageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + pageFile.getUuid());
 		}
 		UpdateWrapper<WikiPageZan> wrapperZan = new UpdateWrapper<>();
 		wrapperZan.eq("page_id", wikiPage.getId());

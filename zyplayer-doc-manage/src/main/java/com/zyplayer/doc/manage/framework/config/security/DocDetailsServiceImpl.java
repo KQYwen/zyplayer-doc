@@ -51,7 +51,7 @@ public class DocDetailsServiceImpl implements UserDetailsService {
 			});
 		}
 		//String pwdMd5 = DigestUtils.md5DigestAsHex(userInfo.getPassword().getBytes());
-		DocUserDetails userDetails = new DocUserDetails(userInfo.getId(), userInfo.getUserNo(), userInfo.getPassword(), true, authorities);
+		DocUserDetails userDetails = new DocUserDetails(userInfo.getId(), userInfo.getUserName(), userInfo.getPassword(), true, authorities);
 		return userDetails;
 	}
 	

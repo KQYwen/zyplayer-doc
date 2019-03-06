@@ -11,7 +11,7 @@
  Target Server Version : 50724
  File Encoding         : 65001
 
- Date: 24/02/2019 18:13:04
+ Date: 06/03/2019 19:00:24
 */
 
 SET NAMES utf8mb4;
@@ -95,7 +95,6 @@ CREATE TABLE `user_info`  (
 -- ----------------------------
 INSERT INTO `user_info` VALUES (1, 'zyplayer', 'e10adc3949ba59abbe56e057f20f883e', '暮光：城中城', '806783409@qq.com', NULL, 0, '2018-12-01 11:37:39', NULL, '2018-12-15 20:32:08');
 INSERT INTO `user_info` VALUES (2, '1', 'e10adc3949ba59abbe56e057f20f883e', '1111', NULL, NULL, 0, '2018-12-15 20:16:10', 1, '2018-12-15 20:19:50');
-INSERT INTO `user_info` VALUES (3, '2', NULL, '11', '11', NULL, 0, '2018-12-15 20:21:24', 1, NULL);
 
 -- ----------------------------
 -- Table structure for wiki_page
@@ -107,32 +106,27 @@ CREATE TABLE `wiki_page`  (
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '名字',
   `parent_id` bigint(20) NULL DEFAULT NULL COMMENT '父ID',
   `node_type` tinyint(4) NULL DEFAULT 0 COMMENT '节点类型 0=有子节点 1=终节点',
+  `zan_num` int(11) NOT NULL DEFAULT 0 COMMENT '赞的数量',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_user_id` bigint(20) NULL DEFAULT NULL COMMENT '修改人ID',
-  `update_user_name` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '修改人名字',
+  `update_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改人名字',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
-  `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
+  `del_flag` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of wiki_page
 -- ----------------------------
-INSERT INTO `wiki_page` VALUES (1, 1, '规范', NULL, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (2, 1, '流程', NULL, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (3, 1, '分享', NULL, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (4, 1, '精品收藏', NULL, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (5, 1, '数据库规范', 1, 1, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (6, 1, 'JAVA开发规范', 1, 1, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (7, 1, '测试1', NULL, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (8, 1, '测试2', NULL, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (9, 1, '测试3', 7, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (10, 1, '测试4', 7, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (11, 1, '测试5', 9, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (12, 1, '测试6', 7, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (14, 1, '测试7', NULL, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
+INSERT INTO `wiki_page` VALUES (7, 1, '测试1', NULL, 0, 1, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
+INSERT INTO `wiki_page` VALUES (8, 1, '测试2', NULL, 0, 3, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-03-06 09:25:29', 0);
+INSERT INTO `wiki_page` VALUES (9, 1, '测试3', 7, 0, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
+INSERT INTO `wiki_page` VALUES (10, 1, '测试4', 7, 0, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
+INSERT INTO `wiki_page` VALUES (11, 1, '测试5', 9, 0, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
+INSERT INTO `wiki_page` VALUES (12, 1, '测试6', 7, 0, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
+INSERT INTO `wiki_page` VALUES (14, 1, '测试7', NULL, 0, 1, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
 
 -- ----------------------------
 -- Table structure for wiki_page_comment
@@ -143,12 +137,13 @@ CREATE TABLE `wiki_page_comment`  (
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
   `parent_id` bigint(20) NULL DEFAULT NULL COMMENT '父评论ID',
   `content` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '评论内容',
+  `zan_num` int(11) NOT NULL DEFAULT 0 COMMENT '赞的数量',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for wiki_page_content
@@ -159,25 +154,25 @@ CREATE TABLE `wiki_page_content`  (
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
   `content` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '内容',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_user_id` bigint(20) NULL DEFAULT NULL COMMENT '修改人ID',
-  `update_user_name` varchar(0) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '修改人名字',
+  `update_user_name` varchar(0) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改人名字',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_page_id`(`page_id`) USING BTREE COMMENT '页面ID'
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of wiki_page_content
 -- ----------------------------
 INSERT INTO `wiki_page_content` VALUES (1, 7, '<p>测试1测试1测试1测试1测试1</p>', 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56');
-INSERT INTO `wiki_page_content` VALUES (2, 8, '<p>测试2测试2测试2测试2</p>', 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56');
+INSERT INTO `wiki_page_content` VALUES (2, 8, '<p>测试2测试2测试2测试2fasfafafdsafasfxxxxxxxxxxxxdsadsadsadasdasd</p>', 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-03-06 09:25:29');
 INSERT INTO `wiki_page_content` VALUES (3, 9, '<p>测试3测试3测试3测试3测试3</p>', 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56');
 INSERT INTO `wiki_page_content` VALUES (4, 10, '<p>测试4测试4测试4测试4测试4</p>', 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56');
 INSERT INTO `wiki_page_content` VALUES (5, 11, '<p>测试5测试5测试5测试5</p>', 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56');
 INSERT INTO `wiki_page_content` VALUES (6, 12, '<p>测试6测试6测试6测试6测试6</p>', 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56');
-INSERT INTO `wiki_page_content` VALUES (7, 13, '<p>欢迎使用 wangEditor 富文本编辑器</p><p>测试7</p>', 1, NULL, '2019-02-24 17:51:56', NULL, NULL, '2019-02-24 17:51:56');
+INSERT INTO `wiki_page_content` VALUES (7, 13, '<p>测试7测试7测试7测试7</p>', 1, NULL, '2019-02-24 17:51:56', NULL, NULL, '2019-02-24 17:51:56');
 INSERT INTO `wiki_page_content` VALUES (8, 14, '<p>测试7 测试7测试7测试7&nbsp;</p>', 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56');
 
 -- ----------------------------
@@ -189,6 +184,7 @@ CREATE TABLE `wiki_page_file`  (
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
   `file_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件名',
   `file_url` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件URL',
+  `uuid` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件UUID',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
   `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
@@ -196,13 +192,9 @@ CREATE TABLE `wiki_page_file`  (
   `update_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改人名字',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of wiki_page_file
--- ----------------------------
-INSERT INTO `wiki_page_file` VALUES (1, 7, '开发规范.doc', 'http://www.baidu.com', 1, '暮光：城中城', '2019-02-24 17:51:56', NULL, NULL, NULL, 0);
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_uuid`(`uuid`) USING BTREE COMMENT '文件ID'
+) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for wiki_page_zan
@@ -213,10 +205,11 @@ CREATE TABLE `wiki_page_zan`  (
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
   `comment_id` bigint(20) NULL DEFAULT NULL COMMENT '评论ID',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for wiki_space
@@ -228,10 +221,10 @@ CREATE TABLE `wiki_space`  (
   `type` tinyint(4) NULL DEFAULT 1 COMMENT '空间类型 1=公司 2=个人 3=私人',
   `explain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of wiki_space
@@ -250,9 +243,10 @@ CREATE TABLE `zyplayer_storage`  (
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `key`(`doc_key`) USING BTREE COMMENT 'key唯一索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储网页上相关的数据' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储网页上相关的数据' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of zyplayer_storage
 -- ----------------------------
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -28,7 +28,6 @@
 				</el-row>
 				<el-row type="border-card" v-show="rightContentType == 1">
 					<div class="wiki-title">
-						<!--狗屎一样的代码如何重构？wiki模块正在开发中，这只是一个预览页面-->
 						{{wikiPage.name}}
 						<div style="float: right;">
 							<el-button type="text" icon="el-icon-edit" v-on:click="editWiki">编辑</el-button>
@@ -49,6 +48,7 @@
 										class="upload-page-file"
 										action="zyplayer-doc-wiki/common/upload"
 										:on-success="uploadFileSuccess"
+										:on-error="uploadFileError"
 										name="files"
 										show-file-list
 										multiple
@@ -66,12 +66,17 @@
 							</el-table-column>
 							<el-table-column prop="createUserName" label="创建人"></el-table-column>
 							<el-table-column prop="createTime" label="创建时间"></el-table-column>
+							<el-table-column label="操作">
+								<template slot-scope="scope">
+									<el-button v-on:click="deletePageFile(scope.row)">删除</el-button>
+								</template>
+							</el-table-column>
 						</el-table>
 					</div>
 					<div class="wiki-content">
 						<div v-html="pageContent.content"></div>
 					</div>
-					<div style="margin-top: 10px; font-size: 14px;">
+					<div style="margin-top: 20px; font-size: 14px;">
 						<span style="vertical-align: top;" class="is-link">
 							<img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;">
 							<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)">赞</span>
@@ -83,6 +88,13 @@
 							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
 							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1"><span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它</span>
 						</span>
+					</div>
+					<div v-show="commentList.length > 0" style="margin-top: 20px;">
+						<div style="margin-bottom: 10px;">评论列表：</div>
+						<div v-for="(item,index) in commentList" :key="item.id" :data-id="item.id" :data-index="index" style="border-top: 1px solid #ccc;padding: 10px;">
+							<div>{{item.createUserName}}：<div style="color: #888;font-size: 13px;float: right;">{{item.createTime}}</div></div>
+							<div style="padding-top: 10px;">　{{item.content}}</div>
+						</div>
 					</div>
 					<div style="margin-top: 10px;">
 						<el-input type="textarea" v-model="commentTextInput" :rows="2" placeholder="请输入评论内容"></el-input>
@@ -105,6 +117,13 @@
 				</el-row>
 			</el-main>
 		</el-container>
+		<!--点赞人员弹窗-->
+		<el-dialog title="赞了它的人" :visible.sync="zanUserDialogVisible" width="600px">
+			<el-table :data="zanUserList" border :show-header="false" style="width: 100%; margin-bottom: 5px;">
+				<el-table-column prop="createUserName" show-header label="用户"></el-table-column>
+				<el-table-column prop="createTime" show-header label="时间"></el-table-column>
+			</el-table>
+		</el-dialog>
 		<!--关于弹窗-->
 		<el-dialog title="关于zyplayer-doc-wiki" :visible.sync="aboutDialogVisible" width="600px">
 			<el-form>
@@ -155,6 +174,7 @@
 				// 搜索的输入内容
 				searchKeywords: "",
 				lastClickNode: {},
+				// 编辑相关
 				newPageId: "",
 				newPageTitle: "",
 				// 页面展示相关
@@ -163,8 +183,11 @@
 				pageFileList: [],
 				uploadFileList: [],
 				uploadFormData: {pageId: 0},
+				zanUserDialogVisible: false,
+				zanUserList: [],
 				// 评论相关
-				commentTextInput: ""
+				commentTextInput: "",
+				commentList: [],
 			}
 		},
 		watch: {
@@ -185,14 +208,46 @@
 				});
 			},
 			showZanPageUser() {
-			
+				app.zanUserDialogVisible = true;
+				app.zanUserList = [];
+				var param = {pageId: app.wikiPage.id};
+				ajaxTemp("zyplayer-doc-wiki/page/zan/list", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						app.zanUserList = json.data;
+					}
+				});
 			},
 			submitPageComment() {
-				Toast.success(app.commentTextInput);
+				var param = {pageId: app.wikiPage.id, content: app.commentTextInput};
+				ajaxTemp("zyplayer-doc-wiki/page/comment/update", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						app.commentTextInput = "";
+						app.commentList.push(json.data);
+					}
+				});
+			},
+			uploadFileError(err) {
+				Toast.success("上传失败，" + err);
 			},
 			uploadFileSuccess(response) {
-				app.pageFileList.push(response.data);
-				Toast.success("上传成功！");
+				if (validateResult(response)) {
+					app.pageFileList.push(response.data);
+					Toast.success("上传成功！");
+				}
+			},
+			deletePageFile(row) {
+				var param = {id: row.id, delFlag: 1};
+				ajaxTemp("zyplayer-doc-wiki/page/file/update", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						var pageFileList = [];
+						for (var i = 0; i < app.pageFileList.length; i++) {
+							if (app.pageFileList[i].id != row.id) {
+								pageFileList.push(app.pageFileList[i]);
+							}
+						}
+						app.pageFileList = pageFileList;
+					}
+				});
 			},
 			editWiki() {
 				this.rightContentType = 2;
@@ -200,18 +255,20 @@
 				this.newPageTitle = app.wikiPage.name;
 				page.newPageContentEditor.txt.html(app.pageContent.content || "");
 			},
-			createWiki(){
+			createWiki() {
 				this.newPageId = "";
+				this.newPageTitle = "";
+				page.newPageContentEditor.txt.html("");
 				this.rightContentType = 2;
 			},
-			createWikiCancel(){
+			createWikiCancel() {
 				if (isEmpty(this.lastClickNode.label)) {
 					this.rightContentType = 0;
 				} else {
 					this.rightContentType = 1;
 				}
 			},
-			createWikiSave(){
+			createWikiSave() {
 				var parentId = app.lastClickNode.id;
 				if (this.newPageId > 0) {
 					parentId = "";
@@ -250,6 +307,16 @@
 						app.pageContent = json.data.pageContent || {};
 						app.pageFileList = json.data.fileList || [];
 						app.uploadFormData = {pageId: app.wikiPage.id};
+					}
+				});
+				this.loadCommentList(pageId);
+			},
+			loadCommentList(pageId) {
+				app.commentList = [];
+				var param = {pageId: pageId};
+				ajaxTemp("zyplayer-doc-wiki/page/comment/list", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						app.commentList = json.data || [];
 					}
 				});
 			},
