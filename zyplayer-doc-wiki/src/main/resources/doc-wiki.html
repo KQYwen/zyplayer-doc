@@ -12,7 +12,7 @@
 	<div id="app">
 		<el-container style="height: 100%;">
 			<el-aside width="auto" style="height: 100%;">
-				<!--<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>-->
+				<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>
 				<div style="padding: 10px;">
 					<div align="center"><el-button type="primary" v-on:click="createWiki" icon="el-icon-plus" style="width: 100%;">创建文档</el-button></div>
 					<!--<el-row><el-switch v-model="isCollapse"></el-switch></el-row>-->
@@ -22,100 +22,116 @@
 					<el-tree :props="defaultProps" @node-click="handleNodeClick" :load="loadNodeChildren" lazy></el-tree>
 				</div>
 			</el-aside>
-			<el-main class="doc-body-box">
-				<el-row type="border-card" v-show="rightContentType == 0">
-					<div style="margin-top: 30px;color: #666; text-align: center;">欢迎使用在线文档</div>
-				</el-row>
-				<el-row type="border-card" v-show="rightContentType == 1">
-					<div class="wiki-title">
-						{{wikiPage.name}}
-						<div style="float: right;">
-							<el-button type="text" icon="el-icon-edit" v-on:click="editWiki">编辑</el-button>
-							<el-button type="text" icon="el-icon-setting">访问权限</el-button>
-						</div>
-					</div>
-					<div class="wiki-author">
-						创建时间：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　最后修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}
-					</div>
-					<div class="wiki-files">
-						<div style="margin-bottom: 5px; height: 40px;">
+			<el-container>
+				<el-header style="text-align: right;height: 50px;">
+					<el-dropdown @command="notOpen" trigger="click">
+						<i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
+						<el-dropdown-menu slot="dropdown">
+							<el-dropdown-item command="">我的资料</el-dropdown-item>
+							<el-dropdown-item command="">退出登录</el-dropdown-item>
+						</el-dropdown-menu>
+					</el-dropdown>
+				</el-header>
+				<el-main class="doc-body-box">
+					<el-row type="border-card" v-show="rightContentType == 0">
+						<div style="margin-top: 30px;color: #666; text-align: center;">欢迎使用在线文档</div>
+					</el-row>
+					<el-row type="border-card" v-show="rightContentType == 1">
+						<div class="wiki-title">
+							{{wikiPage.name}}
 							<div style="float: right;">
-								<!--:on-preview="handlePreview"-->
-								<!--:on-remove="handleRemove"-->
-								<!--:before-remove="beforeRemove"-->
-								<!--:on-exceed="handleExceed"-->
-								<el-upload
-										class="upload-page-file"
-										action="zyplayer-doc-wiki/common/upload"
-										:on-success="uploadFileSuccess"
-										:on-error="uploadFileError"
-										name="files"
-										show-file-list
-										multiple
-										:data="uploadFormData"
-										:limit="999">
-									<el-button icon="el-icon-upload">上传附件</el-button>
-								</el-upload>
+								<el-button type="text" icon="el-icon-edit" v-on:click="editWiki">编辑</el-button>
+								<el-button type="text" icon="el-icon-setting" v-on:click="editWikiAuth">访问权限</el-button>
 							</div>
 						</div>
-						<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px;">
-							<el-table-column label="文件名">
-								<template slot-scope="scope">
-									<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName}}</a>
-								</template>
-							</el-table-column>
-							<el-table-column prop="createUserName" label="创建人"></el-table-column>
-							<el-table-column prop="createTime" label="创建时间"></el-table-column>
-							<el-table-column label="操作">
-								<template slot-scope="scope">
-									<el-button v-on:click="deletePageFile(scope.row)">删除</el-button>
-								</template>
-							</el-table-column>
-						</el-table>
-					</div>
-					<div class="wiki-content">
-						<div v-html="pageContent.content"></div>
-					</div>
-					<div style="margin-top: 20px; font-size: 14px;">
-						<span style="vertical-align: top;" class="is-link">
-							<img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;">
-							<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)">赞</span>
-							<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)">踩</span>
-						</span>
-						<span style="margin-left: 10px;vertical-align: top;">
-							<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
-							<span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0"><span class="is-link" v-on:click="showZanPageUser">{{wikiPage.zanNum}}人</span>赞了它</span>
-							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
-							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1"><span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它</span>
-						</span>
-					</div>
-					<div v-show="commentList.length > 0" style="margin-top: 20px;">
-						<div style="margin-bottom: 10px;">评论列表：</div>
-						<div v-for="(item,index) in commentList" :key="item.id" :data-id="item.id" :data-index="index" style="border-top: 1px solid #ccc;padding: 10px;">
-							<div>{{item.createUserName}}：<div style="color: #888;font-size: 13px;float: right;">{{item.createTime}}</div></div>
-							<div style="padding-top: 10px;">　{{item.content}}</div>
+						<div class="wiki-author">
+							创建时间：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　最后修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}
 						</div>
-					</div>
-					<div style="margin-top: 10px;">
-						<el-input type="textarea" v-model="commentTextInput" :rows="2" placeholder="请输入评论内容"></el-input>
-						<div align="right" style="margin-top: 5px;">
-							<el-button v-on:click="submitPageComment">提交评论</el-button>
+						<div class="wiki-files">
+							<div style="margin-bottom: 5px; height: 40px;">
+								<div style="float: right;">
+									<!--:on-preview="handlePreview"-->
+									<!--:on-remove="handleRemove"-->
+									<!--:before-remove="beforeRemove"-->
+									<!--:on-exceed="handleExceed"-->
+									<el-upload
+											class="upload-page-file"
+											action="zyplayer-doc-wiki/common/upload"
+											:on-success="uploadFileSuccess"
+											:on-error="uploadFileError"
+											name="files"
+											show-file-list
+											multiple
+											:data="uploadFormData"
+											:limit="999">
+										<el-button icon="el-icon-upload">上传附件</el-button>
+									</el-upload>
+								</div>
+							</div>
+							<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px;">
+								<el-table-column label="文件名">
+									<template slot-scope="scope">
+										<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName}}</a>
+									</template>
+								</el-table-column>
+								<el-table-column prop="createUserName" label="创建人"></el-table-column>
+								<el-table-column prop="createTime" label="创建时间"></el-table-column>
+								<el-table-column label="操作">
+									<template slot-scope="scope">
+										<el-button v-on:click="deletePageFile(scope.row)">删除</el-button>
+									</template>
+								</el-table-column>
+							</el-table>
 						</div>
-					</div>
-				</el-row>
-				<el-row type="border-card" v-show="rightContentType == 2">
-					<div style="margin-bottom: 10px;">
-						父级：{{lastClickNode.nodePath || '/'}}　
-						<el-tooltip class="item" content="在根目录创建文档">
-							<el-button type="text" @click="lastClickNode={}" style="padding: 0 10px;">根目录</el-button>
-						</el-tooltip>
-					</div>
-					<el-input v-model="newPageTitle" placeholder="请输入标题"></el-input>
-					<div id="newPageContentDiv" style="margin: 10px 0;"></div>
-					<el-button type="primary" v-on:click="createWikiSave">保存</el-button>
-					<el-button v-on:click="createWikiCancel">取消</el-button>
-				</el-row>
-			</el-main>
+						<div class="wiki-content">
+							<div v-html="pageContent.content"></div>
+						</div>
+						<div style="margin-top: 20px; font-size: 14px;">
+							<span style="vertical-align: top;" class="is-link">
+								<img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;">
+								<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)">赞</span>
+								<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)">踩</span>
+							</span>
+							<span style="margin-left: 10px;vertical-align: top;">
+								<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
+								<span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0"><span class="is-link" v-on:click="showZanPageUser">{{wikiPage.zanNum}}人</span>赞了它</span>
+								<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
+								<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1"><span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它</span>
+							</span>
+						</div>
+						<div v-show="commentList.length > 0" class="comment-box" style="margin-top: 20px;">
+							<div style="margin-bottom: 10px;">评论列表：</div>
+							<div v-for="(item,index) in commentList" :key="item.id" :data-id="item.id" :data-index="index" style="border-top: 1px solid #eee;padding: 10px;">
+								<div>
+									<div :style="'background-color: '+item.color" class="head">{{item.createUserName.substr(0,1)}}</div>
+								</div>
+								<div style="padding-left: 55px;">
+									{{item.createUserName}}　<span style="color: #888;font-size: 13px;">{{item.createTime}}</span>
+								</div>
+								<pre style="padding: 10px 0 0 55px;">{{item.content}}</pre>
+							</div>
+						</div>
+						<div style="margin: 20px 0 50px 0;">
+							<el-input type="textarea" v-model="commentTextInput" :rows="5" placeholder="请输入评论内容"></el-input>
+							<div align="right" style="margin-top: 5px;">
+								<el-button v-on:click="submitPageComment">提交评论</el-button>
+							</div>
+						</div>
+					</el-row>
+					<el-row type="border-card" v-show="rightContentType == 2">
+						<div style="margin-bottom: 10px;">
+							父级：{{lastClickNode.nodePath || '/'}}　
+							<el-tooltip class="item" content="在根目录创建文档">
+								<el-button type="text" @click="lastClickNode={}" style="padding: 0 10px;">根目录</el-button>
+							</el-tooltip>
+						</div>
+						<el-input v-model="newPageTitle" placeholder="请输入标题"></el-input>
+						<div id="newPageContentDiv" style="margin: 10px 0;"></div>
+						<el-button type="primary" v-on:click="createWikiSave">保存</el-button>
+						<el-button v-on:click="createWikiCancel">取消</el-button>
+					</el-row>
+				</el-main>
+			</el-container>
 		</el-container>
 		<!--点赞人员弹窗-->
 		<el-dialog title="赞了它的人" :visible.sync="zanUserDialogVisible" width="600px">
@@ -153,6 +169,7 @@
 <script>
 	var page = {
 		newPageContentEditor: '',
+		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
 	};
 	var app = new Vue({
 		el: '#app',
@@ -221,8 +238,10 @@
 				var param = {pageId: app.wikiPage.id, content: app.commentTextInput};
 				ajaxTemp("zyplayer-doc-wiki/page/comment/update", "post", "json", param, function (json) {
 					if (validateResult(json)) {
+						var data = json.data;
+						data.color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
 						app.commentTextInput = "";
-						app.commentList.push(json.data);
+						app.commentList.push(data);
 					}
 				});
 			},
@@ -236,18 +255,30 @@
 				}
 			},
 			deletePageFile(row) {
-				var param = {id: row.id, delFlag: 1};
-				ajaxTemp("zyplayer-doc-wiki/page/file/update", "post", "json", param, function (json) {
-					if (validateResult(json)) {
-						var pageFileList = [];
-						for (var i = 0; i < app.pageFileList.length; i++) {
-							if (app.pageFileList[i].id != row.id) {
-								pageFileList.push(app.pageFileList[i]);
+				this.$confirm('确定要删除此文件吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					var param = {id: row.id, delFlag: 1};
+					ajaxTemp("zyplayer-doc-wiki/page/file/update", "post", "json", param, function (json) {
+						if (validateResult(json)) {
+							var pageFileList = [];
+							for (var i = 0; i < app.pageFileList.length; i++) {
+								if (app.pageFileList[i].id != row.id) {
+									pageFileList.push(app.pageFileList[i]);
+								}
 							}
+							app.pageFileList = pageFileList;
 						}
-						app.pageFileList = pageFileList;
-					}
+					});
 				});
+			},
+			editWikiAuth() {
+				Toast.notOpen();
+			},
+			notOpen() {
+				Toast.notOpen();
 			},
 			editWiki() {
 				this.rightContentType = 2;
@@ -316,7 +347,11 @@
 				var param = {pageId: pageId};
 				ajaxTemp("zyplayer-doc-wiki/page/comment/list", "post", "json", param, function (json) {
 					if (validateResult(json)) {
-						app.commentList = json.data || [];
+						var commentList = json.data || [];
+						for (var i = 0; i < commentList.length; i++) {
+							commentList[i].color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+						}
+						app.commentList = commentList;
 					}
 				});
 			},
@@ -373,11 +408,16 @@
 		padding: 0;
 		height: 100%;
 	}
-	pre{margin: 0;}
+	pre{margin: 0;white-space: pre-wrap;font-size: 14px; font-family: auto;}
 	.el-menu {
 		box-sizing: border-box;
 		border-right: 0;
 		margin-right: 3px;
+	}
+	.el-header {
+		background-color: #409EFF;
+		color: #333;
+		line-height: 50px;
 	}
 	.doc-body-box{
 		overflow-x: hidden;height: calc(100vh);overflow-y: auto;width: 100%;
@@ -386,7 +426,7 @@
 	.el-tree{margin-right: 3px;}
 	.logo{
 		background: #409EFF; cursor: pointer;
-		width: 100%; height:60px;line-height:60px;font-size: 25px;color: #fff;text-align: center;
+		width: 100%; height:50px;line-height:50px;font-size: 25px;color: #fff;text-align: center;
 	}
 	.wiki-title{font-size: 20px;}
 	.wiki-author{font-size: 14px;padding: 10px 0;}
@@ -394,6 +434,12 @@
 	
 	.upload-page-file .el-upload-list{display: none;}
 	.is-link{color: #1e88e5;cursor: pointer;}
+
+	/*评论*/
+	.comment-box .head{
+		float: left;background-color: #ccc;border-radius: 50%;margin-right: 10px;
+		width: 45px; height: 45px; line-height: 45px;text-align: center;color: #fff;
+	}
 </style>
 </html>
 

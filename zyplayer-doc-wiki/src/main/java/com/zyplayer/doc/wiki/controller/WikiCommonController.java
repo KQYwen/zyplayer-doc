@@ -53,7 +53,7 @@ public class WikiCommonController {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		String path = uploadPath + "/" + DateTime.now().toString("yyyy/MM/dd") + "/";
 		File newFile = new File(path);
-		if (!newFile.exists() && !newFile.mkdir()) {
+		if (!newFile.exists() && !newFile.mkdirs()) {
 			return DocResponseJson.warn("创建文件夹失败");
 		}
 		String simpleUUID = RandomUtil.simpleUUID();
