@@ -57,6 +57,7 @@ public class WikiSpaceController {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			wikiSpace.setCreateTime(new Date());
 			wikiSpace.setCreateUserId(currentUser.getUserId());
+			wikiSpace.setCreateUserName(currentUser.getUsername());
 			wikiSpaceService.save(wikiSpace);
 		}
 		return DocResponseJson.ok();

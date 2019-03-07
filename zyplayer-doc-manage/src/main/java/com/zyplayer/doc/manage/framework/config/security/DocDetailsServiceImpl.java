@@ -44,7 +44,7 @@ public class DocDetailsServiceImpl implements UserDetailsService {
 		List<UserAuth> userAuthList = userAuthService.list(authWrapper);
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		if (userAuthList != null && userAuthList.size() > 0) {
-			List<Long> authIdList = userAuthList.stream().collect(Collectors.mapping(UserAuth::getAuthId, Collectors.toList()));
+			List<Long> authIdList = userAuthList.stream().map(UserAuth::getAuthId).collect(Collectors.toList());
 			Collection<AuthInfo> authInfoList = authInfoService.listByIds(authIdList);
 			authInfoList.forEach(val -> {
 				authorities.add(new SimpleGrantedAuthority(val.getAuthName()));

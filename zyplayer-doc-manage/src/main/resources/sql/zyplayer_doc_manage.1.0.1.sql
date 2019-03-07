@@ -11,7 +11,7 @@
  Target Server Version : 50724
  File Encoding         : 65001
 
- Date: 06/03/2019 19:00:24
+ Date: 07/03/2019 20:06:40
 */
 
 SET NAMES utf8mb4;
@@ -121,12 +121,12 @@ CREATE TABLE `wiki_page`  (
 -- Records of wiki_page
 -- ----------------------------
 INSERT INTO `wiki_page` VALUES (7, 1, '测试1', NULL, 0, 1, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (8, 1, '测试2', NULL, 0, 3, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-03-06 09:25:29', 0);
+INSERT INTO `wiki_page` VALUES (8, 1, '测试2', NULL, 0, 4, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-03-06 09:25:29', 0);
 INSERT INTO `wiki_page` VALUES (9, 1, '测试3', 7, 0, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
 INSERT INTO `wiki_page` VALUES (10, 1, '测试4', 7, 0, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
 INSERT INTO `wiki_page` VALUES (11, 1, '测试5', 9, 0, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
 INSERT INTO `wiki_page` VALUES (12, 1, '测试6', 7, 0, 0, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
-INSERT INTO `wiki_page` VALUES (14, 1, '测试7', NULL, 0, 1, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
+INSERT INTO `wiki_page` VALUES (14, 1, '测试7', NULL, 0, 2, 1, NULL, '2019-02-24 17:51:56', 1, NULL, '2019-02-24 17:51:56', 0);
 
 -- ----------------------------
 -- Table structure for wiki_page_comment
@@ -143,7 +143,17 @@ CREATE TABLE `wiki_page_comment`  (
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wiki_page_comment
+-- ----------------------------
+INSERT INTO `wiki_page_comment` VALUES (11, 14, NULL, '阿斯顿撒多撒多撒多撒大所多', 0, 1, '暮光：城中城', '2019-03-07 10:47:05', 0);
+INSERT INTO `wiki_page_comment` VALUES (12, 14, NULL, '阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多', 0, 1, '暮光：城中城', '2019-03-07 12:53:07', 0);
+INSERT INTO `wiki_page_comment` VALUES (13, 14, 12, '大声道撒大所大所', 0, 1, '暮光：城中城', '2019-03-07 13:01:49', 0);
+INSERT INTO `wiki_page_comment` VALUES (14, 14, NULL, '大声道撒大所大所\n大声道撒大所大所\n大声道撒大所大所', 0, 1, '暮光：城中城', '2019-03-07 13:11:02', 0);
+INSERT INTO `wiki_page_comment` VALUES (15, 14, 12, '大声道撒大所大所\n大声道撒大所大所\n大声道撒大所大所', 0, 1, '暮光：城中城', '2019-03-07 13:11:12', 0);
+INSERT INTO `wiki_page_comment` VALUES (16, 14, 12, '阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多阿斯顿撒多撒多撒多撒大所多', 0, 1, '暮光：城中城', '2019-03-07 13:11:27', 0);
 
 -- ----------------------------
 -- Table structure for wiki_page_content
@@ -194,7 +204,11 @@ CREATE TABLE `wiki_page_file`  (
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_uuid`(`uuid`) USING BTREE COMMENT '文件ID'
-) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wiki_page_file
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for wiki_page_zan
@@ -209,7 +223,13 @@ CREATE TABLE `wiki_page_zan`  (
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wiki_page_zan
+-- ----------------------------
+INSERT INTO `wiki_page_zan` VALUES (7, 8, NULL, 1, '暮光：城中城', '2019-03-06 19:04:26', 1);
+INSERT INTO `wiki_page_zan` VALUES (8, 14, NULL, 1, '暮光：城中城', '2019-03-07 10:32:18', 1);
 
 -- ----------------------------
 -- Table structure for wiki_space
@@ -219,7 +239,7 @@ CREATE TABLE `wiki_space`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '空间名',
   `type` tinyint(4) NULL DEFAULT 1 COMMENT '空间类型 1=公司 2=个人 3=私人',
-  `explain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `space_explain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
   `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
@@ -244,9 +264,5 @@ CREATE TABLE `zyplayer_storage`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `key`(`doc_key`) USING BTREE COMMENT 'key唯一索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储网页上相关的数据' ROW_FORMAT = Compact;
-
--- ----------------------------
--- Records of zyplayer_storage
--- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

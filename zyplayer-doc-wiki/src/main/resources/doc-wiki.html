@@ -11,27 +11,39 @@
 <body>
 	<div id="app">
 		<el-container style="height: 100%;">
-			<el-aside width="auto" style="height: 100%;">
-				<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>
-				<div style="padding: 10px;">
-					<div align="center"><el-button type="primary" v-on:click="createWiki" icon="el-icon-plus" style="width: 100%;">创建文档</el-button></div>
-					<!--<el-row><el-switch v-model="isCollapse"></el-switch></el-row>-->
-					<el-input v-model="searchKeywords" placeholder="搜索文档" style="margin: 10px 0;">
-						<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
-					</el-input>
-					<el-tree :props="defaultProps" @node-click="handleNodeClick" :load="loadNodeChildren" lazy></el-tree>
-				</div>
-			</el-aside>
+			<el-header>
+				<!--<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>-->
+				<el-dropdown @command="notOpen" trigger="click">
+					<i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
+					<el-dropdown-menu slot="dropdown">
+						<el-dropdown-item command="">我的资料</el-dropdown-item>
+						<el-dropdown-item command="">退出登录</el-dropdown-item>
+					</el-dropdown-menu>
+				</el-dropdown>
+			</el-header>
 			<el-container>
-				<el-header style="text-align: right;height: 50px;">
-					<el-dropdown @command="notOpen" trigger="click">
-						<i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
-						<el-dropdown-menu slot="dropdown">
-							<el-dropdown-item command="">我的资料</el-dropdown-item>
-							<el-dropdown-item command="">退出登录</el-dropdown-item>
-						</el-dropdown-menu>
-					</el-dropdown>
-				</el-header>
+				<el-aside width="auto" style="height: 100%;">
+					<div style="padding: 10px;">
+						<!--<el-row><el-switch v-model="isCollapse"></el-switch></el-row>-->
+						<div style="margin-bottom: 10px;">
+							<el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
+								<el-option-group label="">
+									<el-option key="0" label="创建空间" value="0"></el-option>
+								</el-option-group>
+								<el-option-group label="已有空间">
+									<el-option v-for="item in spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+								</el-option-group>
+							</el-select>
+						</div>
+						<div align="center">
+							<el-button v-on:click="createWiki" icon="el-icon-plus" style="width: 100%;">创建文档</el-button>
+						</div>
+						<el-input v-model="searchKeywords" placeholder="搜索文档" style="margin: 10px 0;">
+							<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
+						</el-input>
+						<el-tree :props="defaultProps" @node-click="handleNodeClick" :load="loadSpaceList" lazy></el-tree>
+					</div>
+				</el-aside>
 				<el-main class="doc-body-box">
 					<el-row type="border-card" v-show="rightContentType == 0">
 						<div style="margin-top: 30px;color: #666; text-align: center;">欢迎使用在线文档</div>
@@ -100,21 +112,34 @@
 							</span>
 						</div>
 						<div v-show="commentList.length > 0" class="comment-box" style="margin-top: 20px;">
-							<div style="margin-bottom: 10px;">评论列表：</div>
-							<div v-for="(item,index) in commentList" :key="item.id" :data-id="item.id" :data-index="index" style="border-top: 1px solid #eee;padding: 10px;">
+							<div style="border-bottom: 1px solid #67C23A;padding-bottom: 10px;">评论列表：</div>
+							<div v-for="(comment,index) in commentList" :key="comment.id" :data-id="comment.id" :data-index="index" style="border-bottom: 1px solid #eee;padding: 10px;">
 								<div>
-									<div :style="'background-color: '+item.color" class="head">{{item.createUserName.substr(0,1)}}</div>
+									<div :style="'background-color: '+comment.color" class="head">{{comment.createUserName.substr(0,1)}}</div>
 								</div>
 								<div style="padding-left: 55px;">
-									{{item.createUserName}}　<span style="color: #888;font-size: 13px;">{{item.createTime}}</span>
+									{{comment.createUserName}}
+									<span style="color: #888;font-size: 13px;padding-left: 10px;">{{comment.createTime}}</span>
+									<span style="color: #888;font-size: 13px;margin-left: 10px;cursor: pointer;" @click="recommentUser(comment.id, index)">回复</span>
 								</div>
-								<pre style="padding: 10px 0 0 55px;">{{item.content}}</pre>
+								<pre style="padding: 10px 0 0 55px;">{{comment.content}}</pre>
+								<div v-for="(commentSub,indexSub) in comment.commentList" :key="commentSub.id" :data-id="commentSub.id" :data-index="indexSub" style="border-bottom: 1px solid #eee;padding: 10px;margin-left: 40px;">
+									<div>
+										<div :style="'background-color: '+commentSub.color" class="head">{{commentSub.createUserName.substr(0,1)}}</div>
+									</div>
+									<div style="padding-left: 55px;">
+										{{commentSub.createUserName}}
+										<span style="color: #888;font-size: 13px;padding-left: 10px;">{{commentSub.createTime}}</span>
+									</div>
+									<pre style="padding: 10px 0 0 55px;">{{commentSub.content}}</pre>
+								</div>
 							</div>
 						</div>
 						<div style="margin: 20px 0 50px 0;">
-							<el-input type="textarea" v-model="commentTextInput" :rows="5" placeholder="请输入评论内容"></el-input>
+							<el-input type="textarea" v-model="commentTextInput" :rows="5" :placeholder="recommentInfo.placeholder || '请输入评论内容'"></el-input>
 							<div align="right" style="margin-top: 5px;">
-								<el-button v-on:click="submitPageComment">提交评论</el-button>
+								<el-button type="primary" v-on:click="submitPageComment">提交评论</el-button>
+								<el-button v-on:click="cancelCommentUser">取消</el-button>
 							</div>
 						</div>
 					</el-row>
@@ -170,6 +195,7 @@
 	var page = {
 		newPageContentEditor: '',
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
+		userHeadColor: {},
 	};
 	var app = new Vue({
 		el: '#app',
@@ -185,7 +211,11 @@
 					label: 'label',
 					isLeaf: 'leaf'
 				},
-				wikiPageList:[],
+				// 空间搜索相关
+				spaceOptions: [],
+				spaceList:[],
+				choiceSpace: "",
+				nowSpaceId: 0,
 				// 依据目录树存储的map全局对象
 				treePathDataMap: new Map(),
 				// 搜索的输入内容
@@ -195,6 +225,7 @@
 				newPageId: "",
 				newPageTitle: "",
 				// 页面展示相关
+				wikiPageList:[],
 				wikiPage: {},
 				pageContent: {},
 				pageFileList: [],
@@ -205,13 +236,13 @@
 				// 评论相关
 				commentTextInput: "",
 				commentList: [],
+				recommentInfo: {},
 			}
 		},
 		watch: {
 		
 		},
 		mounted: function () {
-			//this.doGetPageList();
 			this.init();
 		},
 		methods: {
@@ -234,12 +265,26 @@
 					}
 				});
 			},
+			recommentUser(id, index) {
+				this.recommentInfo = {id: id, index: index, placeholder: '回复' + (index + 1) + '楼'};
+			},
+			cancelCommentUser() {
+				this.recommentInfo = {};
+			},
 			submitPageComment() {
-				var param = {pageId: app.wikiPage.id, content: app.commentTextInput};
+				var param = {
+					pageId: app.wikiPage.id, content: app.commentTextInput,
+					parentId: app.recommentInfo.id
+				};
 				ajaxTemp("zyplayer-doc-wiki/page/comment/update", "post", "json", param, function (json) {
 					if (validateResult(json)) {
 						var data = json.data;
-						data.color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+						var color = page.userHeadColor[data.createUserId];
+						if (!color) {
+							color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+							page.userHeadColor[data.createUserId] = color;
+						}
+						data.color = color;
 						app.commentTextInput = "";
 						app.commentList.push(data);
 					}
@@ -327,6 +372,39 @@
 				app.lastClickNode = data;
 				this.loadPageDetail(app.lastClickNode.id);
 			},
+			spaceChangeEvents(data) {
+				app.nowSpaceId = data;
+				if (data == 0) {
+					this.$prompt('请输入空间名', '创建空间', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+					}).then(({value}) => {
+						var param = {name: value};
+						ajaxTemp("zyplayer-doc-wiki/space/update", "post", "json", param, function (json) {
+							if (validateResult(json)) {
+							}
+						});
+					});
+				}
+			},
+			loadSpaceList(node, resolve) {
+				ajaxTemp("zyplayer-doc-wiki/space/list", "post", "json", {}, function (json) {
+					if (validateResult(json)) {
+						app.spaceList = json.data || [];
+						var spaceOptions = [];
+						for (var i = 0; i < app.spaceList.length; i++) {
+							spaceOptions.push({
+								label: app.spaceList[i].name, value: app.spaceList[i].id
+							});
+						}
+						app.spaceOptions = spaceOptions;
+						if (app.spaceList.length > 0) {
+							app.nowSpaceId = app.spaceList[0].id;
+							app.loadNodeChildren(node, resolve);
+						}
+					}
+				});
+			},
 			loadPageDetail(pageId) {
 				app.rightContentType = 1;
 				var param = {id: pageId};
@@ -344,12 +422,29 @@
 			},
 			loadCommentList(pageId) {
 				app.commentList = [];
+				app.cancelCommentUser();
 				var param = {pageId: pageId};
 				ajaxTemp("zyplayer-doc-wiki/page/comment/list", "post", "json", param, function (json) {
 					if (validateResult(json)) {
 						var commentList = json.data || [];
 						for (var i = 0; i < commentList.length; i++) {
-							commentList[i].color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+							var color = page.userHeadColor[commentList[i].createUserId];
+							if (!color) {
+								color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+								page.userHeadColor[commentList[i].createUserId] = color;
+							}
+							commentList[i].color = color;
+							var subCommentList = commentList[i].commentList || [];
+							for (var j = 0; j < subCommentList.length; j++) {
+								var subItem = subCommentList[j];
+								var colorSub = page.userHeadColor[subItem.createUserId];
+								if (!colorSub) {
+									colorSub = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+									page.userHeadColor[subItem.createUserId] = colorSub;
+								}
+								subItem.color = colorSub;
+							}
+							commentList[i].commentList = subCommentList;
 						}
 						app.commentList = commentList;
 					}
@@ -375,7 +470,7 @@
 				} else {
 					nodePath = "/";
 				}
-				var param = {spaceId: 1, parentId: parentId};
+				var param = {spaceId: this.nowSpaceId, parentId: parentId};
 				ajaxTemp("zyplayer-doc-wiki/page/list", "post", "json", param, function (json) {
 					if (validateResult(json)) {
 						app.wikiPageList = json.data || [];
@@ -414,19 +509,15 @@
 		border-right: 0;
 		margin-right: 3px;
 	}
-	.el-header {
-		background-color: #409EFF;
-		color: #333;
-		line-height: 50px;
-	}
+	.el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}
 	.doc-body-box{
-		overflow-x: hidden;height: calc(100vh);overflow-y: auto;width: 100%;
+		overflow-x: hidden;overflow-y: auto;width: 100%;
 		padding: 10px;border-left: 1px solid #f1f1f1; box-sizing: border-box;
 	}
 	.el-tree{margin-right: 3px;}
 	.logo{
 		background: #409EFF; cursor: pointer;
-		width: 100%; height:50px;line-height:50px;font-size: 25px;color: #fff;text-align: center;
+		width: 100%; height:40px;line-height:40px;font-size: 25px;color: #fff;text-align: center;
 	}
 	.wiki-title{font-size: 20px;}
 	.wiki-author{font-size: 14px;padding: 10px 0;}

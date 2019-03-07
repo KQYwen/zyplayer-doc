@@ -1,9 +1,10 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -11,7 +12,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-02-24
+ * @since 2019-03-07
  */
 public class WikiSpace implements Serializable {
 
@@ -36,7 +37,7 @@ public class WikiSpace implements Serializable {
     /**
      * 描述
      */
-    private String explain;
+    private String spaceExplain;
 
     /**
      * 创建人ID
@@ -74,12 +75,12 @@ public class WikiSpace implements Serializable {
     public void setType(Integer type) {
         this.type = type;
     }
-    public String getExplain() {
-        return explain;
+    public String getSpaceExplain() {
+        return spaceExplain;
     }
 
-    public void setExplain(String explain) {
-        this.explain = explain;
+    public void setSpaceExplain(String spaceExplain) {
+        this.spaceExplain = spaceExplain;
     }
     public Long getCreateUserId() {
         return createUserId;
@@ -109,7 +110,7 @@ public class WikiSpace implements Serializable {
         "id=" + id +
         ", name=" + name +
         ", type=" + type +
-        ", explain=" + explain +
+        ", spaceExplain=" + spaceExplain +
         ", createUserId=" + createUserId +
         ", createUserName=" + createUserName +
         ", createTime=" + createTime +

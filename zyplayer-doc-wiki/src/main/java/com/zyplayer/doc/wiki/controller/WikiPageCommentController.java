@@ -7,6 +7,8 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageComment;
 import com.zyplayer.doc.data.service.manage.WikiPageCommentService;
+import com.zyplayer.doc.wiki.controller.vo.WikiPageCommentVo;
+import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 文档控制器
@@ -30,14 +34,23 @@ public class WikiPageCommentController {
 	
 	@Resource
 	WikiPageCommentService wikiPageCommentService;
+	@Resource
+	Mapper mapper;
 	
 	@PostMapping("/list")
-	public ResponseJson<List<WikiPageComment>> list(WikiPageComment wikiPageComment) {
+	public ResponseJson<List<WikiPageCommentVo>> list(WikiPageComment wikiPageComment) {
 		UpdateWrapper<WikiPageComment> wrapper = new UpdateWrapper<>();
 		wrapper.eq("page_id", wikiPageComment.getPageId());
 		wrapper.eq(wikiPageComment.getParentId() != null, "parent_id", wikiPageComment.getParentId());
 		List<WikiPageComment> authList = wikiPageCommentService.list(wrapper);
-		return DocResponseJson.ok(authList);
+		Map<Long, List<WikiPageComment>> listMap = authList.stream().filter(val -> val.getParentId() != null)
+				.collect(Collectors.groupingBy(WikiPageComment::getParentId));
+		List<WikiPageCommentVo> commentList = authList.stream().filter(val -> val.getParentId() == null)
+				.map(val -> mapper.map(val, WikiPageCommentVo.class)).collect(Collectors.toList());
+		for (WikiPageCommentVo commentVo : commentList) {
+			commentVo.setCommentList(listMap.get(commentVo.getId()));
+		}
+		return DocResponseJson.ok(commentList);
 	}
 	
 	@PostMapping("/update")
