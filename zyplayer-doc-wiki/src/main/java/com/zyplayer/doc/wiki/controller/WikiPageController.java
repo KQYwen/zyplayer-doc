@@ -96,21 +96,25 @@ public class WikiPageController {
 		if (id != null && id > 0) {
 			wikiPage.setUpdateTime(new Date());
 			wikiPage.setUpdateUserId(currentUser.getUserId());
+			wikiPage.setUpdateUserName(currentUser.getUsername());
 			wikiPageService.updateById(wikiPage);
 			// 详情
 			pageContent.setUpdateTime(new Date());
 			pageContent.setUpdateUserId(currentUser.getUserId());
+			pageContent.setUpdateUserName(currentUser.getUsername());
 			UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
 			wrapper.eq("page_id", id);
 			wikiPageContentService.update(pageContent, wrapper);
 		} else {
 			wikiPage.setCreateTime(new Date());
 			wikiPage.setCreateUserId(currentUser.getUserId());
+			wikiPage.setCreateUserName(currentUser.getUsername());
 			wikiPageService.save(wikiPage);
 			// 详情
 			pageContent.setPageId(wikiPage.getId());
 			pageContent.setCreateTime(new Date());
 			pageContent.setCreateUserId(currentUser.getUserId());
+			pageContent.setCreateUserName(currentUser.getUsername());
 			wikiPageContentService.save(pageContent);
 		}
 		return DocResponseJson.ok(wikiPage);

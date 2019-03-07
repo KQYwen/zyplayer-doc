@@ -60,7 +60,7 @@ public class WikiSpaceController {
 			wikiSpace.setCreateUserName(currentUser.getUsername());
 			wikiSpaceService.save(wikiSpace);
 		}
-		return DocResponseJson.ok();
+		return DocResponseJson.ok(wikiSpace);
 	}
 }
 

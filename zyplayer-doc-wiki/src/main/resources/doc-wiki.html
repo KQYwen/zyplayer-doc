@@ -26,7 +26,7 @@
 					<div style="padding: 10px;">
 						<!--<el-row><el-switch v-model="isCollapse"></el-switch></el-row>-->
 						<div style="margin-bottom: 10px;">
-							<el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
+							<el-select v-model="nowSpaceId" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
 								<el-option-group label="">
 									<el-option key="0" label="创建空间" value="0"></el-option>
 								</el-option-group>
@@ -41,7 +41,7 @@
 						<el-input v-model="searchKeywords" placeholder="搜索文档" style="margin: 10px 0;">
 							<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
 						</el-input>
-						<el-tree :props="defaultProps" @node-click="handleNodeClick" :load="loadSpaceList" lazy></el-tree>
+						<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick" @node-expand="handleNodeExpand"></el-tree>
 					</div>
 				</el-aside>
 				<el-main class="doc-body-box">
@@ -57,29 +57,23 @@
 							</div>
 						</div>
 						<div class="wiki-author">
-							创建时间：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　最后修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}
+							<span>创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span></span>
+							<div style="float: right;">
+								<el-upload
+										class="upload-page-file"
+										action="zyplayer-doc-wiki/common/upload"
+										:on-success="uploadFileSuccess"
+										:on-error="uploadFileError"
+										name="files"
+										show-file-list
+										multiple
+										:data="uploadFormData"
+										:limit="999">
+									<el-button icon="el-icon-upload">上传附件</el-button>
+								</el-upload>
+							</div>
 						</div>
 						<div class="wiki-files">
-							<div style="margin-bottom: 5px; height: 40px;">
-								<div style="float: right;">
-									<!--:on-preview="handlePreview"-->
-									<!--:on-remove="handleRemove"-->
-									<!--:before-remove="beforeRemove"-->
-									<!--:on-exceed="handleExceed"-->
-									<el-upload
-											class="upload-page-file"
-											action="zyplayer-doc-wiki/common/upload"
-											:on-success="uploadFileSuccess"
-											:on-error="uploadFileError"
-											name="files"
-											show-file-list
-											multiple
-											:data="uploadFormData"
-											:limit="999">
-										<el-button icon="el-icon-upload">上传附件</el-button>
-									</el-upload>
-								</div>
-							</div>
 							<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px;">
 								<el-table-column label="文件名">
 									<template slot-scope="scope">
@@ -90,7 +84,7 @@
 								<el-table-column prop="createTime" label="创建时间"></el-table-column>
 								<el-table-column label="操作">
 									<template slot-scope="scope">
-										<el-button v-on:click="deletePageFile(scope.row)">删除</el-button>
+										<el-button size="small" v-on:click="deletePageFile(scope.row)">删除</el-button>
 									</template>
 								</el-table-column>
 							</el-table>
@@ -98,7 +92,7 @@
 						<div class="wiki-content">
 							<div v-html="pageContent.content"></div>
 						</div>
-						<div style="margin-top: 20px; font-size: 14px;">
+						<div style="margin-top: 40px; font-size: 14px;">
 							<span style="vertical-align: top;" class="is-link">
 								<img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;">
 								<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)">赞</span>
@@ -146,7 +140,7 @@
 					<el-row type="border-card" v-show="rightContentType == 2">
 						<div style="margin-bottom: 10px;">
 							父级：{{lastClickNode.nodePath || '/'}}　
-							<el-tooltip class="item" content="在根目录创建文档">
+							<el-tooltip v-show="!(newPageId > 0)" class="item" content="在根目录创建文档">
 								<el-button type="text" @click="lastClickNode={}" style="padding: 0 10px;">根目录</el-button>
 							</el-tooltip>
 						</div>
@@ -158,6 +152,21 @@
 				</el-main>
 			</el-container>
 		</el-container>
+		<!--新建空间弹窗-->
+		<el-dialog title="创建空间" :visible.sync="newSpaceDialogVisible" width="600px">
+			<el-form label-width="100px">
+				<el-form-item label="空间名：">
+					<el-input v-model="newSpaceForm.name"></el-input>
+				</el-form-item>
+				<el-form-item label="空间描述：">
+					<el-input v-model="newSpaceForm.spaceExplain"></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="onNewSpaceSubmit">立即创建</el-button>
+					<el-button @click="onNewSpaceCancel">取消</el-button>
+				</el-form-item>
+			</el-form>
+		</el-dialog>
 		<!--点赞人员弹窗-->
 		<el-dialog title="赞了它的人" :visible.sync="zanUserDialogVisible" width="600px">
 			<el-table :data="zanUserList" border :show-header="false" style="width: 100%; margin-bottom: 5px;">
@@ -215,7 +224,9 @@
 				spaceOptions: [],
 				spaceList:[],
 				choiceSpace: "",
-				nowSpaceId: 0,
+				nowSpaceId: '',
+				newSpaceDialogVisible: false,
+				newSpaceForm: {name: '', spaceExplain: ''},
 				// 依据目录树存储的map全局对象
 				treePathDataMap: new Map(),
 				// 搜索的输入内容
@@ -244,8 +255,28 @@
 		},
 		mounted: function () {
 			this.init();
+			this.loadSpaceList();
 		},
 		methods: {
+			onNewSpaceCancel() {
+				this.newSpaceDialogVisible = false;
+			},
+			onNewSpaceSubmit() {
+				var param = {name: app.newSpaceForm.name, spaceExplain: app.newSpaceForm.spaceExplain};
+				ajaxTemp("zyplayer-doc-wiki/space/update", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						app.newSpaceForm.name = "";
+						app.newSpaceForm.spaceExplain = "";
+						app.newSpaceDialogVisible = false;
+						app.spaceList.push(json.data);
+						app.spaceOptions.push({
+							label: json.data.name, value: json.data.id
+						});
+						app.nowSpaceId = json.data.id;
+						app.doGetPageList(null);
+					}
+				});
+			},
 			zanPage(yn) {
 				var param = {yn: yn, pageId: app.wikiPage.id};
 				ajaxTemp("zyplayer-doc-wiki/page/zan/update", "post", "json", param, function (json) {
@@ -350,7 +381,7 @@
 					parentId = "";
 				}
 				var param = {
-					spaceId: 1,
+					spaceId: app.nowSpaceId,
 					id: this.newPageId,
 					name: app.newPageTitle,
 					parentId: parentId,
@@ -360,6 +391,7 @@
 					if (validateResult(json)) {
 						Toast.success("保存成功！");
 						app.loadPageDetail(json.data.id);
+						app.doGetPageList(null);
 					}
 				});
 			},
@@ -372,22 +404,21 @@
 				app.lastClickNode = data;
 				this.loadPageDetail(app.lastClickNode.id);
 			},
+			handleNodeExpand(node) {
+				if (node.children.length > 0 && node.children[0].needLoad) {
+					console.log("加载节点：", node);
+					app.doGetPageList(node.id, node);
+				}
+			},
 			spaceChangeEvents(data) {
 				app.nowSpaceId = data;
 				if (data == 0) {
-					this.$prompt('请输入空间名', '创建空间', {
-						confirmButtonText: '确定',
-						cancelButtonText: '取消',
-					}).then(({value}) => {
-						var param = {name: value};
-						ajaxTemp("zyplayer-doc-wiki/space/update", "post", "json", param, function (json) {
-							if (validateResult(json)) {
-							}
-						});
-					});
+					app.newSpaceDialogVisible = true;
+				} else {
+					app.doGetPageList(null);
 				}
 			},
-			loadSpaceList(node, resolve) {
+			loadSpaceList() {
 				ajaxTemp("zyplayer-doc-wiki/space/list", "post", "json", {}, function (json) {
 					if (validateResult(json)) {
 						app.spaceList = json.data || [];
@@ -400,7 +431,7 @@
 						app.spaceOptions = spaceOptions;
 						if (app.spaceList.length > 0) {
 							app.nowSpaceId = app.spaceList[0].id;
-							app.loadNodeChildren(node, resolve);
+							app.doGetPageList(null);
 						}
 					}
 				});
@@ -453,17 +484,10 @@
 			searchByKeywords() {
 				app.pathIndex = createTreeViewByTreeWithMerge(app.dubboDocList, app.searchKeywords);
 			},
-			loadNodeChildren(node, resolve) {
-				if (node.level === 0) {
-					this.doGetPageList(null, node, resolve);
-				} else {
-					this.doGetPageList(node.data.id, node, resolve);
-				}
-			},
-			doGetPageList(parentId, node, resolve) {
+			doGetPageList(parentId, node) {
 				var nodePath = "";
-				if (!!node.data) {
-					nodePath = node.data.nodePath || "/";
+				if (!!node) {
+					nodePath = node.nodePath || "/";
 					if (!nodePath.endsWith("/")) {
 						nodePath += "/";
 					}
@@ -473,18 +497,27 @@
 				var param = {spaceId: this.nowSpaceId, parentId: parentId};
 				ajaxTemp("zyplayer-doc-wiki/page/list", "post", "json", param, function (json) {
 					if (validateResult(json)) {
-						app.wikiPageList = json.data || [];
 						var pathIndex = [];
 						for (var i = 0; i < json.data.length; i++) {
 							var item = json.data[i];
 							pathIndex.push({
 								id: item.id,
 								label: item.name,
-								leaf: item.nodeType == 1,
 								nodePath: nodePath + item.name,
+								children: [{label: '', needLoad: true}],
 							});
 						}
-						resolve(pathIndex);
+						if (parentId > 0) {
+							node.children = pathIndex;
+						} else {
+							app.wikiPageList = pathIndex;
+							// 清空页面信息
+							app.rightContentType = 0;
+							app.newPageId = "";
+							app.newPageTitle = "";
+							page.newPageContentEditor.txt.html("");
+							app.lastClickNode = {};
+						}
 					}
 				});
 			},
@@ -520,7 +553,7 @@
 		width: 100%; height:40px;line-height:40px;font-size: 25px;color: #fff;text-align: center;
 	}
 	.wiki-title{font-size: 20px;}
-	.wiki-author{font-size: 14px;padding: 10px 0;}
+	.wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
 	.wiki-content{font-size: 14px;}
 	
 	.upload-page-file .el-upload-list{display: none;}
