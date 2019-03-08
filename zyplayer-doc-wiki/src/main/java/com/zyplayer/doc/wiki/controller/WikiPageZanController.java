@@ -33,6 +33,7 @@ public class WikiPageZanController {
 		UpdateWrapper<WikiPageZan> wrapper = new UpdateWrapper<>();
 		wrapper.eq("page_id", wikiPageZan.getPageId());
 		wrapper.eq(wikiPageZan.getCommentId() != null, "comment_id", wikiPageZan.getCommentId());
+		wrapper.eq("yn", 1);
 		List<WikiPageZan> zanList = wikiPageZanService.list(wrapper);
 		return DocResponseJson.ok(zanList);
 	}

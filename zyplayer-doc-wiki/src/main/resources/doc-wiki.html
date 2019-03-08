@@ -13,11 +13,11 @@
 		<el-container style="height: 100%;">
 			<el-header>
 				<!--<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>-->
-				<el-dropdown @command="notOpen" trigger="click">
+				<el-dropdown @command="userSettingDropdown" trigger="click">
 					<i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
 					<el-dropdown-menu slot="dropdown">
 						<el-dropdown-item command="">我的资料</el-dropdown-item>
-						<el-dropdown-item command="">退出登录</el-dropdown-item>
+						<el-dropdown-item command="userSignOut">退出登录</el-dropdown-item>
 					</el-dropdown-menu>
 				</el-dropdown>
 			</el-header>
@@ -26,7 +26,7 @@
 					<div style="padding: 10px;">
 						<!--<el-row><el-switch v-model="isCollapse"></el-switch></el-row>-->
 						<div style="margin-bottom: 10px;">
-							<el-select v-model="nowSpaceId" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
+							<el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
 								<el-option-group label="">
 									<el-option key="0" label="创建空间" value="0"></el-option>
 								</el-option-group>
@@ -59,16 +59,9 @@
 						<div class="wiki-author">
 							<span>创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span></span>
 							<div style="float: right;">
-								<el-upload
-										class="upload-page-file"
-										action="zyplayer-doc-wiki/common/upload"
-										:on-success="uploadFileSuccess"
-										:on-error="uploadFileError"
-										name="files"
-										show-file-list
-										multiple
-										:data="uploadFormData"
-										:limit="999">
+								<el-upload class="upload-page-file" action="zyplayer-doc-wiki/common/upload"
+										:on-success="uploadFileSuccess" :on-error="uploadFileError"
+										name="files" show-file-list multiple :data="uploadFormData" :limit="999">
 									<el-button icon="el-icon-upload">上传附件</el-button>
 								</el-upload>
 							</div>
@@ -94,9 +87,8 @@
 						</div>
 						<div style="margin-top: 40px; font-size: 14px;">
 							<span style="vertical-align: top;" class="is-link">
-								<img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;">
-								<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)">赞</span>
-								<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)">踩</span>
+								<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;"> 赞</span>
+								<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;"> 踩</span>
 							</span>
 							<span style="margin-left: 10px;vertical-align: top;">
 								<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
@@ -154,15 +146,15 @@
 		</el-container>
 		<!--新建空间弹窗-->
 		<el-dialog title="创建空间" :visible.sync="newSpaceDialogVisible" width="600px">
-			<el-form label-width="100px">
-				<el-form-item label="空间名：">
+			<el-form label-width="100px" :model="newSpaceForm" :rules="newSpaceFormRules" ref="newSpaceForm">
+				<el-form-item label="空间名：" prop="name">
 					<el-input v-model="newSpaceForm.name"></el-input>
 				</el-form-item>
-				<el-form-item label="空间描述：">
+				<el-form-item label="空间描述：" prop="spaceExplain">
 					<el-input v-model="newSpaceForm.spaceExplain"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="onNewSpaceSubmit">立即创建</el-button>
+					<el-button type="primary" @click="onNewSpaceSubmit('newSpaceForm')">立即创建</el-button>
 					<el-button @click="onNewSpaceCancel">取消</el-button>
 				</el-form-item>
 			</el-form>
@@ -227,6 +219,12 @@
 				nowSpaceId: '',
 				newSpaceDialogVisible: false,
 				newSpaceForm: {name: '', spaceExplain: ''},
+				newSpaceFormRules: {
+					name: [
+						{required: true, message: '请输入空间名', trigger: 'blur'},
+						{min: 2, max: 25, message: '长度在 2 到 25 个字符', trigger: 'blur'}
+					],
+				},
 				// 依据目录树存储的map全局对象
 				treePathDataMap: new Map(),
 				// 搜索的输入内容
@@ -261,19 +259,38 @@
 			onNewSpaceCancel() {
 				this.newSpaceDialogVisible = false;
 			},
-			onNewSpaceSubmit() {
-				var param = {name: app.newSpaceForm.name, spaceExplain: app.newSpaceForm.spaceExplain};
-				ajaxTemp("zyplayer-doc-wiki/space/update", "post", "json", param, function (json) {
-					if (validateResult(json)) {
-						app.newSpaceForm.name = "";
-						app.newSpaceForm.spaceExplain = "";
-						app.newSpaceDialogVisible = false;
-						app.spaceList.push(json.data);
-						app.spaceOptions.push({
-							label: json.data.name, value: json.data.id
+			userSettingDropdown(command) {
+				console.log("command:" + command);
+				if (command == 'userSignOut') {
+					this.userSignOut();
+				} else {
+					Toast.notOpen();
+				}
+			},
+			userSignOut() {
+				ajaxTemp("logout", "post", "json", {}, function () {
+				}, function () {
+				}, function () {
+					location.reload();
+				});
+			},
+			onNewSpaceSubmit(formName) {
+				this.$refs[formName].validate((valid) => {
+					if (valid) {
+						var param = {name: app.newSpaceForm.name, spaceExplain: app.newSpaceForm.spaceExplain};
+						ajaxTemp("zyplayer-doc-wiki/space/update", "post", "json", param, function (json) {
+							if (validateResult(json)) {
+								app.newSpaceForm.name = "";
+								app.newSpaceForm.spaceExplain = "";
+								app.newSpaceDialogVisible = false;
+								app.spaceList.push(json.data);
+								app.spaceOptions.push({
+									label: json.data.name, value: json.data.id
+								});
+								app.nowSpaceId = json.data.id;
+								app.doGetPageList(null);
+							}
 						});
-						app.nowSpaceId = json.data.id;
-						app.doGetPageList(null);
 					}
 				});
 			},
@@ -310,12 +327,7 @@
 				ajaxTemp("zyplayer-doc-wiki/page/comment/update", "post", "json", param, function (json) {
 					if (validateResult(json)) {
 						var data = json.data;
-						var color = page.userHeadColor[data.createUserId];
-						if (!color) {
-							color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
-							page.userHeadColor[data.createUserId] = color;
-						}
-						data.color = color;
+						data.color = app.getUserHeadBgColor(data.createUserId);
 						app.commentTextInput = "";
 						app.commentList.push(data);
 					}
@@ -411,10 +423,12 @@
 				}
 			},
 			spaceChangeEvents(data) {
-				app.nowSpaceId = data;
 				if (data == 0) {
 					app.newSpaceDialogVisible = true;
+					app.choiceSpace = app.nowSpaceId;
 				} else {
+					app.nowSpaceId = data;
+					app.rightContentType = 0;
 					app.doGetPageList(null);
 				}
 			},
@@ -459,21 +473,11 @@
 					if (validateResult(json)) {
 						var commentList = json.data || [];
 						for (var i = 0; i < commentList.length; i++) {
-							var color = page.userHeadColor[commentList[i].createUserId];
-							if (!color) {
-								color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
-								page.userHeadColor[commentList[i].createUserId] = color;
-							}
-							commentList[i].color = color;
+							commentList[i].color = app.getUserHeadBgColor(commentList[i].createUserId);
 							var subCommentList = commentList[i].commentList || [];
 							for (var j = 0; j < subCommentList.length; j++) {
 								var subItem = subCommentList[j];
-								var colorSub = page.userHeadColor[subItem.createUserId];
-								if (!colorSub) {
-									colorSub = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
-									page.userHeadColor[subItem.createUserId] = colorSub;
-								}
-								subItem.color = colorSub;
+								subItem.color = app.getUserHeadBgColor(subItem.createUserId);
 							}
 							commentList[i].commentList = subCommentList;
 						}
@@ -481,8 +485,16 @@
 					}
 				});
 			},
+			getUserHeadBgColor(userId) {
+				var color = page.userHeadColor[userId];
+				if (!color) {
+					color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+					page.userHeadColor[userId] = color;
+				}
+				return color;
+			},
 			searchByKeywords() {
-				app.pathIndex = createTreeViewByTreeWithMerge(app.dubboDocList, app.searchKeywords);
+				//app.pathIndex = createTreeViewByTreeWithMerge(app.dubboDocList, app.searchKeywords);
 			},
 			doGetPageList(parentId, node) {
 				var nodePath = "";
@@ -504,26 +516,20 @@
 								id: item.id,
 								label: item.name,
 								nodePath: nodePath + item.name,
-								children: [{label: '', needLoad: true}],
+								children: [{label: '', needLoad: true}],// 初始化一个对象，点击展开时重新查询加载
 							});
 						}
 						if (parentId > 0) {
 							node.children = pathIndex;
 						} else {
 							app.wikiPageList = pathIndex;
-							// 清空页面信息
-							app.rightContentType = 0;
-							app.newPageId = "";
-							app.newPageTitle = "";
-							page.newPageContentEditor.txt.html("");
 							app.lastClickNode = {};
 						}
 					}
 				});
 			},
 			init(){
-				var E = window.wangEditor;
-				page.newPageContentEditor = new E('#newPageContentDiv');
+				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
 				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
 				page.newPageContentEditor.create();
 			}
@@ -531,17 +537,9 @@
 	});
 </script>
 <style>
-	html,body,#app {
-		margin: 0;
-		padding: 0;
-		height: 100%;
-	}
+	html,body,#app {margin: 0; padding: 0; height: 100%;}
 	pre{margin: 0;white-space: pre-wrap;font-size: 14px; font-family: auto;}
-	.el-menu {
-		box-sizing: border-box;
-		border-right: 0;
-		margin-right: 3px;
-	}
+	.el-menu {box-sizing: border-box;border-right: 0;margin-right: 3px;}
 	.el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}
 	.doc-body-box{
 		overflow-x: hidden;overflow-y: auto;width: 100%;
