@@ -1,18 +1,17 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.io.Serializable;
 import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
 
 /**
  * <p>
- *
+ * 
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-03-07
+ * @since 2019-03-08
  */
 public class WikiSpace implements Serializable {
 
@@ -53,6 +52,11 @@ public class WikiSpace implements Serializable {
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 删除标记 0=正常 1=已删除
+     */
+    private Integer delFlag;
 
     public Long getId() {
         return id;
@@ -103,6 +107,13 @@ public class WikiSpace implements Serializable {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+    public Integer getDelFlag() {
+        return delFlag;
+    }
+
+    public void setDelFlag(Integer delFlag) {
+        this.delFlag = delFlag;
+    }
 
     @Override
     public String toString() {
@@ -114,6 +125,7 @@ public class WikiSpace implements Serializable {
         ", createUserId=" + createUserId +
         ", createUserName=" + createUserName +
         ", createTime=" + createTime +
+        ", delFlag=" + delFlag +
         "}";
     }
 }

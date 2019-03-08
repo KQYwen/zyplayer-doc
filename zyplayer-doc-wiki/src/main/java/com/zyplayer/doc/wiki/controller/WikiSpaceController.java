@@ -36,6 +36,7 @@ public class WikiSpaceController {
 	public ResponseJson<List<WikiSpace>> list(WikiSpace wikiSpace) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		UpdateWrapper<WikiSpace> wrapper = new UpdateWrapper<>();
+		wrapper.eq("del_flag", 0);
 		if(wikiSpace.getType() == null) {
 			wrapper.in("type", 1, 2);
 		} else if(wikiSpace.getType() == 1 || wikiSpace.getType() == 2) {
@@ -49,7 +50,7 @@ public class WikiSpaceController {
 	}
 	
 	@PostMapping("/update")
-	public ResponseJson<Object> update(WikiSpace wikiSpace) {
+	public ResponseJson<WikiSpace> update(WikiSpace wikiSpace) {
 		Long id = wikiSpace.getId();
 		if (id != null && id > 0) {
 			wikiSpaceService.updateById(wikiSpace);

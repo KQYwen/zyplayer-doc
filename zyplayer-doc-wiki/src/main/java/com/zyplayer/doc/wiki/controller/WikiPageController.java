@@ -50,7 +50,7 @@ public class WikiPageController {
 		UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
 		wrapper.eq("del_flag", 0);
 		wrapper.eq("space_id", wikiPage.getSpaceId());
-		wrapper.isNull(wikiPage.getParentId() == null, "parent_id");
+		wrapper.eq(wikiPage.getParentId() == null, "parent_id", 0);
 		wrapper.eq(wikiPage.getParentId() != null, "parent_id", wikiPage.getParentId());
 		List<WikiPage> authList = wikiPageService.list(wrapper);
 		return DocResponseJson.ok(authList);

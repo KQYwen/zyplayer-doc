@@ -29,6 +29,7 @@
 							<el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
 								<el-option-group label="">
 									<el-option key="0" label="创建空间" value="0"></el-option>
+									<el-option key="-1" label="管理空间" value="-1"></el-option>
 								</el-option-group>
 								<el-option-group label="已有空间">
 									<el-option v-for="item in spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -41,7 +42,9 @@
 						<el-input v-model="searchKeywords" placeholder="搜索文档" style="margin: 10px 0;">
 							<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
 						</el-input>
-						<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick" @node-expand="handleNodeExpand"></el-tree>
+						<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
+								 @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop">
+						</el-tree>
 					</div>
 				</el-aside>
 				<el-main class="doc-body-box">
@@ -154,16 +157,33 @@
 					<el-input v-model="newSpaceForm.spaceExplain"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="onNewSpaceSubmit('newSpaceForm')">立即创建</el-button>
+					<el-button type="primary" v-if="newSpaceForm.id > 0" @click="onNewSpaceSubmit('newSpaceForm')">保存修改</el-button>
+					<el-button type="primary" v-else @click="onNewSpaceSubmit('newSpaceForm')">立即创建</el-button>
 					<el-button @click="onNewSpaceCancel">取消</el-button>
 				</el-form-item>
 			</el-form>
 		</el-dialog>
+		<!--管理空间弹窗-->
+		<el-dialog title="管理空间" :visible.sync="manageSpaceDialogVisible" width="900px">
+			<el-table :data="spaceList" border style="width: 100%; margin-bottom: 5px;" max-height="500">
+				<el-table-column prop="id" label="ID" width="60"></el-table-column>
+				<el-table-column prop="name" label="名字"></el-table-column>
+				<el-table-column prop="spaceExplain" label="说明"></el-table-column>
+				<el-table-column prop="createUserName" label="创建人"></el-table-column>
+				<el-table-column prop="createTime" label="创建时间"></el-table-column>
+				<el-table-column label="操作">
+					<template slot-scope="scope">
+						<el-button size="small" type="primary" v-on:click="editSpaceInfo(scope.row)">编辑</el-button>
+						<el-button size="small" type="danger" v-on:click="deleteSpaceInfo(scope.row)">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</el-dialog>
 		<!--点赞人员弹窗-->
 		<el-dialog title="赞了它的人" :visible.sync="zanUserDialogVisible" width="600px">
 			<el-table :data="zanUserList" border :show-header="false" style="width: 100%; margin-bottom: 5px;">
-				<el-table-column prop="createUserName" show-header label="用户"></el-table-column>
-				<el-table-column prop="createTime" show-header label="时间"></el-table-column>
+				<el-table-column prop="createUserName" label="用户"></el-table-column>
+				<el-table-column prop="createTime" label="时间"></el-table-column>
 			</el-table>
 		</el-dialog>
 		<!--关于弹窗-->
@@ -218,7 +238,8 @@
 				choiceSpace: "",
 				nowSpaceId: '',
 				newSpaceDialogVisible: false,
-				newSpaceForm: {name: '', spaceExplain: ''},
+				manageSpaceDialogVisible: false,
+				newSpaceForm: {id: '', name: '', spaceExplain: ''},
 				newSpaceFormRules: {
 					name: [
 						{required: true, message: '请输入空间名', trigger: 'blur'},
@@ -256,6 +277,37 @@
 			this.loadSpaceList();
 		},
 		methods: {
+			editSpaceInfo(row) {
+				app.newSpaceForm = {id: row.id, name: row.name, spaceExplain: row.spaceExplain};
+				app.newSpaceDialogVisible = true;
+			},
+			deleteSpaceInfo(row) {
+				this.$confirm('确定要删除此空间及下面的所有文档吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					var param = {id: row.id, delFlag: 1};
+					ajaxTemp("zyplayer-doc-wiki/space/update", "post", "json", param, function (json) {
+						if (validateResult(json)) {
+							app.loadSpaceList();
+						}
+					});
+				});
+			},
+			handlePageDrop(draggingNode, dropNode, dropType, ev) {
+				//console.log('tree drop: ', draggingNode.data, dropNode.data, dropType);
+				// 'prev'、'inner'、'next'
+				var param = {id: draggingNode.data.id, parentId: dropNode.data.parentId};
+				if (dropType == 'inner') {
+					param.parentId = dropNode.data.id;
+				}
+				ajaxTemp("zyplayer-doc-wiki/page/update", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						app.doGetPageList(null);
+					}
+				});
+			},
 			onNewSpaceCancel() {
 				this.newSpaceDialogVisible = false;
 			},
@@ -277,18 +329,26 @@
 			onNewSpaceSubmit(formName) {
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
-						var param = {name: app.newSpaceForm.name, spaceExplain: app.newSpaceForm.spaceExplain};
+						var param = {
+							id: app.newSpaceForm.id,
+							name: app.newSpaceForm.name,
+							spaceExplain: app.newSpaceForm.spaceExplain
+						};
 						ajaxTemp("zyplayer-doc-wiki/space/update", "post", "json", param, function (json) {
 							if (validateResult(json)) {
-								app.newSpaceForm.name = "";
-								app.newSpaceForm.spaceExplain = "";
+								if (param.id > 0) {
+									app.loadSpaceList();
+								} else {
+									app.spaceList.push(json.data);
+									app.spaceOptions.push({
+										label: json.data.name, value: json.data.id
+									});
+									app.nowSpaceId = json.data.id;
+									app.choiceSpace = app.nowSpaceId;
+									app.doGetPageList(null);
+								}
+								app.newSpaceForm = {id: '', name: '', spaceExplain: ''};
 								app.newSpaceDialogVisible = false;
-								app.spaceList.push(json.data);
-								app.spaceOptions.push({
-									label: json.data.name, value: json.data.id
-								});
-								app.nowSpaceId = json.data.id;
-								app.doGetPageList(null);
 							}
 						});
 					}
@@ -426,6 +486,9 @@
 				if (data == 0) {
 					app.newSpaceDialogVisible = true;
 					app.choiceSpace = app.nowSpaceId;
+				} else if (data == -1) {
+					app.manageSpaceDialogVisible = true;
+					app.choiceSpace = app.nowSpaceId;
 				} else {
 					app.nowSpaceId = data;
 					app.rightContentType = 0;
@@ -445,6 +508,7 @@
 						app.spaceOptions = spaceOptions;
 						if (app.spaceList.length > 0) {
 							app.nowSpaceId = app.spaceList[0].id;
+							app.choiceSpace = app.nowSpaceId;
 							app.doGetPageList(null);
 						}
 					}
@@ -514,6 +578,7 @@
 							var item = json.data[i];
 							pathIndex.push({
 								id: item.id,
+								parentId: item.parentId || 0,
 								label: item.name,
 								nodePath: nodePath + item.name,
 								children: [{label: '', needLoad: true}],// 初始化一个对象，点击展开时重新查询加载
