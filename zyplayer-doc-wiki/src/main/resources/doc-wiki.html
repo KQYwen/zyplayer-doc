@@ -517,11 +517,12 @@
 			},
 			spaceChangeEvents(data) {
 				if (data == 0) {
+					app.newSpaceForm = {id: '', name: '', spaceExplain: ''};
+					app.choiceSpace = app.nowSpaceId;
 					app.newSpaceDialogVisible = true;
-					app.choiceSpace = app.nowSpaceId;
 				} else if (data == -1) {
-					app.manageSpaceDialogVisible = true;
 					app.choiceSpace = app.nowSpaceId;
+					app.manageSpaceDialogVisible = true;
 				} else {
 					app.nowSpaceId = data;
 					app.rightContentType = 0;
