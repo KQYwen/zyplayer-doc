@@ -16,7 +16,8 @@
 				<el-dropdown @command="userSettingDropdown" trigger="click">
 					<i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
 					<el-dropdown-menu slot="dropdown">
-						<el-dropdown-item command="">我的资料</el-dropdown-item>
+						<el-dropdown-item command="aboutDoc">关于</el-dropdown-item>
+						<el-dropdown-item command="" divided>我的资料</el-dropdown-item>
 						<el-dropdown-item command="userSignOut">退出登录</el-dropdown-item>
 					</el-dropdown-menu>
 				</el-dropdown>
@@ -29,9 +30,9 @@
 							<el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
 								<el-option-group label="">
 									<el-option key="0" label="创建空间" value="0"></el-option>
-									<el-option key="-1" label="管理空间" value="-1"></el-option>
+									<el-option key="-1" label="空间管理" value="-1"></el-option>
 								</el-option-group>
-								<el-option-group label="已有空间">
+								<el-option-group label="">
 									<el-option v-for="item in spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
 								</el-option-group>
 							</el-select>
@@ -39,11 +40,12 @@
 						<div align="center">
 							<el-button v-on:click="createWiki" icon="el-icon-plus" style="width: 100%;">创建文档</el-button>
 						</div>
-						<el-input v-model="searchKeywords" placeholder="搜索文档" style="margin: 10px 0;">
+						<el-input v-model="searchKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
 							<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
 						</el-input>
 						<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
-								 @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop">
+								 @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop"
+								 ref="wikiPageTree" :filter-node-method="filterPageNode" highlight-current>
 						</el-tree>
 					</div>
 				</el-aside>
@@ -57,6 +59,7 @@
 							<div style="float: right;">
 								<el-button type="text" icon="el-icon-edit" v-on:click="editWiki">编辑</el-button>
 								<el-button type="text" icon="el-icon-setting" v-on:click="editWikiAuth">访问权限</el-button>
+								<el-button type="text" icon="el-icon-delete" v-on:click="deleteWikiPage">删除</el-button>
 							</div>
 						</div>
 						<div class="wiki-author">
@@ -91,7 +94,7 @@
 						<div style="margin-top: 40px; font-size: 14px;">
 							<span style="vertical-align: top;" class="is-link">
 								<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;"> 赞</span>
-								<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;"> 踩</span>
+								<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="webjars/doc-wiki/img/zan.png" style="vertical-align: middle;transform: rotateX(180deg);"> 踩</span>
 							</span>
 							<span style="margin-left: 10px;vertical-align: top;">
 								<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
@@ -128,14 +131,17 @@
 							<el-input type="textarea" v-model="commentTextInput" :rows="5" :placeholder="recommentInfo.placeholder || '请输入评论内容'"></el-input>
 							<div align="right" style="margin-top: 5px;">
 								<el-button type="primary" v-on:click="submitPageComment">提交评论</el-button>
-								<el-button v-on:click="cancelCommentUser">取消</el-button>
+								<el-button v-on:click="cancelCommentUser" v-show="recommentInfo.id > 0">取消回复</el-button>
 							</div>
 						</div>
 					</el-row>
 					<el-row type="border-card" v-show="rightContentType == 2">
-						<div style="margin-bottom: 10px;">
+						<div style="margin-bottom: 10px;padding: 10px;" v-if="newPageId > 0">
+							编辑：{{lastClickNode.nodePath}}
+						</div>
+						<div style="margin-bottom: 10px;padding: 10px;" v-else>
 							父级：{{lastClickNode.nodePath || '/'}}　
-							<el-tooltip v-show="!(newPageId > 0)" class="item" content="在根目录创建文档">
+							<el-tooltip class="item" content="在根目录创建文档">
 								<el-button type="text" @click="lastClickNode={}" style="padding: 0 10px;">根目录</el-button>
 							</el-tooltip>
 						</div>
@@ -148,7 +154,7 @@
 			</el-container>
 		</el-container>
 		<!--新建空间弹窗-->
-		<el-dialog title="创建空间" :visible.sync="newSpaceDialogVisible" width="600px">
+		<el-dialog title="创建空间" :visible.sync="newSpaceDialogVisible" width="600px" :close-on-click-modal="false">
 			<el-form label-width="100px" :model="newSpaceForm" :rules="newSpaceFormRules" ref="newSpaceForm">
 				<el-form-item label="空间名：" prop="name">
 					<el-input v-model="newSpaceForm.name"></el-input>
@@ -164,7 +170,7 @@
 			</el-form>
 		</el-dialog>
 		<!--管理空间弹窗-->
-		<el-dialog title="管理空间" :visible.sync="manageSpaceDialogVisible" width="900px">
+		<el-dialog title="管理空间" :visible.sync="manageSpaceDialogVisible" :close-on-click-modal="false">
 			<el-table :data="spaceList" border style="width: 100%; margin-bottom: 5px;" max-height="500">
 				<el-table-column prop="id" label="ID" width="60"></el-table-column>
 				<el-table-column prop="name" label="名字"></el-table-column>
@@ -277,6 +283,10 @@
 			this.loadSpaceList();
 		},
 		methods: {
+			filterPageNode(value, data) {
+				if (!value) return true;
+				return data.label.indexOf(value) !== -1;
+			},
 			editSpaceInfo(row) {
 				app.newSpaceForm = {id: row.id, name: row.name, spaceExplain: row.spaceExplain};
 				app.newSpaceDialogVisible = true;
@@ -315,6 +325,8 @@
 				console.log("command:" + command);
 				if (command == 'userSignOut') {
 					this.userSignOut();
+				} else if (command == 'aboutDoc') {
+					app.aboutDialogVisible = true;
 				} else {
 					Toast.notOpen();
 				}
@@ -345,6 +357,7 @@
 									});
 									app.nowSpaceId = json.data.id;
 									app.choiceSpace = app.nowSpaceId;
+									app.rightContentType = 0;
 									app.doGetPageList(null);
 								}
 								app.newSpaceForm = {id: '', name: '', spaceExplain: ''};
@@ -428,6 +441,22 @@
 			notOpen() {
 				Toast.notOpen();
 			},
+			deleteWikiPage() {
+				this.$confirm('确定要删除此页面吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					var param = {id: app.wikiPage.id, delFlag: 1};
+					ajaxTemp("zyplayer-doc-wiki/page/update", "post", "json", param, function (json) {
+						if (validateResult(json)) {
+							app.rightContentType = 0;
+							app.wikiPage = {};
+							app.doGetPageList(null);
+						}
+					});
+				});
+			},
 			editWiki() {
 				this.rightContentType = 2;
 				this.newPageId = app.wikiPage.id;
@@ -435,10 +464,14 @@
 				page.newPageContentEditor.txt.html(app.pageContent.content || "");
 			},
 			createWiki() {
-				this.newPageId = "";
-				this.newPageTitle = "";
-				page.newPageContentEditor.txt.html("");
-				this.rightContentType = 2;
+				if (app.nowSpaceId > 0) {
+					this.newPageId = "";
+					this.newPageTitle = "";
+					page.newPageContentEditor.txt.html("");
+					this.rightContentType = 2;
+				} else {
+					Toast.warn("请先选择或创建空间");
+				}
 			},
 			createWikiCancel() {
 				if (isEmpty(this.lastClickNode.label)) {
@@ -558,7 +591,7 @@
 				return color;
 			},
 			searchByKeywords() {
-				//app.pathIndex = createTreeViewByTreeWithMerge(app.dubboDocList, app.searchKeywords);
+				this.$refs.wikiPageTree.filter(app.searchKeywords);
 			},
 			doGetPageList(parentId, node) {
 				var nodePath = "";
@@ -596,6 +629,7 @@
 			init(){
 				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
 				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
+				page.newPageContentEditor.customConfig.zIndex = 100;
 				page.newPageContentEditor.create();
 			}
 		}
@@ -621,7 +655,8 @@
 	
 	.upload-page-file .el-upload-list{display: none;}
 	.is-link{color: #1e88e5;cursor: pointer;}
-
+	/*编辑框高度*/
+	#newPageContentDiv .w-e-text-container{height: 600px !important;}
 	/*评论*/
 	.comment-box .head{
 		float: left;background-color: #ccc;border-radius: 50%;margin-right: 10px;

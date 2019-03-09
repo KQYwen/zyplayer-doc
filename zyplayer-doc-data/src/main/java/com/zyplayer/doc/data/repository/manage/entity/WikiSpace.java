@@ -11,7 +11,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-03-08
+ * @since 2019-03-09
  */
 public class WikiSpace implements Serializable {
 
@@ -37,6 +37,11 @@ public class WikiSpace implements Serializable {
      * 描述
      */
     private String spaceExplain;
+
+    /**
+     * 编辑类型 0=可编辑 1=不允许编辑
+     */
+    private Integer editType;
 
     /**
      * 创建人ID
@@ -86,6 +91,13 @@ public class WikiSpace implements Serializable {
     public void setSpaceExplain(String spaceExplain) {
         this.spaceExplain = spaceExplain;
     }
+    public Integer getEditType() {
+        return editType;
+    }
+
+    public void setEditType(Integer editType) {
+        this.editType = editType;
+    }
     public Long getCreateUserId() {
         return createUserId;
     }
@@ -122,6 +134,7 @@ public class WikiSpace implements Serializable {
         ", name=" + name +
         ", type=" + type +
         ", spaceExplain=" + spaceExplain +
+        ", editType=" + editType +
         ", createUserId=" + createUserId +
         ", createUserName=" + createUserName +
         ", createTime=" + createTime +

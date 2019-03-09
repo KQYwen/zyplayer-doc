@@ -6,7 +6,7 @@
 
 	<groupId>com.zyplayer</groupId>
 	<artifactId>zyplayer-doc-swagger</artifactId>
-	<version>2.0.1</version>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 	<name>zyplayer-doc-swagger</name>
 	<description>zyplayer-doc-swagger是swagger-ui的一个前端实现，使用简单、解析速度快、走心的设计，支持多项目同时展示，多种文档目录的展示方案，多种自定义配置，满足各种使用习惯</description>

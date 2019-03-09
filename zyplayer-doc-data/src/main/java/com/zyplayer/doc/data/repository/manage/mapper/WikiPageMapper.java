@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Update;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-03-05
+ * @since 2019-03-09
  */
 public interface WikiPageMapper extends BaseMapper<WikiPage> {
 	

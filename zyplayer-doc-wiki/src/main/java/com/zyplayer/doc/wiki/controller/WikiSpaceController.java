@@ -53,6 +53,10 @@ public class WikiSpaceController {
 	public ResponseJson<WikiSpace> update(WikiSpace wikiSpace) {
 		Long id = wikiSpace.getId();
 		if (id != null && id > 0) {
+			WikiSpace wikiSpaceSel = wikiSpaceService.getById(id);
+			if (Objects.equals(wikiSpaceSel.getEditType(), 1)) {
+				return DocResponseJson.warn("当前空间不允许编辑！");
+			}
 			wikiSpaceService.updateById(wikiSpace);
 		} else {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();

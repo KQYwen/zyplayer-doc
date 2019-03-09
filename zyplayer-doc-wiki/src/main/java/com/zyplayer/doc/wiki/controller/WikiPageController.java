@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 文档控制器
@@ -94,6 +95,10 @@ public class WikiPageController {
 		
 		Long id = wikiPage.getId();
 		if (id != null && id > 0) {
+			WikiPage wikiPageSel = wikiPageService.getById(id);
+			if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
+				return DocResponseJson.warn("当前页面不允许编辑！");
+			}
 			wikiPage.setUpdateTime(new Date());
 			wikiPage.setUpdateUserId(currentUser.getUserId());
 			wikiPage.setUpdateUserName(currentUser.getUsername());
