@@ -11,7 +11,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-03-09
+ * @since 2019-03-11
  */
 public class WikiSpace implements Serializable {
 
@@ -42,6 +42,11 @@ public class WikiSpace implements Serializable {
      * 编辑类型 0=可编辑 1=不允许编辑
      */
     private Integer editType;
+
+    /**
+     * 目录延迟加载 0=否 1=是
+     */
+    private Integer treeLazyLoad;
 
     /**
      * 创建人ID
@@ -98,6 +103,13 @@ public class WikiSpace implements Serializable {
     public void setEditType(Integer editType) {
         this.editType = editType;
     }
+    public Integer getTreeLazyLoad() {
+        return treeLazyLoad;
+    }
+
+    public void setTreeLazyLoad(Integer treeLazyLoad) {
+        this.treeLazyLoad = treeLazyLoad;
+    }
     public Long getCreateUserId() {
         return createUserId;
     }
@@ -135,6 +147,7 @@ public class WikiSpace implements Serializable {
         ", type=" + type +
         ", spaceExplain=" + spaceExplain +
         ", editType=" + editType +
+        ", treeLazyLoad=" + treeLazyLoad +
         ", createUserId=" + createUserId +
         ", createUserName=" + createUserName +
         ", createTime=" + createTime +

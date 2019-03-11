@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-03-09
+ * @since 2019-03-11
  */
 public interface WikiSpaceService extends IService<WikiSpace> {
 

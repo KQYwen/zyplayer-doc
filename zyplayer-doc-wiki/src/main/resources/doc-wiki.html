@@ -51,7 +51,8 @@
 				</el-aside>
 				<el-main class="doc-body-box">
 					<el-row type="border-card" v-show="rightContentType == 0">
-						<div style="margin-top: 30px;color: #666; text-align: center;">欢迎使用在线文档</div>
+						<div style="margin-top: 30px;color: #666; text-align: center; font-size: 30px;">欢迎使用在线文档</div>
+						<div style="margin-top: 30px;color: #666; text-align: center;">{{nowSpaceShow.name}} · {{nowSpaceShow.spaceExplain}}</div>
 					</el-row>
 					<el-row type="border-card" v-show="rightContentType == 1">
 						<div class="wiki-title">
@@ -162,6 +163,9 @@
 				<el-form-item label="空间描述：" prop="spaceExplain">
 					<el-input v-model="newSpaceForm.spaceExplain"></el-input>
 				</el-form-item>
+				<el-form-item label="目录加载：" prop="treeLazyLoad">
+					<el-switch v-model="newSpaceForm.treeLazyLoad" inactive-text="预先加载" :inactive-value="0" active-text="延迟加载" :active-value="1"></el-switch>
+				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-if="newSpaceForm.id > 0" @click="onNewSpaceSubmit('newSpaceForm')">保存修改</el-button>
 					<el-button type="primary" v-else @click="onNewSpaceSubmit('newSpaceForm')">立即创建</el-button>
@@ -235,17 +239,17 @@
 				pathIndex: [],
 				defaultProps: {
 					children: 'children',
-					label: 'label',
-					isLeaf: 'leaf'
+					label: 'name'
 				},
 				// 空间搜索相关
 				spaceOptions: [],
 				spaceList:[],
 				choiceSpace: "",
 				nowSpaceId: '',
+				nowSpaceShow: {},
 				newSpaceDialogVisible: false,
 				manageSpaceDialogVisible: false,
-				newSpaceForm: {id: '', name: '', spaceExplain: ''},
+				newSpaceForm: {id: '', name: '', spaceExplain: '', treeLazyLoad: 0},
 				newSpaceFormRules: {
 					name: [
 						{required: true, message: '请输入空间名', trigger: 'blur'},
@@ -288,7 +292,10 @@
 				return data.label.indexOf(value) !== -1;
 			},
 			editSpaceInfo(row) {
-				app.newSpaceForm = {id: row.id, name: row.name, spaceExplain: row.spaceExplain};
+				app.newSpaceForm = {
+					id: row.id, name: row.name, spaceExplain: row.spaceExplain,
+					treeLazyLoad: row.treeLazyLoad
+				};
 				app.newSpaceDialogVisible = true;
 			},
 			deleteSpaceInfo(row) {
@@ -344,7 +351,8 @@
 						var param = {
 							id: app.newSpaceForm.id,
 							name: app.newSpaceForm.name,
-							spaceExplain: app.newSpaceForm.spaceExplain
+							spaceExplain: app.newSpaceForm.spaceExplain,
+							treeLazyLoad: app.newSpaceForm.treeLazyLoad,
 						};
 						ajaxTemp("zyplayer-doc-wiki/space/update", "post", "json", param, function (json) {
 							if (validateResult(json)) {
@@ -356,11 +364,12 @@
 										label: json.data.name, value: json.data.id
 									});
 									app.nowSpaceId = json.data.id;
+									app.nowSpaceShow = json.data;
 									app.choiceSpace = app.nowSpaceId;
 									app.rightContentType = 0;
 									app.doGetPageList(null);
 								}
-								app.newSpaceForm = {id: '', name: '', spaceExplain: ''};
+								app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0};
 								app.newSpaceDialogVisible = false;
 							}
 						});
@@ -517,7 +526,7 @@
 			},
 			spaceChangeEvents(data) {
 				if (data == 0) {
-					app.newSpaceForm = {id: '', name: '', spaceExplain: ''};
+					app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0};
 					app.choiceSpace = app.nowSpaceId;
 					app.newSpaceDialogVisible = true;
 				} else if (data == -1) {
@@ -526,6 +535,12 @@
 				} else {
 					app.nowSpaceId = data;
 					app.rightContentType = 0;
+					for (var i = 0; i < app.spaceList.length; i++) {
+						if (app.spaceList[i].id == data) {
+							app.nowSpaceShow = app.spaceList[i];
+							break;
+						}
+					}
 					app.doGetPageList(null);
 				}
 			},
@@ -542,6 +557,7 @@
 						app.spaceOptions = spaceOptions;
 						if (app.spaceList.length > 0) {
 							app.nowSpaceId = app.spaceList[0].id;
+							app.nowSpaceShow = app.spaceList[0];
 							app.choiceSpace = app.nowSpaceId;
 							app.doGetPageList(null);
 						}
@@ -604,19 +620,24 @@
 				} else {
 					nodePath = "/";
 				}
-				var param = {spaceId: this.nowSpaceId, parentId: parentId};
+				var param = {spaceId: this.nowSpaceId, parentId: parentId || 0};
+				if (app.nowSpaceShow.treeLazyLoad == 0) {
+					param.parentId = null;
+				}
 				ajaxTemp("zyplayer-doc-wiki/page/list", "post", "json", param, function (json) {
 					if (validateResult(json)) {
+						var result = json.data || [];
 						var pathIndex = [];
-						for (var i = 0; i < json.data.length; i++) {
-							var item = json.data[i];
-							pathIndex.push({
-								id: item.id,
-								parentId: item.parentId || 0,
-								label: item.name,
-								nodePath: nodePath + item.name,
-								children: [{label: '', needLoad: true}],// 初始化一个对象，点击展开时重新查询加载
-							});
+						if (app.nowSpaceShow.treeLazyLoad == 0) {
+							pathIndex = result;
+						} else {
+							for (var i = 0; i < result.length; i++) {
+								var item = result[i];
+								item.parentId = item.parentId || 0;
+								item.nodePath = nodePath + item.name;
+								item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
+								pathIndex.push(item);
+							}
 						}
 						if (parentId > 0) {
 							node.children = pathIndex;

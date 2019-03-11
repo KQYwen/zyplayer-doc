@@ -14,6 +14,8 @@ import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiPageZanService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
+import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
+import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 文档控制器
@@ -44,17 +48,26 @@ public class WikiPageController {
 	WikiPageFileService wikiPageFileService;
 	@Resource
 	WikiPageZanService wikiPageZanService;
+	@Resource
+	Mapper mapper;
 	
 	@PostMapping("/list")
-	public ResponseJson<List<WikiPage>> list(WikiPage wikiPage) {
+	public ResponseJson<List<WikiPageVo>> list(WikiPage wikiPage) {
 		// TODO 检查space是否开放访问
 		UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
 		wrapper.eq("del_flag", 0);
 		wrapper.eq("space_id", wikiPage.getSpaceId());
-		wrapper.eq(wikiPage.getParentId() == null, "parent_id", 0);
 		wrapper.eq(wikiPage.getParentId() != null, "parent_id", wikiPage.getParentId());
 		List<WikiPage> authList = wikiPageService.list(wrapper);
-		return DocResponseJson.ok(authList);
+		Map<Long, List<WikiPageVo>> listMap = authList.stream().map(val -> mapper.map(val, WikiPageVo.class)).collect(Collectors.groupingBy(WikiPageVo::getParentId));
+		List<WikiPageVo> nodePageList;
+		if (wikiPage.getParentId() == null) {
+			nodePageList = listMap.get(0L);
+			this.setChildren(listMap, nodePageList);
+		} else {
+			nodePageList = listMap.get(wikiPage.getParentId());
+		}
+		return DocResponseJson.ok(nodePageList);
 	}
 	
 	@PostMapping("/detail")
@@ -123,6 +136,19 @@ public class WikiPageController {
 			wikiPageContentService.save(pageContent);
 		}
 		return DocResponseJson.ok(wikiPage);
+	}
+	
+	private void setChildren(Map<Long, List<WikiPageVo>> listMap, List<WikiPageVo> nodePageList) {
+		if (nodePageList == null || listMap == null) {
+			return;
+		}
+		for (WikiPageVo page : nodePageList) {
+			List<WikiPageVo> wikiPageVos = listMap.get(page.getId());
+			if (wikiPageVos != null && wikiPageVos.size() > 0) {
+				page.setChildren(wikiPageVos);
+				this.setChildren(listMap, wikiPageVos);
+			}
+		}
 	}
 }
 
