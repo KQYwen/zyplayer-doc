@@ -11,48 +11,53 @@
 <body>
 	<div id="app">
 		<el-container style="height: 100%;">
-			<el-header>
-				<!--<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>-->
-				<el-dropdown @command="userSettingDropdown" trigger="click">
-					<i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
-					<el-dropdown-menu slot="dropdown">
-						<el-dropdown-item command="aboutDoc">关于</el-dropdown-item>
-						<el-dropdown-item command="" divided>我的资料</el-dropdown-item>
-						<el-dropdown-item command="userSignOut">退出登录</el-dropdown-item>
-					</el-dropdown-menu>
-				</el-dropdown>
-			</el-header>
-			<el-container>
-				<el-aside width="auto" style="height: 100%;">
-					<div style="padding: 10px;">
-						<!--<el-row><el-switch v-model="isCollapse"></el-switch></el-row>-->
-						<div style="margin-bottom: 10px;">
-							<el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
-								<el-option-group label="">
-									<el-option key="0" label="创建空间" value="0"></el-option>
-									<el-option key="-1" label="空间管理" value="-1"></el-option>
-								</el-option-group>
-								<el-option-group label="">
-									<el-option v-for="item in spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-								</el-option-group>
-							</el-select>
-						</div>
-						<div align="center">
-							<el-button v-on:click="createWiki" icon="el-icon-plus" style="width: 100%;">创建文档</el-button>
-						</div>
-						<el-input v-model="searchKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
-							<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
-						</el-input>
-						<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
-								 @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop"
-								 ref="wikiPageTree" :filter-node-method="filterPageNode" highlight-current>
-						</el-tree>
+			<el-aside width="auto" style="height: 100%;background-color: #fafafa;">
+				<div style="padding: 10px;" v-show="leftCollapse">
+					<div style="margin-bottom: 10px;">
+						<el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
+							<el-option-group label="">
+								<el-option key="0" label="创建空间" value="0"></el-option>
+								<el-option key="-1" label="空间管理" value="-1"></el-option>
+							</el-option-group>
+							<el-option-group label="">
+								<el-option v-for="item in spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+							</el-option-group>
+						</el-select>
 					</div>
-				</el-aside>
+					<div align="center">
+						<el-button v-on:click="createWiki" icon="el-icon-plus" style="width: 100%;">创建文档</el-button>
+					</div>
+					<el-input v-model="searchKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
+						<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
+					</el-input>
+					<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
+							 @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop"
+							 ref="wikiPageTree" :filter-node-method="filterPageNode" highlight-current
+							 :expand-on-click-node="false">
+					</el-tree>
+				</div>
+			</el-aside>
+			<el-container>
+				<el-header>
+					<!--<el-switch v-model="isCollapse" ></el-switch>-->
+					<i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse;"></i>
+					<!--<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>-->
+					<el-dropdown @command="userSettingDropdown" trigger="click">
+						<i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
+						<el-dropdown-menu slot="dropdown">
+							<el-dropdown-item command="aboutDoc">关于</el-dropdown-item>
+							<el-dropdown-item command="" divided>我的资料</el-dropdown-item>
+							<el-dropdown-item command="userSignOut">退出登录</el-dropdown-item>
+						</el-dropdown-menu>
+					</el-dropdown>
+				</el-header>
 				<el-main class="doc-body-box">
 					<el-row type="border-card" v-show="rightContentType == 0">
 						<div style="margin-top: 30px;color: #666; text-align: center; font-size: 30px;">欢迎使用在线文档</div>
-						<div style="margin-top: 30px;color: #666; text-align: center;">{{nowSpaceShow.name}} · {{nowSpaceShow.spaceExplain}}</div>
+						<div style="margin-top: 30px;color: #666; text-align: center;">
+							{{nowSpaceShow.name}}
+							<span v-show="nowSpaceShow.spaceExplain && nowSpaceShow.spaceExplain.length > 0"> · {{nowSpaceShow.spaceExplain}}</span>
+						</div>
 					</el-row>
 					<el-row type="border-card" v-show="rightContentType == 1">
 						<div class="wiki-title">
@@ -89,7 +94,7 @@
 								</el-table-column>
 							</el-table>
 						</div>
-						<div class="wiki-content">
+						<div class="wiki-content w-e-text">
 							<div v-html="pageContent.content"></div>
 						</div>
 						<div style="margin-top: 40px; font-size: 14px;">
@@ -232,7 +237,7 @@
 		el: '#app',
 		data() {
 			return {
-				isCollapse: false,
+				leftCollapse: true,
 				aboutDialogVisible: false,
 				rightContentLoading: false,
 				rightContentType: 0,// 右侧显示类型，0=欢迎页 1=文章内容 2=编辑或新增文章
@@ -483,16 +488,26 @@
 				}
 			},
 			createWikiCancel() {
-				if (isEmpty(this.lastClickNode.label)) {
-					this.rightContentType = 0;
-				} else {
-					this.rightContentType = 1;
-				}
+				this.$confirm('确定要取消编辑吗？您编辑的内容将不会被保存哦~', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '继续编辑',
+					type: 'warning'
+				}).then(() => {
+					if (isEmpty(this.lastClickNode.label)) {
+						this.rightContentType = 0;
+					} else {
+						this.rightContentType = 1;
+					}
+				});
 			},
 			createWikiSave() {
 				var parentId = app.lastClickNode.id;
 				if (this.newPageId > 0) {
 					parentId = "";
+				}
+				if (isEmpty(app.newPageTitle)) {
+					Toast.warn("标题不能为空");
+					return;
 				}
 				var param = {
 					spaceId: app.nowSpaceId,
@@ -634,11 +649,11 @@
 							for (var i = 0; i < result.length; i++) {
 								var item = result[i];
 								item.parentId = item.parentId || 0;
-								item.nodePath = nodePath + item.name;
 								item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
 								pathIndex.push(item);
 							}
 						}
+						app.createNodePath(pathIndex, nodePath);
 						if (parentId > 0) {
 							node.children = pathIndex;
 						} else {
@@ -648,10 +663,23 @@
 					}
 				});
 			},
+			createNodePath(node, nodePath) {
+				if (!nodePath.endsWith("/")) {
+					nodePath += "/";
+				}
+				for (var i = 0; i < node.length; i++) {
+					var item = node[i];
+					item.nodePath = nodePath + item.name;
+					if (!!item.children && item.children.length > 0) {
+						this.createNodePath(item.children, item.nodePath);
+					}
+				}
+			},
 			init(){
 				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
 				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
 				page.newPageContentEditor.customConfig.zIndex = 100;
+				page.newPageContentEditor.customConfig.pasteFilterStyle = false;
 				page.newPageContentEditor.create();
 			}
 		}
@@ -671,9 +699,12 @@
 		background: #409EFF; cursor: pointer;
 		width: 100%; height:40px;line-height:40px;font-size: 25px;color: #fff;text-align: center;
 	}
+	.icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
+	.icon-collapse:hover{color: #eee;}
 	.wiki-title{font-size: 20px;}
 	.wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
 	.wiki-content{font-size: 14px;}
+	.wiki-content.w-e-text{overflow-y: auto;}
 	
 	.upload-page-file .el-upload-list{display: none;}
 	.is-link{color: #1e88e5;cursor: pointer;}

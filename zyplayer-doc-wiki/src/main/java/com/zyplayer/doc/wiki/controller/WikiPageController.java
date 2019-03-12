@@ -15,6 +15,7 @@ import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiPageZanService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
+import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +106,9 @@ public class WikiPageController {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPageContent pageContent = new WikiPageContent();
 		pageContent.setContent(content);
-		
+		if (wikiPage.getDelFlag() == 0 && StringUtils.isBlank(wikiPage.getName())) {
+			return DocResponseJson.warn("标题不能为空！");
+		}
 		Long id = wikiPage.getId();
 		if (id != null && id > 0) {
 			WikiPage wikiPageSel = wikiPageService.getById(id);
