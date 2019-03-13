@@ -1,5 +1,6 @@
 package com.zyplayer.doc.wiki.controller;
 
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -37,14 +38,8 @@ public class WikiSpaceController {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		UpdateWrapper<WikiSpace> wrapper = new UpdateWrapper<>();
 		wrapper.eq("del_flag", 0);
-		if(wikiSpace.getType() == null) {
-			wrapper.in("type", 1, 2);
-		} else if(wikiSpace.getType() == 1 || wikiSpace.getType() == 2) {
-			wrapper.eq(wikiSpace.getType() != null, "type", wikiSpace.getType());
-			wrapper.eq(Objects.equals(wikiSpace.getType(), 2), "create_user_id", wikiSpace.getCreateUserId());
-		} else if(wikiSpace.getType() == 3) {
-			wrapper.eq("create_user_id", currentUser.getUserId());
-		}
+		wrapper.in("type", 1, 2);
+		//wrapper.or().eq("type", 3).eq("create_user_id", currentUser.getUserId());
 		List<WikiSpace> authList = wikiSpaceService.list(wrapper);
 		return DocResponseJson.ok(authList);
 	}
@@ -57,9 +52,11 @@ public class WikiSpaceController {
 			if (Objects.equals(wikiSpaceSel.getEditType(), 1)) {
 				return DocResponseJson.warn("当前空间不允许编辑！");
 			}
+			wikiSpace.setUuid(null);
 			wikiSpaceService.updateById(wikiSpace);
 		} else {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+			wikiSpace.setUuid(RandomUtil.simpleUUID());
 			wikiSpace.setCreateTime(new Date());
 			wikiSpace.setCreateUserId(currentUser.getUserId());
 			wikiSpace.setCreateUserName(currentUser.getUsername());

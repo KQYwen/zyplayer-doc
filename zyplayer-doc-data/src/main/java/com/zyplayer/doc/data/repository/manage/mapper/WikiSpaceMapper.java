@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-03-11
+ * @since 2019-03-13
  */
 public interface WikiSpaceMapper extends BaseMapper<WikiSpace> {
 

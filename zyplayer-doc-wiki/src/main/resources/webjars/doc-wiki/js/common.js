@@ -35,6 +35,21 @@ function validateResult(result) {
 	return false;
 }
 
+function urlToParam(param, key, encode) {
+	if (param == null) return '';
+	var paramStr = '';
+	var t = typeof (param);
+	if (t == 'string' || t == 'number' || t == 'boolean') {
+		paramStr += '&' + key + '=' + ((encode == null || encode) ? encodeURIComponent(param) : param);
+	} else {
+		for (var i in param) {
+			var k = key == null ? i : key + (param instanceof Array ? '[' + i + ']' : '.' + i);
+			paramStr += urlToParam(param[i], k, encode);
+		}
+	}
+	return paramStr;
+}
+
 function getNowDate() {
 	var date = new Date();
 	var month = date.getMonth() + 1;

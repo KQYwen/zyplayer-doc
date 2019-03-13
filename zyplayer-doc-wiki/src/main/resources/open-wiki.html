@@ -1,0 +1,310 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<title>wiki文档管理系统</title>
+	<link rel="shortcut icon" href="webjars/doc-wiki/img/wiki.ico"/>
+	<link rel="stylesheet" href="webjars/doc-wiki/css/element-ui.css">
+	<link rel="stylesheet" href="webjars/doc-wiki/css/doc-wiki.css" />
+</head>
+<body>
+	<div id="app">
+		<el-container style="height: 100%;">
+			<el-aside width="280" style="height: 100%;background-color: #fafafa;">
+				<div style="padding: 0 10px 50px 10px;" v-show="leftCollapse">
+					<el-input v-model="searchKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
+						<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
+					</el-input>
+					<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
+							 @node-expand="handleNodeExpand"
+							 ref="wikiPageTree" :filter-node-method="filterPageNode" highlight-current
+							 :expand-on-click-node="false" :default-expanded-keys="wikiPageExpandedKeys"
+							 node-key="id"
+							 style="background-color: #fafafa;">
+					</el-tree>
+					<div class="build-info">本文档使用<span @click="aboutDialogVisible = true;">zyplayer-doc</span>构建</div>
+				</div>
+			</el-aside>
+			<el-container>
+				<el-main class="doc-body-box">
+					<el-row type="border-card" v-show="rightContentType == 0">
+						<div style="margin-top: 30px;color: #666; text-align: center; font-size: 30px;">欢迎使用在线文档</div>
+						<div style="margin-top: 30px;color: #666; text-align: center;">
+							{{nowSpaceShow.name}}
+							<span v-show="nowSpaceShow.spaceExplain && nowSpaceShow.spaceExplain.length > 0"> · {{nowSpaceShow.spaceExplain}}</span>
+						</div>
+					</el-row>
+					<el-row type="border-card" v-show="rightContentType == 1">
+						<i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse;"></i>
+						<div style="max-width: 950px;margin: 0 auto;">
+							<div class="wiki-title">{{wikiPage.name}}</div>
+							<div class="wiki-author">
+								<span><span v-show="wikiPage.updateTime">最后修改：{{wikiPage.updateTime}}</span></span>
+							</div>
+							<div class="wiki-files">
+								<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px;">
+									<el-table-column label="文件名">
+										<template slot-scope="scope">
+											<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName}}</a>
+										</template>
+									</el-table-column>
+									<el-table-column prop="createTime" label="创建时间"></el-table-column>
+								</el-table>
+							</div>
+							<div class="wiki-content w-e-text">
+								<div v-html="pageContent.content"></div>
+							</div>
+						</div>
+					</el-row>
+				</el-main>
+			</el-container>
+		</el-container>
+		<!--关于弹窗-->
+		<el-dialog title="关于zyplayer-doc-wiki" :visible.sync="aboutDialogVisible" width="600px">
+			<el-form>
+				<el-form-item label="项目地址：">
+					<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>
+				</el-form-item>
+				<el-form-item label="开发人员：">
+					<a target="_blank" href="http://zyplayer.com">暮光：城中城</a>
+				</el-form-item>
+				<el-form-item label="">
+					欢迎加群讨论，QQ群号：466363173，欢迎提交需求，欢迎使用和加入开发！
+				</el-form-item>
+			</el-form>
+		</el-dialog>
+	</div>
+</body>
+<script type="text/javascript" src="webjars/doc-wiki/vue/vue.js"></script>
+<script type="text/javascript" src="webjars/doc-wiki/js/element-ui.js"></script>
+<!-- ajax 用到了jquery -->
+<script type="text/javascript" src="webjars/doc-wiki/js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="webjars/doc-wiki/js/common.js"></script>
+<script type="text/javascript" src="webjars/doc-wiki/js/toast.js"></script>
+<script type="text/javascript" src="webjars/doc-wiki/js/formatjson.js"></script>
+<script type="text/javascript" src="webjars/doc-wiki/js/doc-wiki-tree.js"></script>
+<script type="text/javascript" src="webjars/doc-wiki/lib/wangEditor/wangEditor.js"></script>
+
+<script>
+	var page = {
+		newPageContentEditor: '',
+		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
+		userHeadColor: {},
+	};
+	var app = new Vue({
+		el: '#app',
+		data() {
+			return {
+				leftCollapse: true,
+				aboutDialogVisible: false,
+				rightContentLoading: false,
+				rightContentType: 0,// 右侧显示类型，0=欢迎页 1=文章内容 2=编辑或新增文章
+				pathIndex: [],
+				defaultProps: {
+					children: 'children',
+					label: 'name'
+				},
+				// 空间搜索相关
+				spaceOptions: [],
+				spaceList:[],
+				choiceSpace: "",
+				nowSpaceId: '',
+				nowSpaceShow: {},
+				newSpaceDialogVisible: false,
+				manageSpaceDialogVisible: false,
+				newSpaceForm: {id: '', name: '', spaceExplain: '', treeLazyLoad: 0},
+				newSpaceFormRules: {
+					name: [
+						{required: true, message: '请输入空间名', trigger: 'blur'},
+						{min: 2, max: 25, message: '长度在 2 到 25 个字符', trigger: 'blur'}
+					],
+				},
+				// 依据目录树存储的map全局对象
+				treePathDataMap: new Map(),
+				// 搜索的输入内容
+				searchKeywords: "",
+				lastClickNode: {},
+				// 编辑相关
+				newPageId: "",
+				newPageTitle: "",
+				// 页面展示相关
+				wikiPageList:[],
+				wikiPage: {},
+				wikiPageExpandedKeys: [],
+				pageContent: {},
+				pageFileList: [],
+				uploadFileList: [],
+				uploadFormData: {pageId: 0},
+				zanUserDialogVisible: false,
+				zanUserList: [],
+				// 评论相关
+				commentTextInput: "",
+				commentList: [],
+				recommentInfo: {},
+				// 页面跳转相关
+				initOver: false,
+				urlParam: {
+					pageId: 0
+				},
+			}
+		},
+		watch: {
+			urlParam: {
+				handler(newVal, oldVal) {
+					if (!this.initOver) return;
+					var params = urlToParam(newVal).slice(1);
+					window.history.pushState(null, null, '?' + params);
+					console.log(newVal, oldVal, params);
+					var oldPageId = oldVal.pageId || 0;
+					if (!!newVal.pageId && newVal.pageId > 0 && newVal.pageId !== oldPageId) {
+						this.wikiPageExpandedKeys = [parseInt(newVal.pageId)];
+						this.loadPageDetail(newVal.pageId);
+					}
+				},
+				deep: true, immediate: true
+			}
+		},
+		mounted: function () {
+			this.init();
+			this.doGetPageList(null);
+			this.initOver = true;
+		},
+		methods: {
+			filterPageNode(value, data) {
+				if (!value) return true;
+				return data.label.indexOf(value) !== -1;
+			},
+			notOpen() {
+				Toast.notOpen();
+			},
+			handleNodeClick(data) {
+				app.rightContentType = 1;
+				if (app.lastClickNode.id == data.id) {
+					return;
+				}
+				console.log("点击节点：", data);
+				app.lastClickNode = data;
+				this.loadPageDetail(app.lastClickNode.id);
+			},
+			handleNodeExpand(node) {
+				if (node.children.length > 0 && node.children[0].needLoad) {
+					console.log("加载节点：", node);
+					app.doGetPageList(node.id, node);
+				}
+			},
+			loadPageDetail(pageId) {
+				app.rightContentType = 1;
+				var param = {pageId: pageId, space: this.urlParam.space};
+				ajaxTemp("zyplayer-doc-wiki/open-api/page/detail", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						var wikiPage = json.data.wikiPage || {};
+						wikiPage.selfZan = json.data.selfZan || 0;
+						app.wikiPage = wikiPage;
+						app.pageContent = json.data.pageContent || {};
+						app.pageFileList = json.data.fileList || [];
+						app.uploadFormData = {pageId: app.wikiPage.id};
+						app.urlParam.pageId = app.wikiPage.id;
+					}
+				});
+			},
+			getUserHeadBgColor(userId) {
+				var color = page.userHeadColor[userId];
+				if (!color) {
+					color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+					page.userHeadColor[userId] = color;
+				}
+				return color;
+			},
+			searchByKeywords() {
+				this.$refs.wikiPageTree.filter(app.searchKeywords);
+			},
+			doGetPageList() {
+				var nodePath = "/";
+				var param = {space: this.urlParam.space};
+				ajaxTemp("zyplayer-doc-wiki/open-api/page/list", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						var pathIndex = json.data || [];
+						app.createNodePath(pathIndex, nodePath);
+						app.wikiPageList = pathIndex;
+						app.lastClickNode = {};
+					}
+				});
+			},
+			createNodePath(node, nodePath) {
+				if (!nodePath.endsWith("/")) {
+					nodePath += "/";
+				}
+				for (var i = 0; i < node.length; i++) {
+					var item = node[i];
+					item.nodePath = nodePath + item.name;
+					if (!!item.children && item.children.length > 0) {
+						this.createNodePath(item.children, item.nodePath);
+					}
+				}
+			},
+			init(){
+				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
+				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
+				page.newPageContentEditor.customConfig.zIndex = 100;
+				page.newPageContentEditor.customConfig.pasteFilterStyle = false;
+				page.newPageContentEditor.create();
+				// 初始化页面参数
+				var url = document.location.toString();
+				if (url.indexOf("?") >= 0) {
+					var urlParam = {};
+					for (var key in this.urlParam) {
+						urlParam[key] = this.urlParam[key];
+					}
+					var params = url.split("?")[1];
+					var paramArr = params.split("&");
+					for (var i = 0; i < paramArr.length; i++) {
+						if (paramArr[i].indexOf("=") > 0) {
+							var param = paramArr[i].split("=");
+							urlParam[param[0]] = param[1];
+						}
+					}
+					this.urlParam = urlParam;
+				}
+			}
+		}
+	});
+</script>
+<style>
+	html,body,#app {margin: 0; padding: 0; height: 100%;}
+	pre{margin: 0;white-space: pre-wrap;font-size: 14px; font-family: auto;}
+	.el-menu {box-sizing: border-box;border-right: 0;margin-right: 3px;}
+	.el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}
+	.doc-body-box{
+		overflow-x: hidden;overflow-y: auto;width: 100%;
+		padding: 10px;border-left: 1px solid #f1f1f1; box-sizing: border-box;
+	}
+	.el-tree{margin-right: 3px;}
+	.logo{
+		background: #409EFF; cursor: pointer;
+		width: 100%; height:40px;line-height:40px;font-size: 25px;color: #fff;text-align: center;
+	}
+	.icon-collapse{float: left;font-size: 25px;color: #aaa;cursor: pointer;position: fixed;}
+	.icon-collapse:hover{color: #ccc;}
+	.wiki-title{font-size: 20px;text-align: center;}
+	.wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
+	.wiki-content{font-size: 14px;}
+	.wiki-content.w-e-text{overflow-y: auto;}
+	
+	.upload-page-file .el-upload-list{display: none;}
+	.is-link{color: #1e88e5;cursor: pointer;}
+	/*编辑框高度*/
+	#newPageContentDiv .w-e-text-container{height: 600px !important;}
+	/*评论*/
+	.comment-box .head{
+		float: left;background-color: #ccc;border-radius: 50%;margin-right: 10px;
+		width: 45px; height: 45px; line-height: 45px;text-align: center;color: #fff;
+	}
+	.build-info{
+		position: fixed;bottom: 0;left: 0;background: #fafafa;width: 280px;text-align: center;
+		padding: 5px 0;color: #aaa;font-size: 12px;
+	}
+	.build-info span{color: #4183c4;cursor: pointer;}
+</style>
+</html>
+

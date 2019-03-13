@@ -1,9 +1,10 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -47,6 +48,16 @@ public class WikiSpace implements Serializable {
      * 目录延迟加载 0=否 1=是
      */
     private Integer treeLazyLoad;
+
+    /**
+     * 是否是开放文档 0=否 1=是
+     */
+    private Integer openDoc;
+
+    /**
+     * 唯一UUID
+     */
+    private String uuid;
 
     /**
      * 创建人ID
@@ -110,6 +121,20 @@ public class WikiSpace implements Serializable {
     public void setTreeLazyLoad(Integer treeLazyLoad) {
         this.treeLazyLoad = treeLazyLoad;
     }
+    public Integer getOpenDoc() {
+        return openDoc;
+    }
+
+    public void setOpenDoc(Integer openDoc) {
+        this.openDoc = openDoc;
+    }
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
     public Long getCreateUserId() {
         return createUserId;
     }
@@ -148,6 +173,8 @@ public class WikiSpace implements Serializable {
         ", spaceExplain=" + spaceExplain +
         ", editType=" + editType +
         ", treeLazyLoad=" + treeLazyLoad +
+        ", openDoc=" + openDoc +
+        ", uuid=" + uuid +
         ", createUserId=" + createUserId +
         ", createUserName=" + createUserName +
         ", createTime=" + createTime +

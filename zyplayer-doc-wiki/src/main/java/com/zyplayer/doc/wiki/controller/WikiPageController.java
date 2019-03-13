@@ -24,10 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -106,7 +103,8 @@ public class WikiPageController {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPageContent pageContent = new WikiPageContent();
 		pageContent.setContent(content);
-		if (wikiPage.getDelFlag() == 0 && StringUtils.isBlank(wikiPage.getName())) {
+		Integer delFlag = Optional.ofNullable(wikiPage.getDelFlag()).orElse(0);
+		if (delFlag == 0 && StringUtils.isBlank(wikiPage.getName())) {
 			return DocResponseJson.warn("标题不能为空！");
 		}
 		Long id = wikiPage.getId();

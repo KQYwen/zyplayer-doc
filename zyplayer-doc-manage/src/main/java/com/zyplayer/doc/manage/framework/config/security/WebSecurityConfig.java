@@ -49,6 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			"/login/**", "/static/manage/login.html",
 			// 开放接口的静态文件和接口
 			"/open-doc.html", "/webjars/open-doc/**", "/swagger-mg-ui/open-doc/**",
+			"/open-wiki.html", "/webjars/doc-wiki/**", "/zyplayer-doc-wiki/open-api/**",
 			// http代理请求接口，有白名单限制，也不怕随便请求到内网资源了
 			"/swagger-mg-ui/http/**",
 			// 静态资源

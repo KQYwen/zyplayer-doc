@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-03-11
+ * @since 2019-03-13
  */
 @Service
 public class WikiSpaceServiceImpl extends ServiceImpl<WikiSpaceMapper, WikiSpace> implements WikiSpaceService {

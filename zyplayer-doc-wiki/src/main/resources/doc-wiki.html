@@ -33,7 +33,9 @@
 					<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
 							 @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop"
 							 ref="wikiPageTree" :filter-node-method="filterPageNode" highlight-current
-							 :expand-on-click-node="false">
+							 :expand-on-click-node="false" :default-expanded-keys="wikiPageExpandedKeys"
+							 node-key="id"
+							 style="background-color: #fafafa;">
 					</el-tree>
 				</div>
 			</el-aside>
@@ -168,9 +170,28 @@
 				<el-form-item label="空间描述：" prop="spaceExplain">
 					<el-input v-model="newSpaceForm.spaceExplain"></el-input>
 				</el-form-item>
-				<el-form-item label="目录加载：" prop="treeLazyLoad">
+				<el-form-item label="空间开放：">
+					<el-switch v-model="newSpaceForm.openDoc" inactive-text="需要登录" :inactive-value="0" active-text="开放访问" :active-value="1"></el-switch>
+				</el-form-item>
+				<el-form-item label="目录加载：">
 					<el-switch v-model="newSpaceForm.treeLazyLoad" inactive-text="预先加载" :inactive-value="0" active-text="延迟加载" :active-value="1"></el-switch>
 				</el-form-item>
+				<!--<el-form-item label="空间类型：">-->
+					<!--<el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%;">-->
+						<!--<el-option :key="1" label="公共空间" :value="1">-->
+							<!--<span style="float: left">公共空间</span>-->
+							<!--<span style="float: right; color: #8492a6; font-size: 13px;">属于公共，登录用户可访问</span>-->
+						<!--</el-option>-->
+						<!--<el-option :key="2" label="个人空间" :value="2">-->
+							<!--<span style="float: left">个人空间</span>-->
+							<!--<span style="float: right; color: #8492a6; font-size: 13px;">属于个人，所有登录用户可访问</span>-->
+						<!--</el-option>-->
+						<!--<el-option :key="3" label="隐私空间" :value="3">-->
+							<!--<span style="float: left">隐私空间</span>-->
+							<!--<span style="float: right; color: #8492a6; font-size: 13px;">属于个人，仅创建者可访问</span>-->
+						<!--</el-option>-->
+					<!--</el-select>-->
+				<!--</el-form-item>-->
 				<el-form-item>
 					<el-button type="primary" v-if="newSpaceForm.id > 0" @click="onNewSpaceSubmit('newSpaceForm')">保存修改</el-button>
 					<el-button type="primary" v-else @click="onNewSpaceSubmit('newSpaceForm')">立即创建</el-button>
@@ -184,6 +205,12 @@
 				<el-table-column prop="id" label="ID" width="60"></el-table-column>
 				<el-table-column prop="name" label="名字"></el-table-column>
 				<el-table-column prop="spaceExplain" label="说明"></el-table-column>
+				<el-table-column label="开放地址">
+					<template slot-scope="scope">
+						<a target="_blank" :href="'open-wiki.html?space='+scope.row.uuid" v-if="scope.row.openDoc == 1">{{scope.row.uuid}}</a>
+						<span v-else>暂未开放</span>
+					</template>
+				</el-table-column>
 				<el-table-column prop="createUserName" label="创建人"></el-table-column>
 				<el-table-column prop="createTime" label="创建时间"></el-table-column>
 				<el-table-column label="操作">
@@ -254,7 +281,7 @@
 				nowSpaceShow: {},
 				newSpaceDialogVisible: false,
 				manageSpaceDialogVisible: false,
-				newSpaceForm: {id: '', name: '', spaceExplain: '', treeLazyLoad: 0},
+				newSpaceForm: {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1},
 				newSpaceFormRules: {
 					name: [
 						{required: true, message: '请输入空间名', trigger: 'blur'},
@@ -272,6 +299,7 @@
 				// 页面展示相关
 				wikiPageList:[],
 				wikiPage: {},
+				wikiPageExpandedKeys: [],
 				pageContent: {},
 				pageFileList: [],
 				uploadFileList: [],
@@ -282,14 +310,33 @@
 				commentTextInput: "",
 				commentList: [],
 				recommentInfo: {},
+				// 页面跳转相关
+				initOver: false,
+				urlParam: {
+					pageId: 0
+				},
 			}
 		},
 		watch: {
-		
+			urlParam: {
+				handler(newVal, oldVal) {
+					if (!this.initOver) return;
+					var params = urlToParam(newVal).slice(1);
+					window.history.pushState(null, null, '?' + params);
+					console.log(newVal, oldVal, params);
+					var oldPageId = oldVal.pageId || 0;
+					if (!!newVal.pageId && newVal.pageId > 0 && newVal.pageId !== oldPageId) {
+						this.wikiPageExpandedKeys = [parseInt(newVal.pageId)];
+						this.loadPageDetail(newVal.pageId);
+					}
+				},
+				deep: true, immediate: true
+			}
 		},
 		mounted: function () {
 			this.init();
 			this.loadSpaceList();
+			this.initOver = true;
 		},
 		methods: {
 			filterPageNode(value, data) {
@@ -299,7 +346,7 @@
 			editSpaceInfo(row) {
 				app.newSpaceForm = {
 					id: row.id, name: row.name, spaceExplain: row.spaceExplain,
-					treeLazyLoad: row.treeLazyLoad
+					treeLazyLoad: row.treeLazyLoad, openDoc: row.openDoc, type: row.type
 				};
 				app.newSpaceDialogVisible = true;
 			},
@@ -356,6 +403,8 @@
 						var param = {
 							id: app.newSpaceForm.id,
 							name: app.newSpaceForm.name,
+							type: app.newSpaceForm.type,
+							openDoc: app.newSpaceForm.openDoc,
 							spaceExplain: app.newSpaceForm.spaceExplain,
 							treeLazyLoad: app.newSpaceForm.treeLazyLoad,
 						};
@@ -374,7 +423,7 @@
 									app.rightContentType = 0;
 									app.doGetPageList(null);
 								}
-								app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0};
+								app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
 								app.newSpaceDialogVisible = false;
 							}
 						});
@@ -493,7 +542,7 @@
 					cancelButtonText: '继续编辑',
 					type: 'warning'
 				}).then(() => {
-					if (isEmpty(this.lastClickNode.label)) {
+					if (isEmpty(this.lastClickNode.name)) {
 						this.rightContentType = 0;
 					} else {
 						this.rightContentType = 1;
@@ -541,7 +590,7 @@
 			},
 			spaceChangeEvents(data) {
 				if (data == 0) {
-					app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0};
+					app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
 					app.choiceSpace = app.nowSpaceId;
 					app.newSpaceDialogVisible = true;
 				} else if (data == -1) {
@@ -590,6 +639,7 @@
 						app.pageContent = json.data.pageContent || {};
 						app.pageFileList = json.data.fileList || [];
 						app.uploadFormData = {pageId: app.wikiPage.id};
+						app.urlParam.pageId = app.wikiPage.id;
 					}
 				});
 				this.loadCommentList(pageId);
@@ -681,6 +731,23 @@
 				page.newPageContentEditor.customConfig.zIndex = 100;
 				page.newPageContentEditor.customConfig.pasteFilterStyle = false;
 				page.newPageContentEditor.create();
+				// 初始化页面参数
+				var url = document.location.toString();
+				if (url.indexOf("?") >= 0) {
+					var urlParam = {};
+					for (var key in this.urlParam) {
+						urlParam[key] = this.urlParam[key];
+					}
+					var params = url.split("?")[1];
+					var paramArr = params.split("&");
+					for (var i = 0; i < paramArr.length; i++) {
+						if (paramArr[i].indexOf("=") > 0) {
+							var param = paramArr[i].split("=");
+							urlParam[param[0]] = param[1];
+						}
+					}
+					this.urlParam = urlParam;
+				}
 			}
 		}
 	});
