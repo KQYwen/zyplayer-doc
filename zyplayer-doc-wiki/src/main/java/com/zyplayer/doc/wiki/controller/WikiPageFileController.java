@@ -4,8 +4,12 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
+import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
+import com.zyplayer.doc.data.service.manage.WikiPageService;
+import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 文档控制器
@@ -28,6 +33,10 @@ public class WikiPageFileController {
 	
 	@Resource
 	WikiPageFileService wikiPageFileService;
+	@Resource
+	WikiSpaceService wikiSpaceService;
+	@Resource
+	WikiPageService wikiPageService;
 	
 //	@PostMapping("/list")
 //	public ResponseJson<List<WikiPageFile>> list(WikiPageFile wikiPageFile) {
@@ -41,10 +50,16 @@ public class WikiPageFileController {
 //		}
 //		return DocResponseJson.ok(fileList);
 //	}
-//
+	
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPageFile wikiPageFile) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		WikiPage wikiPageSel = wikiPageService.getById(wikiPageFile.getPageId());
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 私人空间
+		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.warn("您没有该空间的文件上传权限！");
+		}
 		Long id = wikiPageFile.getId();
 		if (id != null && id > 0) {
 			wikiPageFile.setUpdateUserId(currentUser.getUserId());

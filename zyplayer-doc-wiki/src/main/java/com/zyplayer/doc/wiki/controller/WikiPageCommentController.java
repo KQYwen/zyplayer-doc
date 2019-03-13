@@ -5,8 +5,12 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageComment;
+import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.service.manage.WikiPageCommentService;
+import com.zyplayer.doc.data.service.manage.WikiPageService;
+import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageCommentVo;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
@@ -19,6 +23,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -35,13 +40,24 @@ public class WikiPageCommentController {
 	@Resource
 	WikiPageCommentService wikiPageCommentService;
 	@Resource
+	WikiSpaceService wikiSpaceService;
+	@Resource
+	WikiPageService wikiPageService;
+	@Resource
 	Mapper mapper;
 	
 	@PostMapping("/list")
-	public ResponseJson<List<WikiPageCommentVo>> list(WikiPageComment wikiPageComment) {
+	public ResponseJson<List<WikiPageCommentVo>> list(WikiPageComment pageComment) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		WikiPage wikiPageSel = wikiPageService.getById(pageComment.getPageId());
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 私人空间
+		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.warn("您没有查看该空间的评论权！");
+		}
 		UpdateWrapper<WikiPageComment> wrapper = new UpdateWrapper<>();
-		wrapper.eq("page_id", wikiPageComment.getPageId());
-		wrapper.eq(wikiPageComment.getParentId() != null, "parent_id", wikiPageComment.getParentId());
+		wrapper.eq("page_id", pageComment.getPageId());
+		wrapper.eq(pageComment.getParentId() != null, "parent_id", pageComment.getParentId());
 		List<WikiPageComment> authList = wikiPageCommentService.list(wrapper);
 		Map<Long, List<WikiPageComment>> listMap = authList.stream().filter(val -> val.getParentId() != null)
 				.collect(Collectors.groupingBy(WikiPageComment::getParentId));
@@ -56,10 +72,17 @@ public class WikiPageCommentController {
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPageComment pageComment) {
 		Long id = pageComment.getId();
+		
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		WikiPage wikiPageSel = wikiPageService.getById(pageComment.getPageId());
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 私人空间
+		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.warn("您没有该空间的评论权！");
+		}
 		if (id != null && id > 0) {
 			wikiPageCommentService.updateById(pageComment);
 		} else {
-			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			pageComment.setCreateTime(new Date());
 			pageComment.setCreateUserId(currentUser.getUserId());
 			pageComment.setCreateUserName(currentUser.getUsername());

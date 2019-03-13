@@ -38,8 +38,7 @@ public class WikiSpaceController {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		UpdateWrapper<WikiSpace> wrapper = new UpdateWrapper<>();
 		wrapper.eq("del_flag", 0);
-		wrapper.in("type", 1, 2);
-		//wrapper.or().eq("type", 3).eq("create_user_id", currentUser.getUserId());
+		wrapper.and(con -> con.and(conSub -> conSub.eq("type", 3).eq("create_user_id", currentUser.getUserId())).or().in("type", 1, 2));
 		List<WikiSpace> authList = wikiSpaceService.list(wrapper);
 		return DocResponseJson.ok(authList);
 	}
@@ -47,15 +46,19 @@ public class WikiSpaceController {
 	@PostMapping("/update")
 	public ResponseJson<WikiSpace> update(WikiSpace wikiSpace) {
 		Long id = wikiSpace.getId();
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		
 		if (id != null && id > 0) {
 			WikiSpace wikiSpaceSel = wikiSpaceService.getById(id);
 			if (Objects.equals(wikiSpaceSel.getEditType(), 1)) {
 				return DocResponseJson.warn("当前空间不允许编辑！");
 			}
+			if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+				return DocResponseJson.warn("您没有该空间的编辑权！");
+			}
 			wikiSpace.setUuid(null);
 			wikiSpaceService.updateById(wikiSpace);
 		} else {
-			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			wikiSpace.setUuid(RandomUtil.simpleUUID());
 			wikiSpace.setCreateTime(new Date());
 			wikiSpace.setCreateUserId(currentUser.getUserId());

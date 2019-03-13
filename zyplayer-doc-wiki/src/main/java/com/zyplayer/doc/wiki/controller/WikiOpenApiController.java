@@ -3,6 +3,8 @@ package com.zyplayer.doc.wiki.controller;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageContent;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
@@ -47,6 +49,19 @@ public class WikiOpenApiController {
 	WikiPageFileService wikiPageFileService;
 	@Resource
 	Mapper mapper;
+	
+	@PostMapping("/space/info")
+	public ResponseJson<WikiSpace> spaceInfo(String space) {
+		UpdateWrapper<WikiSpace> wrapper = new UpdateWrapper<>();
+		wrapper.eq("uuid", space);
+		wrapper.eq("del_flag", 0);
+		WikiSpace wikiSpace = wikiSpaceService.getOne(wrapper);
+		// 不存在或未开放
+		if (wikiSpace == null || wikiSpace.getOpenDoc() != 1) {
+			return DocResponseJson.warn("未找到该文档");
+		}
+		return DocResponseJson.ok(wikiSpace);
+	}
 	
 	@PostMapping("/page/list")
 	public ResponseJson<List<WikiPageVo>> list(String space) {

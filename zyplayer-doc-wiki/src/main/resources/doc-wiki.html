@@ -176,22 +176,22 @@
 				<el-form-item label="目录加载：">
 					<el-switch v-model="newSpaceForm.treeLazyLoad" inactive-text="预先加载" :inactive-value="0" active-text="延迟加载" :active-value="1"></el-switch>
 				</el-form-item>
-				<!--<el-form-item label="空间类型：">-->
-					<!--<el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%;">-->
-						<!--<el-option :key="1" label="公共空间" :value="1">-->
-							<!--<span style="float: left">公共空间</span>-->
-							<!--<span style="float: right; color: #8492a6; font-size: 13px;">属于公共，登录用户可访问</span>-->
-						<!--</el-option>-->
-						<!--<el-option :key="2" label="个人空间" :value="2">-->
-							<!--<span style="float: left">个人空间</span>-->
-							<!--<span style="float: right; color: #8492a6; font-size: 13px;">属于个人，所有登录用户可访问</span>-->
-						<!--</el-option>-->
-						<!--<el-option :key="3" label="隐私空间" :value="3">-->
-							<!--<span style="float: left">隐私空间</span>-->
-							<!--<span style="float: right; color: #8492a6; font-size: 13px;">属于个人，仅创建者可访问</span>-->
-						<!--</el-option>-->
-					<!--</el-select>-->
-				<!--</el-form-item>-->
+				<el-form-item label="空间类型：">
+					<el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%;">
+						<el-option :key="1" label="公共空间" :value="1">
+							<span style="float: left">公共空间</span>
+							<span style="float: right; color: #8492a6; font-size: 13px;">属于公共，登录用户可访问</span>
+						</el-option>
+						<el-option :key="2" label="个人空间" :value="2">
+							<span style="float: left">个人空间</span>
+							<span style="float: right; color: #8492a6; font-size: 13px;">属于个人，所有登录用户可访问</span>
+						</el-option>
+						<el-option :key="3" label="隐私空间" :value="3">
+							<span style="float: left">隐私空间</span>
+							<span style="float: right; color: #8492a6; font-size: 13px;">属于个人，仅创建者可访问</span>
+						</el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-if="newSpaceForm.id > 0" @click="onNewSpaceSubmit('newSpaceForm')">保存修改</el-button>
 					<el-button type="primary" v-else @click="onNewSpaceSubmit('newSpaceForm')">立即创建</el-button>
@@ -200,14 +200,14 @@
 			</el-form>
 		</el-dialog>
 		<!--管理空间弹窗-->
-		<el-dialog title="管理空间" :visible.sync="manageSpaceDialogVisible" :close-on-click-modal="false">
+		<el-dialog title="管理空间" :visible.sync="manageSpaceDialogVisible" :close-on-click-modal="false" width="80%">
 			<el-table :data="spaceList" border style="width: 100%; margin-bottom: 5px;" max-height="500">
 				<el-table-column prop="id" label="ID" width="60"></el-table-column>
 				<el-table-column prop="name" label="名字"></el-table-column>
 				<el-table-column prop="spaceExplain" label="说明"></el-table-column>
 				<el-table-column label="开放地址">
 					<template slot-scope="scope">
-						<a target="_blank" :href="'open-wiki.html?space='+scope.row.uuid" v-if="scope.row.openDoc == 1">{{scope.row.uuid}}</a>
+						<a target="_blank" :href="'open-wiki.html?space='+scope.row.uuid" v-if="scope.row.openDoc == 1">{{scope.row.name}}</a>
 						<span v-else>暂未开放</span>
 					</template>
 				</el-table-column>
@@ -341,7 +341,7 @@
 		methods: {
 			filterPageNode(value, data) {
 				if (!value) return true;
-				return data.label.indexOf(value) !== -1;
+				return data.name.indexOf(value) !== -1;
 			},
 			editSpaceInfo(row) {
 				app.newSpaceForm = {

@@ -11,8 +11,9 @@
 <body>
 	<div id="app">
 		<el-container style="height: 100%;">
-			<el-aside width="280" style="height: 100%;background-color: #fafafa;">
-				<div style="padding: 0 10px 50px 10px;" v-show="leftCollapse">
+			<el-aside width="280px" style="height: 100%;background-color: #fafafa;" v-show="leftCollapse">
+				<div class="logo">{{nowSpaceShow.name}}</div>
+				<div style="padding: 0 10px 50px 10px;">
 					<el-input v-model="searchKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
 						<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
 					</el-input>
@@ -23,6 +24,7 @@
 							 node-key="id"
 							 style="background-color: #fafafa;">
 					</el-tree>
+					<!--请手下留情-->
 					<div class="build-info">本文档使用<span @click="aboutDialogVisible = true;">zyplayer-doc</span>构建</div>
 				</div>
 			</el-aside>
@@ -40,7 +42,8 @@
 						<div style="max-width: 950px;margin: 0 auto;">
 							<div class="wiki-title">{{wikiPage.name}}</div>
 							<div class="wiki-author">
-								<span><span v-show="wikiPage.updateTime">最后修改：{{wikiPage.updateTime}}</span></span>
+								<span v-show="!wikiPage.updateTime">创建时间：{{wikiPage.createTime}}</span>
+								<span v-show="wikiPage.updateTime">最后修改：{{wikiPage.updateTime}}</span>
 							</div>
 							<div class="wiki-files">
 								<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px;">
@@ -167,13 +170,14 @@
 		},
 		mounted: function () {
 			this.init();
+			this.getSpaceInfo();
 			this.doGetPageList(null);
 			this.initOver = true;
 		},
 		methods: {
 			filterPageNode(value, data) {
 				if (!value) return true;
-				return data.label.indexOf(value) !== -1;
+				return data.name.indexOf(value) !== -1;
 			},
 			notOpen() {
 				Toast.notOpen();
@@ -231,6 +235,14 @@
 					}
 				});
 			},
+			getSpaceInfo() {
+				var param = {space: this.urlParam.space};
+				ajaxTemp("zyplayer-doc-wiki/open-api/space/info", "post", "json", param, function (json) {
+					if (validateResult(json)) {
+						app.nowSpaceShow = json.data;
+					}
+				});
+			},
 			createNodePath(node, nodePath) {
 				if (!nodePath.endsWith("/")) {
 					nodePath += "/";
@@ -281,8 +293,10 @@
 	}
 	.el-tree{margin-right: 3px;}
 	.logo{
-		background: #409EFF; cursor: pointer;
-		width: 100%; height:40px;line-height:40px;font-size: 25px;color: #fff;text-align: center;
+		/*background: #409EFF; cursor: pointer;*/
+		border-bottom: 1px solid #f1f1f1;
+		overflow: hidden;white-space: nowrap;text-overflow: ellipsis; padding: 5px 10px;
+		width: 260px; height:40px;line-height:40px;font-size: 25px;color: #666;text-align: center;
 	}
 	.icon-collapse{float: left;font-size: 25px;color: #aaa;cursor: pointer;position: fixed;}
 	.icon-collapse:hover{color: #ccc;}
@@ -290,7 +304,7 @@
 	.wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
 	.wiki-content{font-size: 14px;}
 	.wiki-content.w-e-text{overflow-y: auto;}
-	
+
 	.upload-page-file .el-upload-list{display: none;}
 	.is-link{color: #1e88e5;cursor: pointer;}
 	/*编辑框高度*/

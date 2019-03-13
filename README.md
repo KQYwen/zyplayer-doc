@@ -1,14 +1,12 @@
 # zyplayer-doc
 
-#### 说明
-1. 本项目暂时只有swagger文档（服务端的接口文档）、dubbo文档、数据库文档（数据库表、字段文档的查看修改）功能
-2. 如果需要类似文件夹、目录类的在线文档、文件管理，访问权限控制，暂时还没有，可以提交Issues或评论说明具体需求，整理需求后开发，已有这方面打算（最近接到比较多的这种需求）
-3. 欢迎加群讨论，QQ群号：466363173
-
 #### 项目介绍
 定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档....等，提供一整套的解决方案，为开发者服务，欢迎有想法的一起来写，给个Star鼓励下呗！（您的一个Star是快速迭代的动力源泉！）
+欢迎加群讨论，QQ群号：466363173
 
-体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/static/manage/home.html) 账号：zyplayer 密码：123456 （未运行dubbo服务，不能体验dubbo文档调试）
+体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/static/manage/home.html) 需登录 账号：zyplayer 密码：123456 （未运行dubbo服务，不能体验dubbo文档调试）
+
+开放文档地址：[http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb](http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) （无需登录）
 
 #### 软件架构
 ##### 一、zyplayer-doc-core 一些核心、公用的类
