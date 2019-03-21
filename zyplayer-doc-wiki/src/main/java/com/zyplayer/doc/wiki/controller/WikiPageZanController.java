@@ -59,7 +59,17 @@ public class WikiPageZanController {
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPageZan wikiPageZan) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		WikiPage wikiPageSel = wikiPageService.getById(wikiPageZan.getPageId());
+		Long id = wikiPageZan.getId();
+		Long pageId;
+		if (id != null && id > 0) {
+			WikiPageZan wikiPageZanSel = wikiPageZanService.getById(id);
+			pageId = wikiPageZanSel.getPageId();
+		} else if (wikiPageZan.getPageId() != null) {
+			pageId = wikiPageZan.getPageId();
+		} else {
+			return DocResponseJson.warn("需指定所属页面！");
+		}
+		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
 		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {

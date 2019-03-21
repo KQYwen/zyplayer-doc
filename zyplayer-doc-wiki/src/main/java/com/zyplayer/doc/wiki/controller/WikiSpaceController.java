@@ -57,6 +57,7 @@ public class WikiSpaceController {
 				return DocResponseJson.warn("您没有该空间的编辑权！");
 			}
 			wikiSpace.setUuid(null);
+			wikiSpace.setEditType(null);
 			wikiSpaceService.updateById(wikiSpace);
 		} else {
 			wikiSpace.setUuid(RandomUtil.simpleUUID());

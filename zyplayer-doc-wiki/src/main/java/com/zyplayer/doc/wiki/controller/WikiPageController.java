@@ -123,6 +123,7 @@ public class WikiPageController {
 			if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
 				return DocResponseJson.warn("当前页面不允许编辑！");
 			}
+			wikiPage.setEditType(null);
 			wikiPage.setUpdateTime(new Date());
 			wikiPage.setUpdateUserId(currentUser.getUserId());
 			wikiPage.setUpdateUserName(currentUser.getUsername());

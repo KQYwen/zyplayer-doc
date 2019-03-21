@@ -54,13 +54,22 @@ public class WikiPageFileController {
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPageFile wikiPageFile) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		WikiPage wikiPageSel = wikiPageService.getById(wikiPageFile.getPageId());
+		Long id = wikiPageFile.getId();
+		Long pageId;
+		if (id != null && id > 0) {
+			WikiPageFile pageFileSel = wikiPageFileService.getById(wikiPageFile.getId());
+			pageId = pageFileSel.getPageId();
+		} else if (wikiPageFile.getPageId() != null) {
+			pageId = wikiPageFile.getPageId();
+		} else {
+			return DocResponseJson.warn("需指定修改文件的所属页面！");
+		}
+		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
 		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有该空间的文件上传权限！");
 		}
-		Long id = wikiPageFile.getId();
 		if (id != null && id > 0) {
 			wikiPageFile.setUpdateUserId(currentUser.getUserId());
 			wikiPageFile.setUpdateUserName(currentUser.getUsername());

@@ -72,9 +72,17 @@ public class WikiPageCommentController {
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPageComment pageComment) {
 		Long id = pageComment.getId();
-		
+		Long pageId;
+		if (id != null && id > 0) {
+			WikiPageComment pageCommentSel = wikiPageCommentService.getById(id);
+			pageId = pageCommentSel.getPageId();
+		} else if (pageComment.getPageId() != null) {
+			pageId = pageComment.getPageId();
+		} else {
+			return DocResponseJson.warn("需指定所属页面！");
+		}
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		WikiPage wikiPageSel = wikiPageService.getById(pageComment.getPageId());
+		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
 		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
