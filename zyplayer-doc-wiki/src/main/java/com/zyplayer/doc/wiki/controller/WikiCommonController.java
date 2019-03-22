@@ -9,6 +9,7 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
+import com.zyplayer.doc.wiki.framework.consts.Const;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.nio.file.Files;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * 文档控制器
@@ -78,7 +79,7 @@ public class WikiCommonController {
 	}
 	
 	@GetMapping("/file")
-	public ResponseJson<Object> file(String uuid, HttpServletResponse response) {
+	public ResponseJson<Object> file(HttpServletResponse response, String uuid) {
 		if (StringUtils.isBlank(uuid)) {
 			return DocResponseJson.warn("请指定文件ID");
 		}
@@ -89,10 +90,14 @@ public class WikiCommonController {
 			return DocResponseJson.warn("未找到指定文件");
 		}
 		try {
-			String fileName = pageFile.getFileName();
+			String fileName = Optional.ofNullable(pageFile.getFileName()).orElse("");
 			File file = new File(pageFile.getFileUrl());
-			String contentType = Files.probeContentType(file.toPath());
-			response.setContentType(contentType);
+			String fileSuffix = "";
+			if (fileName.lastIndexOf(".") >= 0) {
+				fileSuffix = fileName.substring(fileName.lastIndexOf("."));
+			}
+			String mimeStr = Optional.ofNullable(Const.mimeMap.get(fileSuffix)).orElse("text/plain");
+			response.setContentType(mimeStr);
 			response.setHeader("Content-disposition", "inline;filename=" + URLEncoder.encode(fileName, "UTF-8"));
 //			response.setHeader("Content-disposition", "inline;filename=" + fileName);
 //			response.setHeader("Content-Disposition", "inline; fileName=" + fileName + ";filename*=utf-8''" + URLEncoder.encode(fileName, "UTF-8"));

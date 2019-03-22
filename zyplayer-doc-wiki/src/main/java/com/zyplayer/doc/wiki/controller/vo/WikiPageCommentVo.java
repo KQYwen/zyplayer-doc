@@ -5,10 +5,6 @@ import com.zyplayer.doc.data.repository.manage.entity.WikiPageComment;
 import java.util.List;
 
 /**
- * <p>
- *
- * </p>
- *
  * @author 暮光：城中城
  * @since 2019-02-24
  */
