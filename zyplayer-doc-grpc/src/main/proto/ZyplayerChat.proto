@@ -1,0 +1,34 @@
+syntax = "proto3";
+option java_outer_classname = "ChatProto";
+option java_package = "com.zyplayer.doc.grpc.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+package wechat;
+option java_multiple_files = true;
+service ZyplayerChat {
+    // 处理请求
+    rpc sendText (ChatMsg) returns (ChatMsg) {}
+    
+    rpc sendImage (ChatMsg) returns (ChatMsg) {}
+}
+// 完整的grpc结构体
+message ChatMsg {
+    BaseMsg baseMsg = 1;
+    string token = 2;
+    string version = 3;
+    int32 timeStamp = 4;
+    string iP = 5;
+}
+// 请求消息结构体
+message BaseMsg {
+    int32 ret = 1;
+    int32 cmd = 2;
+    User user = 3;
+}
+// 用户结构体
+message User {
+    int64 uin = 1;
+    bytes cookies = 2;
+    bytes sessionKey = 3;
+    bytes nickname = 4;
+}
