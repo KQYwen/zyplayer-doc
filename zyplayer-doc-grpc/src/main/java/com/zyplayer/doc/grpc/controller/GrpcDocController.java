@@ -7,6 +7,7 @@ import com.nxest.grpc.server.GrpcService;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.grpc.controller.po.ColumnInfo;
 import com.zyplayer.doc.grpc.controller.po.GrpcDocInfo;
+import com.zyplayer.doc.grpc.controller.po.GrpcServiceAndColumn;
 import com.zyplayer.doc.grpc.controller.po.MethodParam;
 import com.zyplayer.doc.grpc.framework.config.SpringContextUtil;
 import com.zyplayer.doc.grpc.framework.consts.Const;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -42,14 +44,21 @@ public class GrpcDocController {
 			}
 		}
 		// 找所有的参数列表
+		Map<String, ColumnInfo> columnsMap = new HashMap<>();
 		for (GrpcDocInfo grpcDocInfo : grpcDocInfoList) {
-			ColumnInfo columnInfo = new ColumnInfo();
-			columnInfo.setType(grpcDocInfo.getParamType());
-			List<ColumnInfo> columnInfos = this.findClassColumns(Class.forName(grpcDocInfo.getParamType()));
-			columnInfo.setParam(columnInfos);
-			System.out.println(JSON.toJSONString(columnInfo));
+			String paramType = grpcDocInfo.getParamType();
+			String resultType = grpcDocInfo.getResultType();
+			if (!columnsMap.containsKey(paramType)) {
+				columnsMap.put(paramType, this.findColumnInfo(paramType));
+			}
+			if (!columnsMap.containsKey(resultType)) {
+				columnsMap.put(resultType, this.findColumnInfo(resultType));
+			}
 		}
-		return DocResponseJson.ok(grpcDocInfoList);
+		GrpcServiceAndColumn grpcServiceAndColumn = new GrpcServiceAndColumn();
+		grpcServiceAndColumn.setServiceList(grpcDocInfoList);
+		grpcServiceAndColumn.setColumnMap(columnsMap);
+		return DocResponseJson.ok(grpcServiceAndColumn);
 	}
 	
 	@RequestMapping("/execute")
@@ -70,9 +79,13 @@ public class GrpcDocController {
 		
 		List<MethodParam> setterFunction = this.getSetterFunction(newBuilder.getClass());
 		for (MethodParam methodParam : setterFunction) {
-			Method setName = newBuilder.getClass().getMethod(methodParam.getSetterName(), Class.forName(methodParam.getType()));
-			Object paramObj = paramMap.get(methodParam.getName());
-			newBuilder = setName.invoke(newBuilder, paramObj);
+			if (!Const.BASE_TYPE.contains(methodParam.getType())) {
+				Method setName = newBuilder.getClass().getMethod(methodParam.getSetterName(), Class.forName(methodParam.getType()));
+				Object paramObj = paramMap.get(methodParam.getName());
+				if (paramObj != null) {
+					newBuilder = setName.invoke(newBuilder, paramObj);
+				}
+			}
 		}
 		
 		Method build = newBuilder.getClass().getMethod("build");
@@ -89,9 +102,12 @@ public class GrpcDocController {
 		Method sayHello = blockingStub.getClass().getMethod(grpcDocInfo.getMethod(), Class.forName(grpcDocInfo.getParamType()));
 		Object response = sayHello.invoke(blockingStub, request);
 		
-		Method messageMethod = response.getClass().getMethod("getMessage");
-		Object resultStr = messageMethod.invoke(response);
-		return resultStr.toString();
+//		Method messageMethod = response.getClass().getMethod("getMessage");
+//		Object resultStr = messageMethod.invoke(response);
+//		return resultStr.toString();
+		
+//		return JSON.toJSONString(response);
+		return response.toString();
 	}
 	
 	private String toLowerCaseFirstOne(String str) {
@@ -132,6 +148,18 @@ public class GrpcDocController {
 		return result;
 	}
 	
+	private ColumnInfo findColumnInfo(String paramType) {
+		ColumnInfo columnInfo = new ColumnInfo();
+		try {
+			columnInfo.setType(paramType);
+			List<ColumnInfo> columnInfos = this.findClassColumns(Class.forName(paramType));
+			columnInfo.setParam(columnInfos);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return columnInfo;
+	}
+	
 	private List<ColumnInfo> findClassColumns(Class clazz) throws Exception {
 		Method getMoney = clazz.getMethod("newBuilder");
 		Object newBuilder = getMoney.invoke(clazz);
@@ -141,6 +169,7 @@ public class GrpcDocController {
 		for (MethodParam param : paramList) {
 			ColumnInfo info = new ColumnInfo();
 			info.setType(param.getType());
+			info.setName(param.getName());
 			if (!Const.BASE_TYPE.contains(param.getType())) {
 				List<ColumnInfo> classColumn = this.findClassColumns(Class.forName(param.getType()));
 				info.setParam(classColumn);
