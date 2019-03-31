@@ -227,6 +227,11 @@
 				// 请求相关
 				app.requestResult = "";
 			},
+			columnToJsonString(columns){
+				var param = {};
+				param[columns.name] = columns.type;
+
+			},
 			reloadService(){
 				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/reloadService", "post", "json", {}, function (json) {
 					if (validateResult(json)) {

@@ -151,6 +151,8 @@ public class GrpcDocController {
 	private ColumnInfo findColumnInfo(String paramType) {
 		ColumnInfo columnInfo = new ColumnInfo();
 		try {
+			String paramName = paramType.substring(3);
+			columnInfo.setName(this.toLowerCaseFirstOne(paramName));
 			columnInfo.setType(paramType);
 			List<ColumnInfo> columnInfos = this.findClassColumns(Class.forName(paramType));
 			columnInfo.setParam(columnInfos);
