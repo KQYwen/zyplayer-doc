@@ -173,7 +173,7 @@
 		},
 		mounted: function () {
 			// 无论发布在哪、如何修改源码，请勿删除本行原作者信息，感谢
-			console.log("%c项目信息：\n开发者列表：暮光：城中城\n项目地址：https://gitee.com/zyplayer/zyplayer-doc", "color:red");
+			console.log("%c项目信息：\n项目地址：https://gitee.com/zyplayer/zyplayer-doc", "color:red");
 			this.doGetServiceList();
 		},
 		methods: {
@@ -214,7 +214,7 @@
 				var resultColumn = app.columnMap[grpcInfo.resultType];
 				grpcInfo.method = method;
 				grpcInfo.function = path;
-				grpcInfo.paramColumn = paramColumn || {};
+				grpcInfo.paramColumn = this.columnToJsonString(paramColumn || {});
 				grpcInfo.resultColumn = resultColumn || {};
 				grpcInfo.docInfo = {};
 				// 清空再赋值才会重新渲染
@@ -229,8 +229,24 @@
 			},
 			columnToJsonString(columns){
 				var param = {};
-				param[columns.name] = columns.type;
-
+				if(!!columns.param && columns.param.length > 0) {
+					param[columns.name] = this.columnArrToJsonString(columns.param);
+				} else {
+					param[columns.name] = "";//columns.type;
+				}
+				return param;
+			},
+			columnArrToJsonString(columns) {
+				var param = {};
+				for (var i = 0; i < columns.length; i++) {
+					var item = columns[i];
+					if (!!item.param && item.param.length > 0) {
+						param[item.name] = this.columnArrToJsonString(item.param);
+					} else {
+						param[item.name] = "";//item.type;
+					}
+				}
+				return param;
 			},
 			reloadService(){
 				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/reloadService", "post", "json", {}, function (json) {

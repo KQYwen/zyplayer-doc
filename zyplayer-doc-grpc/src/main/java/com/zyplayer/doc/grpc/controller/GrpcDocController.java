@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -151,7 +153,7 @@ public class GrpcDocController {
 	private ColumnInfo findColumnInfo(String paramType) {
 		ColumnInfo columnInfo = new ColumnInfo();
 		try {
-			String paramName = paramType.substring(3);
+			String paramName = paramType.substring(paramType.lastIndexOf(".") + 1);
 			columnInfo.setName(this.toLowerCaseFirstOne(paramName));
 			columnInfo.setType(paramType);
 			List<ColumnInfo> columnInfos = this.findClassColumns(Class.forName(paramType));
