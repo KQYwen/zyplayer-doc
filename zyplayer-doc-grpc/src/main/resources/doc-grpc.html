@@ -47,10 +47,10 @@
 								</div>
 							</el-form-item>
 							<el-form-item label="参数：">
-								{{dubboInfo.paramColumn}}
+								<div v-html="dubboInfo.paramColumn"></div>
 							</el-form-item>
 							<el-form-item label="返回值：">
-								{{dubboInfo.resultColumn}}
+								<div v-html="dubboInfo.resultColumn"></div>
 							</el-form-item>
 							<el-form-item label="结果：">
 								<div v-if="dubboInfoResultShow">
@@ -74,25 +74,7 @@
 							</el-input>
 							<el-form label-width="100px" label-position="top">
 								<el-form-item label="请求参数：">
-									<el-table :data="docParamRequestList" border style="width: 100%; margin: 10px 0;">
-										<el-table-column label="顺序" width="100">
-											<template slot-scope="scope">{{scope.$index}}</template>
-										</el-table-column>
-										<el-table-column label="参数名">
-											<template slot-scope="scope">{{scope.row.paramName}}</template>
-										</el-table-column>
-										<el-table-column label="类型">
-											<template slot-scope="scope">{{scope.row.paramType}}</template>
-										</el-table-column>
-										<el-table-column label="参数值">
-											<template slot-scope="scope">
-												<el-input v-model="scope.row.paramValue"></el-input>
-											</template>
-										</el-table-column>
-										<el-table-column label="说明">
-											<template slot-scope="scope">{{scope.row.paramDesc}}</template>
-										</el-table-column>
-									</el-table>
+									<el-input type="textarea" :rows="20" placeholder="请求参数" v-model="paramColumnRequest"></el-input>
 								</el-form-item>
 								<el-form-item label="请求结果：">
 									<div v-html="requestResult"></div>
@@ -157,6 +139,7 @@
 				searchKeywords: "",
 				docParamList: [],
 				docParamRequestList: [],
+				paramColumnRequest: "",
 				// 参数类型选项
 				paramTypeOptions: [{
 					value: 'java.lang.String'
@@ -214,9 +197,12 @@
 				var resultColumn = app.columnMap[grpcInfo.resultType];
 				grpcInfo.method = method;
 				grpcInfo.function = path;
-				grpcInfo.paramColumn = this.columnToJsonString(paramColumn || {});
-				grpcInfo.resultColumn = resultColumn || {};
 				grpcInfo.docInfo = {};
+				var paramColumnTemp = this.columnToJsonString(paramColumn || {});
+				app.paramColumnRequest = JSON.stringify(paramColumnTemp, null, 4);
+				grpcInfo.paramColumn = this.processObjectToHtmlPre(paramColumnTemp);
+				var resultColumnTemp = this.columnToJsonString(resultColumn || {});
+				grpcInfo.resultColumn = this.processObjectToHtmlPre(resultColumnTemp);
 				// 清空再赋值才会重新渲染
 				app.dubboInfo = {};
 				app.dubboInfo = grpcInfo;
@@ -230,9 +216,7 @@
 			columnToJsonString(columns){
 				var param = {};
 				if(!!columns.param && columns.param.length > 0) {
-					param[columns.name] = this.columnArrToJsonString(columns.param);
-				} else {
-					param[columns.name] = "";//columns.type;
+					param = this.columnArrToJsonString(columns.param);
 				}
 				return param;
 			},
@@ -344,41 +328,37 @@
 				var fuc = app.dubboInfo.function;
 				var service = fuc.substring(0, fuc.lastIndexOf("."));
 				var method = fuc.substring(fuc.lastIndexOf(".") + 1, fuc.length);
-				var paramTypes = [];
-				var params = [];
-				for (var i = 0; i < app.docParamList.length; i++) {
-					var item = app.docParamList[i];
-					if (isNotEmpty(item.paramType) && isNotEmpty(item.paramValue)) {
-						paramTypes.push(item.paramType);
-						params.push(item.paramValue);
-					}
-				}
+				var paramColumnRequest = JSON.stringify(JSON.parse(app.paramColumnRequest));
 				var param = {
 					service: service,
 					method: method,
-					paramTypes: JSON.stringify(paramTypes),
-					params: "{}",//JSON.stringify(params),
+					params: paramColumnRequest,//JSON.stringify(params),
 				};
 				app.requestResult = "";
 				app.onlineDebugLoading = true;
 				ajaxTemp("zyplayer-doc-grpc/execute", "post", "json", param, function (json) {
 					app.onlineDebugLoading = false;
 					if (json.errCode == 200) {
-						try {
-							app.requestResult = Formatjson.processObjectToHtmlPre(JSON.parse(json.data), 0, false, false, false, false);
-						} catch (e) {
-							try {
-								app.requestResult = Formatjson.processObjectToHtmlPre(json.data, 0, false, false, false, false);
-							} catch (e) {
-								app.requestResult = json.data;
-							}
-						}
+						app.requestResult = app.processObjectToHtmlPre(json.data);
 						var paramsJson = JSON.stringify(app.docParamRequestList);
 						app.doSaveDocInfo(null, paramsJson, null, false);
 					} else {
 						app.requestResult = json;
 					}
 				});
+			},
+			processObjectToHtmlPre(data){
+				var requestResult = "";
+				try {
+					requestResult = Formatjson.processObjectToHtmlPre(JSON.parse(data), 0, false, false, false, false);
+				} catch (e) {
+					try {
+						requestResult = Formatjson.processObjectToHtmlPre(data, 0, false, false, false, false);
+					} catch (e) {
+						requestResult = data;
+					}
+				}
+				return requestResult;
 			}
 		}
 	});

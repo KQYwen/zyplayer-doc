@@ -1,6 +1,7 @@
 package com.zyplayer.doc.grpc.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.nxest.grpc.client.GrpcChannelFactory;
 import com.nxest.grpc.server.GrpcService;
@@ -31,6 +32,8 @@ public class GrpcDocController {
 	
 	@Resource
 	GrpcChannelFactory grpcChannelFactory;
+	private static Map<String, ColumnInfo> allColumnsMap = new HashMap<>();
+	private static Map<String, Object> allBlockingStubMap = new HashMap<>();
 	
 	@RequestMapping("/service")
 	public DocResponseJson service() throws Exception {
@@ -48,14 +51,8 @@ public class GrpcDocController {
 		// 找所有的参数列表
 		Map<String, ColumnInfo> columnsMap = new HashMap<>();
 		for (GrpcDocInfo grpcDocInfo : grpcDocInfoList) {
-			String paramType = grpcDocInfo.getParamType();
-			String resultType = grpcDocInfo.getResultType();
-			if (!columnsMap.containsKey(paramType)) {
-				columnsMap.put(paramType, this.findColumnInfo(paramType));
-			}
-			if (!columnsMap.containsKey(resultType)) {
-				columnsMap.put(resultType, this.findColumnInfo(resultType));
-			}
+			this.setColumnsInfo(grpcDocInfo.getParamType(), columnsMap);
+			this.setColumnsInfo(grpcDocInfo.getResultType(), columnsMap);
 		}
 		GrpcServiceAndColumn grpcServiceAndColumn = new GrpcServiceAndColumn();
 		grpcServiceAndColumn.setServiceList(grpcDocInfoList);
@@ -68,40 +65,48 @@ public class GrpcDocController {
 		List<GrpcDocInfo> grpcDocInfoList = this.getDefinitionByJar(Class.forName(service));
 		String executeResult = "执行失败";
 		if (grpcDocInfoList != null && grpcDocInfoList.size() > 0) {
-			Map<String, Object> paramMap = JSON.parseObject(params, new TypeReference<HashMap<String, Object>>() {});
+			JSONObject paramMap = JSON.parseObject(params);
 			executeResult = this.executeFunction(grpcDocInfoList.get(0), paramMap);
 		}
 		return executeResult;
 	}
 	
-	private String executeFunction(GrpcDocInfo grpcDocInfo, Map<String, Object> paramMap) throws Exception {
-		Class<?> aClass = Class.forName(grpcDocInfo.getParamType());
-		Method getMoney = aClass.getMethod("newBuilder");
-		Object newBuilder = getMoney.invoke(aClass);
-		
-		List<MethodParam> setterFunction = this.getSetterFunction(newBuilder.getClass());
-		for (MethodParam methodParam : setterFunction) {
-			if (!Const.BASE_TYPE.contains(methodParam.getType())) {
-				Method setName = newBuilder.getClass().getMethod(methodParam.getSetterName(), Class.forName(methodParam.getType()));
-				Object paramObj = paramMap.get(methodParam.getName());
-				if (paramObj != null) {
-					newBuilder = setName.invoke(newBuilder, paramObj);
-				}
+	private void setColumnsInfo(String typeName, Map<String, ColumnInfo> columnsMap) {
+		if (!columnsMap.containsKey(typeName)) {
+			if (allColumnsMap.containsKey(typeName)) {
+				columnsMap.put(typeName, allColumnsMap.get(typeName));
+			} else {
+				ColumnInfo columnInfo = this.findColumnInfo(typeName);
+				columnsMap.put(typeName, columnInfo);
+				allColumnsMap.put(typeName, columnInfo);
 			}
 		}
-		
+	}
+	
+	private String executeFunction(GrpcDocInfo grpcDocInfo, JSONObject paramMap) throws Exception {
+		Object newBuilder = this.createParamBuilder(grpcDocInfo.getParamType(), paramMap);
+		if (newBuilder == null) {
+			return "组装参数失败";
+		}
+		// 创建参数对象
 		Method build = newBuilder.getClass().getMethod("build");
 		Object request = build.invoke(newBuilder);
-		
-		Class<?> serviceClass = Class.forName(grpcDocInfo.getService());
-		String serviceSuperName = serviceClass.getSuperclass().getName();
-		String superClassName = serviceSuperName.substring(0, serviceSuperName.indexOf("$"));
-		
-		Class<?> superClass = Class.forName(superClassName);
-		Method newBlockingStubMethod = superClass.getMethod("newBlockingStub", Channel.class);
-		Object blockingStub = newBlockingStubMethod.invoke(null, grpcChannelFactory.createChannel());
-		
+		System.out.println(request.toString());
+		// 为创建过则创建
+		Object blockingStub = allBlockingStubMap.get(grpcDocInfo.getService());
+		if (blockingStub == null) {
+			// 找到父类
+			Class<?> serviceClass = Class.forName(grpcDocInfo.getService());
+			String serviceSuperName = serviceClass.getSuperclass().getName();
+			String superClassName = serviceSuperName.substring(0, serviceSuperName.indexOf("$"));
+			// 注册
+			Class<?> superClass = Class.forName(superClassName);
+			Method newBlockingStubMethod = superClass.getMethod("newBlockingStub", Channel.class);
+			blockingStub = newBlockingStubMethod.invoke(null, grpcChannelFactory.createChannel());
+			allBlockingStubMap.put(grpcDocInfo.getService(), blockingStub);
+		}
 		Method sayHello = blockingStub.getClass().getMethod(grpcDocInfo.getMethod(), Class.forName(grpcDocInfo.getParamType()));
+		// 执行请求
 		Object response = sayHello.invoke(blockingStub, request);
 		
 //		Method messageMethod = response.getClass().getMethod("getMessage");
@@ -110,6 +115,36 @@ public class GrpcDocController {
 		
 //		return JSON.toJSONString(response);
 		return response.toString();
+	}
+	
+	private Object createParamBuilder(String paramType, JSONObject paramMap) {
+		try {
+			Class<?> aClassSub = Class.forName(paramType);
+			Method newBuilderMethod = aClassSub.getMethod("newBuilder");
+			Object newBuilder = newBuilderMethod.invoke(aClassSub);
+			List<MethodParam> functionTemp = this.getSetterFunction(newBuilder.getClass());
+			for (MethodParam paramTemp : functionTemp) {
+				Class<?> baseTypeClass = Const.BASE_TYPE.get(paramTemp.getType());
+				if (baseTypeClass != null) {
+					Method setNameSub = newBuilder.getClass().getMethod(paramTemp.getSetterName(), baseTypeClass);
+					Object paramObjTemp = paramMap.getObject(paramTemp.getName(), baseTypeClass);
+					if (paramObjTemp != null) {
+						newBuilder = setNameSub.invoke(newBuilder, paramObjTemp);
+					}
+				} else {
+					Class<?> typeClassSub = Class.forName(paramTemp.getType());
+					Object newBuilderSub = this.createParamBuilder(paramTemp.getType(), paramMap);
+					Method build = newBuilderSub.getClass().getMethod("build");
+					Object request = build.invoke(newBuilderSub);
+					Method setNameSub = newBuilder.getClass().getMethod(paramTemp.getSetterName(), typeClassSub);
+					newBuilder = setNameSub.invoke(newBuilder, request);
+				}
+			}
+			return newBuilder;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	private String toLowerCaseFirstOne(String str) {
@@ -174,7 +209,7 @@ public class GrpcDocController {
 			ColumnInfo info = new ColumnInfo();
 			info.setType(param.getType());
 			info.setName(param.getName());
-			if (!Const.BASE_TYPE.contains(param.getType())) {
+			if (!Const.BASE_TYPE.containsKey(param.getType())) {
 				List<ColumnInfo> classColumn = this.findClassColumns(Class.forName(param.getType()));
 				info.setParam(classColumn);
 			}
