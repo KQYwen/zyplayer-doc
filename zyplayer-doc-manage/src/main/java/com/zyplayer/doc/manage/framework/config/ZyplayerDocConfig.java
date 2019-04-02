@@ -19,8 +19,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ZyplayerDocConfig {
 
-	@EnableDocGrpc // grpc默认不开启
-	public class enableDocGrpc{}
+//	@EnableDocGrpc // grpc默认不开启
+//	public class enableDocGrpc{}
 	
 	@EnableDocWiki
 	public class enableDocWiki{}
