@@ -6,9 +6,9 @@
 	<!--无论发布在哪、如何修改源码，请勿删除本行原作者信息，感谢-->
 	<meta name="author" content="开发者列表：暮光：城中城，项目地址：https://gitee.com/zyplayer/zyplayer-doc" />
 	<title>grpc文档管理系统</title>
-	<link rel="shortcut icon" href="webjars/doc-grpc/img/dubbo.ico"/>
+	<link rel="shortcut icon" href="webjars/doc-grpc/img/grpc.png"/>
 	<link rel="stylesheet" href="webjars/doc-grpc/css/element-ui.css">
-	<link rel="stylesheet" href="webjars/doc-grpc/css/doc-dubbo.css" />
+	<link rel="stylesheet" href="webjars/doc-grpc/css/doc-grpc.css" />
 </head>
 <body>
 	<div id="app">
@@ -16,7 +16,7 @@
 			<el-aside width="auto" style="height: 100%;">
 				<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-grpc</div>
 				<div style="padding: 10px;">
-					<div align="center"><el-button type="primary" v-on:click="reloadService" icon="el-icon-refresh" style="width: 100%;">重新加载服务列表</el-button></div>
+<!--					<div align="center"><el-button type="primary" v-on:click="reloadService" icon="el-icon-refresh" style="width: 100%;">重新加载服务列表</el-button></div>-->
 					<el-input v-model="searchKeywords" placeholder="搜索文档" style="margin: 10px 0;">
 						<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
 					</el-input>
@@ -26,50 +26,50 @@
 			<el-container>
 				<el-tabs type="border-card" style="width: 100%;">
 					<el-tab-pane label="接口说明">
-						<div v-if="!dubboInfo.service">
+						<div v-if="!grpcInfo.service">
 							请先选择服务
 						</div>
 						<el-form v-else label-width="80px">
 							<el-form-item label="服务：">
-								{{dubboInfo.service}}
+								{{grpcInfo.service}}
 							</el-form-item>
 							<el-form-item label="方法：">
-								{{dubboInfo.method}}
+								{{grpcInfo.method}}
 							</el-form-item>
-							<el-form-item label="说明：">
-								<div v-if="dubboInfoExplainShow">
-									<pre>{{dubboInfo.docInfo.explain}}<el-button @click.prevent="dubboInfoExplainShow = false;" style="float: right;">编辑</el-button></pre>
-								</div>
-								<div v-else>
-									<el-input type="textarea" :rows="4" placeholder="维护人员、使用说明、便于搜索的信息" v-model="docInfoExplainInput"></el-input>
-									<el-button @click.prevent="dubboInfoExplainShow = true;" style="float: right;margin: 5px;">取消</el-button>
-									<el-button type="primary" @click.prevent="saveDocInfoExplain" style="float: right;margin: 5px;">保存</el-button>
-								</div>
-							</el-form-item>
+<!--							<el-form-item label="说明：">-->
+<!--								<div v-if="grpcInfoExplainShow">-->
+<!--									<pre>{{grpcInfo.docInfo.explain}}<el-button @click.prevent="grpcInfoExplainShow = false;" style="float: right;">编辑</el-button></pre>-->
+<!--								</div>-->
+<!--								<div v-else>-->
+<!--									<el-input type="textarea" :rows="4" placeholder="维护人员、使用说明、便于搜索的信息" v-model="docInfoExplainInput"></el-input>-->
+<!--									<el-button @click.prevent="grpcInfoExplainShow = true;" style="float: right;margin: 5px;">取消</el-button>-->
+<!--									<el-button type="primary" @click.prevent="saveDocInfoExplain" style="float: right;margin: 5px;">保存</el-button>-->
+<!--								</div>-->
+<!--							</el-form-item>-->
 							<el-form-item label="参数：">
-								<div v-html="dubboInfo.paramColumn"></div>
+								<div v-html="grpcInfo.paramColumn"></div>
 							</el-form-item>
 							<el-form-item label="返回值：">
-								<div v-html="dubboInfo.resultColumn"></div>
+								<div v-html="grpcInfo.resultColumn"></div>
 							</el-form-item>
-							<el-form-item label="结果：">
-								<div v-if="dubboInfoResultShow">
-									<pre>{{dubboInfo.docInfo.result}}<el-button @click.prevent="dubboInfoResultShow = false;" style="float: right;">编辑</el-button></pre>
-								</div>
-								<div v-else>
-									<el-input type="textarea" :rows="4" placeholder="结果集说明等" v-model="docInfoResultInput"></el-input>
-									<el-button @click.prevent="dubboInfoResultShow = true;" style="float: right;margin: 5px;">取消</el-button>
-									<el-button type="primary" @click.prevent="saveDocInfoResult" style="float: right;margin: 5px;">保存</el-button>
-								</div>
-							</el-form-item>
+<!--							<el-form-item label="结果：">-->
+<!--								<div v-if="grpcInfoResultShow">-->
+<!--									<pre>{{grpcInfo.docInfo.result}}<el-button @click.prevent="grpcInfoResultShow = false;" style="float: right;">编辑</el-button></pre>-->
+<!--								</div>-->
+<!--								<div v-else>-->
+<!--									<el-input type="textarea" :rows="4" placeholder="结果集说明等" v-model="docInfoResultInput"></el-input>-->
+<!--									<el-button @click.prevent="grpcInfoResultShow = true;" style="float: right;margin: 5px;">取消</el-button>-->
+<!--									<el-button type="primary" @click.prevent="saveDocInfoResult" style="float: right;margin: 5px;">保存</el-button>-->
+<!--								</div>-->
+<!--							</el-form-item>-->
 						</el-form>
 					</el-tab-pane>
 					<el-tab-pane label="在线调试">
-						<div v-if="!dubboInfo.service">
+						<div v-if="!grpcInfo.service">
 							请先选择服务
 						</div>
 						<div v-loading="onlineDebugLoading" v-else>
-							<el-input placeholder="请输入内容" v-model="dubboInfo.function" class="input-with-select">
+							<el-input placeholder="请输入内容" v-model="grpcInfo.function" class="input-with-select">
 								<el-button slot="append" @click.prevent="requestExecute">执行</el-button>
 							</el-input>
 							<el-form label-width="100px" label-position="top">
@@ -85,7 +85,7 @@
 				</el-tabs>
 			</el-container>
 		</el-container>
-		<el-dialog title="关于zyplayer-doc-dubbo" :visible.sync="aboutDialogVisible" width="600px">
+		<el-dialog title="关于zyplayer-doc-grpc" :visible.sync="aboutDialogVisible" width="600px">
 			<el-form>
 				<el-form-item label="项目地址：">
 					<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>
@@ -123,10 +123,10 @@
 					label: 'label'
 				},
 				// 展示的信息
-				dubboInfo: {},
-				dubboInfoExplainShow: true,
+				grpcInfo: {},
+				grpcInfoExplainShow: true,
 				docInfoExplainInput: "",
-				dubboInfoResultShow: true,
+				grpcInfoResultShow: true,
 				docInfoResultInput: "",
 				// 请求的IP端口下拉选项
 				requestResult: "",
@@ -170,25 +170,7 @@
 				if (data.children == null) {
 					console.log(data);
 					var path = data.interface;
-					var application = data.application;
-					var docInfo = app.dubboDocMap[path];
 					this.createDocInfo(path, data.method);
-					// if (!!docInfo) {
-					// 	this.createDocInfo(path, data.method);
-					// } else {
-					// 	var service = path.substring(0, path.lastIndexOf("."));
-					// 	var method = path.substring(path.lastIndexOf(".") + 1, path.length);
-					// 	var param = {service: service, method: method, application: application};
-					// 	ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/findDocInfo", "post", "json", param, function (json) {
-					// 		if (validateResult(json)) {
-					// 			if (!!json.data) {
-					// 				app.dubboDocMap[json.data.function] = json.data;
-					// 			}
-					// 			app.createDocInfo(path, method);
-					// 		}
-					// 	});
-					// }
-					//console.log(app.dubboInfo);
 				}
 			},
 			createDocInfo(path, method) {
@@ -204,11 +186,11 @@
 				var resultColumnTemp = this.columnToJsonString(resultColumn || {});
 				grpcInfo.resultColumn = this.processObjectToHtmlPre(resultColumnTemp);
 				// 清空再赋值才会重新渲染
-				app.dubboInfo = {};
-				app.dubboInfo = grpcInfo;
-				// app.docInfoExplainInput = dubboInfo.docInfo.explain;
+				app.grpcInfo = {};
+				app.grpcInfo = grpcInfo;
+				// app.docInfoExplainInput = grpcInfo.docInfo.explain;
 				app.docParamList = [];
-				// app.docParamList = dubboInfo.docInfo.params || [];
+				// app.docParamList = grpcInfo.docInfo.params || [];
 				this.createDocParamRequestList();
 				// 请求相关
 				app.requestResult = "";
@@ -284,11 +266,11 @@
 			},
 			doSaveDocInfo(explain, params, result, showSuccess){
 				var param = {
-					service: app.dubboInfo.interface,
-					method: app.dubboInfo.method,
-					resultType: app.dubboInfo.resultType,
-					paramValue: app.dubboInfo.paramValue,
-					version: app.dubboInfo.docInfo.version || 0,
+					service: app.grpcInfo.interface,
+					method: app.grpcInfo.method,
+					resultType: app.grpcInfo.resultType,
+					paramValue: app.grpcInfo.paramValue,
+					version: app.grpcInfo.docInfo.version || 0,
 					explain: explain,
 					result: result,
 					paramsJson: params,
@@ -296,9 +278,9 @@
 				ajaxTemp("zyplayer-doc-dubbo/doc-dubbo/saveDoc", "post", "json", param, function (json) {
 					if (validateResult(json)) {
 						app.dubboDocMap[json.data.function] = json.data;
-						app.dubboInfo.docInfo = json.data;
-						app.dubboInfoExplainShow = true;
-						app.dubboInfoResultShow = true;
+						app.grpcInfo.docInfo = json.data;
+						app.grpcInfoExplainShow = true;
+						app.grpcInfoResultShow = true;
 						app.docParamList = json.data.params || [];
 						app.createDocParamRequestList();
 						if (showSuccess) {
@@ -325,7 +307,7 @@
 				}
 			},
 			requestExecute() {
-				var fuc = app.dubboInfo.function;
+				var fuc = app.grpcInfo.function;
 				var service = fuc.substring(0, fuc.lastIndexOf("."));
 				var method = fuc.substring(fuc.lastIndexOf(".") + 1, fuc.length);
 				var paramColumnRequest = JSON.stringify(JSON.parse(app.paramColumnRequest));
@@ -340,8 +322,8 @@
 					app.onlineDebugLoading = false;
 					if (json.errCode == 200) {
 						app.requestResult = app.processObjectToHtmlPre(json.data);
-						var paramsJson = JSON.stringify(app.docParamRequestList);
-						app.doSaveDocInfo(null, paramsJson, null, false);
+						//var paramsJson = JSON.stringify(app.docParamRequestList);
+						//app.doSaveDocInfo(null, paramsJson, null, false);
 					} else {
 						app.requestResult = json;
 					}
@@ -386,7 +368,7 @@
 		height: calc(100vh - 100px);overflow-y: auto;
 	}
 	.logo{
-		background: linear-gradient(-90deg, #03DDE4 0%, #30AFED 51%, #8755FF 100%); cursor: pointer;
+		background: url("webjars/doc-grpc/img/grpc-bg.png") no-repeat; cursor: pointer;
 		width: 100%; height:60px;line-height:60px;font-size: 25px;color: #fff;text-align: center;
 	}
 </style>

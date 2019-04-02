@@ -7,9 +7,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @Author
- * @Date 2018/11/11
- **/
+ * 开启zyplayer-doc-db服务
+ *
+ * @author 暮光：城中城
+ * @since 2018年11月11日
+ */
 @EnableDocDb
 @Configuration
 public class DocDatabaseRegistrationConfig {

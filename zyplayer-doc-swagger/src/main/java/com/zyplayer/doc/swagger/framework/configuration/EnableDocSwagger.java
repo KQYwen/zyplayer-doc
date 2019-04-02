@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target(value = {java.lang.annotation.ElementType.TYPE})
 @Documented
 @Import({SwaggerCommonConfiguration.class, SpringContextUtil.class, ZyplayerProxyFilter.class})
-public @interface EnableSwaggerMgUi {
+public @interface EnableDocSwagger {
 	
 	/**
 	 * 是否自动把自身的swagger-resources加进来

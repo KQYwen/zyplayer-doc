@@ -12,21 +12,24 @@ import java.util.Map;
 
 /**
  * context工具类
+ *
+ * @author 暮光：城中城
+ * @since 2019年3月31日
  */
 @Component
 public class SpringContextUtil implements ApplicationContextAware {
 	
 	public static ApplicationContext context;
-
+	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		context = applicationContext;
 	}
-
+	
 	public static ApplicationContext getApplicationContext() {
 		return context;
 	}
-
+	
 	public static <T> T getBean(Class<T> clz) {
 		return context.getBean(clz);
 	}
@@ -37,15 +40,16 @@ public class SpringContextUtil implements ApplicationContextAware {
 	
 	/**
 	 * 获取类
+	 *
 	 * @param annotationType annotation
 	 * @return 类对象
 	 */
-    public static List<Object> getBeanWithAnnotation(Class<? extends Annotation> annotationType) {
-        if (context == null) {
-            return null;
-        }
-        Map<String, Object> beansWithAnnotation = context.getBeansWithAnnotation(annotationType);
-        return new LinkedList<>(beansWithAnnotation.values());
-    }
+	public static List<Object> getBeanWithAnnotation(Class<? extends Annotation> annotationType) {
+		if (context == null) {
+			return null;
+		}
+		Map<String, Object> beansWithAnnotation = context.getBeansWithAnnotation(annotationType);
+		return new LinkedList<>(beansWithAnnotation.values());
+	}
 }
 

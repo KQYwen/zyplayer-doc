@@ -5,6 +5,12 @@ import com.nxest.grpc.server.configure.GrpcServerProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * grpc配置文件
+ *
+ * @author 暮光：城中城
+ * @since 2019年3月31日
+ */
 @Configuration
 @ConfigurationProperties(prefix = "grpc")
 public class GrpcProperties {

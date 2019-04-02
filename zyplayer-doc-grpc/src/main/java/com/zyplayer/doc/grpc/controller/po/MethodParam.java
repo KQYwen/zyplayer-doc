@@ -1,5 +1,11 @@
 package com.zyplayer.doc.grpc.controller.po;
 
+/**
+ * grpc方法信息
+ *
+ * @author 暮光：城中城
+ * @since 2019年3月31日
+ */
 public class MethodParam {
 	private String name;
 	private String type;

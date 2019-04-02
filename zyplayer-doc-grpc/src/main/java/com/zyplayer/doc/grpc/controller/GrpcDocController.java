@@ -2,9 +2,10 @@ package com.zyplayer.doc.grpc.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
+import com.google.protobuf.ByteString;
 import com.nxest.grpc.client.GrpcChannelFactory;
 import com.nxest.grpc.server.GrpcService;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.grpc.controller.po.ColumnInfo;
 import com.zyplayer.doc.grpc.controller.po.GrpcDocInfo;
@@ -26,6 +27,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * grpc文档控制器
+ *
+ * @author 暮光：城中城
+ * @since 2019年3月31日
+ */
 @RestController
 @RequestMapping("/zyplayer-doc-grpc")
 public class GrpcDocController {
@@ -35,15 +42,21 @@ public class GrpcDocController {
 	private static Map<String, ColumnInfo> allColumnsMap = new HashMap<>();
 	private static Map<String, Object> allBlockingStubMap = new HashMap<>();
 	
+	/**
+	 * 查找所有文档
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
 	@RequestMapping("/service")
-	public DocResponseJson service() throws Exception {
+	public DocResponseJson service() {
 		List<Object> grpcServiceList = SpringContextUtil.getBeanWithAnnotation(GrpcService.class);
 		if (grpcServiceList == null || grpcServiceList.size() <= 0) {
 			return DocResponseJson.ok();
 		}
 		List<GrpcDocInfo> grpcDocInfoList = new LinkedList<>();
 		for (Object service : grpcServiceList) {
-			List<GrpcDocInfo> infoList = this.getDefinitionByJar(service.getClass());
+			List<GrpcDocInfo> infoList = this.getServiceInfoByJar(service.getClass());
 			if (infoList != null) {
 				grpcDocInfoList.addAll(infoList);
 			}
@@ -60,17 +73,29 @@ public class GrpcDocController {
 		return DocResponseJson.ok(grpcServiceAndColumn);
 	}
 	
+	/**
+	 * 执行grpc请求
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
 	@RequestMapping("/execute")
-	public String execute(String service, String params) throws Exception {
-		List<GrpcDocInfo> grpcDocInfoList = this.getDefinitionByJar(Class.forName(service));
-		String executeResult = "执行失败";
+	public DocResponseJson execute(String service, String params) throws Exception {
+		List<GrpcDocInfo> grpcDocInfoList = this.getServiceInfoByJar(Class.forName(service));
+		JSONObject executeResult = null;
 		if (grpcDocInfoList != null && grpcDocInfoList.size() > 0) {
 			JSONObject paramMap = JSON.parseObject(params);
 			executeResult = this.executeFunction(grpcDocInfoList.get(0), paramMap);
 		}
-		return executeResult;
+		return DocResponseJson.ok(executeResult);
 	}
 	
+	/**
+	 * 设置字段信息到map
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
 	private void setColumnsInfo(String typeName, Map<String, ColumnInfo> columnsMap) {
 		if (!columnsMap.containsKey(typeName)) {
 			if (allColumnsMap.containsKey(typeName)) {
@@ -83,10 +108,16 @@ public class GrpcDocController {
 		}
 	}
 	
-	private String executeFunction(GrpcDocInfo grpcDocInfo, JSONObject paramMap) throws Exception {
+	/**
+	 * 执行grpc方法
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
+	private JSONObject executeFunction(GrpcDocInfo grpcDocInfo, JSONObject paramMap) throws Exception {
 		Object newBuilder = this.createParamBuilder(grpcDocInfo.getParamType(), paramMap);
 		if (newBuilder == null) {
-			return "组装参数失败";
+			throw new ConfirmException("参数组装失败");
 		}
 		// 创建参数对象
 		Method build = newBuilder.getClass().getMethod("build");
@@ -108,15 +139,42 @@ public class GrpcDocController {
 		Method sayHello = blockingStub.getClass().getMethod(grpcDocInfo.getMethod(), Class.forName(grpcDocInfo.getParamType()));
 		// 执行请求
 		Object response = sayHello.invoke(blockingStub, request);
-		
-//		Method messageMethod = response.getClass().getMethod("getMessage");
-//		Object resultStr = messageMethod.invoke(response);
-//		return resultStr.toString();
-		
-//		return JSON.toJSONString(response);
-		return response.toString();
+		List<ColumnInfo> columnInfos = this.findClassColumns(response.getClass());
+		return this.protobufToJson(response, columnInfos);
 	}
 	
+	/**
+	 * grpc对象转json字符串
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
+	private JSONObject protobufToJson(Object response, List<ColumnInfo> columnInfos) throws Exception {
+		JSONObject jsonObject = new JSONObject();
+		for (ColumnInfo columnInfo : columnInfos) {
+			Method getMethod = response.getClass().getMethod("get" + this.toUpperCaseFirstOne(columnInfo.getName()));
+			Object paramValue = getMethod.invoke(response);
+			if (columnInfo.getParam() != null && columnInfo.getParam().size() > 0) {
+				JSONObject jsonObjectSub = this.protobufToJson(paramValue, columnInfo.getParam());
+				jsonObject.put(columnInfo.getName(), jsonObjectSub);
+			} else {
+				if ("com.google.protobuf.ByteString".equals(columnInfo.getType())) {
+					ByteString byteString = (ByteString) paramValue;
+					jsonObject.put(columnInfo.getName(), byteString.toStringUtf8());
+				} else {
+					jsonObject.put(columnInfo.getName(), paramValue);
+				}
+			}
+		}
+		return jsonObject;
+	}
+	
+	/**
+	 * 创建参数的builder对象
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
 	private Object createParamBuilder(String paramType, JSONObject paramMap) {
 		try {
 			Class<?> aClassSub = Class.forName(paramType);
@@ -127,13 +185,24 @@ public class GrpcDocController {
 				Class<?> baseTypeClass = Const.BASE_TYPE.get(paramTemp.getType());
 				if (baseTypeClass != null) {
 					Method setNameSub = newBuilder.getClass().getMethod(paramTemp.getSetterName(), baseTypeClass);
-					Object paramObjTemp = paramMap.getObject(paramTemp.getName(), baseTypeClass);
+					Object paramObjTemp;
+					// 特殊类型参数处理
+					if ("com.google.protobuf.ByteString".equals(paramTemp.getType())) {
+						String stringValue = paramMap.getString(paramTemp.getName());
+						paramObjTemp = ByteString.copyFrom(stringValue, "UTF-8");
+					} else {
+						paramObjTemp = paramMap.getObject(paramTemp.getName(), baseTypeClass);
+					}
+					// 不为空则设置参数值
 					if (paramObjTemp != null) {
 						newBuilder = setNameSub.invoke(newBuilder, paramObjTemp);
 					}
 				} else {
 					Class<?> typeClassSub = Class.forName(paramTemp.getType());
-					Object newBuilderSub = this.createParamBuilder(paramTemp.getType(), paramMap);
+					Object newBuilderSub = this.createParamBuilder(paramTemp.getType(), paramMap.getJSONObject(paramTemp.getName()));
+					if (newBuilderSub == null) {
+						return null;
+					}
 					Method build = newBuilderSub.getClass().getMethod("build");
 					Object request = build.invoke(newBuilderSub);
 					Method setNameSub = newBuilder.getClass().getMethod(paramTemp.getSetterName(), typeClassSub);
@@ -147,6 +216,12 @@ public class GrpcDocController {
 		return null;
 	}
 	
+	/**
+	 * 首字母小写
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
 	private String toLowerCaseFirstOne(String str) {
 		if (Character.isLowerCase(str.charAt(0))) {
 			return str;
@@ -155,6 +230,26 @@ public class GrpcDocController {
 		}
 	}
 	
+	/**
+	 * 首字母大写
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
+	private String toUpperCaseFirstOne(String str) {
+		if (Character.isUpperCase(str.charAt(0))) {
+			return str;
+		} else {
+			return Character.toUpperCase(str.charAt(0)) + str.substring(1);
+		}
+	}
+	
+	/**
+	 * 找到所有的setter方法
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
 	private List<MethodParam> getSetterFunction(Class clazz) {
 		List<MethodParam> result = new LinkedList<>();
 		Method[] methods = clazz.getDeclaredMethods();
@@ -181,10 +276,16 @@ public class GrpcDocController {
 			}
 			nameSb.append(methodName).append(",");
 		}
-		System.out.println(nameSb);
+		//System.out.println(nameSb);
 		return result;
 	}
 	
+	/**
+	 * 找到所有的字段信息
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
 	private ColumnInfo findColumnInfo(String paramType) {
 		ColumnInfo columnInfo = new ColumnInfo();
 		try {
@@ -199,6 +300,12 @@ public class GrpcDocController {
 		return columnInfo;
 	}
 	
+	/**
+	 * 找到所有的字段信息
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
 	private List<ColumnInfo> findClassColumns(Class clazz) throws Exception {
 		Method getMoney = clazz.getMethod("newBuilder");
 		Object newBuilder = getMoney.invoke(clazz);
@@ -218,7 +325,13 @@ public class GrpcDocController {
 		return subInfoList;
 	}
 	
-	private List<GrpcDocInfo> getDefinitionByJar(Class clazz) {
+	/**
+	 * 找到服务，组装方法、参数和返回值等
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年3月31日
+	 */
+	private List<GrpcDocInfo> getServiceInfoByJar(Class clazz) {
 		List<GrpcDocInfo> providerList = new LinkedList<>();
 		try {
 			Method[] methods = clazz.getDeclaredMethods();

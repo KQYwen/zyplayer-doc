@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 请求参数对象
+ * 服务和字段信息
  *
  * @author 暮光：城中城
  * @since 2019年2月10日

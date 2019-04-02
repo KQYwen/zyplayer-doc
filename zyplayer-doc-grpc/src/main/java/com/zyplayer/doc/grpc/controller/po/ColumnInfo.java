@@ -2,6 +2,12 @@ package com.zyplayer.doc.grpc.controller.po;
 
 import java.util.List;
 
+/**
+ * grpc字段信息
+ *
+ * @author 暮光：城中城
+ * @since 2019年3月31日
+ */
 public class ColumnInfo {
 	private String name;
 	private String type;

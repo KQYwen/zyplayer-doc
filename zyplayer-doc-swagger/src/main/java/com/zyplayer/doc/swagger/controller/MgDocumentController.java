@@ -7,7 +7,7 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.swagger.controller.vo.LocationListVo;
 import com.zyplayer.doc.swagger.controller.vo.SwaggerLocationVo;
 import com.zyplayer.doc.swagger.controller.vo.SwaggerResourcesInfoVo;
-import com.zyplayer.doc.swagger.framework.configuration.EnableSwaggerMgUi;
+import com.zyplayer.doc.swagger.framework.configuration.EnableDocSwagger;
 import com.zyplayer.doc.swagger.framework.configuration.SpringContextUtil;
 import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
 import com.zyplayer.doc.swagger.framework.service.MgStorageService;
@@ -83,7 +83,7 @@ public class MgDocumentController {
 					+ ":" + request.getServerPort() // 端口号
 					+ request.getContextPath();
 			// 是否加入自身的文档
-			EnableSwaggerMgUi swaggerMgUi = SpringContextUtil.getEnableSwaggerMgUi();
+			EnableDocSwagger swaggerMgUi = SpringContextUtil.getEnableSwaggerMgUi();
 			if (swaggerMgUi == null) {
 				resourcesSet.add(new SwaggerResourcesInfoVo(serverPath + "/swagger-resources"));
 			} else {
@@ -194,21 +194,21 @@ public class MgDocumentController {
 //					+ ":" + request.getServerPort() // 端口号
 //					+ request.getContextPath();
 //			// 是否加入自身的文档
-//			Object enableSwaggerMgUi = SpringContextUtil.getBeanWithAnnotation(EnableSwaggerMgUi.class);
+//			Object enableSwaggerMgUi = SpringContextUtil.getBeanWithAnnotation(EnableDocSwagger.class);
 //			if (enableSwaggerMgUi != null) {
-//				EnableSwaggerMgUi swaggerMgUi = enableSwaggerMgUi.getClass().getAnnotation(EnableSwaggerMgUi.class);
+//				EnableDocSwagger swaggerMgUi = enableSwaggerMgUi.getClass().getAnnotation(EnableDocSwagger.class);
 //				if (swaggerMgUi == null) {
 //					// 直接通过superclass去找
 //					Class<?> superclass = enableSwaggerMgUi.getClass().getSuperclass();
 //					if (superclass != null) {
-//						swaggerMgUi = superclass.getAnnotation(EnableSwaggerMgUi.class);
+//						swaggerMgUi = superclass.getAnnotation(EnableDocSwagger.class);
 //					}
 //				}
 //				if (swaggerMgUi == null) {
 //					// 再通过AopUtils去找
 //					Class<?> targetClass = AopUtils.getTargetClass(enableSwaggerMgUi);
 //					if (targetClass != null) {
-//						swaggerMgUi = targetClass.getAnnotation(EnableSwaggerMgUi.class);
+//						swaggerMgUi = targetClass.getAnnotation(EnableDocSwagger.class);
 //					}
 //				}
 //				if (swaggerMgUi == null) {

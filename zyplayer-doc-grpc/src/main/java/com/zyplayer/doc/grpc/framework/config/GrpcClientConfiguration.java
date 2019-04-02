@@ -9,6 +9,12 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
 
+/**
+ * grpc配置
+ *
+ * @author 暮光：城中城
+ * @since 2019年3月31日
+ */
 @Configuration
 @AutoConfigureAfter(GrpcServerConfiguration.class)
 public class GrpcClientConfiguration {

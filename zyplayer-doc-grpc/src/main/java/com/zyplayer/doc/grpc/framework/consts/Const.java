@@ -5,8 +5,13 @@ import com.google.protobuf.ByteString;
 import java.math.BigDecimal;
 import java.util.*;
 
+/**
+ * @author 暮光：城中城
+ * @since 2019年3月31日
+ */
 public class Const {
 	
+	/** 所有基础类型 */
 	public static final Map<String, Class<?>> BASE_TYPE;
 	static {
 		BASE_TYPE = new HashMap<>();
