@@ -1,14 +1,14 @@
 package com.zyplayer.doc.db.framework.configuration;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-@Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target(value = { java.lang.annotation.ElementType.TYPE })
+import java.lang.annotation.*;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Configuration
 @ComponentScan(basePackages = {
 	"com.zyplayer.doc.db",
 })

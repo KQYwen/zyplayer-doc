@@ -1,17 +1,17 @@
 package com.zyplayer.doc.swagger.framework.configuration;
 
 import com.zyplayer.doc.swagger.framework.filter.ZyplayerProxyFilter;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
-@Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target(value = {java.lang.annotation.ElementType.TYPE})
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Configuration
 @Import({SwaggerCommonConfiguration.class, SpringContextUtil.class, ZyplayerProxyFilter.class})
-public @interface EnableSwaggerMgUi {
+public @interface EnableDocSwagger {
 	
 	/**
 	 * 是否自动把自身的swagger-resources加进来

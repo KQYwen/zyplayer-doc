@@ -25,5 +25,6 @@
 		<module>zyplayer-doc-dubbo</module>
 		<module>zyplayer-doc-wiki</module>
 		<module>zyplayer-doc-data</module>
+		<module>zyplayer-doc-grpc</module>
 	</modules>
 </project>

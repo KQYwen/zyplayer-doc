@@ -16,7 +16,7 @@ import java.util.Map;
 public class SpringContextUtil implements ApplicationContextAware {
 	
 	public static ApplicationContext context;
-	private static EnableSwaggerMgUi ENABLE_SWAGGER_MG_UI;
+	private static EnableDocSwagger ENABLE_SWAGGER_MG_UI;
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -58,25 +58,25 @@ public class SpringContextUtil implements ApplicationContextAware {
 	 * @since 2019/1/29 12:58
 	 * @return EnableSwaggerMgUi注解对象
 	**/
-	public static EnableSwaggerMgUi getEnableSwaggerMgUi() {
+	public static EnableDocSwagger getEnableSwaggerMgUi() {
 		if (ENABLE_SWAGGER_MG_UI != null) {
 			return ENABLE_SWAGGER_MG_UI;
 		}
-		Object annotation = SpringContextUtil.getBeanWithAnnotation(EnableSwaggerMgUi.class);
+		Object annotation = SpringContextUtil.getBeanWithAnnotation(EnableDocSwagger.class);
 		if (annotation != null) {
-			EnableSwaggerMgUi swaggerMgUi = annotation.getClass().getAnnotation(EnableSwaggerMgUi.class);
+			EnableDocSwagger swaggerMgUi = annotation.getClass().getAnnotation(EnableDocSwagger.class);
 			if (swaggerMgUi == null) {
 				// 直接通过superclass去找
 				Class<?> superclass = annotation.getClass().getSuperclass();
 				if (superclass != null) {
-					swaggerMgUi = superclass.getAnnotation(EnableSwaggerMgUi.class);
+					swaggerMgUi = superclass.getAnnotation(EnableDocSwagger.class);
 				}
 			}
 			if (swaggerMgUi == null) {
 				// 再通过AopUtils去找
 				Class<?> targetClass = AopUtils.getTargetClass(annotation);
 				if (targetClass != null) {
-					swaggerMgUi = targetClass.getAnnotation(EnableSwaggerMgUi.class);
+					swaggerMgUi = targetClass.getAnnotation(EnableDocSwagger.class);
 				}
 			}
 			if (swaggerMgUi != null) {

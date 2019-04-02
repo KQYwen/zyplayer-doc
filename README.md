@@ -28,19 +28,23 @@
 > 支持zookeeper、nacos的注册中心文档获取，支持在线调试接口
 
 ##### 六、zyplayer-doc-wiki wiki文档工具
-> 暂时处于开发阶段，暂不能使用
-> 目标是支持文档创建、展示，文件上传、下载，空间隔离，页面权限控制等
+> 支持文档创建、展示，文件上传、下载，空间隔离，开放文档访问等
+
+##### 七、zyplayer-doc-grpc grpc文档工具
+> 用比较变态的方式实现了grpc的文档和在线调试功能，通过http的方式来请求grpc的接口
+
+> 默认未开启此功能，如需使用需要在zyplayer-doc-manage项目中开启@EnableDocGrpc注解
 
 #### 运行方式
 
-1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.sql)
+1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.1.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.1.sql)
 
 2. 修改zyplayer-doc-manage项目的application.yml配置文件里面的数据库账号密码
 
 3. 启动zyplayer-doc-manage项目，访问地址：
 http://127.0.0.1:8082/zyplayer-doc-manage/static/manage/home.html
 未登录会进入登录页面，登陆后自动跳回，默认账号：zyplayer 密码:123456
-> 项目页面全是静态的html，如果使用idea启动，有可能访问不了静态页面，需要在这里配置下工作目录，然后重新启动即可
+> 注意！！项目页面全是静态的html，如果使用idea启动，有可能访问不了静态页面，需要在这里配置下工作目录，然后重新启动即可
 ![](https://images.gitee.com/uploads/images/2019/0127/222951_4ce343fe_596905.png "配置工作目录")
 
 #### 功能介绍
