@@ -9,6 +9,7 @@ package com.zyplayer.doc.grpc.controller.po;
 public class GrpcDocInfo {
 	private String method;
 	private String service;
+	private String docService;
 	private String explain;
 	private String result;
 	private String paramType;
@@ -69,5 +70,13 @@ public class GrpcDocInfo {
 	
 	public void setMethod(String method) {
 		this.method = method;
+	}
+	
+	public String getDocService() {
+		return docService;
+	}
+	
+	public void setDocService(String docService) {
+		this.docService = docService;
 	}
 }

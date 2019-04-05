@@ -11,13 +11,23 @@ import com.zyplayer.doc.grpc.controller.po.ColumnInfo;
 import com.zyplayer.doc.grpc.controller.po.GrpcDocInfo;
 import com.zyplayer.doc.grpc.controller.po.GrpcServiceAndColumn;
 import com.zyplayer.doc.grpc.controller.po.MethodParam;
+import com.zyplayer.doc.grpc.framework.config.DocGrpcContext;
+import com.zyplayer.doc.grpc.framework.config.DocGrpcService;
 import com.zyplayer.doc.grpc.framework.config.SpringContextUtil;
 import com.zyplayer.doc.grpc.framework.consts.Const;
 import io.grpc.Channel;
+import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
+import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.stub.AbstractStub;
+import io.grpc.stub.MetadataUtils;
+import io.netty.handler.ssl.SslContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -37,8 +47,9 @@ import java.util.regex.Pattern;
 @RequestMapping("/zyplayer-doc-grpc")
 public class GrpcDocController {
 	
-	@Resource
-	GrpcChannelFactory grpcChannelFactory;
+	@Autowired(required = false)
+	DocGrpcContext docGrpcContext;
+	
 	private static Map<String, ColumnInfo> allColumnsMap = new HashMap<>();
 	private static Map<String, Object> allBlockingStubMap = new HashMap<>();
 	
@@ -50,7 +61,7 @@ public class GrpcDocController {
 	 */
 	@RequestMapping("/service")
 	public DocResponseJson service() {
-		List<Object> grpcServiceList = SpringContextUtil.getBeanWithAnnotation(GrpcService.class);
+		List<Object> grpcServiceList = SpringContextUtil.getBeanWithAnnotation(DocGrpcService.class);
 		if (grpcServiceList == null || grpcServiceList.size() <= 0) {
 			return DocResponseJson.ok();
 		}
@@ -80,12 +91,17 @@ public class GrpcDocController {
 	 * @since 2019年3月31日
 	 */
 	@RequestMapping("/execute")
-	public DocResponseJson execute(String service, String params) throws Exception {
-		List<GrpcDocInfo> grpcDocInfoList = this.getServiceInfoByJar(Class.forName(service));
+	public DocResponseJson execute(String docService, String params) throws Exception {
+		List<GrpcDocInfo> grpcDocInfoList = this.getServiceInfoByJar(Class.forName(docService));
 		JSONObject executeResult = null;
 		if (grpcDocInfoList != null && grpcDocInfoList.size() > 0) {
 			JSONObject paramMap = JSON.parseObject(params);
-			executeResult = this.executeFunction(grpcDocInfoList.get(0), paramMap);
+			try {
+				executeResult = this.executeFunction(grpcDocInfoList.get(0), paramMap);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return DocResponseJson.warn("执行方法失败");
+			}
 		}
 		return DocResponseJson.ok(executeResult);
 	}
@@ -119,6 +135,9 @@ public class GrpcDocController {
 		if (newBuilder == null) {
 			throw new ConfirmException("参数组装失败");
 		}
+		if (docGrpcContext == null) {
+			throw new ConfirmException("注入grpc服务失败");
+		}
 		// 创建参数对象
 		Method build = newBuilder.getClass().getMethod("build");
 		Object request = build.invoke(newBuilder);
@@ -127,13 +146,24 @@ public class GrpcDocController {
 		Object blockingStub = allBlockingStubMap.get(grpcDocInfo.getService());
 		if (blockingStub == null) {
 			// 找到父类
-			Class<?> serviceClass = Class.forName(grpcDocInfo.getService());
-			String serviceSuperName = serviceClass.getSuperclass().getName();
+//			Class<?> serviceClass = Class.forName(grpcDocInfo.getService());
+//			String serviceSuperName = serviceClass.getSuperclass().getName();
+			String serviceSuperName = grpcDocInfo.getService();
+			int index = serviceSuperName.lastIndexOf(".");
+			serviceSuperName = serviceSuperName.substring(0, index) + "$" + serviceSuperName.substring(index + 1);
 			String superClassName = serviceSuperName.substring(0, serviceSuperName.indexOf("$"));
 			// 注册
 			Class<?> superClass = Class.forName(superClassName);
 			Method newBlockingStubMethod = superClass.getMethod("newBlockingStub", Channel.class);
-			blockingStub = newBlockingStubMethod.invoke(null, grpcChannelFactory.createChannel());
+			SslContext sslContext = docGrpcContext.getSslContext();
+			ManagedChannel channel = NettyChannelBuilder.forAddress(docGrpcContext.getHost(), docGrpcContext.getPort())
+					.sslContext(sslContext)
+					.build();
+			blockingStub = newBlockingStubMethod.invoke(null, channel);
+			Metadata metadata = docGrpcContext.getMetadata();
+			if (metadata != null) {
+				blockingStub = MetadataUtils.attachHeaders((AbstractStub) blockingStub, metadata);
+			}
 			allBlockingStubMap.put(grpcDocInfo.getService(), blockingStub);
 		}
 		Method sayHello = blockingStub.getClass().getMethod(grpcDocInfo.getMethod(), Class.forName(grpcDocInfo.getParamType()));
@@ -250,7 +280,7 @@ public class GrpcDocController {
 	 * @author 暮光：城中城
 	 * @since 2019年3月31日
 	 */
-	private List<MethodParam> getSetterFunction(Class clazz) {
+	private List<MethodParam> getSetterFunction(Class<?> clazz) {
 		List<MethodParam> result = new LinkedList<>();
 		Method[] methods = clazz.getDeclaredMethods();
 		StringBuilder nameSb = new StringBuilder();
@@ -306,7 +336,7 @@ public class GrpcDocController {
 	 * @author 暮光：城中城
 	 * @since 2019年3月31日
 	 */
-	private List<ColumnInfo> findClassColumns(Class clazz) throws Exception {
+	private List<ColumnInfo> findClassColumns(Class<?> clazz) throws Exception {
 		Method getMoney = clazz.getMethod("newBuilder");
 		Object newBuilder = getMoney.invoke(clazz);
 		
@@ -331,7 +361,7 @@ public class GrpcDocController {
 	 * @author 暮光：城中城
 	 * @since 2019年3月31日
 	 */
-	private List<GrpcDocInfo> getServiceInfoByJar(Class clazz) {
+	private List<GrpcDocInfo> getServiceInfoByJar(Class<?> clazz) {
 		List<GrpcDocInfo> providerList = new LinkedList<>();
 		try {
 			Method[] methods = clazz.getDeclaredMethods();
@@ -353,13 +383,20 @@ public class GrpcDocController {
 					}
 				}
 				GrpcDocInfo grpcDocInfo = new GrpcDocInfo();
+				DocGrpcService annotation = clazz.getAnnotation(DocGrpcService.class);
+				if (annotation != null) {
+					grpcDocInfo.setService(annotation.service());
+				} else {
+					grpcDocInfo.setService(clazz.getName());
+				}
+				grpcDocInfo.setDocService(clazz.getName());
 				grpcDocInfo.setMethod(methodName);
-				grpcDocInfo.setService(clazz.getName());
 				grpcDocInfo.setParamType(paramType);
 				grpcDocInfo.setResultType(resultType);
 				providerList.add(grpcDocInfo);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 		return providerList;

@@ -26,7 +26,7 @@ var Formatjson = {
 			if (obj.length == 0) {
 				html += this.getRow(indent, "<span class='array-brace'>[ ]</span>" + comma, isPropertyContent);
 			} else {
-				var clpsHtml = '<span><img class="option-img" src="webjars/doc-dubbo/img/expanded.png" onClick="Formatjson.expImgClicked(this);" /></span><span class="collapsible">';
+				var clpsHtml = '<span><img class="option-img" src="webjars/doc-grpc/img/expanded.png" onClick="Formatjson.expImgClicked(this);" /></span><span class="collapsible">';
 				var annotation = '';
 				if(showAnnotation && isNotEmpty(keyName) && isNotEmpty(this.annotationObject[keyName])) {
 					annotation = '<span class="annotation">// '+this.annotationObject[keyName]+'</span>';
@@ -48,7 +48,7 @@ var Formatjson = {
 			if (numProps == 0) {
 				html += this.getRow(indent, "<span class='object-brace'>{ }</span>" + comma, isPropertyContent);
 			} else {
-				var clpsHtml = '<span><img class="option-img" src="webjars/doc-dubbo/img/expanded.png" onClick="Formatjson.expImgClicked(this);" /></span><span class="collapsible">';
+				var clpsHtml = '<span><img class="option-img" src="webjars/doc-grpc/img/expanded.png" onClick="Formatjson.expImgClicked(this);" /></span><span class="collapsible">';
 				var annotation = '';
 				if(showAnnotation && isNotEmpty(keyName) && isNotEmpty(this.annotationObject[keyName])) {
 					annotation = '<span class="annotation">// '+this.annotationObject[keyName]+'</span>';
@@ -80,10 +80,10 @@ var Formatjson = {
 		var container = img.parentNode.nextSibling;
 		if(!container) return;
 		var disp = "none";
-		var src = "webjars/doc-dubbo/img/collapsed.png";
+		var src = "webjars/doc-grpc/img/collapsed.png";
 		if(container.style.display == "none"){
 			disp = "inline";
-			src = "webjars/doc-dubbo/img/expanded.png";
+			src = "webjars/doc-grpc/img/expanded.png";
 		}
 		container.style.display = disp;
 		img.src = src;

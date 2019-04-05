@@ -312,11 +312,12 @@
 			},
 			requestExecute() {
 				var fuc = app.grpcInfo.function;
+				var docService = app.grpcInfo.docService;
 				var service = fuc.substring(0, fuc.lastIndexOf("."));
 				var method = fuc.substring(fuc.lastIndexOf(".") + 1, fuc.length);
 				var paramColumnRequest = JSON.stringify(JSON.parse(app.paramColumnRequest));
 				var param = {
-					service: service,
+					docService: docService,
 					method: method,
 					params: paramColumnRequest,//JSON.stringify(params),
 				};
