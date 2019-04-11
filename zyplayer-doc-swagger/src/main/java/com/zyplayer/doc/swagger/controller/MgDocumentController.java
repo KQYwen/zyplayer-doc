@@ -302,7 +302,7 @@ public class MgDocumentController {
 		try {
 			oldUrl = this.encodeUrlParam(oldUrl);
 			resourcesUrl = this.encodeUrlParam(resourcesUrl);
-			String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
+			String resourcesStr = HttpRequest.get(resourcesUrl).header("Accept", "application/json, text/javascript, */*; q=0.01").timeout(3000).execute().body();
 			boolean isLocation = this.addSwaggerLocationList(resourcesStr, rewriteDomainUrl, resourcesUrl, oldUrl, openVisit);
 			if (!isLocation) {
 				List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
