@@ -201,6 +201,18 @@ function ajaxTemp(url, dataSentType, dataReceiveType, paramsStr, successFunction
 		
 		},
 		complete : function(msg) {
+			if (msg.responseText.startWith("<!doctype html>")) {
+				if (msg.responseText.indexOf("THIS_IS_LOGIN_PAGE_FLAG") > 0) {
+					app.$confirm('操作失败，登录已失效，请登陆后重试', '提示', {
+						confirmButtonText: '去登陆',
+						cancelButtonText: '知道了',
+						type: 'warning'
+					}).then(() => {
+						window.open("static/manage/login.html");
+					});
+					return;
+				}
+			}
 			if(typeof completeFunction == "function") {
 				completeFunction(msg,id);
 			}

@@ -186,6 +186,12 @@ function ajaxTemp(url, dataSentType, dataReceiveType, paramsStr, successFunction
 			
 		},
 		complete : function(msg) {
+			if (msg.responseText.startWith("<!doctype html>")) {
+				if (msg.responseText.indexOf("THIS_IS_LOGIN_PAGE_FLAG") > 0) {
+					Toast.error('操作失败，登录已失效，请登陆后重试', 3000);
+					return;
+				}
+			}
 			if(typeof completeFunction == "function") {
 				completeFunction(msg,id);
 			}
