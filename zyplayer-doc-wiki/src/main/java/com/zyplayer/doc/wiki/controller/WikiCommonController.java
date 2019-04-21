@@ -7,8 +7,12 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
+import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
+import com.zyplayer.doc.data.service.manage.WikiPageService;
+import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.framework.consts.Const;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -45,6 +49,10 @@ public class WikiCommonController {
 	
 	@Resource
 	WikiPageFileService wikiPageFileService;
+	@Resource
+	WikiPageService wikiPageService;
+	@Resource
+	WikiSpaceService wikiSpaceService;
 	
 	@PostMapping("/wangEditor/upload")
 	public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
@@ -99,6 +107,16 @@ public class WikiCommonController {
 		WikiPageFile pageFile = wikiPageFileService.getOne(wrapperFile);
 		if (pageFile == null) {
 			return DocResponseJson.warn("未找到指定文件");
+		}
+		// 未登录访问文件，需要判断是否是开放空间的文件
+		Long pageId = Optional.ofNullable(pageFile.getPageId()).orElse(0L);
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		if (pageId > 0 && currentUser == null) {
+			WikiPage wikiPage = wikiPageService.getById(pageId);
+			WikiSpace wikiSpace = wikiSpaceService.getById(wikiPage.getSpaceId());
+			if (wikiSpace.getOpenDoc() == 0) {
+				return DocResponseJson.warn("登陆后才可访问此文件");
+			}
 		}
 		try {
 			String fileName = Optional.ofNullable(pageFile.getFileName()).orElse("");

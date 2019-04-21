@@ -50,6 +50,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			// 开放接口的静态文件和接口
 			"/open-doc.html", "/webjars/open-doc/**", "/swagger-mg-ui/open-doc/**",
 			"/open-wiki.html", "/webjars/doc-wiki/**", "/zyplayer-doc-wiki/open-api/**",
+			// 文件访问接口，开放文档需要能使用，在接口里面做权限判断
+			"/zyplayer-doc-wiki/common/file",
 			// http代理请求接口，有白名单限制，也不怕随便请求到内网资源了
 			"/swagger-mg-ui/http/**",
 			// 静态资源

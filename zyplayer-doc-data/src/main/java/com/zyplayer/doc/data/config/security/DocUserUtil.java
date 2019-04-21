@@ -14,10 +14,12 @@ public class DocUserUtil {
 	 */
 	public static DocUserDetails getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		Object principal = null;
 		if (authentication != null) {
-			principal = authentication.getPrincipal();
+			Object principal = authentication.getPrincipal();
+			if (principal instanceof DocUserDetails) {
+				return (DocUserDetails) principal;
+			}
 		}
-		return (DocUserDetails) principal;
+		return null;
 	}
 }
