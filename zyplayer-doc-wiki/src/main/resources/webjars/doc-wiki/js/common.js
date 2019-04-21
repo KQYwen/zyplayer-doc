@@ -27,7 +27,7 @@ function deserialize(value) {
 }
 
 function validateResult(result) {
-	if(result.errCode == 200) {
+	if (result.errCode == 200) {
 		return true;
 	} else {
 		Toast.error(result.errMsg);

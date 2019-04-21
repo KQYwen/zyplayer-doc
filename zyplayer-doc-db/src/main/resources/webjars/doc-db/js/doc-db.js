@@ -168,6 +168,7 @@ $(document).ready(function(){
 		}
 	});
 	initData();
+	checkSystemUpgrade();
 });
 
 function initData(){
@@ -375,3 +376,20 @@ function fuzzySearchByDesc(){
 	});
 }
 
+function checkSystemUpgrade() {
+	ajaxTemp("system/info/upgrade", "post", "json", {}, function (json) {
+		if (json.errCode == 200 && !!json.data) {
+			$(".upgrade-info").show();
+			$("#upgradeNowVersion").html(json.data.nowVersion);
+			$("#upgradeLastVersion").html(json.data.lastVersion);
+			$("#upgradeUrl").html("<a target='_blank' href='" + json.data.upgradeUrl + "'>" + json.data.upgradeUrl + "</a>");
+			$("#upgradeContent").html(json.data.upgradeContent);
+			console.log("zyplayer-doc发现新版本："
+				+ "\n升级地址：" + json.data.upgradeUrl
+				+ "\n当前版本：" + json.data.nowVersion
+				+ "\n最新版本：" + json.data.lastVersion
+				+ "\n升级内容：" + json.data.upgradeContent
+			);
+		}
+	});
+}

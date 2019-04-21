@@ -147,25 +147,27 @@
 				recommentInfo: {},
 				// 页面跳转相关
 				initOver: false,
-				urlParam: {
-					pageId: 0
-				},
+				doNotPushState: false,
+				urlParamPageId: 0,
+				urlParam: {},
 			}
 		},
 		watch: {
-			urlParam: {
-				handler(newVal, oldVal) {
-					if (!this.initOver) return;
-					var params = urlToParam(newVal).slice(1);
+			urlParamPageId: function (newVal, oldVal) {
+				if (!this.initOver) return;
+				var oldPageId = oldVal || 0;
+				// console.log(app.doNotPushState, newVal, oldVal);
+				if (app.doNotPushState) {
+					app.doNotPushState = false;
+				} else {
+					this.urlParam.pageId = newVal;
+					var params = urlToParam(this.urlParam).slice(1);
 					window.history.pushState(null, null, '?' + params);
-					console.log(newVal, oldVal, params);
-					var oldPageId = oldVal.pageId || 0;
-					if (!!newVal.pageId && newVal.pageId > 0 && newVal.pageId !== oldPageId) {
-						this.wikiPageExpandedKeys = [parseInt(newVal.pageId)];
-						this.loadPageDetail(newVal.pageId);
-					}
-				},
-				deep: true, immediate: true
+				}
+				if (!!newVal && newVal > 0 && newVal !== oldPageId) {
+					this.wikiPageExpandedKeys = [newVal];
+					this.loadPageDetail(newVal);
+				}
 			}
 		},
 		mounted: function () {
@@ -189,7 +191,7 @@
 				}
 				console.log("点击节点：", data);
 				app.lastClickNode = data;
-				this.loadPageDetail(app.lastClickNode.id);
+				app.urlParamPageId = app.lastClickNode.id;
 			},
 			handleNodeExpand(node) {
 				if (node.children.length > 0 && node.children[0].needLoad) {
@@ -208,7 +210,6 @@
 						app.pageContent = json.data.pageContent || {};
 						app.pageFileList = json.data.fileList || [];
 						app.uploadFormData = {pageId: app.wikiPage.id};
-						app.urlParam.pageId = app.wikiPage.id;
 					}
 				});
 			},
@@ -255,13 +256,7 @@
 					}
 				}
 			},
-			init(){
-				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
-				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
-				page.newPageContentEditor.customConfig.zIndex = 100;
-				page.newPageContentEditor.customConfig.pasteFilterStyle = false;
-				page.newPageContentEditor.create();
-				// 初始化页面参数
+			createUrlParam() {
 				var url = document.location.toString();
 				if (url.indexOf("?") >= 0) {
 					var urlParam = {};
@@ -276,8 +271,23 @@
 							urlParam[param[0]] = param[1];
 						}
 					}
+					if (!!urlParam.pageId) {
+						this.urlParamPageId = parseInt(urlParam.pageId);
+					}
 					this.urlParam = urlParam;
 				}
+			},
+			init(){
+				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
+				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
+				page.newPageContentEditor.customConfig.zIndex = 100;
+				page.newPageContentEditor.customConfig.pasteFilterStyle = false;
+				page.newPageContentEditor.create();
+				this.createUrlParam();
+				window.addEventListener("popstate", function (e) {
+					app.doNotPushState = true;
+					app.createUrlParam();
+				}, false);
 			}
 		}
 	});

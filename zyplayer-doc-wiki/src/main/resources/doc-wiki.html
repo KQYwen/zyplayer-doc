@@ -237,6 +237,14 @@
 				<el-form-item label="开发人员：">
 					<a target="_blank" href="http://zyplayer.com">暮光：城中城</a>
 				</el-form-item>
+				<template v-if="upgradeInfo.lastVersion">
+					<el-form-item label="当前版本：">{{upgradeInfo.nowVersion}}</el-form-item>
+					<el-form-item label="最新版本：">{{upgradeInfo.lastVersion}}</el-form-item>
+					<el-form-item label="升级地址：">
+						<a target="_blank" :href="upgradeInfo.upgradeUrl">{{upgradeInfo.upgradeUrl}}</a>
+					</el-form-item>
+					<el-form-item label="升级内容：">{{upgradeInfo.upgradeContent}}</el-form-item>
+				</template>
 				<el-form-item label="">
 					欢迎加群讨论，QQ群号：466363173，欢迎提交需求，欢迎使用和加入开发！
 				</el-form-item>
@@ -312,30 +320,35 @@
 				recommentInfo: {},
 				// 页面跳转相关
 				initOver: false,
-				urlParam: {
-					pageId: 0
-				},
+				doNotPushState: false,
+				urlParamPageId: 0,
+				urlParam: {},
+				// 升级信息
+				upgradeInfo: {},
 			}
 		},
 		watch: {
-			urlParam: {
-				handler(newVal, oldVal) {
-					if (!this.initOver) return;
-					var params = urlToParam(newVal).slice(1);
+			urlParamPageId: function (newVal, oldVal) {
+				if (!this.initOver) return;
+				var oldPageId = oldVal || 0;
+				// console.log(app.doNotPushState, newVal, oldVal);
+				if (app.doNotPushState) {
+					app.doNotPushState = false;
+				} else {
+					this.urlParam.pageId = newVal;
+					var params = urlToParam(this.urlParam).slice(1);
 					window.history.pushState(null, null, '?' + params);
-					console.log(newVal, oldVal, params);
-					var oldPageId = oldVal.pageId || 0;
-					if (!!newVal.pageId && newVal.pageId > 0 && newVal.pageId !== oldPageId) {
-						this.wikiPageExpandedKeys = [parseInt(newVal.pageId)];
-						this.loadPageDetail(newVal.pageId);
-					}
-				},
-				deep: true, immediate: true
+				}
+				if (!!newVal && newVal > 0 && newVal !== oldPageId) {
+					this.wikiPageExpandedKeys = [newVal];
+					this.loadPageDetail(newVal);
+				}
 			}
 		},
 		mounted: function () {
 			this.init();
 			this.loadSpaceList();
+			this.checkSystemUpgrade();
 			this.initOver = true;
 		},
 		methods: {
@@ -568,7 +581,7 @@
 				ajaxTemp("zyplayer-doc-wiki/page/update", "post", "json", param, function (json) {
 					if (validateResult(json)) {
 						Toast.success("保存成功！");
-						app.loadPageDetail(json.data.id);
+						app.urlParamPageId = json.data.id;
 						app.doGetPageList(null);
 					}
 				});
@@ -580,7 +593,7 @@
 				}
 				console.log("点击节点：", data);
 				app.lastClickNode = data;
-				this.loadPageDetail(app.lastClickNode.id);
+				app.urlParamPageId = app.lastClickNode.id;
 			},
 			handleNodeExpand(node) {
 				if (node.children.length > 0 && node.children[0].needLoad) {
@@ -639,7 +652,6 @@
 						app.pageContent = json.data.pageContent || {};
 						app.pageFileList = json.data.fileList || [];
 						app.uploadFormData = {pageId: app.wikiPage.id};
-						app.urlParam.pageId = app.wikiPage.id;
 					}
 				});
 				this.loadCommentList(pageId);
@@ -725,13 +737,20 @@
 					}
 				}
 			},
-			init(){
-				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
-				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
-				page.newPageContentEditor.customConfig.zIndex = 100;
-				page.newPageContentEditor.customConfig.pasteFilterStyle = false;
-				page.newPageContentEditor.create();
-				// 初始化页面参数
+			checkSystemUpgrade() {
+				ajaxTemp("system/info/upgrade", "post", "json", {}, function (json) {
+					if (json.errCode == 200 && !!json.data) {
+						app.upgradeInfo = json.data;
+						console.log("zyplayer-doc发现新版本："
+							+ "\n升级地址：" + json.data.upgradeUrl
+							+ "\n当前版本：" + json.data.nowVersion
+							+ "\n最新版本：" + json.data.lastVersion
+							+ "\n升级内容：" + json.data.upgradeContent
+						);
+					}
+				});
+			},
+			createUrlParam() {
 				var url = document.location.toString();
 				if (url.indexOf("?") >= 0) {
 					var urlParam = {};
@@ -746,8 +765,23 @@
 							urlParam[param[0]] = param[1];
 						}
 					}
+					if (!!urlParam.pageId) {
+						this.urlParamPageId = parseInt(urlParam.pageId);
+					}
 					this.urlParam = urlParam;
 				}
+			},
+			init(){
+				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
+				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
+				page.newPageContentEditor.customConfig.zIndex = 100;
+				page.newPageContentEditor.customConfig.pasteFilterStyle = false;
+				page.newPageContentEditor.create();
+				this.createUrlParam();
+				window.addEventListener("popstate", function (e) {
+					app.doNotPushState = true;
+					app.createUrlParam();
+				}, false);
 			}
 		}
 	});

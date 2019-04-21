@@ -32,8 +32,12 @@ zyplayer:
       proxy-request:
         # 允许代理请求的域名，正则表达式，多个使用 ; 分割，必须设置，防止通过代理接口访问到内部资源，实在觉得没必要可设置为：.+
         white-domain: \S+\.zyplayer\.com;127.0.1:8080;\S+\.xiaominfo\.com;
-    # zyplayer_doc_manage管理端的数据库配置
+    # zyplayer_doc_manage相关配置
     manage:
+      # 版本和升级信息获取地址
+      version: 1.0.1
+      upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
+      # 管理端的数据库配置
       datasource:
         driverClassName: com.mysql.jdbc.Driver
         url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false

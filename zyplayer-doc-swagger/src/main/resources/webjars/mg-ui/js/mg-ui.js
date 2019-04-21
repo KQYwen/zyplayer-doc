@@ -71,6 +71,7 @@ $(document).ready(function(){
 	];
 	$('#rightZpages').tabs({tabs: tabsArr});
 	rightContentTabs = $('#rightZpages').data('zui.tabs');
+	checkSystemUpgrade();
 });
 
 /**
@@ -1050,4 +1051,24 @@ function initDashboard(){
 	$('#homePageDashboard').empty();
 	$('#homePageDashboard').append('<div class="dashboard" data-height="320"></div>');
 	$('#homePageDashboard .dashboard').append(template);
+}
+
+function checkSystemUpgrade() {
+	ajaxTemp("system/info/upgrade", "post", "json", {}, function (json) {
+		if (json.errCode == 200 && !!json.data) {
+			$("#upgradeInfoBox").html(
+				"发现新版本"
+				+ "，当前版本：" + json.data.nowVersion
+				+ "，最新版本：<span style='color: #ff0000;'>" + json.data.lastVersion + "</span>"
+				+ "<br/>升级地址：<a target='_blank' href='" + json.data.upgradeUrl + "'>" + json.data.upgradeUrl + "</a>"
+				+ "<br/>升级内容：" + json.data.upgradeContent
+			);
+			console.log("zyplayer-doc发现新版本："
+				+ "\n升级地址：" + json.data.upgradeUrl
+				+ "\n当前版本：" + json.data.nowVersion
+				+ "\n最新版本：" + json.data.lastVersion
+				+ "\n升级内容：" + json.data.upgradeContent
+			);
+		}
+	});
 }
