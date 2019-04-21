@@ -156,18 +156,19 @@
 			urlParamPageId: function (newVal, oldVal) {
 				if (!this.initOver) return;
 				var oldPageId = oldVal || 0;
-				// console.log(app.doNotPushState, newVal, oldVal);
-				if (app.doNotPushState) {
-					app.doNotPushState = false;
-				} else {
-					this.urlParam.pageId = newVal;
-					var params = urlToParam(this.urlParam).slice(1);
-					window.history.pushState(null, null, '?' + params);
-				}
-				if (!!newVal && newVal > 0 && newVal !== oldPageId) {
+				console.log(app.doNotPushState, newVal, oldVal);
+				if (!newVal) {
+					app.rightContentType = 0;
+				} else if (newVal !== oldPageId) {
 					this.wikiPageExpandedKeys = [newVal];
 					this.loadPageDetail(newVal);
+					if (!app.doNotPushState) {
+						this.urlParam.pageId = newVal;
+						var params = urlToParam(this.urlParam).slice(1);
+						window.history.pushState(null, null, '?' + params);
+					}
 				}
+				app.doNotPushState = false;
 			}
 		},
 		mounted: function () {
@@ -258,10 +259,12 @@
 			},
 			createUrlParam() {
 				var url = document.location.toString();
+				var urlParam = {};
 				if (url.indexOf("?") >= 0) {
-					var urlParam = {};
 					for (var key in this.urlParam) {
-						urlParam[key] = this.urlParam[key];
+						if (key != 'pageId') {
+							urlParam[key] = this.urlParam[key];
+						}
 					}
 					var params = url.split("?")[1];
 					var paramArr = params.split("&");
@@ -273,9 +276,12 @@
 					}
 					if (!!urlParam.pageId) {
 						this.urlParamPageId = parseInt(urlParam.pageId);
+					} else {
+						this.urlParamPageId = 0;
+						this.lastClickNode = {};
 					}
-					this.urlParam = urlParam;
 				}
+				this.urlParam = urlParam;
 			},
 			init(){
 				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');

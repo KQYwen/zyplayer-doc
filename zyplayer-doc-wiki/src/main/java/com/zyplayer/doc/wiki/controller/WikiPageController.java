@@ -106,11 +106,6 @@ public class WikiPageController {
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPage wikiPage, String content) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
-		// 私人空间不允许调用接口获取文章
-		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
-			return DocResponseJson.warn("您没有修改该空间的文章权限！");
-		}
 		WikiPageContent pageContent = new WikiPageContent();
 		pageContent.setContent(content);
 		Integer delFlag = Optional.ofNullable(wikiPage.getDelFlag()).orElse(0);
@@ -122,6 +117,11 @@ public class WikiPageController {
 			WikiPage wikiPageSel = wikiPageService.getById(id);
 			if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
 				return DocResponseJson.warn("当前页面不允许编辑！");
+			}
+			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+			// 私人空间不允许调用接口获取文章
+			if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+				return DocResponseJson.warn("您没有修改该空间的文章权限！");
 			}
 			wikiPage.setEditType(null);
 			wikiPage.setUpdateTime(new Date());
