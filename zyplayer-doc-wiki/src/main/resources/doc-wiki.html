@@ -784,8 +784,10 @@
 			},
 			init(){
 				page.newPageContentEditor = new window.wangEditor('#newPageContentDiv');
-				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/upload';
+				page.newPageContentEditor.customConfig.uploadImgServer = 'zyplayer-doc-wiki/common/wangEditor/upload';
 				page.newPageContentEditor.customConfig.zIndex = 100;
+				page.newPageContentEditor.customConfig.uploadFileName = 'files';
+				page.newPageContentEditor.customConfig.uploadImgMaxLength = 1;
 				page.newPageContentEditor.customConfig.pasteFilterStyle = false;
 				page.newPageContentEditor.create();
 				this.createUrlParam();

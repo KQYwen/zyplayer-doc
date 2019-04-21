@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -43,6 +45,15 @@ public class WikiCommonController {
 	
 	@Resource
 	WikiPageFileService wikiPageFileService;
+	
+	@PostMapping("/wangEditor/upload")
+	public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+		this.upload(wikiPageFile, file);
+		Map<String, Object> resultMap = new HashMap<>();
+		resultMap.put("errno", "0");
+		resultMap.put("data", new String[]{wikiPageFile.getFileUrl()});
+		return resultMap;
+	}
 	
 	@PostMapping("/upload")
 	public ResponseJson<Object> upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
