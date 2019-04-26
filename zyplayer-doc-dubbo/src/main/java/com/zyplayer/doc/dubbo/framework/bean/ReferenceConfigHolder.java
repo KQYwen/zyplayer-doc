@@ -31,6 +31,7 @@ public class ReferenceConfigHolder {
 			referenceConfig.setInterface(name.substring(name.lastIndexOf(".") + 1));
 			referenceConfig.setGeneric(true);
 			referenceConfig.setApplication(application);
+			referenceConfig.setTimeout(5000);
 			referenceConfigMap.put(url, referenceConfig);
 		}
 		// 本项目没有dubbo里面申明的类，快放弃时看源码发现可以设置generic返回一个GenericService对象，通过$invoke去操作具体方法，感觉又打开了一扇大门
