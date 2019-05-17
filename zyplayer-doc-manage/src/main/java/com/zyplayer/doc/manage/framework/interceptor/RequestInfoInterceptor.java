@@ -1,5 +1,6 @@
 package com.zyplayer.doc.manage.framework.interceptor;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,15 @@ public class RequestInfoInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object obj) {
 		startTimeThreadLocal.set(System.currentTimeMillis());
+		String originRegex = ".*\\.zyplayer\\.com(:\\d+|)$";
+		String origin = request.getHeader("Origin");
+		if (StringUtils.isNotBlank(origin) && origin.toLowerCase().matches(originRegex)) {
+			response.setHeader("Access-Control-Allow-Origin", "*");
+			response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+			response.setHeader("Access-Control-Allow-Methods", "HEAD,GET,POST,PUT,DELETE");
+			response.setHeader("Access-Control-Allow-Credentials", "true");
+			response.setContentType("application/json; charset=utf-8");
+		}
 		return true;
 	}
 	
