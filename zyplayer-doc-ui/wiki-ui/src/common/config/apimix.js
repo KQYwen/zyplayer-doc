@@ -30,8 +30,8 @@ var _evt = function () {
 
 var _fn = {
     href: href,
-    HOST: EVT + 'local.zyplayer.com:8083/zyplayer-doc-manage', //这里设置接口域名
-    HOST1: EVT + 'local.zyplayer.com:8083', //设置多个接口域名
+    HOST: EVT + 'local.zyplayer.com:8084', //这里设置接口域名
+    HOST1: EVT + 'local.zyplayer.com:8084', //设置多个接口域名
     mixUrl: function (host, url) {
         var p;
         if (!host || !url || _fn.isEmptyObject(url)) {

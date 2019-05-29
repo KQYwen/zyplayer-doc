@@ -1,15 +1,13 @@
 package com.zyplayer.doc.core.json;
 
-import java.io.IOException;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * 文档返回数据格式
@@ -100,6 +98,17 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 */
 	public static <T> DocResponseJson<T> error(String errMsg) {
 		return new DocResponseJson<T>(500, errMsg);
+	}
+	
+	/**
+	 * 失败
+	 *
+	 * @author 暮光：城中城
+	 * @since 2018年8月7日
+	 * @return
+	 */
+	public static <T> DocResponseJson<T> failure(int errCode, String errMsg) {
+		return new DocResponseJson<T>(errCode, errMsg);
 	}
 
 	/**

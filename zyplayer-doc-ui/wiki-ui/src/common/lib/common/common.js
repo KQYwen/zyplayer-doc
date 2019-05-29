@@ -19,12 +19,12 @@ export default {
     },
     validateResult: function (res, callback) {
         if (res.data.errCode == 400) {
-            global.app.$message('请先登录');
-            global.app.$router.push("/user/login");
+            global.vue.$message('请先登录');
+            global.vue.$router.push("/user/login");
         } else if (res.data.errCode == 402) {
-            global.app.$router.push("/common/noAuth");
+            global.vue.$router.push("/common/noAuth");
         } else if (res.data.errCode !== 200) {
-            global.app.$message(res.data.errMsg || "未知错误");
+            global.vue.$message(res.data.errMsg || "未知错误");
         } else {
             if (typeof callback == 'function') {
                 callback(res.data);
@@ -34,7 +34,7 @@ export default {
     post: function (url, param, callback) {
         param = param || {};
         param.accessToken = this.getAccessToken();
-        global.app.axios({
+        global.vue.axios({
             method: "post",
             url: url,
             headers: {'Content-type': 'application/x-www-form-urlencoded'},

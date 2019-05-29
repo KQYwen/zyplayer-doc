@@ -3,6 +3,7 @@ package com.zyplayer.doc.manage.web.manage;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.aspect.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
@@ -15,7 +16,6 @@ import com.zyplayer.doc.manage.web.manage.vo.AuthInfoVo;
 import org.apache.commons.lang.StringUtils;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user/info")
-@PreAuthorize("hasAuthority('USER_MANAGE')")
+@AuthMan("USER_MANAGE")
 public class UserInfoController {
 
 	@Autowired

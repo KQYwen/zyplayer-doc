@@ -1,18 +1,14 @@
 package com.zyplayer.doc.manage.framework.exception;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.alibaba.fastjson.JSON;
+import com.zyplayer.doc.core.exception.ConfirmException;
+import com.zyplayer.doc.core.json.DocResponseJson;
+import com.zyplayer.doc.core.json.ResponseJson;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,10 +16,11 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
-import com.alibaba.fastjson.JSON;
-import com.zyplayer.doc.core.exception.ConfirmException;
-import com.zyplayer.doc.core.json.DocResponseJson;
-import com.zyplayer.doc.core.json.ResponseJson;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 全局异常处理器
@@ -44,8 +41,6 @@ public class GlobalHandlerExceptionResolver extends SimpleMappingExceptionResolv
 		DocResponseJson<Object> responseJson = null;
 		if (ex instanceof ConfirmException) {// 提示性异常
 			responseJson = DocResponseJson.warn(ex.getMessage());
-		} else if (ex instanceof AccessDeniedException) {// 没权限
-			responseJson = DocResponseJson.warn("您没有权限访问本接口");
 		} else {// 其他异常
 			responseJson = DocResponseJson.warn("系统错误");
 		}

@@ -50,7 +50,7 @@ new Vue({
     router,
     render(h) {
         var app = h(App);
-        global.app = app.context;
+        global.vue = app.context;
         return app;
     }
 });

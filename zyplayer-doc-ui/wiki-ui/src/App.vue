@@ -5,7 +5,7 @@
         </template>
         <el-container v-else>
             <el-aside width="200px">
-                <div style="padding: 10px;" v-show="leftCollapse">
+                <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;" v-show="leftCollapse">
                     <div style="margin-bottom: 10px;">
                         <el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
                             <el-option-group label="">
@@ -32,14 +32,30 @@
                     </el-tree>
                 </div>
             </el-aside>
-            <el-main>
-                <router-view></router-view>
-            </el-main>
+            <el-container>
+                <el-header>
+                    <!--<el-switch v-model="isCollapse" ></el-switch>-->
+                    <i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse;"></i>
+                    <!--<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>-->
+                    <el-dropdown @command="userSettingDropdown" trigger="click">
+                        <i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="aboutDoc">关于</el-dropdown-item>
+                            <el-dropdown-item command="" divided>我的资料</el-dropdown-item>
+                            <el-dropdown-item command="userSignOut">退出登录</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </el-header>
+                <el-main style="padding: 0;">
+                    <router-view></router-view>
+                </el-main>
+            </el-container>
         </el-container>
     </div>
 </template>
 
 <script>
+    import global from './common/config/global'
     var app;
     export default {
         data() {
@@ -101,13 +117,18 @@
         },
         mounted: function () {
             app = this;
+            global.vue.$app = this;
             this.loadSpaceList();
         },
         methods: {
+            sendMsgToParent: function (msg) {
+                alert(msg)
+            },
             createWiki() {
 
             },
             searchByKeywords() {
+                this.sendMsgToParent();
                 this.$refs.wikiPageTree.filter(app.searchKeywords);
             },
             handleNodeClick(data) {
@@ -226,6 +247,16 @@
                     }
                 }
             },
+            userSettingDropdown(command) {
+                console.log("command:" + command);
+                if (command == 'userSignOut') {
+                    // this.userSignOut();
+                } else if (command == 'aboutDoc') {
+                    app.aboutDialogVisible = true;
+                } else {
+                    // Toast.notOpen();
+                }
+            },
         }
     }
 </script>
@@ -240,4 +271,7 @@
     #app, .el-container, .el-menu {
         height: 100%;
     }
+    .el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}
+    .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
+    .icon-collapse:hover{color: #eee;}
 </style>

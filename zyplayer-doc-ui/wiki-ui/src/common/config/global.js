@@ -1,11 +1,11 @@
 const user = {
     isLogin: true,
 };
-const app = {};
+const vue = {};
 const fullscreen = false;
 
 export default {
-    app,
+    vue,
     user,
     fullscreen,
 }

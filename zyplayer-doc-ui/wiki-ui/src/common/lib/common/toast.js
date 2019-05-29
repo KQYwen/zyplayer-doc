@@ -7,14 +7,14 @@ import global from '../../config/global'
  */
 export default {
 	notOpen: function () {
-		global.app.$message({
+		global.vue.$message({
 			message: '该功能暂未开放，敬请期待！',
 			type: 'warning',
 			showClose: true
 		});
 	},
 	success: function (msg, time) {
-		global.app.$message({
+		global.vue.$message({
 			message: msg,
 			duration: time || 3000,
 			type: 'success',
@@ -22,7 +22,7 @@ export default {
 		});
 	},
 	warn: function (msg, time) {
-		global.app.$message({
+		global.vue.$message({
 			message: msg,
 			duration: time || 3000,
 			type: 'warning',
@@ -30,7 +30,7 @@ export default {
 		});
 	},
 	error: function (msg, time) {
-		global.app.$message({
+		global.vue.$message({
 			message: msg,
 			duration: time || 3000,
 			type: 'error',

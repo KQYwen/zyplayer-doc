@@ -1,0 +1,12 @@
+package com.zyplayer.doc.data.aspect;
+
+import java.lang.annotation.*;
+
+@Target({ElementType.METHOD,ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface AuthMan {
+	String[] value() default {};
+	String authUrl() default "common/authfailed";
+	boolean all() default false;
+}
