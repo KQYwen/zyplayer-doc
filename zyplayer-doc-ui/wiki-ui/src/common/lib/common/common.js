@@ -1,5 +1,6 @@
 import Qs from 'qs'
 import global from '../../config/global'
+import apimix from '../../config/apimix'
 
 export default {
     data: {
@@ -20,7 +21,7 @@ export default {
     validateResult: function (res, callback) {
         if (res.data.errCode == 400) {
             global.vue.$message('请先登录');
-            global.vue.$router.push("/user/login");
+            window.location = apimix.apilist1.HOST + "/static/manage/login.html";
         } else if (res.data.errCode == 402) {
             global.vue.$router.push("/common/noAuth");
         } else if (res.data.errCode !== 200) {
@@ -39,6 +40,7 @@ export default {
             url: url,
             headers: {'Content-type': 'application/x-www-form-urlencoded'},
             data: Qs.stringify(param),
+            withCredentials: true,
         }).then((res) => {
             console.log("ok", res);
             this.validateResult(res, callback);

@@ -1,46 +1,25 @@
 import apilist from './apilist'
 
 var href = window.location.href;
-var EVT = '';
-var _evt = function () {
-    if (href.indexOf('https://') > -1) {
-        // 测试环境
-        if (href.indexOf('https://test') > -1 && href.indexOf('https://test.') == -1) {
-            EVT = 'https://test';
-            // dev环境
-        } else if (href.indexOf('https://dev') > -1 && href.indexOf('https://dev.') == -1) {
-            EVT = 'https://dev';
-        } else {
-            EVT = 'https://'
-        }
-        return EVT;
-    } else {
-        // 测试环境
-        if (href.indexOf('http://test') > -1 && href.indexOf('http://test.') == -1) {
-            EVT = 'http://test';
-            // dev环境
-        } else if (href.indexOf('http://dev') > -1 && href.indexOf('http://dev.') == -1) {
-            EVT = 'http://dev';
-        } else {
-            EVT = 'http://'
-        }
-        return EVT;
-    }
-};
 
 var _fn = {
     href: href,
-    HOST: EVT + 'local.zyplayer.com:8084', //这里设置接口域名
-    HOST1: EVT + 'local.zyplayer.com:8084', //设置多个接口域名
+    // 这里设置接口域名
+    HOST: 'http://local.zyplayer.com:8083/zyplayer-doc-manage',
+    HOST1: 'http://local.zyplayer.com:8083/zyplayer-doc-manage',
+    // 打包时使用下面这两行，就是上两级的意思
+    // HOST: '../..',
+    // HOST1: '../..',
+
     mixUrl: function (host, url) {
         var p;
         if (!host || !url || _fn.isEmptyObject(url)) {
             return;
         }
-        url.EVT = _evt();
+        url.HOST = host;
         for (p in url) {
             if (url[p].indexOf('http') == -1) {
-                url[p] = url.EVT + host + url[p];
+                url[p] = host + url[p];
             }
         }
         return url;

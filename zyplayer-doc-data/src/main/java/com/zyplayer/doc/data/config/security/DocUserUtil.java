@@ -10,22 +10,6 @@ import com.zyplayer.doc.data.utils.CacheUtil;
 public class DocUserUtil {
 	private static ThreadLocal<DocUserDetails> DOC_USER_DETAILS = new ThreadLocal<>();
 	private static ThreadLocal<String> ACCESS_TOKEN = new ThreadLocal<>();
-
-//
-//	/**
-//	 * 获取当前用户
-//	 * @return 用户信息
-//	 */
-//	public static DocUserDetails getCurrentUser() {
-//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//		if (authentication != null) {
-//			Object principal = authentication.getPrincipal();
-//			if (principal instanceof DocUserDetails) {
-//				return (DocUserDetails) principal;
-//			}
-//		}
-//		return null;
-//	}
 	
 	public static void setAccessToken(String accessToken) {
 		DocUserUtil.ACCESS_TOKEN.set(accessToken);

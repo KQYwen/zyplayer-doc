@@ -1,5 +1,7 @@
 package com.zyplayer.doc.data.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -7,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 缓存工具类
+ *
  * @author 暮光：城中城
  * @since 2019年05月25日
  */
@@ -38,16 +41,25 @@ public class CacheUtil {
 	}
 	
 	public static void put(String key, Object value, Long second) {
+		if (StringUtils.isBlank(key) || value == null) {
+			return;
+		}
 		cacheMap.put(key, value);
 		cacheTimeMap.put(key, new CacheTime(second));
 	}
 	
 	public static void remove(String key) {
+		if (StringUtils.isBlank(key)) {
+			return;
+		}
 		cacheMap.remove(key);
 		cacheTimeMap.remove(key);
 	}
 	
 	public static <T> T get(String key) {
+		if (StringUtils.isBlank(key)) {
+			return null;
+		}
 		CacheTime cacheTime = cacheTimeMap.get(key);
 		if (cacheTime != null) {
 			cacheTime.setLastVisitTime(System.currentTimeMillis());

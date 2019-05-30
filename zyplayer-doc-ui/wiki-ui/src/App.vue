@@ -51,6 +51,89 @@
                 </el-main>
             </el-container>
         </el-container>
+
+        <!--新建空间弹窗-->
+        <el-dialog title="创建空间" :visible.sync="newSpaceDialogVisible" width="600px" :close-on-click-modal="false">
+            <el-form label-width="100px" :model="newSpaceForm" :rules="newSpaceFormRules" ref="newSpaceForm">
+                <el-form-item label="空间名：" prop="name">
+                    <el-input v-model="newSpaceForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="空间描述：" prop="spaceExplain">
+                    <el-input v-model="newSpaceForm.spaceExplain"></el-input>
+                </el-form-item>
+                <el-form-item label="空间开放：">
+                    <el-switch v-model="newSpaceForm.openDoc" inactive-text="需要登录" :inactive-value="0" active-text="开放访问" :active-value="1"></el-switch>
+                </el-form-item>
+                <el-form-item label="目录加载：">
+                    <el-switch v-model="newSpaceForm.treeLazyLoad" inactive-text="预先加载" :inactive-value="0" active-text="延迟加载" :active-value="1"></el-switch>
+                </el-form-item>
+                <el-form-item label="空间类型：">
+                    <el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%;">
+                        <el-option :key="1" label="公共空间" :value="1">
+                            <span style="float: left">公共空间</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px;">属于公共，登录用户可访问</span>
+                        </el-option>
+                        <el-option :key="2" label="个人空间" :value="2">
+                            <span style="float: left">个人空间</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px;">属于个人，所有登录用户可访问</span>
+                        </el-option>
+                        <el-option :key="3" label="隐私空间" :value="3">
+                            <span style="float: left">隐私空间</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px;">属于个人，仅创建者可访问</span>
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" v-if="newSpaceForm.id > 0" @click="onNewSpaceSubmit('newSpaceForm')">保存修改</el-button>
+                    <el-button type="primary" v-else @click="onNewSpaceSubmit('newSpaceForm')">立即创建</el-button>
+                    <el-button @click="onNewSpaceCancel">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+        <!--管理空间弹窗-->
+        <el-dialog title="管理空间" :visible.sync="manageSpaceDialogVisible" :close-on-click-modal="false" width="80%">
+            <el-table :data="spaceList" border style="width: 100%; margin-bottom: 5px;" max-height="500">
+                <el-table-column prop="id" label="ID" width="60"></el-table-column>
+                <el-table-column prop="name" label="名字"></el-table-column>
+                <el-table-column prop="spaceExplain" label="说明"></el-table-column>
+                <el-table-column label="开放地址">
+                    <template slot-scope="scope">
+                        <a target="_blank" :href="'open-wiki.html?space='+scope.row.uuid" v-if="scope.row.openDoc == 1">{{scope.row.name}}</a>
+                        <span v-else>暂未开放</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="createUserName" label="创建人"></el-table-column>
+                <el-table-column prop="createTime" label="创建时间"></el-table-column>
+                <el-table-column label="操作">
+                    <template slot-scope="scope">
+                        <el-button size="small" type="primary" v-on:click="editSpaceInfo(scope.row)">编辑</el-button>
+                        <el-button size="small" type="danger" v-on:click="deleteSpaceInfo(scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-dialog>
+        <!--关于弹窗-->
+        <el-dialog title="关于zyplayer-doc-wiki" :visible.sync="aboutDialogVisible" width="600px">
+            <el-form>
+                <el-form-item label="项目地址：">
+                    <a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>
+                </el-form-item>
+                <el-form-item label="开发人员：">
+                    <a target="_blank" href="http://zyplayer.com">暮光：城中城</a>
+                </el-form-item>
+                <template v-if="upgradeInfo.lastVersion">
+                    <el-form-item label="当前版本：">{{upgradeInfo.nowVersion}}</el-form-item>
+                    <el-form-item label="最新版本：">{{upgradeInfo.lastVersion}}</el-form-item>
+                    <el-form-item label="升级地址：">
+                        <a target="_blank" :href="upgradeInfo.upgradeUrl">{{upgradeInfo.upgradeUrl}}</a>
+                    </el-form-item>
+                    <el-form-item label="升级内容：">{{upgradeInfo.upgradeContent}}</el-form-item>
+                </template>
+                <el-form-item label="">
+                    欢迎加群讨论，QQ群号：466363173，欢迎提交需求，欢迎使用和加入开发！
+                </el-form-item>
+            </el-form>
+        </el-dialog>
     </div>
 </template>
 
@@ -161,6 +244,25 @@
                 if (!value) return true;
                 return data.name.indexOf(value) !== -1;
             },
+            editSpaceInfo(row) {
+                app.newSpaceForm = {
+                    id: row.id, name: row.name, spaceExplain: row.spaceExplain,
+                    treeLazyLoad: row.treeLazyLoad, openDoc: row.openDoc, type: row.type
+                };
+                app.newSpaceDialogVisible = true;
+            },
+            deleteSpaceInfo(row) {
+                this.$confirm('确定要删除此空间及下面的所有文档吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    var param = {id: row.id, delFlag: 1};
+                    this.common.post(this.apilist1.updateSpace, param, function (json) {
+                        app.loadSpaceList();
+                    });
+                });
+            },
             spaceChangeEvents(data) {
                 if (data == 0) {
                     app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
@@ -256,6 +358,45 @@
                 } else {
                     // Toast.notOpen();
                 }
+            },
+            userSignOut() {
+                this.common.post(this.apilist1.userLogout, {}, function (json) {
+                    location.reload();
+                });
+            },
+            onNewSpaceSubmit(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        var param = {
+                            id: app.newSpaceForm.id,
+                            name: app.newSpaceForm.name,
+                            type: app.newSpaceForm.type,
+                            openDoc: app.newSpaceForm.openDoc,
+                            spaceExplain: app.newSpaceForm.spaceExplain,
+                            treeLazyLoad: app.newSpaceForm.treeLazyLoad,
+                        };
+                        this.common.post(this.apilist1.updateSpace, param, function (json) {
+                            if (param.id > 0) {
+                                app.loadSpaceList();
+                            } else {
+                                app.spaceList.push(json.data);
+                                app.spaceOptions.push({
+                                    label: json.data.name, value: json.data.id
+                                });
+                                app.nowSpaceId = json.data.id;
+                                app.nowSpaceShow = json.data;
+                                app.choiceSpace = app.nowSpaceId;
+                                app.rightContentType = 0;
+                                app.doGetPageList(null);
+                            }
+                            app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
+                            app.newSpaceDialogVisible = false;
+                        });
+                    }
+                });
+            },
+            onNewSpaceCancel() {
+                this.newSpaceDialogVisible = false;
             },
         }
     }

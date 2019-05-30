@@ -12,6 +12,7 @@ import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,10 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,12 +39,16 @@ public class LoginController {
 	}
 	
 	@PostMapping(value = "/login")
-	public DocResponseJson<Object> login(String userNo, HttpServletResponse response) {
+	public DocResponseJson<Object> login(String username, String password, HttpServletResponse response) {
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("user_no", userNo);
+		queryWrapper.eq("user_no", username);
 		UserInfo userInfo = userInfoService.getOne(queryWrapper);
 		if (userInfo == null) {
-			return DocResponseJson.warn("用户名'" + userNo + "'没有找到！");
+			return DocResponseJson.warn("用户名'" + username + "'没有找到！");
+		}
+		String pwdMd5 = DigestUtils.md5DigestAsHex(password.getBytes());
+		if (!Objects.equals(userInfo.getPassword(), pwdMd5)) {
+			return DocResponseJson.warn("密码错误");
 		}
 		QueryWrapper<UserAuth> authWrapper = new QueryWrapper<>();
 		authWrapper.eq("user_id", userInfo.getId()).eq("del_flag", "0");

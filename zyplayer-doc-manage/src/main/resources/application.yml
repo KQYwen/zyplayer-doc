@@ -8,14 +8,41 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+# 端口和根路劲，main方法启动时需要，放tomcat后以tomcat的配置为准
 server:
-  port: 8082
+  port: 8083
   servlet:
     context-path: /zyplayer-doc-manage
 
+# 整个文档项目的配置
 zyplayer:
   doc:
-    # dubbo相关配置
+    # ------zyplayer_doc_manage相关配置------
+    manage:
+      # 版本和升级信息获取地址
+      version: 1.0.1
+      upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
+      # 系统根域名，调试UI时需要使用，同时需要在host文件里配置：127.0.0.1 local.zyplayer.com
+      originDomainRegex: .*\.zyplayer\.com(:\d+|)$
+      # 管理端的数据库配置
+      datasource:
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
+        username: root
+        password: root
+      # 通过nginx代理之后没端口，但tomcat容器有端口，spring security会判断如果是http开头的则直接跳
+      # 如果你也遇到了这个问题，可以把登陆地址写成http://开头的一个地址
+      login-page: /static/manage/login.html
+    # ------wiki文档相关------
+    wiki:
+      # wiki文档的文件上传后的存储目录
+      upload-path: e:/tmp/wikiFiles
+    # ------swagger相关配置------
+    swagger:
+      proxy-request:
+        # 允许代理请求的域名，正则表达式，多个使用 ; 分割，必须设置，防止通过代理接口访问到内部资源，实在觉得没必要可设置为：.+
+        white-domain: \S+\.zyplayer\.com;127.0.1:8080;\S+\.xiaominfo\.com;
+    # ------dubbo相关配置------
     dubbo:
       # 优先使用zookeeper，未配置时找nacos的配置
       zookeeper:
@@ -27,26 +54,7 @@ zyplayer:
         # 服务名称，多个使用 ; 分割，nacos没办法获取所有的服务列表，所以需要指定
         service: "com.zyplayer.dubbo.service.UserService;\
                   com.zyplayer.dubbo.service.AnnotateService;"
-    # swagger相关配置
-    swagger:
-      proxy-request:
-        # 允许代理请求的域名，正则表达式，多个使用 ; 分割，必须设置，防止通过代理接口访问到内部资源，实在觉得没必要可设置为：.+
-        white-domain: \S+\.zyplayer\.com;127.0.1:8080;\S+\.xiaominfo\.com;
-    # zyplayer_doc_manage相关配置
-    manage:
-      # 版本和升级信息获取地址
-      version: 1.0.1
-      upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
-      # 管理端的数据库配置
-      datasource:
-        driverClassName: com.mysql.jdbc.Driver
-        url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
-        username: root
-        password: root
-      # 通过nginx代理之后没端口，但tomcat容器有端口，spring security会判断如果是http开头的则直接跳
-      # 如果你也遇到了这个问题，可以把登陆地址写成http://开头的一个地址
-      login-page: /static/manage/login.html
-    # 数据库文档相关
+    # ------数据库文档相关------
     # 打开/zyplayer_doc_manage/doc-db.html即可看到这里配置的数据库的文档
     db:
       dbConfigList:
@@ -59,9 +67,8 @@ zyplayer:
 #          url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
 #          username: root
 #          password: root
-    wiki:
-      upload-path: e:/tmp/wikiFiles
 
+# 下面的配置可以不用管了
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*Mapper.xml
   #实体扫描，多个package用逗号或者分号分隔
@@ -89,7 +96,3 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     cache-enabled: false
 
-
-#一些测试地址
-#https://gitee.com/GeekPerson/central-platform 项目的文档
-#http://47.99.88.28:9200/swagger-resources

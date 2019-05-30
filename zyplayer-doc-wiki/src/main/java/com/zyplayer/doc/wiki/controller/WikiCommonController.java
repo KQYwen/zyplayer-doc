@@ -5,6 +5,7 @@ import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.aspect.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
@@ -39,6 +40,7 @@ import java.util.Optional;
  * @author 暮光：城中城
  * @since 2019年2月17日
  */
+@AuthMan
 @RestController
 @RequestMapping("/zyplayer-doc-wiki/common")
 public class WikiCommonController {

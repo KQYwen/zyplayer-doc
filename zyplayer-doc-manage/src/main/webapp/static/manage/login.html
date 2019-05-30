@@ -77,7 +77,7 @@
 				post(ctx + "login", param, function (result) {
 					console.log(result);
 					if (result.errCode == 200) {
-						location.href = result.data;
+						location.href = ctx + "static/manage/home.html";
 					} else {
 						app.passwordError = "登录失败，" + result.errMsg;
 					}
