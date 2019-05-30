@@ -19,7 +19,9 @@ export default {
         return this.data.accessToken;
     },
     validateResult: function (res, callback) {
-        if (res.data.errCode == 400) {
+        if (!!res.message) {
+            global.vue.$message('请求错误：' + res.message);
+        } else if (res.data.errCode == 400) {
             global.vue.$message('请先登录');
             window.location = apimix.apilist1.HOST + "/static/manage/login.html";
         } else if (res.data.errCode == 402) {

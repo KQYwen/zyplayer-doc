@@ -139,6 +139,8 @@
 
 <script>
     import global from './common/config/global'
+    import toast from './common/lib/common/toast'
+
     var app;
     export default {
         data() {
@@ -208,7 +210,13 @@
                 alert(msg)
             },
             createWiki() {
-
+                if (app.nowSpaceId > 0) {
+                    this.newPageId = "";
+                    this.newPageTitle = "";
+                    this.rightContentType = 2;
+                } else {
+                    toast.warn("请先选择或创建空间");
+                }
             },
             searchByKeywords() {
                 this.sendMsgToParent();
@@ -222,6 +230,8 @@
                 console.log("点击节点：", data);
                 app.lastClickNode = data;
                 app.urlParamPageId = app.lastClickNode.id;
+                var pageId = app.lastClickNode.id;
+                this.$router.push({path: '/page/show', query: {pageId: pageId}});
             },
             handleNodeExpand(node) {
                 if (node.children.length > 0 && node.children[0].needLoad) {
@@ -356,7 +366,7 @@
                 } else if (command == 'aboutDoc') {
                     app.aboutDialogVisible = true;
                 } else {
-                    // Toast.notOpen();
+                    toast.notOpen();
                 }
             },
             userSignOut() {
@@ -397,6 +407,9 @@
             },
             onNewSpaceCancel() {
                 this.newSpaceDialogVisible = false;
+            },
+            init() {
+
             },
         }
     }
