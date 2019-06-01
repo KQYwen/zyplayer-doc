@@ -95,12 +95,8 @@
 
 <script>
 	import toast from '../../common/lib/common/toast'
-	import jquery from '../../common/lib/jquery/jquery-3.1.0.min'
-	import wangEditorJs from '../../common/lib/wangEditor/wangEditor.min.js'
-	import wangEditorCss from '../../common/lib/wangEditor/wangEditor.min.css'
 	var app;
 	var page = {
-		newPageContentEditor: '',
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
 		userHeadColor: {},
 	};
@@ -121,7 +117,7 @@
 				recommentInfo: {},
 			};
 		},
-		beforeRouteUpdate(to, from, next){
+		beforeRouteUpdate(to, from, next) {
 			var pageId = to.query.pageId;
 			if (!!pageId) {
 				this.loadPageDetail(pageId);
@@ -137,6 +133,7 @@
 		},
 		methods: {
 			editWiki() {
+				this.$router.push({path: '/page/edit', query: {pageId: this.wikiPage.id}});
 				// this.rightContentType = 2;
 				// this.newPageId = app.wikiPage.id;
 				// this.newPageTitle = app.wikiPage.name;
@@ -165,7 +162,7 @@
 			loadPageDetail(pageId) {
 				app.rightContentType = 1;
 				var param = {id: pageId};
-				this.common.post(this.apilist1.updateDetail, param, function (json) {
+				this.common.post(this.apilist1.pageDetail, param, function (json) {
 					var wikiPage = json.data.wikiPage || {};
 					wikiPage.selfZan = json.data.selfZan || 0;
 					app.wikiPage = wikiPage;

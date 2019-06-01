@@ -71,7 +71,7 @@
                     <el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%;">
                         <el-option :key="1" label="公共空间" :value="1">
                             <span style="float: left">公共空间</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px;">属于公共，登录用户可访问</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px;">属于公共，登录用户可访问、编辑</span>
                         </el-option>
                         <el-option :key="2" label="个人空间" :value="2">
                             <span style="float: left">个人空间</span>
@@ -211,9 +211,7 @@
             },
             createWiki() {
                 if (app.nowSpaceId > 0) {
-                    this.newPageId = "";
-                    this.newPageTitle = "";
-                    this.rightContentType = 2;
+					this.$router.push({path: '/page/edit'});
                 } else {
                     toast.warn("请先选择或创建空间");
                 }

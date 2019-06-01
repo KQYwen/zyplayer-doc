@@ -5,7 +5,7 @@ var URL = {
     pageUpdate: '/zyplayer-doc-wiki/page/update',
     pageList: '/zyplayer-doc-wiki/page/list',
     updatePage: '/zyplayer-doc-wiki/page/update',
-    updateDetail: '/zyplayer-doc-wiki/page/detail',
+    pageDetail: '/zyplayer-doc-wiki/page/detail',
     spaceList: '/zyplayer-doc-wiki/space/list',
     updateSpace: '/zyplayer-doc-wiki/space/update',
 

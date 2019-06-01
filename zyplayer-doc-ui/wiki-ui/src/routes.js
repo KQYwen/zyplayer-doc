@@ -4,6 +4,7 @@ import UserLogin from './views/user/Login.vue'
 import UserRouterView from './views/user/RouterView.vue'
 
 import PageShow from './views/page/Show.vue'
+import PageEdit from './views/page/Edit.vue'
 import PageRouterView from './views/page/RouterView.vue'
 
 import CommonNoAuth from './views/common/NoAuth.vue'
@@ -29,6 +30,7 @@ let routes = [
         component: PageRouterView,
         children: [
             {path: 'show', name: '页面内容展示',component: PageShow},
+            {path: 'edit', name: '编辑内容',component: PageEdit},
         ]
     }, {
         path: '/common',
