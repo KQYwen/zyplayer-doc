@@ -23,7 +23,7 @@ export default {
             global.vue.$message('请求错误：' + res.message);
         } else if (res.data.errCode == 400) {
             global.vue.$message('请先登录');
-            window.location = apimix.apilist1.HOST + "/static/manage/login.html";
+            // window.location = apimix.apilist1.HOST + "/static/manage/login.html";
         } else if (res.data.errCode == 402) {
             global.vue.$router.push("/common/noAuth");
         } else if (res.data.errCode !== 200) {

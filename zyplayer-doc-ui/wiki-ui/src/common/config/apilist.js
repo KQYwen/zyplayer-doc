@@ -14,6 +14,8 @@ var URL = {
     updatePageComment: '/zyplayer-doc-wiki/page/comment/update',
     pageZanList: '/zyplayer-doc-wiki/page/zan/list',
     updatePageZan: '/zyplayer-doc-wiki/page/zan/update',
+
+    commonUpload: '/zyplayer-doc-wiki/common/upload',
 };
 
 var URL1 = {};

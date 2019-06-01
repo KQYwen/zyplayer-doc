@@ -1,18 +1,17 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.io.Serializable;
 import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
 
 /**
  * <p>
- *
+ * 用户权限表
  * </p>
  *
  * @author 暮光：城中城
- * @since 2018-12-05
+ * @since 2019-05-31
  */
 public class UserAuth implements Serializable {
 
@@ -58,6 +57,11 @@ public class UserAuth implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+
+    /**
+     * 自定义权限结尾
+     */
+    private String authCustomSuffix;
 
     public Long getId() {
         return id;
@@ -115,6 +119,13 @@ public class UserAuth implements Serializable {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+    public String getAuthCustomSuffix() {
+        return authCustomSuffix;
+    }
+
+    public void setAuthCustomSuffix(String authCustomSuffix) {
+        this.authCustomSuffix = authCustomSuffix;
+    }
 
     @Override
     public String toString() {
@@ -127,6 +138,7 @@ public class UserAuth implements Serializable {
         ", delFlag=" + delFlag +
         ", creationTime=" + creationTime +
         ", updateTime=" + updateTime +
+        ", authCustomSuffix=" + authCustomSuffix +
         "}";
     }
 }

@@ -11,6 +11,7 @@ import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
+import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * 文档控制器
@@ -69,7 +69,7 @@ public class WikiPageFileController {
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
-		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有该空间的文件上传权限！");
 		}
 		if (id != null && id > 0) {

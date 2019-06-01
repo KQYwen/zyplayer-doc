@@ -9,6 +9,7 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
+import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +56,7 @@ public class WikiSpaceController {
 			if (Objects.equals(wikiSpaceSel.getEditType(), 1)) {
 				return DocResponseJson.warn("当前空间不允许编辑！");
 			}
-			if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有该空间的编辑权！");
 			}
 			wikiSpace.setUuid(null);

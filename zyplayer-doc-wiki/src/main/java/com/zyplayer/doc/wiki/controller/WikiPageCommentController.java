@@ -13,6 +13,7 @@ import com.zyplayer.doc.data.service.manage.WikiPageCommentService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageCommentVo;
+import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,6 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +54,7 @@ public class WikiPageCommentController {
 		WikiPage wikiPageSel = wikiPageService.getById(pageComment.getPageId());
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
-		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有查看该空间的评论权！");
 		}
 		UpdateWrapper<WikiPageComment> wrapper = new UpdateWrapper<>();
@@ -87,7 +87,7 @@ public class WikiPageCommentController {
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
-		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有该空间的评论权！");
 		}
 		if (id != null && id > 0) {

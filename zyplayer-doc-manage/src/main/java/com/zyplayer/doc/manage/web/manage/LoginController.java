@@ -57,7 +57,11 @@ public class LoginController {
 		if (userAuthList != null && userAuthList.size() > 0) {
 			List<Long> authIdList = userAuthList.stream().map(UserAuth::getAuthId).collect(Collectors.toList());
 			Collection<AuthInfo> authInfoList = authInfoService.listByIds(authIdList);
-			userAuthSet = authInfoList.stream().map(AuthInfo::getAuthName).collect(Collectors.toSet());
+			Map<Long, String> authNameMap = authInfoList.stream().collect(Collectors.toMap(AuthInfo::getId, AuthInfo::getAuthName));
+			userAuthSet = userAuthList.stream().map(val -> {
+				String authName = Optional.ofNullable(authNameMap.get(val.getAuthId())).orElse("");
+				return authName + val.getAuthCustomSuffix();
+			}).collect(Collectors.toSet());
 		}
 		String accessToken = RandomUtil.simpleUUID();
 		DocUserDetails userDetails = new DocUserDetails(userInfo.getId(), userInfo.getUserName(), userInfo.getPassword(), true, userAuthSet);

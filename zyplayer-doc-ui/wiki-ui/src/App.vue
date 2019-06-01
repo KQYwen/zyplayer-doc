@@ -4,8 +4,8 @@
             <router-view></router-view>
         </template>
         <el-container v-else>
-            <el-aside width="200px">
-                <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;" v-show="leftCollapse">
+            <el-aside v-show="leftCollapse">
+                <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
                     <div style="margin-bottom: 10px;">
                         <el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
                             <el-option-group label="">
@@ -362,7 +362,7 @@
             userSettingDropdown(command) {
                 console.log("command:" + command);
                 if (command == 'userSignOut') {
-                    // this.userSignOut();
+                    this.userSignOut();
                 } else if (command == 'aboutDoc') {
                     app.aboutDialogVisible = true;
                 } else {

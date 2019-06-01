@@ -10,6 +10,7 @@ import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
+import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
@@ -52,15 +53,15 @@ public class WikiPageController {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
 		// 私人空间
-		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有查看该空间的文章列表！");
 		}
 		UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
 		wrapper.eq("del_flag", 0);
 		wrapper.eq("space_id", wikiPage.getSpaceId());
 		wrapper.eq(wikiPage.getParentId() != null, "parent_id", wikiPage.getParentId());
-		List<WikiPage> authList = wikiPageService.list(wrapper);
-		Map<Long, List<WikiPageVo>> listMap = authList.stream().map(val -> mapper.map(val, WikiPageVo.class)).collect(Collectors.groupingBy(WikiPageVo::getParentId));
+		List<WikiPage> wikiPageList = wikiPageService.list(wrapper);
+		Map<Long, List<WikiPageVo>> listMap = wikiPageList.stream().map(val -> mapper.map(val, WikiPageVo.class)).collect(Collectors.groupingBy(WikiPageVo::getParentId));
 		List<WikiPageVo> nodePageList;
 		if (wikiPage.getParentId() == null) {
 			nodePageList = listMap.get(0L);
@@ -77,7 +78,7 @@ public class WikiPageController {
 		WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
-		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有查看该空间的文章详情！");
 		}
 		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
@@ -122,7 +123,7 @@ public class WikiPageController {
 			}
 			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 			// 私人空间不允许调用接口获取文章
-			if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有修改该空间的文章权限！");
 			}
 			wikiPage.setEditType(null);

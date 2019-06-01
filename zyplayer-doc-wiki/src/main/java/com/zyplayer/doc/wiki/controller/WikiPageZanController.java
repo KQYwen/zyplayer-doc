@@ -12,6 +12,7 @@ import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiPageZanService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
+import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 文档控制器
@@ -47,7 +47,7 @@ public class WikiPageZanController {
 		WikiPage wikiPageSel = wikiPageService.getById(wikiPageZan.getPageId());
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
-		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有获取该空间的点赞列表权限！");
 		}
 		UpdateWrapper<WikiPageZan> wrapper = new UpdateWrapper<>();
@@ -74,7 +74,7 @@ public class WikiPageZanController {
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
-		if (Objects.equals(wikiSpaceSel.getType(), 3) && !currentUser.getUserId().equals(wikiSpaceSel.getCreateUserId())) {
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有该空间的点赞权限！");
 		}
 		wikiPageZanService.zanPage(wikiPageZan);

@@ -12,7 +12,8 @@
 			<div class="wiki-author">
 				<span>创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span></span>
 				<div style="float: right;">
-					<el-upload class="upload-page-file" action="zyplayer-doc-wiki/common/upload"
+					<el-upload class="upload-page-file" :action="apilist1.commonUpload"
+							   :with-credentials="true"
 							   :on-success="uploadFileSuccess" :on-error="uploadFileError"
 							   name="files" show-file-list multiple :data="uploadFormData" :limit="999">
 						<el-button icon="el-icon-upload">上传附件</el-button>
@@ -120,6 +121,13 @@
 				recommentInfo: {},
 			};
 		},
+		beforeRouteUpdate(to, from, next){
+			var pageId = to.query.pageId;
+			if (!!pageId) {
+				this.loadPageDetail(pageId);
+			}
+			next();
+		},
 		mounted: function () {
 			app = this;
 			var pageId = this.$route.query.pageId;
@@ -226,10 +234,10 @@
 				toast.success("上传失败，" + err);
 			},
 			uploadFileSuccess(response) {
-				if (this.common.validateResult(response)) {
+				this.common.validateResult({data: response}, function () {
 					app.pageFileList.push(response.data);
 					toast.success("上传成功！");
-				}
+				});
 			},
 			deletePageFile(row) {
 				this.$confirm('确定要删除此文件吗？', '提示', {
