@@ -3,21 +3,23 @@
 		<el-row type="border-card">
 			<div class="wiki-title">
 				{{wikiPage.name}}
-				<div style="float: right;">
-					<el-button type="text" icon="el-icon-edit" v-on:click="editWiki">编辑</el-button>
-					<el-button type="text" icon="el-icon-setting" v-on:click="editWikiAuth">访问权限</el-button>
-					<el-button type="text" icon="el-icon-delete" v-on:click="deleteWikiPage">删除</el-button>
-				</div>
 			</div>
 			<div class="wiki-author">
-				<span>创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span></span>
-				<div style="float: right;">
-					<el-upload class="upload-page-file" :action="apilist1.commonUpload"
-							   :with-credentials="true"
-							   :on-success="uploadFileSuccess" :on-error="uploadFileError"
-							   name="files" show-file-list multiple :data="uploadFormData" :limit="999">
-						<el-button icon="el-icon-upload">上传附件</el-button>
-					</el-upload>
+				<div>
+					创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　
+					<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span>
+					<div style="float: right;">
+						<el-upload class="upload-page-file" :action="apilist1.commonUpload"
+								   :with-credentials="true"
+								   :on-success="uploadFileSuccess" :on-error="uploadFileError"
+								   name="files" show-file-list multiple :data="uploadFormData" :limit="999"
+								   style="display: inline;margin-right: 10px;">
+							<el-button type="text" icon="el-icon-upload">上传附件</el-button>
+						</el-upload>
+						<el-button type="text" icon="el-icon-edit" v-on:click="editWiki">编辑</el-button>
+						<el-button type="text" icon="el-icon-setting" v-on:click="editWikiAuth">访问权限</el-button>
+						<el-button type="text" icon="el-icon-delete" v-on:click="deleteWikiPage">删除</el-button>
+					</div>
 				</div>
 			</div>
 			<div class="wiki-files">
@@ -95,6 +97,7 @@
 
 <script>
 	import toast from '../../common/lib/common/toast'
+	import global from '../../common/config/global'
 	var app;
 	var page = {
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
@@ -129,6 +132,9 @@
 			var pageId = this.$route.query.pageId;
 			if (!!pageId) {
 				this.loadPageDetail(pageId);
+				setTimeout(function () {
+					global.vue.$app.changeWikiPageExpandedKeys(pageId);
+				}, 200);
 			}
 		},
 		methods: {

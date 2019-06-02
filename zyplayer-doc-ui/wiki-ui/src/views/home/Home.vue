@@ -1,5 +1,5 @@
 <template>
-    <div v-on:click="sendMsgToParent">
+    <div>
         <div style="margin-top: 30px;color: #666; text-align: center; font-size: 30px;">欢迎使用在线文档</div>
         <div style="margin-top: 30px;color: #666; text-align: center;">
             {{nowSpaceShow.name}}
@@ -28,7 +28,7 @@
                 // this.common.post(this.apilist1.getUserInfo, {}, function (json) {});
             },
             sendMsgToParent: function () {
-                global.vue.$app.sendMsgToParent("xxx");
+                // global.vue.$app.sendMsgToParent("xxx");
             }
         }
     }

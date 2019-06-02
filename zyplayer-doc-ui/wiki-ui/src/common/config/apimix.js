@@ -5,11 +5,11 @@ var href = window.location.href;
 var _fn = {
     href: href,
     // 这里设置接口域名
-    HOST: 'http://local.zyplayer.com:8083/zyplayer-doc-manage',
-    HOST1: 'http://local.zyplayer.com:8083/zyplayer-doc-manage',
-    // 打包时使用下面这两行，就是上两级的意思
-    // HOST: '../..',
-    // HOST1: '../..',
+    // HOST: 'http://local.zyplayer.com:8083/zyplayer-doc-manage',
+    // HOST1: 'http://local.zyplayer.com:8083/zyplayer-doc-manage',
+    // 打包时使用下面这两行，文件就放在根目录下，所以当前路劲就好
+    HOST: './',
+    HOST1: './',
 
     mixUrl: function (host, url) {
         var p;

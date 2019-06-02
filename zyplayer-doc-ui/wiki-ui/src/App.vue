@@ -148,7 +148,6 @@
                 leftCollapse: true,
                 aboutDialogVisible: false,
                 rightContentLoading: false,
-                rightContentType: 0,// 右侧显示类型，0=欢迎页 1=文章内容 2=编辑或新增文章
                 pathIndex: [],
                 defaultProps: {
                     children: 'children',
@@ -158,7 +157,6 @@
                 spaceOptions: [],
                 spaceList:[],
                 choiceSpace: "",
-                nowSpaceId: '',
                 nowSpaceShow: {},
                 newSpaceDialogVisible: false,
                 manageSpaceDialogVisible: false,
@@ -169,11 +167,14 @@
                         {min: 2, max: 25, message: '长度在 2 到 25 个字符', trigger: 'blur'}
                     ],
                 },
+                nowClickPath: {
+                    id: '',
+                    path: '',
+                },
                 // 依据目录树存储的map全局对象
                 treePathDataMap: new Map(),
                 // 搜索的输入内容
                 searchKeywords: "",
-                lastClickNode: {},
                 // 编辑相关
                 newPageId: "",
                 newPageTitle: "",
@@ -206,30 +207,27 @@
             this.loadSpaceList();
         },
         methods: {
-            sendMsgToParent: function (msg) {
-                alert(msg)
-            },
             createWiki() {
-                if (app.nowSpaceId > 0) {
-					this.$router.push({path: '/page/edit'});
+                if (this.nowClickPath.spaceId > 0) {
+                    var param = {
+                        spaceId: this.nowClickPath.spaceId,
+                        parentId: this.nowClickPath.parentId, path: this.nowClickPath.path
+                    };
+                    this.$router.push({path: '/page/edit', query: param});
                 } else {
                     toast.warn("请先选择或创建空间");
                 }
             },
+            changeWikiPageExpandedKeys(pageId) {
+                this.wikiPageExpandedKeys = [pageId];
+            },
             searchByKeywords() {
-                this.sendMsgToParent();
                 this.$refs.wikiPageTree.filter(app.searchKeywords);
             },
             handleNodeClick(data) {
-                app.rightContentType = 1;
-                if (app.lastClickNode.id == data.id) {
-                    return;
-                }
                 console.log("点击节点：", data);
-                app.lastClickNode = data;
-                app.urlParamPageId = app.lastClickNode.id;
-                var pageId = app.lastClickNode.id;
-                this.$router.push({path: '/page/show', query: {pageId: pageId}});
+                this.nowClickPath = {spaceId: this.nowClickPath.spaceId, pageId: data.id, parentId: data.id, path: data.path};
+                this.$router.push({path: '/page/show', query: this.nowClickPath});
             },
             handleNodeExpand(node) {
                 if (node.children.length > 0 && node.children[0].needLoad) {
@@ -244,7 +242,7 @@
                 if (dropType == 'inner') {
                     param.parentId = dropNode.data.id;
                 }
-                this.common.post(this.apilist1.pageUpdate, param, function (json) {
+                this.common.post(this.apilist1.pageChangeParent, param, function (json) {
                     app.doGetPageList(null);
                 });
             },
@@ -274,14 +272,15 @@
             spaceChangeEvents(data) {
                 if (data == 0) {
                     app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
-                    app.choiceSpace = app.nowSpaceId;
+                    app.choiceSpace = app.nowClickPath.spaceId;
                     app.newSpaceDialogVisible = true;
                 } else if (data == -1) {
-                    app.choiceSpace = app.nowSpaceId;
+                    // 使得选择的空间展示不变
+                    app.choiceSpace = app.nowClickPath.spaceId;
                     app.manageSpaceDialogVisible = true;
                 } else {
-                    app.nowSpaceId = data;
-                    app.rightContentType = 0;
+                    // 切换空间，重新初始化当前点击项，防止创建保存到之前点击的空间下去了
+                    app.nowClickPath = {spaceId: data};
                     for (var i = 0; i < app.spaceList.length; i++) {
                         if (app.spaceList[i].id == data) {
                             app.nowSpaceShow = app.spaceList[i];
@@ -289,6 +288,7 @@
                         }
                     }
                     app.doGetPageList(null);
+                    app.$router.push({path: '/home'});
                 }
             },
             loadSpaceList() {
@@ -302,9 +302,10 @@
                     }
                     app.spaceOptions = spaceOptions;
                     if (app.spaceList.length > 0) {
-                        app.nowSpaceId = app.spaceList[0].id;
+                        var spaceId = app.spaceList[0].id;
                         app.nowSpaceShow = app.spaceList[0];
-                        app.choiceSpace = app.nowSpaceId;
+                        app.nowClickPath = {spaceId: spaceId};
+                        app.choiceSpace = spaceId;
                         app.doGetPageList(null);
                     }
                 });
@@ -319,7 +320,7 @@
                 } else {
                     nodePath = "/";
                 }
-                var param = {spaceId: this.nowSpaceId, parentId: parentId || 0};
+                var param = {spaceId: app.nowClickPath.spaceId, parentId: parentId || 0};
                 if (app.nowSpaceShow.treeLazyLoad == 0) {
                     param.parentId = null;
                 }
@@ -391,10 +392,9 @@
                                 app.spaceOptions.push({
                                     label: json.data.name, value: json.data.id
                                 });
-                                app.nowSpaceId = json.data.id;
                                 app.nowSpaceShow = json.data;
-                                app.choiceSpace = app.nowSpaceId;
-                                app.rightContentType = 0;
+                                app.nowClickPath = {spaceId: json.data.id};
+                                app.choiceSpace = json.data.id;
                                 app.doGetPageList(null);
                             }
                             app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};

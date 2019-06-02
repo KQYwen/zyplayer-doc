@@ -3,6 +3,7 @@ var URL = {
     userLogout: '/user/logout',
     getUserInfo: '/user/getUserInfo',
     pageUpdate: '/zyplayer-doc-wiki/page/update',
+    pageChangeParent: '/zyplayer-doc-wiki/page/changeParent',
     pageList: '/zyplayer-doc-wiki/page/list',
     updatePage: '/zyplayer-doc-wiki/page/update',
     pageDetail: '/zyplayer-doc-wiki/page/detail',

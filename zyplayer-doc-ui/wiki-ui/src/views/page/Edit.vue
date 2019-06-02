@@ -7,7 +7,7 @@
 			<div style="margin-bottom: 10px;padding: 10px;" v-else>
 				父级：{{parentPath.path || '/'}}　
 				<el-tooltip class="item" content="在根目录创建文档">
-					<el-button type="text" @click="parentPath = {}" style="padding: 0 10px;">根目录</el-button>
+					<el-button type="text" @click="changeToRootPath" style="padding: 0 10px;">根目录</el-button>
 				</el-tooltip>
 			</div>
 			<el-input v-model="newPageTitle" placeholder="请输入标题"></el-input>
@@ -20,6 +20,7 @@
 
 <script>
 	import toast from '../../common/lib/common/toast'
+	import global from '../../common/config/global'
 	import WangEditor from 'wangeditor'
 
 	var app;
@@ -28,13 +29,8 @@
 			return {
 				editor: {},
 				// 编辑相关
-				nowSpaceId: "",
-				newPageId: "",
 				newPageTitle: "",
-				parentPath: {
-					id: '',
-					path: '',
-				},
+				parentPath: {},
 				wikiPage: {},
 			};
 		},
@@ -48,6 +44,9 @@
 			this.initQueryParam(this.$route);
 		},
 		methods: {
+			changeToRootPath() {
+				app.parentPath = {spaceId: this.parentPath.spaceId};
+			},
 			createWikiCancel() {
 				this.$confirm('确定要取消编辑吗？您编辑的内容将不会被保存哦~', '提示', {
 					confirmButtonText: '确定',
@@ -58,26 +57,24 @@
 				});
 			},
 			createWikiSave() {
-				var parentId = app.parentPath.id;
-				if (this.wikiPage.id > 0) {
-					parentId = "";
-				}
+				// 修改内容时强制不能修改父路径，只能在目录上拖动修改
+				var parentId = (this.wikiPage.id > 0) ? '' : app.parentPath.parentId;
 				if (this.common.isEmpty(app.newPageTitle)) {
 					toast.warn("标题不能为空");
 					return;
 				}
 				var param = {
-					spaceId: app.nowSpaceId,
+					spaceId: app.parentPath.spaceId,
+					parentId: parentId,
 					id: app.wikiPage.id,
 					name: app.newPageTitle,
-					parentId: parentId,
 					content: this.editor.txt.html()
 				};
 				this.common.post(this.apilist1.updatePage, param, function (json) {
 					toast.success("保存成功！");
-					// app.urlParamPageId = json.data.id;
-					// app.loadPageDetail(json.data.id);
-					// app.doGetPageList(null);
+					// 重新加载左侧列表，跳转到展示页面
+					global.vue.$app.doGetPageList(null);
+					app.$router.push({path: '/page/show', query: {pageId: json.data.id}});
 				});
 			},
 			loadPageDetail(pageId) {
@@ -88,7 +85,6 @@
 					app.pageContent = json.data.pageContent || {};
 					app.pageFileList = json.data.fileList || [];
 					// 内容
-					app.nowSpaceId = app.wikiPage.spaceId;
 					app.newPageTitle = app.wikiPage.name;
 					app.editor.txt.html(app.pageContent.content || "");
 				});
@@ -103,10 +99,12 @@
 				}
 			},
 			initQueryParam(to) {
-				this.nowSpaceId = to.query.spaceId;
-				var pageId = to.query.pageId;
-				if (!!pageId) {
-					this.loadPageDetail(pageId);
+				this.parentPath = {
+					spaceId: to.query.spaceId, pageId: to.query.pageId,
+					parentId: to.query.parentId, path: to.query.path
+				};
+				if (!!this.parentPath.pageId) {
+					this.loadPageDetail(this.parentPath.pageId);
 				} else {
 					this.cleanPage();
 				}

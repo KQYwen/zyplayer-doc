@@ -65,7 +65,7 @@ public class WikiPageController {
 		List<WikiPageVo> nodePageList;
 		if (wikiPage.getParentId() == null) {
 			nodePageList = listMap.get(0L);
-			this.setChildren(listMap, nodePageList);
+			this.setChildren(listMap, nodePageList, "");
 		} else {
 			nodePageList = listMap.get(wikiPage.getParentId());
 		}
@@ -104,6 +104,29 @@ public class WikiPageController {
 		vo.setFileList(pageFiles);
 		vo.setSelfZan((pageZan != null) ? 1 : 0);
 		return DocResponseJson.ok(vo);
+	}
+	
+	@PostMapping("/changeParent")
+	public ResponseJson<Object> changeParent(WikiPage wikiPage) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		Long id = wikiPage.getId();
+		WikiPage wikiPageSel = wikiPageService.getById(id);
+		if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
+			return DocResponseJson.warn("当前页面不允许编辑！");
+		}
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 私人空间不允许调用接口获取文章
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.warn("您没有修改该空间的文章权限！");
+		}
+		WikiPage wikiPageUp = new WikiPage();
+		wikiPageUp.setId(wikiPage.getId());
+		wikiPageUp.setParentId(wikiPage.getParentId());
+		wikiPageUp.setUpdateTime(new Date());
+		wikiPageUp.setUpdateUserId(currentUser.getUserId());
+		wikiPageUp.setUpdateUserName(currentUser.getUsername());
+		wikiPageService.updateById(wikiPage);
+		return DocResponseJson.ok();
 	}
 	
 	@PostMapping("/update")
@@ -153,15 +176,17 @@ public class WikiPageController {
 		return DocResponseJson.ok(wikiPage);
 	}
 	
-	private void setChildren(Map<Long, List<WikiPageVo>> listMap, List<WikiPageVo> nodePageList) {
+	private void setChildren(Map<Long, List<WikiPageVo>> listMap, List<WikiPageVo> nodePageList, String path) {
 		if (nodePageList == null || listMap == null) {
 			return;
 		}
 		for (WikiPageVo page : nodePageList) {
+			String nowPath = path + "/" + page.getName();
+			page.setPath(nowPath);
 			List<WikiPageVo> wikiPageVos = listMap.get(page.getId());
 			if (wikiPageVos != null && wikiPageVos.size() > 0) {
 				page.setChildren(wikiPageVos);
-				this.setChildren(listMap, wikiPageVos);
+				this.setChildren(listMap, wikiPageVos, nowPath);
 			}
 		}
 	}
