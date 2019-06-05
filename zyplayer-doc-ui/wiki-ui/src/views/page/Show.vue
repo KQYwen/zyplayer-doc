@@ -17,7 +17,7 @@
 							<el-button type="text" icon="el-icon-upload">上传附件</el-button>
 						</el-upload>
 						<el-button type="text" icon="el-icon-edit" v-on:click="editWiki">编辑</el-button>
-						<el-button type="text" icon="el-icon-setting" v-on:click="editWikiAuth">访问权限</el-button>
+						<el-button type="text" icon="el-icon-setting" v-on:click="editWikiAuth">权限设置</el-button>
 						<el-button type="text" icon="el-icon-delete" v-on:click="deleteWikiPage">删除</el-button>
 					</div>
 				</div>
@@ -51,6 +51,9 @@
 					<span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0"><span class="is-link" v-on:click="showZanPageUser">{{wikiPage.zanNum}}人</span>赞了它</span>
 					<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
 					<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1"><span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它</span>
+				</span>
+				<span style="margin-left: 10px;">
+					<i class="el-icon-view" style="font-size: 16px;color: #666;"></i> {{wikiPage.viewNum}}次阅读
 				</span>
 			</div>
 			<div v-show="commentList.length > 0" class="comment-box" style="margin-top: 20px;">
@@ -92,6 +95,38 @@
 				<el-table-column prop="createTime" label="时间"></el-table-column>
 			</el-table>
 		</el-dialog>
+		<!--人员权限弹窗-->
+		<el-dialog title="页面权限" :visible.sync="pageAuthDialogVisible" width="900px">
+			<el-row>
+				<el-select v-model="pageAuthNewUser" filterable remote reserve-keyword
+						placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList"
+					   :loading="pageAuthUserLoading" style="width: 750px;">
+					<el-option v-for="item in searchUserList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
+				</el-select>
+                <el-button v-on:click="addPageAuthUser">添加</el-button>
+            </el-row>
+			<el-table :data="pageAuthUserList" border style="width: 100%; margin: 10px 0;">
+				<el-table-column prop="userName" label="用户" width="150"></el-table-column>
+				<el-table-column label="权限">
+					<template slot-scope="scope">
+						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.editPage">查看</el-checkbox>
+						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.commentPage">评论</el-checkbox>
+						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.deletePage">删除</el-checkbox>
+						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.pageFileUpload">文件上传</el-checkbox>
+						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.pageFileDelete">文件删除</el-checkbox>
+						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.pageAuthManage">权限管理</el-checkbox>
+					</template>
+				</el-table-column>
+				<el-table-column label="操作" width="80">
+					<template slot-scope="scope">
+						<el-button size="small" type="danger" plain v-on:click="deleteUserPageAuth(scope.row)">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+            <div>
+                <el-button type="primary" v-on:click="saveUserPageAuth">保存配置</el-button>
+            </div>
+		</el-dialog>
 	</div>
 </template>
 
@@ -114,42 +149,99 @@
 				uploadFormData: {pageId: 0},
 				zanUserDialogVisible: false,
 				zanUserList: [],
+				parentPath: {},
 				// 评论相关
 				commentTextInput: "",
 				commentList: [],
 				recommentInfo: {},
+				// 页面权限
+				pageAuthDialogVisible: false,
+				pageAuthUserList: [],
+                searchUserList: [],
+                pageAuthNewUser: "",
+				pageAuthUserLoading: false,
 			};
 		},
 		beforeRouteUpdate(to, from, next) {
-			var pageId = to.query.pageId;
-			if (!!pageId) {
-				this.loadPageDetail(pageId);
-			}
+			this.initQueryParam(to);
 			next();
 		},
 		mounted: function () {
 			app = this;
-			var pageId = this.$route.query.pageId;
-			if (!!pageId) {
-				this.loadPageDetail(pageId);
+			this.initQueryParam(this.$route);
+			if (!!this.parentPath.pageId) {
+				// 延迟设置展开的目录，edit比app先初始化
 				setTimeout(function () {
-					global.vue.$app.changeWikiPageExpandedKeys(pageId);
-				}, 200);
+					global.vue.$app.changeWikiPageExpandedKeys(app.parentPath.pageId);
+				}, 500);
 			}
 		},
 		methods: {
 			editWiki() {
-				this.$router.push({path: '/page/edit', query: {pageId: this.wikiPage.id}});
-				// this.rightContentType = 2;
-				// this.newPageId = app.wikiPage.id;
-				// this.newPageTitle = app.wikiPage.name;
-				// page.newPageContentEditor.txt.html(app.pageContent.content || "");
+				this.$router.push({path: '/page/edit', query: this.parentPath});
+			},
+			getSearchUserList(query) {
+				if (query == '') {
+					return;
+				}
+				this.pageAuthUserLoading = true;
+				var param = {search: query};
+				this.common.post(this.apilist1.getUserBaseInfo, param, function (json) {
+					app.searchUserList = json.data || [];
+					app.pageAuthUserLoading = false;
+				});
+			},
+            addPageAuthUser() {
+                if (this.pageAuthNewUser.length <= 0) {
+                    toast.warn("请先选择用户");
+                    return;
+                }
+				var userName = "";
+				for (var i = 0; i < this.searchUserList.length; i++) {
+					if (this.pageAuthNewUser == this.searchUserList[i].id) {
+						userName = this.searchUserList[i].userName;
+						break;
+					}
+				}
+				this.pageAuthUserList.push({
+					userName: userName,
+                    userId: this.pageAuthNewUser,
+					editPage: 0,
+                    commentPage: 0,
+                    deletePage: 0,
+                    pageFileUpload: 0,
+                    pageFileDelete: 0,
+                    pageAuthManage: 0,
+                });
+				this.pageAuthNewUser = "";
 			},
 			editWikiAuth() {
-				toast.notOpen();
+				app.pageAuthNewUser = [];
+				app.pageAuthUserList = [];
+				var param = {pageId: app.wikiPage.id};
+				this.common.post(this.apilist1.getPageUserAuthList, param, function (json) {
+					app.pageAuthUserList = json.data || [];
+					app.pageAuthDialogVisible = true;
+				});
+			},
+			saveUserPageAuth() {
+				var param = {pageId: app.wikiPage.id, authList: JSON.stringify(app.pageAuthUserList)};
+				this.common.post(this.apilist1.assignPageUserAuth, param, function (json) {
+					toast.success("保存成功！");
+				});
 			},
 			notOpen() {
 				toast.notOpen();
+			},
+            deleteUserPageAuth(row) {
+                var pageAuthUserList = [];
+                for (var i = 0; i < this.pageAuthUserList.length; i++) {
+                    var item = this.pageAuthUserList[i];
+                    if (item.userId != row.userId) {
+                        pageAuthUserList.push(this.pageAuthUserList[i]);
+                    }
+                }
+                this.pageAuthUserList = pageAuthUserList;
 			},
 			deleteWikiPage() {
 				this.$confirm('确定要删除此页面吗？', '提示', {
@@ -159,9 +251,9 @@
 				}).then(() => {
 					var param = {id: app.wikiPage.id, delFlag: 1};
 					this.common.post(this.apilist1.updatePage, param, function (json) {
-						app.rightContentType = 0;
-						app.wikiPage = {};
-						app.doGetPageList(null);
+						// 重新加载左侧列表，跳转到展示页面
+						global.vue.$app.doGetPageList(null);
+						app.$router.push({path: '/home'});
 					});
 				});
 			},
@@ -267,6 +359,15 @@
 					page.userHeadColor[userId] = color;
 				}
 				return color;
+			},
+			initQueryParam(to) {
+				this.parentPath = {
+					spaceId: to.query.spaceId, pageId: to.query.pageId,
+					parentId: to.query.parentId, path: to.query.path
+				};
+				if (!!this.parentPath.pageId) {
+					this.loadPageDetail(this.parentPath.pageId);
+				}
 			},
 		}
 	}

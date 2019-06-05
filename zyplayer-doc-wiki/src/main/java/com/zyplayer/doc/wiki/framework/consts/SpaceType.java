@@ -11,8 +11,12 @@ public class SpaceType {
 		return Objects.equals(type, publicSpace);
 	}
 	
-	public static boolean isPersonal(Integer type){
+	public static boolean isPersonal(Integer type) {
 		return Objects.equals(type, personalSpace);
+	}
+	
+	public static boolean isOthersPersonal(Integer type, Long loginUserId, Long spaceUserId){
+		return Objects.equals(type, personalSpace) && !Objects.equals(loginUserId, spaceUserId);
 	}
 	
 	public static boolean isPrivate(Integer type){

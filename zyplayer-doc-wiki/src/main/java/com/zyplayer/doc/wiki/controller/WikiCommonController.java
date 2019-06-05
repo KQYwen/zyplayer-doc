@@ -2,19 +2,24 @@ package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.aspect.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
+import com.zyplayer.doc.data.service.manage.UserInfoService;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.framework.consts.Const;
+import com.zyplayer.doc.wiki.framework.consts.SpaceType;
+import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +34,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 文档控制器
@@ -55,6 +57,21 @@ public class WikiCommonController {
 	WikiPageService wikiPageService;
 	@Resource
 	WikiSpaceService wikiSpaceService;
+	@Resource
+	UserInfoService userInfoService;
+	
+	@PostMapping("/user/base")
+	public ResponseJson<Object> userBaseInfo(String search) {
+		if (StringUtils.isBlank(search)) {
+			return DocResponseJson.ok();
+		}
+		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+		queryWrapper.like("user_name", search).or().like("user_no", search)
+				.or().like("email", search);
+		queryWrapper.select("id", "user_name");
+		List<UserInfo> userInfoList = userInfoService.list(queryWrapper);
+		return DocResponseJson.ok(userInfoList);
+	}
 	
 	@PostMapping("/wangEditor/upload")
 	public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
@@ -67,12 +84,28 @@ public class WikiCommonController {
 	
 	@PostMapping("/upload")
 	public ResponseJson<Object> upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		Long pageId = wikiPageFile.getPageId();
+		if (pageId != null && pageId > 0) {
+			WikiPage wikiPageSel = wikiPageService.getById(pageId);
+			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+			// 私人空间
+			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+				return DocResponseJson.warn("您没有该空间的文件上传权限！");
+			}
+			// 空间不是自己的，也没有权限
+			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+				boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.PAGE_FILE_UPLOAD.getName(), pageId);
+				if (!pageAuth) {
+					return DocResponseJson.warn("您没有修改该文章附件的权限！");
+				}
+			}
+		}
 		String fileName = file.getOriginalFilename();
 		String fileSuffix = "";
 		if (fileName != null && fileName.lastIndexOf(".") >= 0) {
 			fileSuffix = fileName.substring(fileName.lastIndexOf("."));
 		}
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		String path = uploadPath + "/" + DateTime.now().toString("yyyy/MM/dd") + "/";
 		File newFile = new File(path);
 		if (!newFile.exists() && !newFile.mkdirs()) {

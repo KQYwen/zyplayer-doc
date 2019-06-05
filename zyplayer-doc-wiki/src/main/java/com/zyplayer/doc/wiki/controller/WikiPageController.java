@@ -11,6 +11,7 @@ import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
+import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class WikiPageController {
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
 		// 私人空间
 		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			return DocResponseJson.warn("您没有查看该空间的文章列表！");
+			return DocResponseJson.warn("您没有权限查看该空间的文章列表！");
 		}
 		UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
 		wrapper.eq("del_flag", 0);
@@ -79,13 +80,12 @@ public class WikiPageController {
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
 		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			return DocResponseJson.warn("您没有查看该空间的文章详情！");
+			return DocResponseJson.warn("您没有权限查看该空间的文章详情！");
 		}
 		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
 		wrapper.eq("page_id", wikiPage.getId());
 		WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
 		
-		// TODO 检查space是否开放访问
 		UpdateWrapper<WikiPageFile> wrapperFile = new UpdateWrapper<>();
 		wrapperFile.eq("page_id", wikiPage.getId());
 		wrapperFile.eq("del_flag", 0);
@@ -103,6 +103,14 @@ public class WikiPageController {
 		vo.setPageContent(pageContent);
 		vo.setFileList(pageFiles);
 		vo.setSelfZan((pageZan != null) ? 1 : 0);
+		// 高并发下会有覆盖问题，但不重要~
+		Integer viewNum =  Optional.ofNullable(wikiPageSel.getViewNum()).orElse(0);
+		WikiPage wikiPageUp = new WikiPage();
+		wikiPageUp.setId(wikiPageSel.getId());
+		wikiPageUp.setViewNum(viewNum + 1);
+		wikiPageService.updateById(wikiPageUp);
+		// 修改返回值里的查看数+1
+		wikiPageSel.setViewNum(viewNum + 1);
 		return DocResponseJson.ok(vo);
 	}
 	
@@ -117,7 +125,14 @@ public class WikiPageController {
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间不允许调用接口获取文章
 		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			return DocResponseJson.warn("您没有修改该空间的文章权限！");
+			return DocResponseJson.warn("您没有权限修改该空间的文章！");
+		}
+		// 空间不是自己的，也没有权限
+		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.EDIT_PAGE.getName(), id);
+			if (!pageAuth) {
+				return DocResponseJson.warn("您没有修改该文章的权限！");
+			}
 		}
 		WikiPage wikiPageUp = new WikiPage();
 		wikiPageUp.setId(wikiPage.getId());
@@ -138,17 +153,25 @@ public class WikiPageController {
 		if (delFlag == 0 && StringUtils.isBlank(wikiPage.getName())) {
 			return DocResponseJson.warn("标题不能为空！");
 		}
-		Long id = wikiPage.getId();
-		if (id != null && id > 0) {
-			WikiPage wikiPageSel = wikiPageService.getById(id);
+		Long pageId = wikiPage.getId();
+		if (pageId != null && pageId > 0) {
+			WikiPage wikiPageSel = wikiPageService.getById(pageId);
 			if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
 				return DocResponseJson.warn("当前页面不允许编辑！");
 			}
-			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
 			// 私人空间不允许调用接口获取文章
 			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				return DocResponseJson.warn("您没有修改该空间的文章权限！");
+				return DocResponseJson.warn("您没有权限修改该空间的文章！");
 			}
+			// 空间不是自己的，也没有权限
+			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+				boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.EDIT_PAGE.getName(), pageId);
+				if (!pageAuth) {
+					return DocResponseJson.warn("您没有修改该文章的权限！");
+				}
+			}
+			wikiPage.setSpaceId(null);
 			wikiPage.setEditType(null);
 			wikiPage.setUpdateTime(new Date());
 			wikiPage.setUpdateUserId(currentUser.getUserId());
@@ -159,9 +182,14 @@ public class WikiPageController {
 			pageContent.setUpdateUserId(currentUser.getUserId());
 			pageContent.setUpdateUserName(currentUser.getUsername());
 			UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
-			wrapper.eq("page_id", id);
+			wrapper.eq("page_id", pageId);
 			wikiPageContentService.update(pageContent, wrapper);
 		} else {
+			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
+			// 空间不是自己的
+			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+				return DocResponseJson.warn("您没有权限新增该空间的文章！");
+			}
 			wikiPage.setCreateTime(new Date());
 			wikiPage.setCreateUserId(currentUser.getUserId());
 			wikiPage.setCreateUserName(currentUser.getUsername());

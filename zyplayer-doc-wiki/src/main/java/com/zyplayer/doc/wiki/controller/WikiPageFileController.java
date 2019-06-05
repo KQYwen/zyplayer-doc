@@ -12,6 +12,7 @@ import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
+import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,6 +72,13 @@ public class WikiPageFileController {
 		// 私人空间
 		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有该空间的文件上传权限！");
+		}
+		// 空间不是自己的，也没有权限
+		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.PAGE_FILE_UPLOAD.getName(), pageId);
+			if (!pageAuth) {
+				return DocResponseJson.warn("您没有修改该文章附件的权限！");
+			}
 		}
 		if (id != null && id > 0) {
 			wikiPageFile.setUpdateUserId(currentUser.getUserId());

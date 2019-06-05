@@ -53,7 +53,7 @@
 					cancelButtonText: '继续编辑',
 					type: 'warning'
 				}).then(() => {
-
+					app.$router.back();
 				});
 			},
 			createWikiSave() {
@@ -74,7 +74,8 @@
 					toast.success("保存成功！");
 					// 重新加载左侧列表，跳转到展示页面
 					global.vue.$app.doGetPageList(null);
-					app.$router.push({path: '/page/show', query: {pageId: json.data.id}});
+					app.parentPath.pageId = json.data.id;
+					app.$router.push({path: '/page/show', query: app.parentPath});
 				});
 			},
 			loadPageDetail(pageId) {

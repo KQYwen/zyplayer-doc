@@ -1,6 +1,6 @@
 var URL = {
-    userLogin: '/user/login',
-    userLogout: '/user/logout',
+    userLogin: '/login',
+    userLogout: '/logout',
     getUserInfo: '/user/getUserInfo',
     pageUpdate: '/zyplayer-doc-wiki/page/update',
     pageChangeParent: '/zyplayer-doc-wiki/page/changeParent',
@@ -9,6 +9,8 @@ var URL = {
     pageDetail: '/zyplayer-doc-wiki/page/detail',
     spaceList: '/zyplayer-doc-wiki/space/list',
     updateSpace: '/zyplayer-doc-wiki/space/update',
+    getPageUserAuthList: '/zyplayer-doc-wiki/page/auth/list',
+    assignPageUserAuth: '/zyplayer-doc-wiki/page/auth/assign',
 
     updatePageFile: '/zyplayer-doc-wiki/page/file/update',
     pageCommentList: '/zyplayer-doc-wiki/page/comment/list',
@@ -17,6 +19,7 @@ var URL = {
     updatePageZan: '/zyplayer-doc-wiki/page/zan/update',
 
     commonUpload: '/zyplayer-doc-wiki/common/upload',
+    getUserBaseInfo: '/zyplayer-doc-wiki/common/user/base',
 };
 
 var URL1 = {};

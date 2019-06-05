@@ -14,6 +14,7 @@ import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageCommentVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
+import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,13 @@ public class WikiPageCommentController {
 		// 私人空间
 		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有该空间的评论权！");
+		}
+		// 空间不是自己的，也没有权限
+		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.COMMENT_PAGE.getName(), pageId);
+			if (!pageAuth) {
+				return DocResponseJson.warn("您没有评论该文章的权限！");
+			}
 		}
 		if (id != null && id > 0) {
 			wikiPageCommentService.updateById(pageComment);

@@ -175,28 +175,10 @@
                 treePathDataMap: new Map(),
                 // 搜索的输入内容
                 searchKeywords: "",
-                // 编辑相关
-                newPageId: "",
-                newPageTitle: "",
                 // 页面展示相关
                 wikiPageList:[],
                 wikiPage: {},
                 wikiPageExpandedKeys: [],
-                pageContent: {},
-                pageFileList: [],
-                uploadFileList: [],
-                uploadFormData: {pageId: 0},
-                zanUserDialogVisible: false,
-                zanUserList: [],
-                // 评论相关
-                commentTextInput: "",
-                commentList: [],
-                recommentInfo: {},
-                // 页面跳转相关
-                initOver: false,
-                doNotPushState: false,
-                urlParamPageId: 0,
-                urlParam: {},
                 // 升级信息
                 upgradeInfo: {},
             }

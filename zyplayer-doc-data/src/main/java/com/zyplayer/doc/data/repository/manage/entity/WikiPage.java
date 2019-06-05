@@ -1,9 +1,10 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -11,7 +12,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-03-09
+ * @since 2019-06-05
  */
 public class WikiPage implements Serializable {
 
@@ -87,6 +88,11 @@ public class WikiPage implements Serializable {
      * 0=有效 1=删除
      */
     private Integer delFlag;
+
+    /**
+     * 阅读数
+     */
+    private Integer viewNum;
 
     public Long getId() {
         return id;
@@ -186,6 +192,13 @@ public class WikiPage implements Serializable {
     public void setDelFlag(Integer delFlag) {
         this.delFlag = delFlag;
     }
+    public Integer getViewNum() {
+        return viewNum;
+    }
+
+    public void setViewNum(Integer viewNum) {
+        this.viewNum = viewNum;
+    }
 
     @Override
     public String toString() {
@@ -204,6 +217,7 @@ public class WikiPage implements Serializable {
         ", updateUserName=" + updateUserName +
         ", updateTime=" + updateTime +
         ", delFlag=" + delFlag +
+        ", viewNum=" + viewNum +
         "}";
     }
 }

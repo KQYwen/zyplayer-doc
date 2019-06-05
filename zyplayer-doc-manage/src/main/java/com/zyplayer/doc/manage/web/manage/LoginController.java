@@ -72,6 +72,11 @@ public class LoginController {
 		cookie.setDomain("zyplayer.com");
 		cookie.setMaxAge(60 * 60 * 24);
 		response.addCookie(cookie);
+		// 再搞一份当前路劲的cookie
+		cookie = new Cookie("accessToken", accessToken);
+		cookie.setPath("/");
+		cookie.setMaxAge(60 * 60 * 24);
+		response.addCookie(cookie);
 		return DocResponseJson.ok();
 	}
 	
