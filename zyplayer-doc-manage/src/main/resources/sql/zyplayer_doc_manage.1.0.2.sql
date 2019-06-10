@@ -1,6 +1,5 @@
 
 -- 从1.0.1版本升级：
--- 直接存权限名，不搞中间表了
 ALTER TABLE `user_auth` ADD COLUMN `auth_custom_suffix` varchar(100) NULL COMMENT '自定义权限结尾';
 
 INSERT INTO `auth_info`(`auth_name`, `auth_desc`, `can_edit`, `create_uid`, `creation_time`)
@@ -15,9 +14,10 @@ VALUES
 ;
 
 ALTER TABLE `wiki_page` ADD COLUMN `view_num` int NOT NULL DEFAULT 0 COMMENT '阅读数';
+ALTER TABLE `wiki_page` ADD COLUMN `seq_no` int NOT NULL DEFAULT 0 COMMENT '顺序';
+-- 初始化seq
+UPDATE wiki_page SET seq_no=id WHERE del_flag=0;
 
 
-
-
--- 权限的库：
+-- 全新的库：
 

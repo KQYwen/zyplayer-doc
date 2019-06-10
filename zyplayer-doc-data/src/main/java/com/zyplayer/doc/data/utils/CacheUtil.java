@@ -32,7 +32,7 @@ public class CacheUtil {
 			}
 		}, 0, 1000);
 	}
-	
+	// 现在是内存缓存，不支持分布式部署，后期考虑放到redis，但感觉也没必要。。
 	private static Map<String, Object> cacheMap = new ConcurrentHashMap<>();
 	private static Map<String, CacheTime> cacheTimeMap = new ConcurrentHashMap<>();
 	

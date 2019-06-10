@@ -12,7 +12,7 @@ import java.util.Date;
  * </p>
  *
  * @author 暮光：城中城
- * @since 2019-06-05
+ * @since 2019-06-06
  */
 public class WikiPage implements Serializable {
 
@@ -93,6 +93,11 @@ public class WikiPage implements Serializable {
      * 阅读数
      */
     private Integer viewNum;
+
+    /**
+     * 顺序
+     */
+    private Integer seqNo;
 
     public Long getId() {
         return id;
@@ -199,6 +204,13 @@ public class WikiPage implements Serializable {
     public void setViewNum(Integer viewNum) {
         this.viewNum = viewNum;
     }
+    public Integer getSeqNo() {
+        return seqNo;
+    }
+
+    public void setSeqNo(Integer seqNo) {
+        this.seqNo = seqNo;
+    }
 
     @Override
     public String toString() {
@@ -218,6 +230,7 @@ public class WikiPage implements Serializable {
         ", updateTime=" + updateTime +
         ", delFlag=" + delFlag +
         ", viewNum=" + viewNum +
+        ", seqNo=" + seqNo +
         "}";
     }
 }

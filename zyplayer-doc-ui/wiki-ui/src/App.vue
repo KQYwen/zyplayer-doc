@@ -218,11 +218,16 @@
                 }
             },
             handlePageDrop(draggingNode, dropNode, dropType, ev) {
-                //console.log('tree drop: ', draggingNode.data, dropNode.data, dropType);
+                console.log('tree drop: ', draggingNode.data, dropNode.data, dropType);
                 // 'prev'、'inner'、'next'
+                // before、after、inner
                 var param = {id: draggingNode.data.id, parentId: dropNode.data.parentId};
                 if (dropType == 'inner') {
                     param.parentId = dropNode.data.id;
+                } else if (dropType == 'before') {
+                    param.beforeSeq = dropNode.data.seqNo;
+                } else if (dropType == 'after') {
+                    param.afterSeq = dropNode.data.seqNo;
                 }
                 this.common.post(this.apilist1.pageChangeParent, param, function (json) {
                     app.doGetPageList(null);

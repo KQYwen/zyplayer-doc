@@ -7,6 +7,7 @@ import com.zyplayer.doc.data.aspect.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
+import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
@@ -47,6 +48,8 @@ public class WikiPageController {
 	@Resource
 	WikiSpaceService wikiSpaceService;
 	@Resource
+	WikiPageMapper wikiPageMapper;
+	@Resource
 	Mapper mapper;
 	
 	@PostMapping("/list")
@@ -66,9 +69,11 @@ public class WikiPageController {
 		List<WikiPageVo> nodePageList;
 		if (wikiPage.getParentId() == null) {
 			nodePageList = listMap.get(0L);
+			nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
 			this.setChildren(listMap, nodePageList, "");
 		} else {
 			nodePageList = listMap.get(wikiPage.getParentId());
+			nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
 		}
 		return DocResponseJson.ok(nodePageList);
 	}
@@ -115,7 +120,7 @@ public class WikiPageController {
 	}
 	
 	@PostMapping("/changeParent")
-	public ResponseJson<Object> changeParent(WikiPage wikiPage) {
+	public ResponseJson<Object> changeParent(WikiPage wikiPage, Integer beforeSeq, Integer afterSeq) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		Long id = wikiPage.getId();
 		WikiPage wikiPageSel = wikiPageService.getById(id);
@@ -140,7 +145,7 @@ public class WikiPageController {
 		wikiPageUp.setUpdateTime(new Date());
 		wikiPageUp.setUpdateUserId(currentUser.getUserId());
 		wikiPageUp.setUpdateUserName(currentUser.getUsername());
-		wikiPageService.updateById(wikiPage);
+		wikiPageService.changeParent(wikiPage, beforeSeq, afterSeq);
 		return DocResponseJson.ok();
 	}
 	
@@ -190,6 +195,9 @@ public class WikiPageController {
 			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有权限新增该空间的文章！");
 			}
+			Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getParentId());
+			lastSeq = Optional.ofNullable(lastSeq).orElse(0);
+			wikiPage.setSeqNo(lastSeq + 1);
 			wikiPage.setCreateTime(new Date());
 			wikiPage.setCreateUserId(currentUser.getUserId());
 			wikiPage.setCreateUserName(currentUser.getUsername());
@@ -213,6 +221,7 @@ public class WikiPageController {
 			page.setPath(nowPath);
 			List<WikiPageVo> wikiPageVos = listMap.get(page.getId());
 			if (wikiPageVos != null && wikiPageVos.size() > 0) {
+				wikiPageVos = wikiPageVos.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
 				page.setChildren(wikiPageVos);
 				this.setChildren(listMap, wikiPageVos, nowPath);
 			}

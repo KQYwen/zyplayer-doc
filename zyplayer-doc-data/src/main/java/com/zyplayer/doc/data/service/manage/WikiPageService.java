@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface WikiPageService extends IService<WikiPage> {
 
+	void changeParent(WikiPage wikiPage, Integer beforeSeq, Integer afterSeq);
+	
 }
