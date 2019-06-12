@@ -27,8 +27,11 @@ function deserialize(value) {
 }
 
 function validateResult(result) {
-	if(result.errCode == 200) {
+	if (result.errCode == 200) {
 		return true;
+	} else if (result.errCode == 400) {
+		var href = encodeURI(window.location.href);
+		window.location = "static/manage/login.html?returnUrl=" + href;
 	} else {
 		Toast.error(result.errMsg);
 	}
@@ -147,7 +150,10 @@ function getObjectFirstAttributeIfOnly(data) {
 
 function postService(url, param, success=function(){}, complete=function(){}){
 	ajaxTemp(url, "POST", "JSON", param, function(result){
-		if(result.errCode != "200"){
+		if (result.errCode == 400) {
+			var href = encodeURI(window.location.href);
+			window.location = "static/manage/login.html?returnUrl=" + href;
+		} else if (result.errCode != "200") {
 			Toast.warn(result.errMsg);
 		} else {
 			success(result);
@@ -178,8 +184,13 @@ function ajaxTemp(url, dataSentType, dataReceiveType, paramsStr, successFunction
 		data : eval(paramsStr),
 		contentType : "application/x-www-form-urlencoded; charset=UTF-8",
 		success : function(msg) {
-			if(typeof successFunction == "function") {
-				successFunction(msg,id);
+			if (msg.errCode == 400) {
+				var href = encodeURI(window.location.href);
+				window.location = "static/manage/login.html?returnUrl=" + href;
+			} else {
+				if (typeof successFunction == "function") {
+					successFunction(msg, id);
+				}
 			}
 		},
 		beforeSend : function() {

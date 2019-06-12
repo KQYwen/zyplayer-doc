@@ -71,7 +71,13 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.zyplayer</groupId>
+            <artifactId>zyplayer-doc-core</artifactId>
+            <version>1.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

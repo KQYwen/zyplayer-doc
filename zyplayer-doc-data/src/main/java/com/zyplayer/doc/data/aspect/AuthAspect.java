@@ -1,9 +1,11 @@
 package com.zyplayer.doc.data.aspect;
 
 import com.google.common.collect.Maps;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.HttpConst;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.core.util.ThreadLocalUtil;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -28,7 +31,7 @@ public class AuthAspect {
 	@Resource
 	private UserAuthService userAuthService;
 	
-	@Around(value = "@annotation(AuthMan) || @within(AuthMan)")
+	@Around(value = "@annotation(com.zyplayer.doc.core.annotation.AuthMan) || @within(com.zyplayer.doc.core.annotation.AuthMan)")
 	public Object authController(ProceedingJoinPoint pjp) throws Throwable {
 		AuthMan authMan = BeanUtil.getAnnotation(pjp, AuthMan.class);
 		ResponseBody responseBody = BeanUtil.getAnnotation(pjp, ResponseBody.class);
@@ -42,7 +45,9 @@ public class AuthAspect {
 			if (isResponseBody) {
 				return DocResponseJson.failure(HttpConst.TOKEN_TIMEOUT, reason);
 			} else if (returnType.isAssignableFrom(ModelAndView.class)) {
-				return new ModelAndView("redirect:/static/manage/login.html");
+				HttpServletRequest request = ThreadLocalUtil.getHttpServletRequest();
+				StringBuffer requestURL = request.getRequestURL();
+				return new ModelAndView("redirect:/static/manage/login.html?returnUrl=" + requestURL);
 			} else if (returnType.isAssignableFrom(Map.class)) {
 				return Maps.newHashMap();
 			}

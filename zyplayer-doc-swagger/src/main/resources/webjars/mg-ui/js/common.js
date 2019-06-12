@@ -27,11 +27,14 @@ function deserialize(value) {
 }
 
 function validateResult(result) {
-	if(result.errCode == 200) {
-		return true;
-	} else {
-		Toast.error(result.errMsg);
-	}
+	if (result.errCode == 200) {
+        return true;
+    } else if (result.errCode == 400) {
+        var href = encodeURI(window.location.href);
+        window.location = "static/manage/login.html?returnUrl=" + href;
+    } else {
+        Toast.error(result.errMsg);
+    }
 	return false;
 }
 
@@ -175,7 +178,7 @@ function getObjectFirstAttributeIfOnly(data) {
 
 /**
  * ajax处理事件模板
- * 
+ *
  * @url 后台处理的url，即action
  * @dataSentType 数据发送的方式，有post，get方式
  * @dataReceiveType 数据接收格式，有html json text等
@@ -192,12 +195,17 @@ function ajaxTemp(url, dataSentType, dataReceiveType, paramsStr, successFunction
 		data : eval(paramsStr),
 		contentType : "application/x-www-form-urlencoded; charset=UTF-8",
 		success : function(msg) {
-			if(typeof successFunction == "function") {
-				successFunction(msg,id);
+			if (msg.errCode == 400) {
+				var href = encodeURI(window.location.href);
+				window.location = "static/manage/login.html?returnUrl=" + href;
+			} else {
+				if (typeof successFunction == "function") {
+					successFunction(msg, id);
+				}
 			}
 		},
 		beforeSend : function() {
-		
+
 		},
 		complete : function(msg) {
 			if (msg.responseText.startWith("<!doctype html>")) {
@@ -233,7 +241,7 @@ function postWithFile(url, paramsStr, successFunction, errorFunction, completeFu
 			}
 		},
 		beforeSend: function () {
-		
+
 		},
 		complete: function (msg) {
 			if (typeof completeFunction == "function") {

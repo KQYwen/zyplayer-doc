@@ -2,6 +2,7 @@ package com.zyplayer.doc.swagger.controller;
 
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.swagger.controller.vo.LocationListVo;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  * @author 暮光：城中城
  * @since 2018年8月21日
  */
+@AuthMan
 @RestController
 @RequestMapping("/swagger-mg-ui/document")
 public class MgDocumentController {

@@ -3,9 +3,8 @@ package com.zyplayer.doc.grpc.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.ByteString;
-import com.nxest.grpc.client.GrpcChannelFactory;
-import com.nxest.grpc.server.GrpcService;
 import com.zyplayer.doc.core.exception.ConfirmException;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.grpc.controller.po.ColumnInfo;
 import com.zyplayer.doc.grpc.controller.po.GrpcDocInfo;
@@ -26,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -43,6 +40,7 @@ import java.util.regex.Pattern;
  * @author 暮光：城中城
  * @since 2019年3月31日
  */
+@AuthMan
 @RestController
 @RequestMapping("/zyplayer-doc-grpc")
 public class GrpcDocController {

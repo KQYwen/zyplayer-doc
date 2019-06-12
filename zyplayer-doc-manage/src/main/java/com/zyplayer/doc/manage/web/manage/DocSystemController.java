@@ -1,6 +1,6 @@
 package com.zyplayer.doc.manage.web.manage;
 
-import com.zyplayer.doc.data.aspect.AuthMan;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -11,6 +11,11 @@ import org.springframework.web.servlet.ModelAndView;
 @AuthMan
 @Controller
 public class DocSystemController {
+	
+	@GetMapping("/")
+	public ModelAndView home() {
+		return new ModelAndView("redirect:/static/manage/home.html");
+	}
 	
 	@GetMapping("/doc-wiki")
 	public ModelAndView wiki() {

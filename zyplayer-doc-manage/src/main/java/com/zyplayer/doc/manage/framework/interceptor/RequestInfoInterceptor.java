@@ -1,5 +1,6 @@
 package com.zyplayer.doc.manage.framework.interceptor;
 
+import com.zyplayer.doc.core.util.ThreadLocalUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -8,6 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 /**
  * 记录当前请求信息
@@ -23,9 +25,13 @@ public class RequestInfoInterceptor implements HandlerInterceptor {
 	 */
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object arg2, Exception arg3) {
-		long startTime = startTimeThreadLocal.get();
+		Long startTime = startTimeThreadLocal.get();
+		startTime = Optional.ofNullable(startTime).orElse(System.currentTimeMillis());
 		long totalTime = System.currentTimeMillis() - startTime;// 结束时间
 		logger.info("总耗时：{}ms，URI：{}", totalTime, request.getRequestURI());
+		
+		ThreadLocalUtil.clean();
+		startTimeThreadLocal.remove();
 	}
 	
 	@Override
@@ -38,6 +44,7 @@ public class RequestInfoInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object obj) {
 		startTimeThreadLocal.set(System.currentTimeMillis());
+		ThreadLocalUtil.setHttpServletRequest(request);
 		return true;
 	}
 	

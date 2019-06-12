@@ -1,6 +1,7 @@
 package com.zyplayer.doc.swagger.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.swagger.controller.vo.SwaggerResourcesInfoVo;
 import com.zyplayer.doc.swagger.framework.constant.Consts;
 import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
@@ -26,6 +27,7 @@ import java.util.List;
  * @author 暮光：城中城
  * @since 2018年12月16日
  */
+@AuthMan
 @RestController
 public class ZyplayerSwaggerController {
 	

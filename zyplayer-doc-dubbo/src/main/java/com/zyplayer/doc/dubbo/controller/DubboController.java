@@ -2,6 +2,7 @@ package com.zyplayer.doc.dubbo.controller;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.dubbo.controller.param.DubboRequestParam;
 import com.zyplayer.doc.dubbo.controller.vo.DubboInfoVo;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
  * @author 暮光：城中城
  * @since 2019年2月10日
  */
+@AuthMan
 @RestController
 @RequestMapping("/zyplayer-doc-dubbo/doc-dubbo")
 public class DubboController {

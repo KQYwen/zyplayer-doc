@@ -1,16 +1,16 @@
 package com.zyplayer.doc.swagger.controller;
 
-import java.util.List;
-
+import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.json.DocResponseJson;
+import com.zyplayer.doc.swagger.framework.service.MgStorage;
+import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zyplayer.doc.core.json.DocResponseJson;
-import com.zyplayer.doc.swagger.framework.service.MgStorage;
-import com.zyplayer.doc.swagger.framework.service.MgStorageService;
+import java.util.List;
 
 /**
  * 后台存储服务控制器
@@ -18,6 +18,7 @@ import com.zyplayer.doc.swagger.framework.service.MgStorageService;
  * @author 暮光：城中城
  * @since 2018年8月21日
  */
+@AuthMan
 @RestController
 @RequestMapping("/swagger-mg-ui/storage")
 public class MgStorageController {

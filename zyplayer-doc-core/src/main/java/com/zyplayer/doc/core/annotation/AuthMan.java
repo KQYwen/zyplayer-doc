@@ -1,4 +1,4 @@
-package com.zyplayer.doc.data.aspect;
+package com.zyplayer.doc.core.annotation;
 
 import java.lang.annotation.*;
 
