@@ -1,9 +1,10 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -62,6 +63,11 @@ public class WikiPageContent implements Serializable {
      * 修改时间
      */
     private Date updateTime;
+
+    /**
+     * 预览内容
+     */
+    private String preview;
 
     public Long getId() {
         return id;
@@ -140,5 +146,13 @@ public class WikiPageContent implements Serializable {
         ", updateUserName=" + updateUserName +
         ", updateTime=" + updateTime +
         "}";
+    }
+    
+    public String getPreview() {
+        return preview;
+    }
+    
+    public void setPreview(String preview) {
+        this.preview = preview;
     }
 }

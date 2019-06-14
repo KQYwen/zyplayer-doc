@@ -3,6 +3,7 @@ package com.zyplayer.doc.core.json;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.servlet.http.HttpServletResponse;
@@ -25,13 +26,21 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	@ApiModelProperty(value = "返回值说明")
 	private String errMsg;
 	@ApiModelProperty(value = "返回数据")
-	private T data;
+	private Object data;
+	@ApiModelProperty(value = "总数")
+	private Long total;
+	@ApiModelProperty(value = "当前页数")
+	private Integer pageNum;
+	@ApiModelProperty(value = "每页条数")
+	private Integer pageSize;
+	@ApiModelProperty(value = "总页数")
+	private Integer totalPage;
 
 	public DocResponseJson() {
 		this.errCode = 200;
 	}
 
-	public DocResponseJson(T data) {
+	public DocResponseJson(Object data) {
 		this.setData(data);
 		this.errCode = 200;
 	}
@@ -42,7 +51,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 		this.errMsg = errMsg;
 	}
 
-	public DocResponseJson(int errCode, String errMsg, T data) {
+	public DocResponseJson(int errCode, String errMsg, Object data) {
 		super();
 		this.setData(data);
 		this.errCode = errCode;
@@ -69,13 +78,56 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	public void setErrMsg(String errMsg) {
 		this.errMsg = errMsg;
 	}
-
-	public T getData() {
+	
+	public Long getTotal() {
+		return total;
+	}
+	
+	public void setTotal(Long total) {
+		this.total = total;
+	}
+	
+	public Integer getPageNum() {
+		return pageNum;
+	}
+	
+	public void setPageNum(Integer pageNum) {
+		this.pageNum = pageNum;
+	}
+	
+	public Integer getPageSize() {
+		return pageSize;
+	}
+	
+	public void setPageSize(Integer pageSize) {
+		this.pageSize = pageSize;
+	}
+	
+	public Integer getTotalPage() {
+		return totalPage;
+	}
+	
+	public void setTotalPage(Integer totalPage) {
+		this.totalPage = totalPage;
+	}
+	
+	public Object getData() {
 		return data;
 	}
-
-	public void setData(T data) {
-		this.data = data;
+	
+	public void setData(Object data) {
+		if (null != data) {
+			if (data instanceof PageInfo) {
+				PageInfo<?> pageInfo = (PageInfo<?>) data;
+				this.data = pageInfo.getList();
+				this.total = pageInfo.getTotal();
+				this.pageNum = pageInfo.getPageNum();
+				this.pageSize = pageInfo.getPageSize();
+				this.totalPage = pageInfo.getPages();
+			} else {
+				this.data = data;
+			}
+		}
 	}
 
 	/**
@@ -119,7 +171,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 * @return
 	 */
 	public static <T> DocResponseJson<T> ok() {
-		return new DocResponseJson<T>();
+		return new DocResponseJson<>();
 	}
 
 	/**
@@ -129,11 +181,11 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 * @since 2018年8月7日
 	 * @return
 	 */
-	public static <T> DocResponseJson<T> ok(T data) {
+	public static <T> DocResponseJson<T> ok(Object data) {
 		if (data == null) {
 			return DocResponseJson.ok();
 		}
-		DocResponseJson<T> responseJson = new DocResponseJson<T>();
+		DocResponseJson<T> responseJson = new DocResponseJson<>();
 		responseJson.setData(data);
 		return responseJson;
 	}

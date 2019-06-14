@@ -275,7 +275,7 @@
                         }
                     }
                     app.doGetPageList(null);
-                    app.$router.push({path: '/home'});
+                    app.$router.push({path: '/home', query: {spaceId: data}});
                 }
             },
             loadSpaceList() {
@@ -294,6 +294,7 @@
                         app.nowClickPath = {spaceId: spaceId};
                         app.choiceSpace = spaceId;
                         app.doGetPageList(null);
+                        app.$router.push({path: '/home', query: {spaceId: spaceId}});
                     }
                 });
             },

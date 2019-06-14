@@ -17,6 +17,7 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<fastjson.version>1.2.53</fastjson.version>
+		<pagehelper.version>4.1.6</pagehelper.version>
 	</properties>
 
 	<dependencies>
@@ -35,5 +36,10 @@
 			<artifactId>fastjson</artifactId>
 			<version>${fastjson.version}</version>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper</artifactId>
+			<version>${pagehelper.version}</version>
+		</dependency>
+    </dependencies>
 </project>

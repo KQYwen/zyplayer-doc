@@ -63,12 +63,17 @@
 					toast.warn("标题不能为空");
 					return;
 				}
+				var preview = this.editor.txt.text();
+				if (preview.length > 200) {
+					preview = preview.substring(0, 200) + '...';
+				}
 				var param = {
 					spaceId: app.parentPath.spaceId,
 					parentId: parentId,
 					id: app.wikiPage.id,
 					name: app.newPageTitle,
-					content: this.editor.txt.html()
+					content: this.editor.txt.html(),
+					preview: preview,
 				};
 				this.common.post(this.apilist1.updatePage, param, function (json) {
 					toast.success("保存成功！");

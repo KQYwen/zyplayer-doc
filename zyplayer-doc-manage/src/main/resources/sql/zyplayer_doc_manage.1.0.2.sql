@@ -18,6 +18,7 @@ ALTER TABLE `wiki_page` ADD COLUMN `seq_no` int NOT NULL DEFAULT 0 COMMENT '顺�
 -- 初始化seq
 UPDATE wiki_page SET seq_no=id WHERE del_flag=0;
 
+ALTER TABLE `wiki_page_content` ADD COLUMN `preview` varchar(1024) NULL COMMENT '预览内容';
 
 -- 全新的库：
 

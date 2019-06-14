@@ -7,6 +7,7 @@ var URL = {
     pageList: '/zyplayer-doc-wiki/page/list',
     updatePage: '/zyplayer-doc-wiki/page/update',
     pageDetail: '/zyplayer-doc-wiki/page/detail',
+    pageNews: '/zyplayer-doc-wiki/page/news',
     spaceList: '/zyplayer-doc-wiki/space/list',
     updateSpace: '/zyplayer-doc-wiki/space/update',
     getPageUserAuthList: '/zyplayer-doc-wiki/page/auth/list',

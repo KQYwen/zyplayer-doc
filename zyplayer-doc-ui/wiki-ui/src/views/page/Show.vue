@@ -253,7 +253,7 @@
 					this.common.post(this.apilist1.updatePage, param, function (json) {
 						// 重新加载左侧列表，跳转到展示页面
 						global.vue.$app.doGetPageList(null);
-						app.$router.push({path: '/home'});
+						app.$router.push({path: '/home', query: {spaceId: app.nowClickPath.spaceId}});
 					});
 				});
 			},

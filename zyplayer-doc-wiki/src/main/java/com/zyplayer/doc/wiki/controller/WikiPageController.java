@@ -1,14 +1,19 @@
 package com.zyplayer.doc.wiki.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.service.manage.*;
+import com.zyplayer.doc.wiki.controller.param.SpaceNewsParam;
+import com.zyplayer.doc.wiki.controller.vo.SpaceNewsVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
@@ -150,10 +155,11 @@ public class WikiPageController {
 	}
 	
 	@PostMapping("/update")
-	public ResponseJson<Object> update(WikiPage wikiPage, String content) {
+	public ResponseJson<Object> update(WikiPage wikiPage, String content, String preview) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPageContent pageContent = new WikiPageContent();
 		pageContent.setContent(content);
+		pageContent.setPreview(preview);
 		Integer delFlag = Optional.ofNullable(wikiPage.getDelFlag()).orElse(0);
 		if (delFlag == 0 && StringUtils.isBlank(wikiPage.getName())) {
 			return DocResponseJson.warn("标题不能为空！");
@@ -210,6 +216,56 @@ public class WikiPageController {
 			wikiPageContentService.save(pageContent);
 		}
 		return DocResponseJson.ok(wikiPage);
+	}
+	
+	@PostMapping("/news")
+	public ResponseJson<Object> news(SpaceNewsParam param) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		// 空间不是自己的
+		Long spaceId = param.getSpaceId();
+		if (spaceId == null || spaceId <= 0) {
+			return DocResponseJson.ok();
+		}
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(spaceId);
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.ok();
+		}
+		QueryWrapper<WikiPage> wrapper = new QueryWrapper<>();
+		wrapper.eq("space_id", spaceId);
+		wrapper.eq("del_flag", 0);
+		wrapper.orderByDesc(param.getNewsType() == 1, "update_time");
+		wrapper.orderByDesc(param.getNewsType() == 2, "create_time");
+		wrapper.orderByDesc(param.getNewsType() == 3, "view_num");
+		wrapper.orderByDesc(param.getNewsType() == 4, "zan_num");
+		wrapper.orderByDesc(param.getNewsType() == 5, "view_num+zan_num");
+		// 分页查询
+		PageHelper.startPage(param.getPageNum(), param.getPageSize(), true);
+		List<WikiPage> pageList = wikiPageService.list(wrapper);
+		PageInfo<WikiPage> pageListPageInfo = new PageInfo<>(pageList);
+		if (pageList == null || pageList.isEmpty()) {
+			return DocResponseJson.ok(pageListPageInfo);
+		}
+		List<Long> pageIds = pageList.stream().map(WikiPage::getId).collect(Collectors.toList());
+		QueryWrapper<WikiPageContent> contentWrapper = new QueryWrapper<>();
+		contentWrapper.in("page_id", pageIds);
+		contentWrapper.select("page_id", "preview");
+		List<WikiPageContent> pageContentList = wikiPageContentService.list(contentWrapper);
+		Map<Long, String> contentMap = pageContentList.stream()
+				.filter(val -> val.getPreview() != null)
+				.collect(Collectors.toMap(WikiPageContent::getPageId, WikiPageContent::getPreview));
+		
+		List<SpaceNewsVo> pageVoList = new LinkedList<>();
+		pageList.forEach(val -> {
+			SpaceNewsVo spaceNewsVo = mapper.map(val, SpaceNewsVo.class);
+			spaceNewsVo.setSpaceName(wikiSpaceSel.getName());
+			spaceNewsVo.setPreviewContent(contentMap.get(val.getId()));
+			spaceNewsVo.setPageTitle(val.getName());
+			spaceNewsVo.setPageId(val.getId());
+			pageVoList.add(spaceNewsVo);
+		});
+		DocResponseJson<Object> responseJson = DocResponseJson.ok(pageListPageInfo);
+		responseJson.setData(pageVoList);
+		return responseJson;
 	}
 	
 	private void setChildren(Map<Long, List<WikiPageVo>> listMap, List<WikiPageVo> nodePageList, String path) {
