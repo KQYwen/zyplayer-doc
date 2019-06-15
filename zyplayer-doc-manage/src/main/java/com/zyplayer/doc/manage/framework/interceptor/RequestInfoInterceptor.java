@@ -43,6 +43,7 @@ public class RequestInfoInterceptor implements HandlerInterceptor {
 	 */
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object obj) {
+		response.setContentType("application/json; charset=utf-8"); // 设定JSON格式标准输出、及编码
 		startTimeThreadLocal.set(System.currentTimeMillis());
 		ThreadLocalUtil.setHttpServletRequest(request);
 		return true;
