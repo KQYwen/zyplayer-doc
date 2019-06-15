@@ -1,5 +1,6 @@
 package com.zyplayer.doc.wiki.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -13,6 +14,7 @@ import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
+import org.apache.commons.collections.CollectionUtils;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,12 +70,16 @@ public class WikiOpenApiController {
 		if (wikiSpace == null || wikiSpace.getOpenDoc() != 1) {
 			return DocResponseJson.warn("未找到该文档");
 		}
-		UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
+		QueryWrapper<WikiPage> wrapper = new QueryWrapper<>();
 		wrapper.eq("del_flag", 0);
 		wrapper.eq("space_id", wikiSpace.getId());
-		List<WikiPage> authList = wikiPageService.list(wrapper);
-		Map<Long, List<WikiPageVo>> listMap = authList.stream().map(val -> mapper.map(val, WikiPageVo.class)).collect(Collectors.groupingBy(WikiPageVo::getParentId));
+		List<WikiPage> wikiPageList = wikiPageService.list(wrapper);
+		if (CollectionUtils.isEmpty(wikiPageList)) {
+			return DocResponseJson.ok();
+		}
+		Map<Long, List<WikiPageVo>> listMap = wikiPageList.stream().map(val -> mapper.map(val, WikiPageVo.class)).collect(Collectors.groupingBy(WikiPageVo::getParentId));
 		List<WikiPageVo> nodePageList = listMap.get(0L);
+		nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
 		this.setChildren(listMap, nodePageList);
 		return DocResponseJson.ok(nodePageList);
 	}
@@ -104,6 +108,14 @@ public class WikiOpenApiController {
 		for (WikiPageFile pageFile : pageFiles) {
 			pageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + pageFile.getUuid());
 		}
+		// 高并发下会有覆盖问题，但不重要~
+		Integer viewNum =  Optional.ofNullable(wikiPageSel.getViewNum()).orElse(0);
+		WikiPage wikiPageUp = new WikiPage();
+		wikiPageUp.setId(wikiPageSel.getId());
+		wikiPageUp.setViewNum(viewNum + 1);
+		wikiPageService.updateById(wikiPageUp);
+		// 修改返回值里的查看数+1
+		wikiPageSel.setViewNum(viewNum + 1);
 		WikiPageContentVo vo = new WikiPageContentVo();
 		vo.setWikiPage(wikiPageSel);
 		vo.setPageContent(pageContent);
@@ -118,6 +130,7 @@ public class WikiOpenApiController {
 		for (WikiPageVo page : nodePageList) {
 			List<WikiPageVo> wikiPageVos = listMap.get(page.getId());
 			if (wikiPageVos != null && wikiPageVos.size() > 0) {
+				wikiPageVos = wikiPageVos.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
 				page.setChildren(wikiPageVos);
 				this.setChildren(listMap, wikiPageVos);
 			}
