@@ -154,14 +154,43 @@ public class WikiPageController {
 		return DocResponseJson.ok();
 	}
 	
+	@PostMapping("/delete")
+	public ResponseJson<Object> delete(Long pageId) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		WikiPage wikiPageSel = wikiPageService.getById(pageId);
+		if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
+			return DocResponseJson.warn("当前页面不允许编辑！");
+		}
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 私人空间不允许调用接口获取文章
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.warn("您没有权限修改该空间的文章！");
+		}
+		// 空间不是自己的，也没有权限
+		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.DELETE_PAGE.getName(), pageId);
+			if (!pageAuth) {
+				return DocResponseJson.warn("您没有删除该文章的权限！");
+			}
+		}
+		// 执行删除
+		WikiPage wikiPage = new WikiPage();
+		wikiPage.setId(pageId);
+		wikiPage.setDelFlag(1);
+		wikiPage.setUpdateTime(new Date());
+		wikiPage.setUpdateUserId(currentUser.getUserId());
+		wikiPage.setUpdateUserName(currentUser.getUsername());
+		wikiPageService.deletePage(wikiPage);
+		return DocResponseJson.ok();
+	}
+	
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPage wikiPage, String content, String preview) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPageContent pageContent = new WikiPageContent();
 		pageContent.setContent(content);
 		pageContent.setPreview(preview);
-		Integer delFlag = Optional.ofNullable(wikiPage.getDelFlag()).orElse(0);
-		if (delFlag == 0 && StringUtils.isBlank(wikiPage.getName())) {
+		if (StringUtils.isBlank(wikiPage.getName())) {
 			return DocResponseJson.warn("标题不能为空！");
 		}
 		Long pageId = wikiPage.getId();
@@ -170,7 +199,7 @@ public class WikiPageController {
 			if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
 				return DocResponseJson.warn("当前页面不允许编辑！");
 			}
-			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
+			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 			// 私人空间不允许调用接口获取文章
 			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有权限修改该空间的文章！");

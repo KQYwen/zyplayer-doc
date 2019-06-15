@@ -15,4 +15,5 @@ public interface WikiPageService extends IService<WikiPage> {
 
 	void changeParent(WikiPage wikiPage, Integer beforeSeq, Integer afterSeq);
 	
+	void deletePage(WikiPage wikiPage);
 }

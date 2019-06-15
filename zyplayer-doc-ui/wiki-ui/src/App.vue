@@ -187,6 +187,7 @@
             app = this;
             global.vue.$app = this;
             this.loadSpaceList();
+            this.checkSystemUpgrade();
         },
         methods: {
             createWiki() {
@@ -294,7 +295,14 @@
                         app.nowClickPath = {spaceId: spaceId};
                         app.choiceSpace = spaceId;
                         app.doGetPageList(null);
-                        app.$router.push({path: '/home', query: {spaceId: spaceId}});
+                        // 在首页时跳转
+                        try {
+                            if (app.$router.app._route.path == "/home") {
+                                app.$router.push({path: '/home', query: {spaceId: spaceId}});
+                            }
+                        } catch (e) {
+                            console.log(e);
+                        }
                     }
                 });
             },
@@ -393,6 +401,19 @@
             },
             onNewSpaceCancel() {
                 this.newSpaceDialogVisible = false;
+            },
+            checkSystemUpgrade() {
+                this.common.post(this.apilist1.systemUpgradeInfo, {}, function (json) {
+                    if (!!json.data) {
+                        app.upgradeInfo = json.data;
+                        console.log("zyplayer-doc发现新版本："
+                            + "\n升级地址：" + json.data.upgradeUrl
+                            + "\n当前版本：" + json.data.nowVersion
+                            + "\n最新版本：" + json.data.lastVersion
+                            + "\n升级内容：" + json.data.upgradeContent
+                        );
+                    }
+                });
             },
             init() {
 

@@ -244,18 +244,18 @@
                 this.pageAuthUserList = pageAuthUserList;
 			},
 			deleteWikiPage() {
-				this.$confirm('确定要删除此页面吗？', '提示', {
+				this.$confirm('确定要删除此页面及其所有子页面吗？', '提示', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					var param = {id: app.wikiPage.id, delFlag: 1};
-					this.common.post(this.apilist1.updatePage, param, function (json) {
+					var param = {pageId: app.wikiPage.id};
+					this.common.post(this.apilist1.pageDelete, param, function (json) {
 						// 重新加载左侧列表，跳转到展示页面
 						global.vue.$app.doGetPageList(null);
-						app.$router.push({path: '/home', query: {spaceId: app.nowClickPath.spaceId}});
+						app.$router.push({path: '/home', query: {spaceId: app.wikiPage.spaceId}});
 					});
-				});
+				}).catch(()=>{});
 			},
 			loadPageDetail(pageId) {
 				app.rightContentType = 1;

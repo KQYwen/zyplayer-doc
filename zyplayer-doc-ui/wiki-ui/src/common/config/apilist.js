@@ -7,6 +7,7 @@ var URL = {
     pageList: '/zyplayer-doc-wiki/page/list',
     updatePage: '/zyplayer-doc-wiki/page/update',
     pageDetail: '/zyplayer-doc-wiki/page/detail',
+    pageDelete: '/zyplayer-doc-wiki/page/delete',
     pageNews: '/zyplayer-doc-wiki/page/news',
     spaceList: '/zyplayer-doc-wiki/space/list',
     updateSpace: '/zyplayer-doc-wiki/space/update',
@@ -21,6 +22,8 @@ var URL = {
 
     commonUpload: '/zyplayer-doc-wiki/common/upload',
     getUserBaseInfo: '/zyplayer-doc-wiki/common/user/base',
+
+    systemUpgradeInfo: '/system/info/upgrade',
 };
 
 var URL1 = {};
