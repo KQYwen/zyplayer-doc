@@ -59,6 +59,9 @@ public class WikiSpaceController {
 			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有该空间的编辑权！");
 			}
+			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+				return DocResponseJson.warn("您没有该空间的编辑权！");
+			}
 			wikiSpace.setUuid(null);
 			wikiSpace.setEditType(null);
 			wikiSpaceService.updateById(wikiSpace);
