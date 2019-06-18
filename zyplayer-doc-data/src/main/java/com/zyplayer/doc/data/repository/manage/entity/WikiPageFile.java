@@ -79,6 +79,11 @@ public class WikiPageFile implements Serializable {
      */
     private Integer delFlag;
 
+    /**
+     * 下载次数
+     */
+    private Integer downloadNum;
+
     public Long getId() {
         return id;
     }
@@ -180,5 +185,13 @@ public class WikiPageFile implements Serializable {
         ", updateTime=" + updateTime +
         ", delFlag=" + delFlag +
         "}";
+    }
+    
+    public Integer getDownloadNum() {
+        return downloadNum;
+    }
+    
+    public void setDownloadNum(Integer downloadNum) {
+        this.downloadNum = downloadNum;
     }
 }

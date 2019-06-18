@@ -418,6 +418,15 @@
             init() {
 
             },
+            switchSpacePage(spaceId) {
+                spaceId = parseInt(spaceId);
+                if (app.choiceSpace == spaceId) {
+                    return;
+                }
+                app.choiceSpace = spaceId;
+                app.nowClickPath.spaceId = spaceId;
+                this.doGetPageList(null);
+            },
         }
     }
 </script>

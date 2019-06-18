@@ -70,7 +70,8 @@ public class UserInfoController {
 		});
 		return DocResponseJson.ok(authInfoVoList);
 	}
-
+	
+	@AuthMan("AUTH_ASSIGN")
 	@PostMapping("/auth/update")
 	public ResponseJson<Object> updateAuth(String userIds, String authIds) {
 		List<Long> userIdsList = Arrays.stream(userIds.split(",")).map(Long::valueOf).collect(Collectors.toList());

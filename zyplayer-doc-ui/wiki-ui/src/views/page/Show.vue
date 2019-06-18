@@ -30,8 +30,9 @@
 						</template>
 					</el-table-column>
 					<el-table-column prop="createUserName" label="创建人"></el-table-column>
-					<el-table-column prop="createTime" label="创建时间"></el-table-column>
-					<el-table-column label="操作">
+					<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
+					<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
+					<el-table-column label="操作" width="100px">
 						<template slot-scope="scope">
 							<el-button size="small" v-on:click="deletePageFile(scope.row)">删除</el-button>
 						</template>
@@ -172,6 +173,10 @@
 			if (!!this.parentPath.pageId) {
 				// 延迟设置展开的目录，edit比app先初始化
 				setTimeout(function () {
+					if (!!app.parentPath.spaceId) {
+						// 调用父方法切换选择的空间
+						global.vue.$app.switchSpacePage(app.parentPath.spaceId);
+					}
 					global.vue.$app.changeWikiPageExpandedKeys(app.parentPath.pageId);
 				}, 500);
 			}
@@ -267,6 +272,7 @@
 					app.pageContent = json.data.pageContent || {};
 					app.pageFileList = json.data.fileList || [];
 					app.uploadFormData = {pageId: app.wikiPage.id};
+					app.parentPath.spaceId = wikiPage.spaceId;
 					// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
 					// if (!app.lastClickNode.id) {
 					// 	app.lastClickNode = {id: wikiPage.id, nodePath: wikiPage.name};

@@ -79,8 +79,10 @@ public class WikiOpenApiController {
 		}
 		Map<Long, List<WikiPageVo>> listMap = wikiPageList.stream().map(val -> mapper.map(val, WikiPageVo.class)).collect(Collectors.groupingBy(WikiPageVo::getParentId));
 		List<WikiPageVo> nodePageList = listMap.get(0L);
-		nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
-		this.setChildren(listMap, nodePageList);
+		if (CollectionUtils.isNotEmpty(nodePageList)) {
+			nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
+			this.setChildren(listMap, nodePageList);
+		}
 		return DocResponseJson.ok(nodePageList);
 	}
 	
@@ -129,7 +131,7 @@ public class WikiOpenApiController {
 		}
 		for (WikiPageVo page : nodePageList) {
 			List<WikiPageVo> wikiPageVos = listMap.get(page.getId());
-			if (wikiPageVos != null && wikiPageVos.size() > 0) {
+			if (CollectionUtils.isNotEmpty(wikiPageVos)) {
 				wikiPageVos = wikiPageVos.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
 				page.setChildren(wikiPageVos);
 				this.setChildren(listMap, wikiPageVos);

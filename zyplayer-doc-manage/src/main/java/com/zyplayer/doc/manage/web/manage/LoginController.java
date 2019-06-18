@@ -13,10 +13,8 @@ import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -33,15 +31,11 @@ public class LoginController {
 	@Autowired
 	private AuthInfoService authInfoService;
 	
-	@GetMapping(value = "/login")
-	public ModelAndView loginPage() {
-		return new ModelAndView("/statics/manage/login.html");
-	}
-	
 	@PostMapping(value = "/login")
 	public DocResponseJson<Object> login(String username, String password, HttpServletResponse response) {
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("user_no", username);
+		queryWrapper.eq("del_flag", 0);
 		UserInfo userInfo = userInfoService.getOne(queryWrapper);
 		if (userInfo == null) {
 			return DocResponseJson.warn("用户名'" + username + "'没有找到！");
@@ -60,7 +54,7 @@ public class LoginController {
 			Map<Long, String> authNameMap = authInfoList.stream().collect(Collectors.toMap(AuthInfo::getId, AuthInfo::getAuthName));
 			userAuthSet = userAuthList.stream().map(val -> {
 				String authName = Optional.ofNullable(authNameMap.get(val.getAuthId())).orElse("");
-				return authName + val.getAuthCustomSuffix();
+				return authName + Optional.ofNullable(val.getAuthCustomSuffix()).orElse("");
 			}).collect(Collectors.toSet());
 		}
 		String accessToken = RandomUtil.simpleUUID();

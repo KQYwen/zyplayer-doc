@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.util.Map;
 
 @Aspect
@@ -47,7 +48,8 @@ public class AuthAspect {
 			} else if (returnType.isAssignableFrom(ModelAndView.class)) {
 				HttpServletRequest request = ThreadLocalUtil.getHttpServletRequest();
 				StringBuffer requestURL = request.getRequestURL();
-				return new ModelAndView("redirect:/static/manage/login.html?returnUrl=" + requestURL);
+				String requestURLStr = URLEncoder.encode(requestURL.toString(), "utf-8");
+				return new ModelAndView("redirect:/static/manage/login.html?redirect=" + requestURLStr);
 			} else if (returnType.isAssignableFrom(Map.class)) {
 				return Maps.newHashMap();
 			}

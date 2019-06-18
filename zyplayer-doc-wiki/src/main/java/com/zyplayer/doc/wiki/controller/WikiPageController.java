@@ -18,6 +18,7 @@ import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
@@ -74,11 +75,15 @@ public class WikiPageController {
 		List<WikiPageVo> nodePageList;
 		if (wikiPage.getParentId() == null) {
 			nodePageList = listMap.get(0L);
-			nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
-			this.setChildren(listMap, nodePageList, "");
+			if (CollectionUtils.isNotEmpty(nodePageList)) {
+				nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
+				this.setChildren(listMap, nodePageList, "");
+			}
 		} else {
 			nodePageList = listMap.get(wikiPage.getParentId());
-			nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(nodePageList)) {
+				nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
+			}
 		}
 		return DocResponseJson.ok(nodePageList);
 	}
@@ -234,6 +239,7 @@ public class WikiPageController {
 			lastSeq = Optional.ofNullable(lastSeq).orElse(0);
 			wikiPage.setSeqNo(lastSeq + 1);
 			wikiPage.setCreateTime(new Date());
+			wikiPage.setUpdateTime(new Date());
 			wikiPage.setCreateUserId(currentUser.getUserId());
 			wikiPage.setCreateUserName(currentUser.getUsername());
 			wikiPageService.save(wikiPage);
@@ -305,7 +311,7 @@ public class WikiPageController {
 			String nowPath = path + "/" + page.getName();
 			page.setPath(nowPath);
 			List<WikiPageVo> wikiPageVos = listMap.get(page.getId());
-			if (wikiPageVos != null && wikiPageVos.size() > 0) {
+			if (CollectionUtils.isNotEmpty(wikiPageVos)) {
 				wikiPageVos = wikiPageVos.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
 				page.setChildren(wikiPageVos);
 				this.setChildren(listMap, wikiPageVos, nowPath);

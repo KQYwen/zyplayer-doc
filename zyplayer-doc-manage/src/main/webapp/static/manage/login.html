@@ -74,16 +74,20 @@
 					app.passwordError = "密码不能为空";
 					return;
 				}
-                var returnUrl = common.getParam("returnUrl");
-                if (!!returnUrl) {
-                    returnUrl = decodeURI(returnUrl);
+				// 获取url中"?"符后的字串
+				var href = location.href;
+				var url = href.substring(href.indexOf("?"), href.length);
+				var redirect = "";
+                if (url.indexOf("redirect=") > 0) {
+					redirect = url.substring(url.indexOf("redirect=") + 9, url.length);
+					redirect = decodeURIComponent(redirect);
                 } else {
-                    returnUrl = ctx + "static/manage/home.html";
+					redirect = ctx + "static/manage/home.html";
                 }
                 post(ctx + "login", param, function (result) {
                     console.log(result);
                     if (result.errCode == 200) {
-                        location.href = returnUrl;
+                        location.href = redirect;
                     } else {
                         app.passwordError = "登录失败，" + result.errMsg;
                     }

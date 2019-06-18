@@ -13,6 +13,7 @@ import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
+import com.zyplayer.doc.data.repository.manage.mapper.WikiPageFileMapper;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
@@ -59,6 +60,8 @@ public class WikiCommonController {
 	WikiSpaceService wikiSpaceService;
 	@Resource
 	UserInfoService userInfoService;
+	@Resource
+	WikiPageFileMapper wikiPageFileMapper;
 	
 	@PostMapping("/user/base")
 	public ResponseJson<Object> userBaseInfo(String search) {
@@ -153,6 +156,8 @@ public class WikiCommonController {
 				return DocResponseJson.warn("登陆后才可访问此文件");
 			}
 		}
+		// 增加下载次数
+		wikiPageFileMapper.addDownloadNum(pageFile.getId());
 		try {
 			String fileName = Optional.ofNullable(pageFile.getFileName()).orElse("");
 			File file = new File(pageFile.getFileUrl());

@@ -23,8 +23,8 @@ export default {
 			global.vue.$message('请求错误：' + res.message);
 		} else if (res.data.errCode == 400) {
 			global.vue.$message('请先登录');
-			var href = encodeURI(window.location.href);
-			window.location = apimix.apilist1.HOST + "/static/manage/login.html?returnUrl=" + href;
+			var href = encodeURIComponent(window.location.href);
+			window.location = apimix.apilist1.HOST + "/static/manage/login.html?redirect=" + href;
 		} else if (res.data.errCode == 402) {
 			global.vue.$router.push("/common/noAuth");
 		} else if (res.data.errCode !== 200) {
