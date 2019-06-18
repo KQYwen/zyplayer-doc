@@ -43,7 +43,6 @@ import java.util.*;
  * @author 暮光：城中城
  * @since 2019年2月17日
  */
-@AuthMan
 @RestController
 @RequestMapping("/zyplayer-doc-wiki/common")
 public class WikiCommonController {
@@ -63,6 +62,7 @@ public class WikiCommonController {
 	@Resource
 	WikiPageFileMapper wikiPageFileMapper;
 	
+	@AuthMan
 	@PostMapping("/user/base")
 	public ResponseJson<Object> userBaseInfo(String search) {
 		if (StringUtils.isBlank(search)) {
@@ -76,6 +76,7 @@ public class WikiCommonController {
 		return DocResponseJson.ok(userInfoList);
 	}
 	
+	@AuthMan
 	@PostMapping("/wangEditor/upload")
 	public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
 		this.upload(wikiPageFile, file);
@@ -85,6 +86,7 @@ public class WikiCommonController {
 		return resultMap;
 	}
 	
+	@AuthMan
 	@PostMapping("/upload")
 	public ResponseJson<Object> upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
