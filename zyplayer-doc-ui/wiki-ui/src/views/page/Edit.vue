@@ -23,6 +23,13 @@
 	import global from '../../common/config/global'
 	import WangEditor from 'wangeditor'
 
+	window.onunload = function () {
+        app.unlockPage();
+	};
+	window.onbeforeunload = function () {
+        app.unlockPage();
+	};
+
 	var app;
 	export default {
 		data() {
@@ -32,7 +39,11 @@
 				newPageTitle: "",
 				parentPath: {},
 				wikiPage: {},
+                isUnlock: false,
 			};
+		},
+		destroyed: function () {
+            this.unlockPage();
 		},
 		beforeRouteUpdate(to, from, next) {
 			this.initQueryParam(to);
@@ -47,12 +58,22 @@
 			changeToRootPath() {
 				app.parentPath = {spaceId: this.parentPath.spaceId};
 			},
+            unlockPage() {
+			    // 防止各种事件重复调这个接口，只需要调一次就好了
+                if (this.isUnlock) {
+                    return;
+                }
+                this.isUnlock = true;
+                var param = {pageId: app.parentPath.pageId};
+                this.common.post(this.apilist1.pageUnlock, param, function (json) {});
+            },
 			createWikiCancel() {
 				this.$confirm('确定要取消编辑吗？您编辑的内容将不会被保存哦~', '提示', {
 					confirmButtonText: '确定',
 					cancelButtonText: '继续编辑',
 					type: 'warning'
 				}).then(() => {
+				    app.unlockPage();
 					app.$router.back();
 				});
 			},
@@ -114,6 +135,17 @@
 				} else {
 					this.cleanPage();
 				}
+				var param = {pageId: app.parentPath.pageId};
+				this.common.postNonCheck(this.apilist1.pageLock, param, function (json) {
+					if (json.errCode !== 200) {
+						app.$alert(json.errMsg || '未知错误', '错误', {
+							confirmButtonText: '确定',
+							callback: () => {
+								app.$router.back();
+							}
+						});
+					}
+				});
 			},
 			initEditor() {
 				this.editor = new WangEditor('#newPageContentDiv');

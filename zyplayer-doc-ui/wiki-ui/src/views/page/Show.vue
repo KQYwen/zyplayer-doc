@@ -183,7 +183,10 @@
 		},
 		methods: {
 			editWiki() {
-				this.$router.push({path: '/page/edit', query: this.parentPath});
+				var param = {pageId: app.parentPath.pageId};
+				this.common.post(this.apilist1.pageLock, param, function (json) {
+					app.$router.push({path: '/page/edit', query: app.parentPath});
+				});
 			},
 			getSearchUserList(query) {
 				if (query == '') {
@@ -320,6 +323,10 @@
 				this.recommentInfo = {};
 			},
 			submitPageComment() {
+				if (app.commentTextInput.length <= 0) {
+					toast.error("请输入评论内容");
+					return;
+				}
 				var param = {
 					pageId: app.wikiPage.id, content: app.commentTextInput,
 					parentId: app.recommentInfo.id
@@ -332,7 +339,7 @@
 				});
 			},
 			uploadFileError(err) {
-				toast.success("上传失败，" + err);
+				toast.error("上传失败，" + err);
 			},
 			uploadFileSuccess(response) {
 				this.common.validateResult({data: response}, function () {

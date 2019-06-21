@@ -12,12 +12,14 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.service.manage.*;
+import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.wiki.controller.param.SpaceNewsParam;
 import com.zyplayer.doc.wiki.controller.vo.SpaceNewsVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
+import com.zyplayer.doc.wiki.framework.consts.WikiCachePrefix;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
@@ -251,6 +253,33 @@ public class WikiPageController {
 			wikiPageContentService.save(pageContent);
 		}
 		return DocResponseJson.ok(wikiPage);
+	}
+	
+	@PostMapping("/unlock")
+	public ResponseJson<Object> unlock(Long pageId) {
+		String lockKey = WikiCachePrefix.WIKI_LOCK_PAGE + pageId;
+		DocUserDetails pageLockUser = CacheUtil.get(lockKey);
+		if (pageLockUser != null) {
+			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+			if (Objects.equals(pageLockUser.getUserId(), currentUser.getUserId())) {
+				CacheUtil.remove(lockKey);
+			}
+		}
+		return DocResponseJson.ok();
+	}
+	
+	@PostMapping("/lock")
+	public ResponseJson<Object> editLock(Long pageId) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		String lockKey = WikiCachePrefix.WIKI_LOCK_PAGE + pageId;
+		DocUserDetails pageLockUser = CacheUtil.get(lockKey);
+		if (pageLockUser != null) {
+			if (!Objects.equals(pageLockUser.getUserId(), currentUser.getUserId())) {
+				return DocResponseJson.warn("当前页面正在被：" + pageLockUser.getUsername() + " 编辑");
+			}
+		}
+		CacheUtil.put(lockKey, new DocUserDetails(currentUser.getUserId(), currentUser.getUsername()));
+		return DocResponseJson.ok();
 	}
 	
 	@PostMapping("/news")

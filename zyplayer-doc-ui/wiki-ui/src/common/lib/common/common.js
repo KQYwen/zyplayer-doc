@@ -52,6 +52,27 @@ export default {
 			this.validateResult(res);
 		});
 	},
+	postNonCheck: function (url, param, callback) {
+		param = param || {};
+		param.accessToken = this.getAccessToken();
+		global.vue.axios({
+			method: "post",
+			url: url,
+			headers: {'Content-type': 'application/x-www-form-urlencoded'},
+			data: Qs.stringify(param),
+			withCredentials: true,
+		}).then((res) => {
+			console.log("ok", res);
+			if (typeof callback == 'function') {
+				callback(res.data);
+			}
+		}).catch((res) => {
+			console.log("error", res);
+			if (typeof callback == 'function') {
+				callback(res.data);
+			}
+		});
+	},
 	/**
 	 * 返回不为空的字符串，为空返回def
 	 */

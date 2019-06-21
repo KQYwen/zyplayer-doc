@@ -8,7 +8,7 @@ import java.util.Date;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
@@ -99,6 +99,16 @@ public class WikiPage implements Serializable {
      */
     private Integer seqNo;
 
+    /**
+     * 当前正在编辑的用户ID
+     */
+    private Integer nowEditUserId;
+
+    /**
+     * 当前正在编辑的用户名
+     */
+    private Integer nowEditUserName;
+    
     public Long getId() {
         return id;
     }
@@ -211,7 +221,23 @@ public class WikiPage implements Serializable {
     public void setSeqNo(Integer seqNo) {
         this.seqNo = seqNo;
     }
-
+    
+    public Integer getNowEditUserId() {
+        return nowEditUserId;
+    }
+    
+    public void setNowEditUserId(Integer nowEditUserId) {
+        this.nowEditUserId = nowEditUserId;
+    }
+    
+    public Integer getNowEditUserName() {
+        return nowEditUserName;
+    }
+    
+    public void setNowEditUserName(Integer nowEditUserName) {
+        this.nowEditUserName = nowEditUserName;
+    }
+    
     @Override
     public String toString() {
         return "WikiPage{" +

@@ -21,7 +21,17 @@ UPDATE wiki_page SET seq_no=id WHERE del_flag=0;
 ALTER TABLE `wiki_page_content` ADD COLUMN `preview` varchar(1024) NULL COMMENT '预览内容';
 ALTER TABLE `wiki_page_file` ADD COLUMN `download_num` int NOT NULL DEFAULT 0 COMMENT '下载次数';
 
-
+CREATE TABLE `wiki_page_history` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `page_id` bigint(20) DEFAULT NULL COMMENT '页面ID',
+  `content` mediumtext COMMENT '本次文章内容',
+  `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_page_id` (`page_id`) USING BTREE COMMENT '页面ID索引'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 
 
@@ -308,6 +318,18 @@ CREATE TABLE `zyplayer_storage`  (
   UNIQUE INDEX `key`(`doc_key`) USING BTREE COMMENT 'key唯一索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储网页上相关的数据' ROW_FORMAT = Compact;
 
+DROP TABLE IF EXISTS `wiki_page_history`;
+CREATE TABLE `wiki_page_history` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `page_id` bigint(20) DEFAULT NULL COMMENT '页面ID',
+	`content` mediumtext COMMENT '本次文章内容',
+  `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_page_id` (`page_id`) USING BTREE COMMENT '页面ID索引'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 -- ----------------------------
 -- Records of zyplayer_storage
 -- ----------------------------

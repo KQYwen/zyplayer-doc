@@ -49,6 +49,11 @@ public class DocUserDetails {
 		this.authorities = authorities;
 	}
 	
+	public DocUserDetails(Long userId, String username) {
+		this.userId = userId;
+		this.username = username;
+	}
+	
 	public DocUserDetails(Long userId, String username, String password, boolean enabled) {
 		super();
 		this.userId = userId;
