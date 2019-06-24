@@ -41,7 +41,7 @@ zyplayer:
     swagger:
       proxy-request:
         # 允许代理请求的域名，正则表达式，多个使用 ; 分割，必须设置，防止通过代理接口访问到内部资源，实在觉得没必要可设置为：.+
-        white-domain: \S+\.zyplayer\.com;127.0.1:8080;\S+\.xiaominfo\.com;
+        white-domain: .+
     # ------dubbo相关配置------
     dubbo:
       # 优先使用zookeeper，未配置时找nacos的配置

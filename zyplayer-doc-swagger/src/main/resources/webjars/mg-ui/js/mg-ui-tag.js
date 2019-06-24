@@ -62,7 +62,7 @@ function createTreeViewByTag(json, keywords) {
  * @returns
  */
 function setRequestMethodForTag(rewriteDomainUrl, domain, source, pathObj, url, method) {
-	if (isEmpty(source[method])) {
+	if (isEmpty(source[method]) || !source[method].tags) {
 		return;
 	}
 	source[method].tags.forEach(function(val, index) {
