@@ -3,6 +3,7 @@ package com.zyplayer.doc.swagger.controller;
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.json.DocResponseJson;
+import com.zyplayer.doc.swagger.controller.vo.GlobalParamVo;
 import com.zyplayer.doc.swagger.controller.vo.LocationListVo;
 import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
 import com.zyplayer.doc.swagger.framework.service.MgStorageService;
@@ -17,10 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -69,10 +67,14 @@ public class MgOpenDocController {
 			DocResponseJson.ok().send(response);
 			return;
 		}
+		List<GlobalParamVo> globalParamList = this.getGlobalParamList();
 		List<String> swaggerResourceStrList = new LinkedList<>();
 		for (LocationListVo location : locationList) {
 			try {
-				String resourceStr = HttpRequest.get(location.getLocation()).timeout(3000).execute().body();
+				String resourceStr = HttpRequest.get(location.getLocation())
+						.form(this.getGlobalParamObjMap(globalParamList, "form"))
+						.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
+						.timeout(3000).execute().body();
 				String resourcesUrl = location.getLocation();
 				int indexV2 = location.getLocation().indexOf("/v2");
 				if (indexV2 >= 0) {
@@ -93,5 +95,37 @@ public class MgOpenDocController {
 		}
 		// 用默认的json解析要内存溢出，解析不了JSONObject、、就只有这样写了~
 		DocResponseJson.ok(swaggerResourceStrList).send(response);
+	}
+	
+	/**
+	 * 全局参数
+	 */
+	private List<GlobalParamVo> getGlobalParamList() {
+		String globalParamList = storageService.get(StorageKeys.GLOBAL_PARAM_LIST);
+		// paramIn  key  value
+		List<GlobalParamVo> resultList = new LinkedList<>();
+		if (StringUtils.isBlank(globalParamList)) {
+			return resultList;
+		}
+		resultList = JSON.parseArray(globalParamList, GlobalParamVo.class);
+		return resultList;
+	}
+	
+	/**
+	 * 获取指定类型的全局参数
+	 */
+	private Map<String, String> getGlobalParamMap(List<GlobalParamVo> globalParamList, String paramIn) {
+		Map<String, String> paramMap = globalParamList.stream().filter(val -> Objects.equals(val.getParamIn(), paramIn))
+				.collect(Collectors.toMap(GlobalParamVo::getKey, GlobalParamVo::getValue));
+		return paramMap;
+	}
+	
+	/**
+	 * 获取指定类型的全局参数
+	 */
+	private Map<String, Object> getGlobalParamObjMap(List<GlobalParamVo> globalParamList, String paramIn) {
+		Map<String, Object> paramMap = globalParamList.stream().filter(val -> Objects.equals(val.getParamIn(), paramIn))
+				.collect(Collectors.toMap(GlobalParamVo::getKey, GlobalParamVo::getValue));
+		return paramMap;
 	}
 }
