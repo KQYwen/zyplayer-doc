@@ -35,6 +35,9 @@ public class MgOpenDocController {
 	@Resource
 	private MgStorageService storageService;
 	
+	// 文档请求超时时间
+	int docTimeout = 8000;
+	
 	@PostMapping(value = "/checkConfig")
 	public DocResponseJson<Object> checkConfig() {
 		return DocResponseJson.ok();
@@ -74,7 +77,7 @@ public class MgOpenDocController {
 				String resourceStr = HttpRequest.get(location.getLocation())
 						.form(this.getGlobalParamObjMap(globalParamList, "form"))
 						.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
-						.timeout(3000).execute().body();
+						.timeout(docTimeout).execute().body();
 				String resourcesUrl = location.getLocation();
 				int indexV2 = location.getLocation().indexOf("/v2");
 				if (indexV2 >= 0) {

@@ -44,6 +44,9 @@ public class MgDocumentController {
 	@Resource
 	private MgStorageService storageService;
 	
+	// 文档请求超时时间
+	int docTimeout = 8000;
+	
 	/**
 	 * 获取所有的文档地址
 	 *
@@ -114,7 +117,7 @@ public class MgDocumentController {
 					String resourcesStr = HttpRequest.get(resourcesUrl)
 							.form(this.getGlobalParamObjMap(globalParamList, "form"))
 							.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
-							.timeout(3000).execute().body();
+							.timeout(docTimeout).execute().body();
 					resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 				} catch (Exception e) {
 					logger.error("获取文档失败：{}，{}", resourcesUrl, e.getMessage());
@@ -144,7 +147,7 @@ public class MgDocumentController {
 				String resourceStr = HttpRequest.get(location.getLocation())
 						.form(this.getGlobalParamObjMap(globalParamList, "form"))
 						.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
-						.timeout(3000).execute().body();
+						.timeout(docTimeout).execute().body();
 				String resourcesUrl = location.getLocation();
 				int indexV2 = location.getLocation().indexOf("/v2");
 				if (indexV2 >= 0) {
@@ -240,7 +243,7 @@ public class MgDocumentController {
 //			List<SwaggerResource> resourceList = null;
 //			String resourcesUrl = resourcesInfoVo.getUrl();
 //			try {
-//				String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
+//				String resourcesStr = HttpRequest.get(resourcesUrl).timeout(docTimeout).execute().body();
 //				resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 //			} catch (Exception e) {
 //				logger.error("获取文档失败：{}，{}", resourcesUrl, e.getMessage());
@@ -253,7 +256,7 @@ public class MgDocumentController {
 //			for (SwaggerResource resource : resourceList) {
 //				String location = this.getLocationUrl(resourcesUrl, resource.getLocation(), resource.getName());
 //				try {
-//					String resourceStr = HttpRequest.get(location).timeout(3000).execute().body();
+//					String resourceStr = HttpRequest.get(location).timeout(docTimeout).execute().body();
 //					Map<String, Object> jsonObject = JSON.parseObject(resourceStr, new TypeReference<HashMap<String, Object>>(){});
 //					if (jsonObject == null || jsonObject.isEmpty()) {
 //						continue;
@@ -317,7 +320,7 @@ public class MgDocumentController {
 					.form(this.getGlobalParamObjMap(globalParamList, "form"))
 					.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
 					.header("Accept", "application/json, text/javascript, */*; q=0.01")
-					.timeout(3000).execute().body();
+					.timeout(docTimeout).execute().body();
 			boolean isLocation = this.addSwaggerLocationList(resourcesStr, rewriteDomainUrl, resourcesUrl, oldUrl, openVisit);
 			if (!isLocation) {
 				List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
@@ -366,7 +369,7 @@ public class MgDocumentController {
 			String resourcesStr = HttpRequest.get(resourcesUrl)
 					.form(this.getGlobalParamObjMap(globalParamList, "form"))
 					.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
-					.timeout(3000).execute().body();
+					.timeout(docTimeout).execute().body();
 			List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 			if (resourceList == null || resourceList.isEmpty()) {
 				return DocResponseJson.warn("该地址未找到文档");
