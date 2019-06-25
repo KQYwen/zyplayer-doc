@@ -237,6 +237,10 @@ public class WikiPageController {
 			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有权限新增该空间的文章！");
 			}
+			// 空间不是自己的
+			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+				return DocResponseJson.warn("您没有权限新增该空间的文章！");
+			}
 			Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getParentId());
 			lastSeq = Optional.ofNullable(lastSeq).orElse(0);
 			wikiPage.setSeqNo(lastSeq + 1);
