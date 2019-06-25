@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.swagger.controller.vo.GlobalParamVo;
 import com.zyplayer.doc.swagger.controller.vo.LocationListVo;
 import com.zyplayer.doc.swagger.controller.vo.SwaggerLocationVo;
 import com.zyplayer.doc.swagger.controller.vo.SwaggerResourcesInfoVo;
@@ -103,13 +104,17 @@ public class MgDocumentController {
 				}
 			}
 		}
+		List<GlobalParamVo> globalParamList = this.getGlobalParamList();
 		if (resourcesSet.size() > 0) {
 			List<LocationListVo> locationListStorage = this.getLocationSet();
 			for (SwaggerResourcesInfoVo resourcesInfoVo : resourcesSet) {
 				List<SwaggerResource> resourceList = null;
 				String resourcesUrl = resourcesInfoVo.getUrl();
 				try {
-					String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
+					String resourcesStr = HttpRequest.get(resourcesUrl)
+							.form(this.getGlobalParamObjMap(globalParamList, "form"))
+							.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
+							.timeout(3000).execute().body();
 					resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 				} catch (Exception e) {
 					logger.error("获取文档失败：{}，{}", resourcesUrl, e.getMessage());
@@ -136,7 +141,10 @@ public class MgDocumentController {
 		List<String> swaggerResourceStrList = new LinkedList<>();
 		for (LocationListVo location : locationList) {
 			try {
-				String resourceStr = HttpRequest.get(location.getLocation()).timeout(3000).execute().body();
+				String resourceStr = HttpRequest.get(location.getLocation())
+						.form(this.getGlobalParamObjMap(globalParamList, "form"))
+						.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
+						.timeout(3000).execute().body();
 				String resourcesUrl = location.getLocation();
 				int indexV2 = location.getLocation().indexOf("/v2");
 				if (indexV2 >= 0) {
@@ -297,14 +305,19 @@ public class MgDocumentController {
 			resourcesList = JSON.parseArray(swaggerResourcesStr, SwaggerResourcesInfoVo.class);
 			// 如果是编辑，把之前的删除掉，再在后面添加
 			if (StringUtils.isNotBlank(oldUrl)) {
-				final String tempStr = oldUrl;
+				String tempStr = oldUrl;
 				resourcesList = resourcesList.stream().filter(val -> !Objects.equals(val.getUrl(), tempStr)).collect(Collectors.toList());
 			}
 		}
 		try {
+			List<GlobalParamVo> globalParamList = this.getGlobalParamList();
 			oldUrl = this.encodeUrlParam(oldUrl);
 			resourcesUrl = this.encodeUrlParam(resourcesUrl);
-			String resourcesStr = HttpRequest.get(resourcesUrl).header("Accept", "application/json, text/javascript, */*; q=0.01").timeout(3000).execute().body();
+			String resourcesStr = HttpRequest.get(resourcesUrl)
+					.form(this.getGlobalParamObjMap(globalParamList, "form"))
+					.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
+					.header("Accept", "application/json, text/javascript, */*; q=0.01")
+					.timeout(3000).execute().body();
 			boolean isLocation = this.addSwaggerLocationList(resourcesStr, rewriteDomainUrl, resourcesUrl, oldUrl, openVisit);
 			if (!isLocation) {
 				List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
@@ -349,7 +362,11 @@ public class MgDocumentController {
 			resourcesSet.addAll(resourcesList);
 		}
 		try {
-			String resourcesStr = HttpRequest.get(resourcesUrl).timeout(3000).execute().body();
+			List<GlobalParamVo> globalParamList = this.getGlobalParamList();
+			String resourcesStr = HttpRequest.get(resourcesUrl)
+					.form(this.getGlobalParamObjMap(globalParamList, "form"))
+					.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
+					.timeout(3000).execute().body();
 			List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 			if (resourceList == null || resourceList.isEmpty()) {
 				return DocResponseJson.warn("该地址未找到文档");
@@ -498,6 +515,38 @@ public class MgDocumentController {
 			}
 		}
 		return resourcesDomain + location;
+	}
+	
+	/**
+	 * 全局参数
+	 */
+	private List<GlobalParamVo> getGlobalParamList() {
+		String globalParamList = storageService.get(StorageKeys.GLOBAL_PARAM_LIST);
+		// paramIn  key  value
+		List<GlobalParamVo> resultList = new LinkedList<>();
+		if (StringUtils.isBlank(globalParamList)) {
+			return resultList;
+		}
+		resultList = JSON.parseArray(globalParamList, GlobalParamVo.class);
+		return resultList;
+	}
+	
+	/**
+	 * 获取指定类型的全局参数
+	 */
+	private Map<String, String> getGlobalParamMap(List<GlobalParamVo> globalParamList, String paramIn) {
+		Map<String, String> paramMap = globalParamList.stream().filter(val -> Objects.equals(val.getParamIn(), paramIn))
+				.collect(Collectors.toMap(GlobalParamVo::getKey, GlobalParamVo::getValue));
+		return paramMap;
+	}
+	
+	/**
+	 * 获取指定类型的全局参数
+	 */
+	private Map<String, Object> getGlobalParamObjMap(List<GlobalParamVo> globalParamList, String paramIn) {
+		Map<String, Object> paramMap = globalParamList.stream().filter(val -> Objects.equals(val.getParamIn(), paramIn))
+				.collect(Collectors.toMap(GlobalParamVo::getKey, GlobalParamVo::getValue));
+		return paramMap;
 	}
 	
 	/**

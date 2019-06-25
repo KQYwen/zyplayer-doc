@@ -17,4 +17,6 @@ public class StorageKeys {
 	public static final String SWAGGER_OFFLINE_DOC_START = "swagger-offline-doc-";
 	// 自增ID的key
 	public static final String SWAGGER_ID_WORKER = "swagger-id-worker";
+	// 全局参数
+	public static final String GLOBAL_PARAM_LIST = "zyplayer-doc-global-param-list";
 }
