@@ -37,7 +37,7 @@
 
 #### 运行方式
 
-1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.1.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.1.sql)
+1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.2.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.2.sql)
 
 2. 修改zyplayer-doc-manage项目的application.yml配置文件里面的数据库账号密码
 

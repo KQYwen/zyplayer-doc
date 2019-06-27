@@ -4,7 +4,7 @@
 
 	<groupId>com.zyplayer</groupId>
 	<artifactId>zyplayer-doc</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<packaging>pom</packaging>
 
 	<name>zyplayer-doc</name>
@@ -26,5 +26,6 @@
 		<module>zyplayer-doc-wiki</module>
 		<module>zyplayer-doc-data</module>
 		<module>zyplayer-doc-grpc</module>
+		<module>zyplayer-doc-page</module>
 	</modules>
 </project>

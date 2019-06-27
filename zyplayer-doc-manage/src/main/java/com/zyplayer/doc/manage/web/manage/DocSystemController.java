@@ -14,7 +14,7 @@ public class DocSystemController {
 	
 	@GetMapping("/")
 	public ModelAndView home() {
-		return new ModelAndView("redirect:/static/manage/home.html");
+		return new ModelAndView("/doc-console.html");
 	}
 	
 	@GetMapping("/doc-wiki")
