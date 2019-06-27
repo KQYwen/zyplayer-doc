@@ -118,13 +118,13 @@
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-swagger</artifactId>
-			<version>${zyplayer.doc.swagger.version}</version>
+			<version>${zyplayer.doc.version}</version>
 		</dependency>
 		<!--zyplayer-doc-swagger-->
 		<dependency>
 			<groupId>com.zyplayer</groupId>
-			<artifactId>doc-console-page</artifactId>
-			<version>${zyplayer.doc.swagger.version}</version>
+			<artifactId>console-page</artifactId>
+			<version>${zyplayer.doc.version}</version>
 		</dependency>
 		<!--swagger-bootstrap-ui-->
 		<dependency>

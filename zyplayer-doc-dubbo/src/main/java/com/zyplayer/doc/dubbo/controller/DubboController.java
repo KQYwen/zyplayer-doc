@@ -111,16 +111,21 @@ public class DubboController {
 	@PostMapping(value = "/reloadService")
 	public DocResponseJson loadService() throws Exception {
 		List<DubboInfo> providerList;
-		if (StringUtils.isBlank(serviceZookeeperUrl)) {
-			if (StringUtils.isBlank(nacosUrl) || StringUtils.isBlank(nacosService)) {
-				return DocResponseJson.warn("zyplayer.doc.dubbo.zookeeper.url、zyplayer.doc.dubbo.nacos.url 参数均未配置");
+		try {
+			if (StringUtils.isBlank(serviceZookeeperUrl)) {
+				if (StringUtils.isBlank(nacosUrl) || StringUtils.isBlank(nacosService)) {
+					return DocResponseJson.warn("zyplayer.doc.dubbo.zookeeper.url、zyplayer.doc.dubbo.nacos.url 参数均未配置");
+				}
+				logger.info("zookeeper参数未配置，使用nacos配置");
+				providerList = this.getDubboInfoByNacos();
+			} else {
+				providerList = this.getDubboInfoByZookeeper();
 			}
-			logger.info("zookeeper参数未配置，使用nacos配置");
-			providerList = this.getDubboInfoByNacos();
-		} else {
-			providerList = this.getDubboInfoByZookeeper();
+			mgDubboStorageService.put(StorageKeys.DUBBO_SERVICE_LIST, JSON.toJSONString(providerList));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return DocResponseJson.warn("获取服务列表失败");
 		}
-		mgDubboStorageService.put(StorageKeys.DUBBO_SERVICE_LIST, JSON.toJSONString(providerList));
 		return DocResponseJson.ok();
 	}
 	

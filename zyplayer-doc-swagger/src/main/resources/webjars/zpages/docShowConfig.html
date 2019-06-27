@@ -68,7 +68,7 @@
 						<label><input type="radio" name="forceRewriteDomain" value="1" v-model="forceRewriteDomain">是</label>
 						<label><input type="radio" name="forceRewriteDomain" value="0" v-model="forceRewriteDomain">否</label>
 					</td>
-					<td>文档在本地，想调试线上接口就可以勾选此参数，“在线调试”处的请求地址强制改为：“文档地址管理”处配置的重写域名+接口地址</td>
+					<td>文档在本地，想调试线上接口就可以勾选此参数，这样“在线调试”处的请求地址就会被强制改为：“文档地址管理”处配置的重写域名+接口地址</td>
 				</tr>
 			</tbody>
 		</table>
@@ -108,7 +108,7 @@
 			}
 		},
 		methods: {
-			
+
 		},
 		mounted: function(){
 			getStorage(cacheKeys.userSettings, function(data){
