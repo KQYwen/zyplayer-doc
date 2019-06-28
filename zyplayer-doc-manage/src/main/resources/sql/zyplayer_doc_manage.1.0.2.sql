@@ -33,7 +33,9 @@ CREATE TABLE `wiki_page_history` (
   KEY `idx_page_id` (`page_id`) USING BTREE COMMENT '页面ID索引'
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
-
+ALTER TABLE `user_info` ADD COLUMN `phone` varchar(20) NULL COMMENT '手机号';
+ALTER TABLE `user_info` ADD COLUMN `sex` tinyint NOT NULL DEFAULT 0 COMMENT '性别 0=女 1=男';
+ALTER TABLE `user_info` MODIFY COLUMN `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '是否删除 0=未删除 1=已删除 2=已停用';
 
 
 -- ------------------------全新的库：------------------------
@@ -133,10 +135,12 @@ CREATE TABLE `user_info`  (
   `user_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户名',
   `email` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '邮箱',
   `avatar` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '头像',
-  `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '是否删除 0=未删除 1=已删除',
+  `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '是否删除 0=未删除 1=已删除 2=已停用',
   `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `create_uid` bigint(20) NULL DEFAULT NULL COMMENT '创建人用户ID',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `phone` varchar(20) NULL COMMENT '手机号',
+  `sex` tinyint NOT NULL DEFAULT 0 COMMENT '性别 0=女 1=男',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_userNo`(`user_no`) USING BTREE COMMENT '登录用户名'
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户信息表' ROW_FORMAT = Compact;

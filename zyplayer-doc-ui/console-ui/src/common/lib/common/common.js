@@ -24,7 +24,9 @@ export default {
 		} else if (res.data.errCode == 400) {
 			global.vue.$message('请先登录');
 			var href = encodeURIComponent(window.location.href);
-			global.vue.$router.push({path: '/user/login', query: {redirect: href}});
+			if (global.vue.$router.currentRoute.path != '/user/login') {
+				global.vue.$router.push({path: '/user/login', query: {redirect: href}});
+			}
 		} else if (res.data.errCode == 402) {
 			global.vue.$router.push("/common/noAuth");
 		} else if (res.data.errCode !== 200) {

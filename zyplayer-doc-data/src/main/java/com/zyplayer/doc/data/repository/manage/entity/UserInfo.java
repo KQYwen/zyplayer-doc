@@ -69,6 +69,16 @@ public class UserInfo implements Serializable {
      */
     private Date updateTime;
 
+    /**
+     * 手机号
+     */
+    private String phone;
+    
+    /**
+     * 性别 0=女 1=男
+     */
+    private Integer sex;
+
     public Long getId() {
         return id;
     }
@@ -154,5 +164,21 @@ public class UserInfo implements Serializable {
         ", creationTime=" + creationTime +
         ", updateTime=" + updateTime +
         "}";
+    }
+    
+    public String getPhone() {
+        return phone;
+    }
+    
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    public Integer getSex() {
+        return sex;
+    }
+    
+    public void setSex(Integer sex) {
+        this.sex = sex;
     }
 }
