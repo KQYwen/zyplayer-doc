@@ -78,6 +78,7 @@
         mounted: function () {
             app = this;
             global.vue.$app = this;
+            this.getUserInfo();
             this.checkSystemUpgrade();
         },
         methods: {
@@ -96,6 +97,15 @@
                 } else {
                     toast.notOpen();
                 }
+            },
+            userSignOut() {
+                this.common.post(this.apilist1.userLogout, {}, function (json) {
+                    location.reload();
+                });
+            },
+            getUserInfo() {
+                this.common.post(this.apilist1.getUserBaseInfo, {}, function (json) {
+                });
             },
             checkSystemUpgrade() {
                 this.common.post(this.apilist1.systemUpgradeInfo, {}, function (json) {
