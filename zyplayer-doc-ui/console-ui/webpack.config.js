@@ -11,7 +11,7 @@ module.exports = (options = {}) => ({
   },
   output: {
     path: resolve(__dirname, 'dist'),
-    filename: options.dev ? '[name].js' : '[name].js?[chunkhash]',
+    filename: options.dev ? '[name].js' : 'doc-console-[name].js?[chunkhash]',
     chunkFilename: '[id].js?[chunkhash]',
     publicPath: options.dev ? '/assets/' : publicPath
   },
@@ -45,7 +45,8 @@ module.exports = (options = {}) => ({
       names: ['vendor', 'manifest']
     }),
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: options.dev ? 'src/index.html':'src/doc-console.html',
+      filename: options.dev ? 'index.html':'doc-console.html',
     })
   ],
   resolve: {

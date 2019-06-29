@@ -14,19 +14,20 @@
                                 <span slot="title">系统管理</span>
                             </template>
                             <el-menu-item index="/console/userList"><i class="el-icon-user-solid"></i>用户管理</el-menu-item>
-                            <el-menu-item index="/console/roleList"><i class="el-icon-s-custom"></i>角色管理</el-menu-item>
-                            <el-menu-item index="/console/authList"><i class="el-icon-s-claim"></i>权限列表</el-menu-item>
+<!--                            <el-menu-item index="/console/roleList"><i class="el-icon-s-custom"></i>角色管理</el-menu-item>-->
+<!--                            <el-menu-item index="/console/authList"><i class="el-icon-s-claim"></i>权限列表</el-menu-item>-->
                         </el-submenu>
                     </el-menu>
                 </div>
             </el-aside>
             <el-container>
                 <el-header>
+                    <span class="header-right-user-name">{{userSelfInfo.userName}}</span>
                     <el-dropdown @command="userSettingDropdown" trigger="click">
                         <i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="aboutDoc">关于</el-dropdown-item>
-                            <el-dropdown-item command="" divided>我的资料</el-dropdown-item>
+                            <el-dropdown-item command="myInfo" divided>我的资料</el-dropdown-item>
                             <el-dropdown-item command="userSignOut">退出登录</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
@@ -71,6 +72,7 @@
             return {
                 isCollapse: false,
                 aboutDialogVisible: false,
+                userSelfInfo: {},
                 // 升级信息
                 upgradeInfo: {},
             }
@@ -78,7 +80,7 @@
         mounted: function () {
             app = this;
             global.vue.$app = this;
-            this.getUserInfo();
+            this.getSelfUserInfo();
             this.checkSystemUpgrade();
         },
         methods: {
@@ -94,6 +96,8 @@
                     this.userSignOut();
                 } else if (command == 'aboutDoc') {
                     app.aboutDialogVisible = true;
+                } else if (command == 'myInfo') {
+                    this.$router.push({path: '/user/myInfo'});
                 } else {
                     toast.notOpen();
                 }
@@ -103,8 +107,9 @@
                     location.reload();
                 });
             },
-            getUserInfo() {
-                this.common.post(this.apilist1.getUserBaseInfo, {}, function (json) {
+            getSelfUserInfo() {
+                this.common.post(this.apilist1.getSelfUserInfo, {}, function (json) {
+                    app.userSelfInfo = json.data;
                 });
             },
             checkSystemUpgrade() {
@@ -133,6 +138,7 @@
     #app, .el-container, .el-menu {
         height: 100%;
     }
+    .header-right-user-name{color: #fff;padding-right: 5px;}
     .el-menu-vertical{border-right: 0;background: #fafafa;}
     .el-menu-vertical .el-menu{background: #fafafa;}
     .el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}

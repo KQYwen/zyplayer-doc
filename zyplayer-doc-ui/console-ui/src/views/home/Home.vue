@@ -68,58 +68,12 @@
     export default {
         data() {
             return {
-                totalCount: 0,
-                searchParam: {
-                    spaceId: '',
-                    newsType: 1,
-                    pageNum: 1,
-                    pageSize: 20,
-                },
-                spacePageNews:[],
-                newsTypes:["最近更新", "最新创建", "查看最多", "点赞最多", "查看+点赞最多"],
             };
         },
-        beforeRouteUpdate(to, from, next) {
-            this.initQueryParam(to);
-            next();
-        },
         mounted: function () {
-            this.initQueryParam(this.$route);
             app = this;
         },
         methods: {
-            getSpacePageNews() {
-                this.common.post(this.apilist1.pageNews, this.searchParam, function (json) {
-                    app.spacePageNews = json.data || [];
-                    app.totalCount = json.total;
-                });
-            },
-            jumpToDocPage(val) {
-                window.open(val);
-            },
-            handleSizeChange(val) {
-                this.searchParam.pageSize = val;
-                this.getSpacePageNews();
-            },
-            showPageDetail(row) {
-                this.nowClickPath = {spaceId: row.spaceId, pageId: row.pageId};
-                this.$router.push({path: '/page/show', query: this.nowClickPath});
-            },
-            handleCurrentChange(val) {
-                this.searchParam.pageNum = val;
-                this.getSpacePageNews();
-            },
-            initQueryParam(to) {
-                this.searchParam = {
-                    spaceId: to.query.spaceId,
-                    newsType: 1,
-                    pageNum: 1,
-                    pageSize: 20,
-                };
-                if (!!this.searchParam.spaceId) {
-                    this.getSpacePageNews();
-                }
-            },
         }
     }
 </script>

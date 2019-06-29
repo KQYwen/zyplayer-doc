@@ -8,7 +8,6 @@ import org.springframework.web.servlet.ModelAndView;
 /**
  * 使用路劲的方式访问页面
  */
-@AuthMan
 @Controller
 public class DocSystemController {
 	
@@ -17,21 +16,25 @@ public class DocSystemController {
 		return new ModelAndView("/doc-console.html");
 	}
 	
+	@AuthMan
 	@GetMapping("/doc-wiki")
 	public ModelAndView wiki() {
 		return new ModelAndView("/doc-wiki-v2.html");
 	}
 	
+	@AuthMan
 	@GetMapping("/doc-db")
 	public ModelAndView db() {
 		return new ModelAndView("/doc-db.html");
 	}
 	
+	@AuthMan
 	@GetMapping("/doc-swagger")
 	public ModelAndView swagger() {
 		return new ModelAndView("/document.html");
 	}
 	
+	@AuthMan
 	@GetMapping("/doc-dubbo")
 	public ModelAndView dubbo() {
 		return new ModelAndView("/doc-dubbo.html");

@@ -21,6 +21,9 @@
             <el-form-item>
                 <el-button type="primary" @click="getUserList">查询</el-button>
             </el-form-item>
+            <el-form-item>
+                <el-button type="success" @click="addUserInfo"><i class="el-icon-plus"></i> 添加</el-button>
+            </el-form-item>
         </el-form>
         <div style="padding: 10px;" v-loading="searchLoading">
             <el-table :data="searchResultList" border style="width: 100%; margin-bottom: 5px;" max-height="500">
@@ -34,13 +37,12 @@
                 </el-table-column>
                 <el-table-column prop="creationTime" label="创建时间"></el-table-column>
                 <el-table-column label="状态">
-                    <template slot-scope="scope">
-                        <el-switch v-on:change="delFlagChange" v-model="scope.row.delFlag" :active-value="0" active-text="正常" :inactive-value="1" inactive-text="停用"></el-switch>
-                    </template>
+                    <template slot-scope="scope">{{scope.row.delFlag==0?'正常':'停用'}}</template>
                 </el-table-column>
-                <el-table-column label="操作" width="240">
+                <el-table-column label="操作" width="300">
                     <template slot-scope="scope">
                         <el-button size="mini" plain type="primary" v-on:click="editUserInfo(scope.row)">修改</el-button>
+                        <el-button size="mini" plain type="success" v-on:click="editUserAuthFun(scope.row)">权限</el-button>
                         <el-button size="mini" plain type="warning" v-on:click="resetPassword(scope.row)">重置密码</el-button>
                         <el-button size="mini" plain type="danger" v-on:click="deleteUser(scope.row)">删除</el-button>
                     </template>
@@ -59,8 +61,28 @@
             >
             </el-pagination>
         </div>
+        <!--修改用户权限弹窗-->
+        <el-dialog title="权限编辑" :visible.sync="editUserAuthDialogVisible" width="600px">
+            <el-form ref="form" label-width="80px">
+                <el-form-item label="账号">
+                    <el-input v-model="editUserForm.userNo" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="用户名">
+                    <el-input v-model="editUserForm.userName" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="权限">
+                    <el-select v-model="editUserAuth" multiple filterable placeholder="请选择" style="width: 100%;">
+                        <el-option v-for="item in allUserAuth" :key="item.id" :label="item.authDesc" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="editUserAuthSave">确定</el-button>
+                    <el-button @click="editUserAuthDialogVisible = false">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
         <!--修改用户弹窗-->
-        <el-dialog title="修改用户" :visible.sync="editUserDialogVisible" width="600px">
+        <el-dialog :title="editUserForm.id > 0 ? '修改用户':'创建用户'" :visible.sync="editUserDialogVisible" width="600px">
             <el-form ref="form" :model="editUserForm" label-width="80px">
                 <el-form-item label="账号">
                     <el-input v-model="editUserForm.userNo"></el-input>
@@ -74,17 +96,21 @@
                 <el-form-item label="邮箱">
                     <el-input v-model="editUserForm.email"></el-input>
                 </el-form-item>
+                <el-form-item label="状态">
+                    <el-switch v-model="editUserForm.delFlag" :active-value="0" active-text="正常" :inactive-value="2" inactive-text="停用"></el-switch>
+                </el-form-item>
                 <el-form-item label="性别">
                     <el-radio-group v-model="editUserForm.sex">
                         <el-radio :label="1">男</el-radio>
                         <el-radio :label="0">女</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="角色">
-                    <el-select v-model="editUserForm.role" multiple filterable placeholder="请选择">
-                        <el-option v-for="item in roleOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                    </el-select>
-                </el-form-item>
+<!--                先不做角色，想清楚了再做-->
+<!--                <el-form-item label="角色">-->
+<!--                    <el-select v-model="editUserForm.role" multiple filterable placeholder="请选择">-->
+<!--                        <el-option v-for="item in roleOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>-->
+<!--                    </el-select>-->
+<!--                </el-form-item>-->
                 <el-form-item>
                     <el-button type="primary" @click="updateEditUser">确定</el-button>
                     <el-button @click="editUserDialogVisible = false">取消</el-button>
@@ -103,6 +129,7 @@
             return {
                 searchLoading: false,
                 editUserDialogVisible: false,
+                editUserAuthDialogVisible: false,
                 totalCount: 0,
                 searchParam: {
                     type: 1,
@@ -115,6 +142,8 @@
                     {value: '管理员'}
                 ],
                 editUserForm: {},
+                allUserAuth: [],
+                editUserAuth: [],
             };
         },
         mounted: function () {
@@ -130,9 +159,39 @@
                 this.searchParam.pageNum = val;
                 this.getUserList();
             },
+            editUserAuthFun(row) {
+                app.allUserAuth = [];
+                app.editUserAuth = [];
+                var param = {userIds: row.id};
+                this.common.post(this.apilist1.userAuthList, param, function (json) {
+                    app.editUserAuth = [];
+                    app.allUserAuth = json.data;
+                    app.editUserAuthDialogVisible = true;
+                    app.editUserForm = JSON.parse(JSON.stringify(row));
+                    for (var i = 0; i < app.allUserAuth.length; i++) {
+                        if (app.allUserAuth[i].checked == 1) {
+                            app.editUserAuth.push(app.allUserAuth[i].id);
+                        }
+                    }
+                });
+            },
+            editUserAuthSave() {
+                var param = {
+                    userIds: this.editUserForm.id,
+                    authIds: this.editUserAuth.join(","),
+                };
+                this.common.post(this.apilist1.updateUserAuth, param, function (json) {
+                    toast.success("保存成功！");
+                    app.editUserAuthDialogVisible = false;
+                });
+            },
             editUserInfo(row) {
+                app.editUserDialogVisible = true;
+                app.editUserForm = JSON.parse(JSON.stringify(row));
+            },
+            addUserInfo() {
                 this.editUserDialogVisible = true;
-                this.editUserForm = row;
+                this.editUserForm = {};
             },
             resetPassword(row) {
                 this.$confirm('确定要重置此用户密码吗？', '提示', {
@@ -140,7 +199,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.editUserForm = row;
+                    this.editUserForm = JSON.parse(JSON.stringify(row));
                     this.common.post(this.apilist1.resetPassword, this.editUserForm, function (json) {
                         app.$confirm("重置成功！新的密码为：" + json.data).then(()=> {
                             done();
@@ -148,19 +207,17 @@
                     });
                 }).catch(()=>{});
             },
-            delFlagChange(row, xx) {
-                debugger
-                // this.editUserForm = row;
-            },
             deleteUser(row) {
                 this.$confirm('确定要删除此用户吗？', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.editUserForm = row;
-                    this.editUserForm.delFlag = 1;
-                    this.updateEditUser();
+                    this.editUserForm = JSON.parse(JSON.stringify(row));
+                    this.common.post(this.apilist1.deleteUserInfo, this.editUserForm, function (json) {
+                        toast.success("删除成功！");
+                        app.getUserList();
+                    });
                 }).catch(()=>{});
             },
             updateEditUser() {

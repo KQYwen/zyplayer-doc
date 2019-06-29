@@ -1,12 +1,13 @@
 var URL = {
     userLogin: '/login',
     userLogout: '/logout',
-    getUserInfo: '/user/getUserInfo',
+    getSelfUserInfo: '/user/info/selfInfo',
     getUserInfoList: '/user/info/list',
     updateUserInfo: '/user/info/update',
+    deleteUserInfo: '/user/info/delete',
+    userAuthList: '/user/info/auth/list',
+    updateUserAuth: '/user/info/auth/update',
     resetPassword: '/user/info/resetPassword',
-
-    getUserBaseInfo: '/zyplayer-doc-wiki/common/user/base',
 
     systemUpgradeInfo: '/system/info/upgrade',
 };

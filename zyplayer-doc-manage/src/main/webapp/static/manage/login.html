@@ -82,7 +82,7 @@
 					redirect = url.substring(url.indexOf("redirect=") + 9, url.length);
 					redirect = decodeURIComponent(redirect);
                 } else {
-					redirect = ctx + "static/manage/home.html";
+					redirect = ctx + "#/user/login";
                 }
                 post(ctx + "login", param, function (result) {
                     console.log(result);

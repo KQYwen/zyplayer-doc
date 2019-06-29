@@ -1,6 +1,7 @@
 package com.zyplayer.doc.manage.web.manage;
 
 import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user/info")
-@AuthMan("USER_MANAGE")
 public class UserInfoController {
 
 	@Resource
@@ -44,7 +44,16 @@ public class UserInfoController {
 	UserAuthService userAuthService;
 	@Resource
 	Mapper mapper;
-
+	
+	@AuthMan
+	@PostMapping("/selfInfo")
+	public ResponseJson<Object> selfInfo() {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		UserInfo userInfo = userInfoService.getById(currentUser.getUserId());
+		return DocResponseJson.ok(userInfo);
+	}
+	
+	@AuthMan("USER_MANAGE")
 	@PostMapping("/list")
 	public ResponseJson<Object> list(UserListParam param) {
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
@@ -65,11 +74,26 @@ public class UserInfoController {
 		return DocResponseJson.ok(pageInfo);
 	}
 	
+	@AuthMan("USER_MANAGE")
 	@PostMapping("/update")
 	public ResponseJson<Object> update(UserInfo userInfo) {
+		if (StringUtils.isBlank(userInfo.getUserNo())) {
+			return DocResponseJson.warn("用户账号必填");
+		}
+		if (StringUtils.isBlank(userInfo.getUserName())) {
+			return DocResponseJson.warn("用户名必填");
+		}
+		Long userId = Optional.ofNullable(userInfo.getId()).orElse(0L);
+		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("user_no", userInfo.getUserNo());
+		queryWrapper.ne(userId > 0, "id", userInfo.getId());
+		int count = userInfoService.count(queryWrapper);
+		if (count > 0) {
+			return DocResponseJson.warn("改用户账号已存在");
+		}
 		// 不允许修改密码
 		userInfo.setPassword(null);
-		if (userInfo.getId() != null && userInfo.getId() > 0) {
+		if (userId > 0) {
 			userInfo.setUpdateTime(new Date());
 			userInfoService.updateById(userInfo);
 		} else {
@@ -81,6 +105,7 @@ public class UserInfoController {
 		return DocResponseJson.ok();
 	}
 	
+	@AuthMan("USER_MANAGE")
 	@PostMapping("/resetPassword")
 	public ResponseJson<Object> resetPassword(UserInfo userInfo) {
 		String password = RandomUtil.randomNumbers(6);
@@ -94,15 +119,31 @@ public class UserInfoController {
 		userInfoService.updateById(userInfoUp);
 		return DocResponseJson.ok(password);
 	}
-
+	
+	@AuthMan("USER_MANAGE")
+	@PostMapping("/delete")
+	public ResponseJson<Object> delete(Long id) {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setId(id);
+		userInfo.setDelFlag(1);
+		userInfo.setUpdateTime(new Date());
+		userInfoService.updateById(userInfo);
+		return DocResponseJson.ok();
+	}
+	
+	@AuthMan("AUTH_ASSIGN")
 	@PostMapping("/auth/list")
 	public ResponseJson<Object> authList(String userIds) {
-		List<AuthInfo> authList = authInfoService.list();
+		// 所有权限
+		QueryWrapper<AuthInfo> authWrapper = new QueryWrapper<>();
+		authWrapper.eq("auth_type", 1);
+		List<AuthInfo> authList = authInfoService.list(authWrapper);
+		// 用户权限
 		QueryWrapper<UserAuth> queryWrapper = new QueryWrapper<>();
-		queryWrapper.in("user_id", new Object[]{userIds.split(",")});
 		queryWrapper.eq("del_flag", 0);
-		List<UserAuth> userAuths = userAuthService.list(queryWrapper);
-		Map<Long, UserAuth> userAuthMap = userAuths.stream().collect(Collectors.toMap(UserAuth::getAuthId, Function.identity(), (val1, val2) -> val1));
+		queryWrapper.in("user_id", Arrays.asList(userIds.split(",")));
+		List<UserAuth> userAuthList = userAuthService.list(queryWrapper);
+		Map<Long, UserAuth> userAuthMap = userAuthList.stream().collect(Collectors.toMap(UserAuth::getAuthId, Function.identity(), (val1, val2) -> val1));
 		List<AuthInfoVo> authInfoVoList = new LinkedList<>();
 		authList.forEach(val -> {
 			UserAuth userAuth = userAuthMap.get(val.getId());
@@ -117,7 +158,10 @@ public class UserInfoController {
 	@PostMapping("/auth/update")
 	public ResponseJson<Object> updateAuth(String userIds, String authIds) {
 		List<Long> userIdsList = Arrays.stream(userIds.split(",")).map(Long::valueOf).collect(Collectors.toList());
-		List<Long> authIdsList = Arrays.stream(authIds.split(",")).map(Long::valueOf).collect(Collectors.toList());
+		List<Long> authIdsList = Collections.emptyList();
+		if (StringUtils.isNotBlank(authIds)) {
+			authIdsList = Arrays.stream(authIds.split(",")).map(Long::valueOf).collect(Collectors.toList());
+		}
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		
 		UserAuth userAuthUp = new UserAuth();
@@ -141,16 +185,6 @@ public class UserInfoController {
 			}
 		}
 		userAuthService.saveBatch(createList);
-		return DocResponseJson.ok();
-	}
-
-	@PostMapping("/delete")
-	public ResponseJson<Object> delete(Long id) {
-		UserInfo userInfo = new UserInfo();
-		userInfo.setId(id);
-		userInfo.setDelFlag(1);
-		userInfo.setUpdateTime(new Date());
-		userInfoService.updateById(userInfo);
 		return DocResponseJson.ok();
 	}
 }
