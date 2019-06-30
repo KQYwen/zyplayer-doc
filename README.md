@@ -1,12 +1,14 @@
 # zyplayer-doc
 
 #### 项目介绍
-定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档....等，提供一整套的解决方案，为开发者服务，欢迎有想法的一起来写，给个Star鼓励下呗！（您的一个Star是快速迭代的动力源泉！）
+定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档、wiki文档....等，提供一整套的解决方案，为开发者服务，欢迎有想法的一起来写，给个Star鼓励下呗！（您的一个Star是快速迭代的动力源泉！）
 欢迎加群讨论，QQ群号：466363173
 
 体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/) 需登录 账号：zyplayer 密码：123456 （未运行dubbo服务，不能体验dubbo文档调试）
 
-开放文档地址：[http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb](http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) （无需登录）
+各模块的详细使用文档地址，部署必看：
+
+[http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb](http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 
 
 #### 软件架构
 ##### 一、zyplayer-doc-core 一些核心、公用的类
@@ -19,7 +21,7 @@
 
 > 已集成三套优秀swagger文档前端：[zyplayer-doc-swagger](https://gitee.com/zyplayer/zyplayer-doc)、[swagger-bootstrap-ui](https://gitee.com/xiaoym/swagger-bootstrap-ui)、[springfox-swagger-ui](https://github.com/springfox/springfox/tree/master/springfox-swagger-ui)
 
-> 已集成[zyplayer-doc-db](https://gitee.com/zyplayer/zyplayer-doc)数据库文档
+> 已集成本项目内的各子模块，可直接使用
 
 ##### 四、zyplayer-doc-swagger 原[swagger-mg-ui](https://gitee.com/zyplayer/swagger-mg-ui)，swagger的UI及整套解决方案
 > 具有 后端存储、代理请求、模拟返回、所有文档管理 等一系列原创功能，不止UI
@@ -42,7 +44,7 @@
 2. 修改zyplayer-doc-manage项目的application.yml配置文件里面的数据库账号密码
 
 3. 启动zyplayer-doc-manage项目，访问地址：
-http://127.0.0.1:8082/zyplayer-doc-manage/static/manage/home.html
+http://127.0.0.1:8083/zyplayer-doc-manage/
 未登录会进入登录页面，登陆后自动跳回，默认账号：zyplayer 密码:123456
 > 注意！！项目页面全是静态的html，如果使用idea启动，有可能访问不了静态页面，需要在这里配置下工作目录，然后重新启动即可
 ![](https://images.gitee.com/uploads/images/2019/0127/222951_4ce343fe_596905.png "配置工作目录")
