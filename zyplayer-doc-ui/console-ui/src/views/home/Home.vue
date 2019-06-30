@@ -74,6 +74,9 @@
             app = this;
         },
         methods: {
+            jumpToDocPage(val) {
+                window.open(val);
+            },
         }
     }
 </script>

@@ -39,6 +39,8 @@ ALTER TABLE `user_info` MODIFY COLUMN `del_flag` tinyint(4) NULL DEFAULT 0 COMME
 
 ALTER TABLE `auth_info` ADD COLUMN `auth_type` tinyint(4) NOT NULL DEFAULT 0 COMMENT '权限类型 0=隐藏权限 1=可使用';
 update auth_info set auth_type=1 where auth_name in('DOC_ALL', 'AUTH_MANAGE', 'AUTH_ASSIGN', 'USER_MANAGE');
+-- 不需要
+delete from auth_info where auth_name in('DOC_ALL', 'AUTH_MANAGE');
 
 
 -- ------------------------全新的库：------------------------
