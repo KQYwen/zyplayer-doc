@@ -7,7 +7,6 @@
 体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/) 需登录 账号：zyplayer 密码：123456 （未运行dubbo服务，不能体验dubbo文档调试）
 
 各模块的详细使用文档地址，部署必看：
-
 [http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb](http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 
 
 #### 软件架构
@@ -43,13 +42,9 @@
 
 2. 修改zyplayer-doc-manage项目的application.yml配置文件里面的数据库账号密码
 
-3. 启动zyplayer-doc-manage项目，访问地址：
-http://127.0.0.1:8083/zyplayer-doc-manage/
-未登录会进入登录页面，登陆后自动跳回，默认账号：zyplayer 密码:123456
-> 注意！！项目页面全是静态的html，如果使用idea启动，有可能访问不了静态页面，需要在这里配置下工作目录，然后重新启动即可
-![](https://images.gitee.com/uploads/images/2019/0127/222951_4ce343fe_596905.png "配置工作目录")
+3. 启动zyplayer-doc-manage项目，访问地址：http://127.0.0.1:8083/zyplayer-doc-manage/
 
-#### 功能介绍
+#### 模块介绍
 
 ##### 一、zyplayer-doc-swagger
 1. 在 `zyplayer-doc-swagger`->`文档管理`->`文档地址管理` 页可以管理`任意地址`的文档，在集成的三套UI中都可以直接查看和调试这里配置的文档，不用对UI做任何调整，只要标准的UI集成进来也可以直接用
@@ -78,7 +73,7 @@ http://127.0.0.1:8083/zyplayer-doc-manage/
 
 2. `zyplayer-doc-manage` -> `application.yml` -> `zyplayer.dubbo.nacos.url` 配置nacos服务地址
 
-3. 默认找zookeeper，未配置再找nacos的配置，访问地址：http://127.0.0.1:8082/zyplayer-doc-manage/doc-dubbo.html
+3. 默认找zookeeper，未配置再找nacos的配置
 
 4. 支持文档查找、文档编辑、在线调试接口
 
@@ -93,32 +88,6 @@ http://127.0.0.1:8083/zyplayer-doc-manage/
 
 3. 使用最新的一些技术框架，很简单，初学者拿来学习也是很不错的
 
+更多详细的使用部署文档：http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb
+
 如果觉得此项目对您有帮助，就捐赠一个吧！无关金额，主要是对作者的认可。
-
-#### 界面展示
-权限和用户管理：
-![](https://images.gitee.com/uploads/images/2018/1216/224050_3f93dd4a_596905.png "屏幕截图.png")
-数据库文档：
-![](https://images.gitee.com/uploads/images/2018/1219/231332_0a95e458_596905.png "屏幕截图.png")
-dubbo文档：
-![](https://images.gitee.com/uploads/images/2019/0214/224530_1cac5a99_596905.png "屏幕截图.png")
-dubbo接口调试：
-![](https://images.gitee.com/uploads/images/2019/0214/224600_8dfeb0c2_596905.png "屏幕截图.png")
-增加文档处：
-![](https://images.gitee.com/uploads/images/2019/0108/225208_6f4a9a64_596905.png "屏幕截图.png")
-使用springfox-swagger-ui访问增加的文档：
-![](https://images.gitee.com/uploads/images/2019/0108/225313_76ab6962_596905.png "屏幕截图.png")
-文档展示：
-![](https://images.gitee.com/uploads/images/2019/0108/224850_6940f92e_596905.png "屏幕截图.png")
-在线调试：
-![](https://images.gitee.com/uploads/images/2019/0108/224934_cb4cedea_596905.png "屏幕截图.png")
-模拟返回：
-![](https://images.gitee.com/uploads/images/2019/0108/224958_1f20b45d_596905.png "屏幕截图.png")
-文档配置：
-![](https://images.gitee.com/uploads/images/2019/0108/225024_1c8b2526_596905.png "屏幕截图.png")
-全局参数管理：
-![](https://images.gitee.com/uploads/images/2019/0108/225056_d2e861df_596905.png "屏幕截图.png")
-
-
-
-
