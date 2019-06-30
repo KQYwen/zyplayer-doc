@@ -22,7 +22,7 @@ public class SchedulerTask {
 	@Value("${zyplayer.doc.manage.upgradePropertiesUrl:''}")
 	private String upgradePropertiesUrl;
 	
-//	@Scheduled(cron = "0/10 * * * * ? ")
+//	@Scheduled(cron = "0 0/2 * * * ? ")
 	@Scheduled(cron = "0 0 1 * * ?")
 	public void upgradeTask() {
 		// 检查更新，访问的码云服务器获取升级内容的

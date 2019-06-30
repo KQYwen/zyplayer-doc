@@ -161,6 +161,6 @@ public class ZyplayerProxyFilter implements Filter {
 		response.setHeader("Cache-Control", "no-cache, must-revalidate");
 		response.getWriter().write(result);
 		Long totalTime = System.currentTimeMillis() - startTime;
-		logger.error("代理请求结束，总耗时：{}ms，URI：{}", totalTime, requestUrl);
+		logger.info("代理请求结束，总耗时：{}ms，URI：{}", totalTime, requestUrl);
 	}
 }
