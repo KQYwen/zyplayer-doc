@@ -30,9 +30,6 @@ zyplayer:
         url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
         username: root
         password: root
-      # 通过nginx代理之后没端口，但tomcat容器有端口，spring security会判断如果是http开头的则直接跳
-      # 如果你也遇到了这个问题，可以把登陆地址写成http://开头的一个地址
-      login-page: /static/manage/login.html
     # ------wiki文档相关------
     wiki:
       # wiki文档的文件上传后的存储目录
