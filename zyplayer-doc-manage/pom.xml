@@ -117,7 +117,7 @@
 		<!--zyplayer-doc-swagger-->
 		<dependency>
 			<groupId>com.zyplayer</groupId>
-			<artifactId>console-page</artifactId>
+			<artifactId>zyplayer-page-console</artifactId>
 			<version>${zyplayer.doc.version}</version>
 		</dependency>
 		<!--swagger-bootstrap-ui-->

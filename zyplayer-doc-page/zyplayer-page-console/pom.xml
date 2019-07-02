@@ -5,7 +5,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.zyplayer</groupId>
-	<artifactId>console-page</artifactId>
+	<artifactId>zyplayer-page-console</artifactId>
 	<version>1.0.2</version>
 	<description>管理页面前端</description>
 	<url>https://gitee.com/zyplayer/zyplayer-doc</url>

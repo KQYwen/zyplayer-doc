@@ -10,7 +10,7 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<module>console-page</module>
+		<module>zyplayer-page-console</module>
 	</modules>
 
 </project>
