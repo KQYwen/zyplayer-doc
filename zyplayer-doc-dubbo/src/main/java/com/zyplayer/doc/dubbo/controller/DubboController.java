@@ -6,6 +6,8 @@ import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.dubbo.controller.param.DubboRequestParam;
 import com.zyplayer.doc.dubbo.controller.vo.DubboInfoVo;
+import com.zyplayer.doc.dubbo.controller.vo.NacosServiceInfoVo;
+import com.zyplayer.doc.dubbo.controller.vo.NacosServiceListVo;
 import com.zyplayer.doc.dubbo.framework.bean.DubboDocInfo;
 import com.zyplayer.doc.dubbo.framework.bean.DubboInfo;
 import com.zyplayer.doc.dubbo.framework.bean.NacosDubboInfo;
@@ -64,8 +66,8 @@ public class DubboController {
 	private String metadataZookeeperUrl;
 	@Value("${zyplayer.doc.dubbo.nacos.url:}")
 	private String nacosUrl;
-	@Value("${zyplayer.doc.dubbo.nacos.service:}")
-	private String nacosService;
+//	@Value("${zyplayer.doc.dubbo.nacos.service:}")
+//	private String nacosService;
 	@Resource
 	private MgDubboStorageService mgDubboStorageService;
 	
@@ -113,7 +115,7 @@ public class DubboController {
 		List<DubboInfo> providerList;
 		try {
 			if (StringUtils.isBlank(serviceZookeeperUrl)) {
-				if (StringUtils.isBlank(nacosUrl) || StringUtils.isBlank(nacosService)) {
+				if (StringUtils.isBlank(nacosUrl)) {// || StringUtils.isBlank(nacosService)) {
 					return DocResponseJson.warn("zyplayer.doc.dubbo.zookeeper.url、zyplayer.doc.dubbo.nacos.url 参数均未配置");
 				}
 				logger.info("zookeeper参数未配置，使用nacos配置");
@@ -303,9 +305,15 @@ public class DubboController {
 	 **/
 	private List<DubboInfo> getDubboInfoByNacos() {
 		List<DubboInfo> providerList = new LinkedList<>();
-		String[] nacosServiceArr = nacosService.split(";");
-		for (String service : nacosServiceArr) {
-			String resultStr = HttpUtil.get(nacosUrl + "/v1/ns/instance/list?serviceName=providers:" + service);
+		// 获取所有的服务列表
+		String serviceListStr = HttpUtil.get(nacosUrl + "/v1/ns/catalog/serviceList?startPg=1&pgSize=100000");
+		NacosServiceInfoVo nacosServiceInfoVo = JSON.parseObject(serviceListStr, NacosServiceInfoVo.class);
+		if (nacosServiceInfoVo == null || nacosServiceInfoVo.getServiceList().isEmpty()) {
+			return providerList;
+		}
+		for (NacosServiceListVo service : nacosServiceInfoVo.getServiceList()) {
+			String serviceName = service.getName();
+			String resultStr = HttpUtil.get(nacosUrl + "/v1/ns/instance/list?serviceName=" + serviceName);
 			NacosDubboInfo dubboInstance = JSON.parseObject(resultStr, NacosDubboInfo.class);
 			List<NacosDubboInfo.HostsBean> hosts = dubboInstance.getHosts();
 			DubboInfo dubboInfo = new DubboInfo();
@@ -319,7 +327,10 @@ public class DubboController {
 				dubboNodeInfo.setApplication(host.getMetadata().getApplication());
 				nodeList.add(dubboNodeInfo);
 			}
-			dubboInfo.setInterfaceX(service);
+			if (serviceName.contains(":")) {
+				serviceName = serviceName.substring(serviceName.indexOf(":") + 1);
+			}
+			dubboInfo.setInterfaceX(serviceName);
 			dubboInfo.setNodeList(nodeList);
 			providerList.add(dubboInfo);
 		}
