@@ -301,6 +301,11 @@ public class MgDocumentController {
 	 */
 	@PostMapping(value = "/addSwaggerResources")
 	public ResponseJson<Object> addSwaggerResources(String resourcesUrl, String rewriteDomainUrl, String oldUrl, Integer openVisit) {
+		// 总有些人喜欢填这个地址，那就替换来支持下吧
+		int htmlIndex = resourcesUrl.indexOf("/swagger-ui.html");
+		if (htmlIndex > 0) {
+			resourcesUrl = resourcesUrl.substring(0, htmlIndex) + "/swagger-resources";
+		}
 		String swaggerResourcesStr = storageService.get(StorageKeys.SWAGGER_RESOURCES_LIST);
 		// 转成set，防止重复
 		List<SwaggerResourcesInfoVo> resourcesList = new LinkedList<>();

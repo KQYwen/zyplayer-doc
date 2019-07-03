@@ -306,7 +306,7 @@ public class DubboController {
 	private List<DubboInfo> getDubboInfoByNacos() {
 		List<DubboInfo> providerList = new LinkedList<>();
 		// 获取所有的服务列表
-		String serviceListStr = HttpUtil.get(nacosUrl + "/v1/ns/catalog/serviceList?startPg=1&pgSize=100000");
+		String serviceListStr = HttpUtil.get(nacosUrl + "/v1/ns/catalog/services?withInstances=false&pageNo=1&pageSize=100000");
 		NacosServiceInfoVo nacosServiceInfoVo = JSON.parseObject(serviceListStr, NacosServiceInfoVo.class);
 		if (nacosServiceInfoVo == null || nacosServiceInfoVo.getServiceList().isEmpty()) {
 			return providerList;
