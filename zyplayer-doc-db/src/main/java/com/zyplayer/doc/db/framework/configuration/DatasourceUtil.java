@@ -10,7 +10,9 @@ import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.io.IOException;
 import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatasourceUtil {
@@ -83,7 +85,7 @@ public class DatasourceUtil {
 			databaseFactoryBean.setSqlSessionTemplate(sqlSessionTemplate);
 			databaseFactoryBean.setUrl(dbUrl);
 			return databaseFactoryBean;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 		return null;

@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<!--无论发布在哪、如何修改源码，请勿删除本行原作者信息，感谢-->
+	<meta name="author" content="开发者列表：暮光：城中城，项目地址：https://gitee.com/zyplayer/zyplayer-doc" />
+	<title>数据库文档</title>
+	<link rel="shortcut icon" href="webjars/doc-db/img/api.ico"/>
+	<link rel="stylesheet" href="webjars/zui/css/zui.min.css" />
+	<link rel="stylesheet" href="webjars/zui/css/zui-theme.min.css">
+	<link rel="stylesheet" href="webjars/zui/lib/chosen/chosen.min.css" />
+	<link rel="stylesheet" href="webjars/doc-db/css/doc-db.css" />
+</head>
+<body>
+	<div class="container">
+		<div class="row choise-db">
+			<div class="col-md-3">
+				<select id="choiseHost" data-placeholder="选择一个连接" class="chosen-select form-control" tabindex="2">
+					<option value=""></option>
+				</select>
+			</div>
+			<div class="col-md-3">
+				<select id="choiseDatabase" data-placeholder="选择一个数据库" class="chosen-select form-control" tabindex="2">
+					<option value=""></option>
+				</select>
+			</div>
+			<div class="col-md-3">
+				<select id="choiseTable" data-placeholder="选择一张表" class="chosen-select form-control" tabindex="2">
+					<option value=""></option>
+				</select>
+			</div>
+			<div class="col-md-3">
+				<button class="btn btn-primary" type="button" id="fuzzySearchBtn">模糊查询</button>
+				<button class="btn btn-primary" type="button" id="exportBtn">导出</button>
+				<button class="btn" type="button" id="showEchartsBtn">显示表关系图</button>
+			</div>
+		</div>
+		<div class="table-info">
+			<div style="height: 35px;line-height: 35px;">
+				表名：<span class="table-name"></span>
+				<button class="btn pull-right" type="button" id="aboutBtn" style="margin-right: 30px;">关于</button>
+			</div>
+			<div class="desc">
+				<div id="tableDescShow">
+					<span class="table-desc"></span>
+					<i class="icon icon-edit" title="编辑表注释"></i>
+				</div>
+				<textarea id="tableDescInput" rows="2" class="form-control"></textarea>
+			</div>
+		</div>
+		<div class="table-columns">
+			<table class="table table-bordered table-striped table-hover" id="tableCloumnsTable">
+				<thead>
+					<tr><th>字段名</th><th>自增</th><th>类型</th><th>长度</th><th>NULL</th><th>主键</th><th>注释</th></tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+		<div id="tableRelationBox" class="hide" style="width: 100%;height:100px;">
+			<div class="alert alert-warning alert-dismissable">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+				<p>
+					Tips：本关系图不是通过外键生成，所以需要在字段注释最后按规则添加外键关系才能生成图表，支持的格式有：<br/>
+					1、T:表，例：XXX(字段注释)，T:user_info<br/>
+					2、T:表.关联ID，例：XXX(字段注释)，T:user_info.id<br/>
+					3、T:库.表.关联ID，例：XXX(字段注释)，T:order_db.user_info.id<br/>
+					实验功能，有更好的建议或展示方式欢迎<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">提交建议</a>！
+				</p>
+			</div>
+			<div id="tableRelationCharts" style="width: 100%;height:100%;margin-bottom: 50px;"></div>
+		</div>
+		<!-- 模糊查询 -->
+		<div class="modal fade" id="fuzzySearchModal">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+						</button>
+						<h4 class="modal-title">通过字段名或释义模糊查询</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row choise-db">
+							<div class="col-md-3">
+								<select id="choiseFuzzyHost" data-placeholder="选择一个连接" class="chosen-select form-control" tabindex="2">
+									<option value=""></option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<select id="choiseFuzzyDatabase" data-placeholder="选择一个数据库" class="chosen-select form-control" tabindex="2">
+									<option value=""></option>
+								</select>
+							</div>
+							<div class="col-md-4">
+								<input id="searchText" type="text" class="form-control" placeholder="搜索内容，字段名或注释">
+							</div>
+							<div class="col-md-2">
+								<button id="doSearch" class="btn btn-primary" type="button">查询 <i class="icon icon-spin icon-spinner-snake hidden"></i></button>
+							</div>
+						</div>
+						<div class="modal-table-box">
+							<table class="table table-bordered table-striped table-hover" id="fuzzySearchTable">
+								<thead>
+									<tr><th>表名</th><th>字段名</th><th>注释</th></tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 导出弹出框 -->
+		<div class="modal fade" id="exportModal">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+						</button>
+						<h4 class="modal-title">导出数据库文档</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row choise-db">
+							<div class="col-md-3">
+								<select id="choiseExportHost" data-placeholder="选择一个连接" class="chosen-select form-control" tabindex="2">
+									<option value=""></option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<select id="choiseExportDatabase" data-placeholder="选择一个数据库" class="chosen-select form-control" tabindex="2">
+									<option value=""></option>
+								</select>
+							</div>
+							<div class="col-md-6">
+								<button id="doExport" class="btn btn-primary" type="button">确认导出 <i class="icon icon-spin icon-spinner-snake hidden"></i></button>
+								<button id="checkAllTable" class="btn" type="button">全选</button>
+								<button id="notCheckAllTable" class="btn" type="button">全不选</button>
+							</div>
+						</div>
+						<div class="alert alert-danger">
+							请到 <a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc-db">源码处下载</a>《对外文档模板.zip》解压，
+							然后将“确认导出”后的文件放至/js目录下，文件名必须为：database.js<br/>
+							然后双击打开目录下的：doc-db.html 即可看到导出的文档
+						</div>
+						<div class="modal-table-box">
+							<ul id="exportUl"></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 关于弹出框 -->
+		<div class="modal fade" id="aboutModal">
+			<div class="modal-dialog modal-lg" style="width: 600px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+						</button>
+						<h4 class="modal-title">关于zyplayer-doc-db</h4>
+					</div>
+					<div class="modal-body">
+						<form class="form-horizontal" style="line-height: 30px;">
+							<div class="form-group">
+								<label class="col-sm-2 no-padding">项目地址：</label>
+								<div class="col-md-6 col-sm-10">
+									<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 no-padding">开发人员：</label>
+								<div class="col-md-6 col-sm-10">
+									<a target="_blank" href="http://zyplayer.com">暮光：城中城</a>
+								</div>
+							</div>
+							<div class="form-group upgrade-info">
+								<label class="col-sm-2 no-padding">当前版本：</label>
+								<div class="col-md-10 col-sm-10" id="upgradeNowVersion"></div>
+							</div>
+							<div class="form-group upgrade-info">
+								<label class="col-sm-2 no-padding">最新版本：</label>
+								<div class="col-md-10 col-sm-10" id="upgradeLastVersion"></div>
+							</div>
+							<div class="form-group upgrade-info">
+								<label class="col-sm-2 no-padding">升级地址：</label>
+								<div class="col-md-10 col-sm-10" id="upgradeUrl"></div>
+							</div>
+							<div class="form-group upgrade-info">
+								<label class="col-sm-2 no-padding">升级内容：</label>
+								<div class="col-md-10 col-sm-10" id="upgradeContent"></div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-2 no-padding"></div>
+								<div class="col-md-10 col-sm-10">
+									欢迎加群讨论，QQ群号：466363173，欢迎提交需求，欢迎使用和加入开发！
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="webjars/doc-db/js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="webjars/zui/js/zui.min.js"></script>
+<script type="text/javascript" src="webjars/zui/lib/chosen/chosen.min.js"></script>
+<script type="text/javascript" src="webjars/doc-db/js/echarts.min.js"></script>
+
+<script type="text/javascript" src="webjars/doc-db/js/option-table-relation.js"></script>
+<script type="text/javascript" src="webjars/doc-db/js/formatjson.js"></script>
+<script type="text/javascript" src="webjars/doc-db/js/toast.js"></script>
+<script type="text/javascript" src="webjars/doc-db/js/common.js"></script>
+<script type="text/javascript" src="webjars/doc-db/js/doc-db.js"></script>
+</html>
+

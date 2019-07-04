@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 数据源控制器
@@ -40,6 +41,9 @@ public class DbDatasourceController {
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
 		wrapper.eq("yn", 1);
 		List<DbDatasource> datasourceList = dbDatasourceService.list(wrapper);
+		for (DbDatasource dbDatasource : datasourceList) {
+			dbDatasource.setSourcePassword("***");
+		}
 		return DocDbResponseJson.ok(datasourceList);
 	}
 
@@ -54,15 +58,17 @@ public class DbDatasourceController {
 		} else if (StringUtils.isBlank(dbDatasource.getSourcePassword())) {
 			return DocDbResponseJson.warn("密码必填");
 		}
+		if (Objects.equals("***", dbDatasource.getSourcePassword())) {
+			dbDatasource.setSourcePassword(null);
+		}
+		// 这三项不需要修改
+		dbDatasource.setCreateTime(null);
+		dbDatasource.setCreateUserId(null);
+		dbDatasource.setCreateUserName(null);
 		Long sourceId = Optional.ofNullable(dbDatasource.getId()).orElse(0L);
+		DbDatasource dbDatasourceSel = dbDatasource;
 		if (sourceId > 0) {
-			dbDatasourceService.updateById(dbDatasource);
-		} else {
-			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-			dbDatasource.setCreateTime(new Date());
-			dbDatasource.setCreateUserId(currentUser.getUserId());
-			dbDatasource.setYn(1);
-			dbDatasourceService.save(dbDatasource);
+			dbDatasourceSel = dbDatasourceService.getById(dbDatasource.getId());
 		}
 		List<DatabaseFactoryBean> newFactoryBeanList = new LinkedList<>();
 		List<DatabaseFactoryBean> databaseFactoryBeanList = databaseRegistrationBean.getDatabaseFactoryBeanList();
@@ -80,7 +86,7 @@ public class DbDatasourceController {
 			}
 		}
 		// 创建新的数据源
-		DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource);
+		DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasourceSel);
 		if (databaseFactoryBean != null) {
 			newFactoryBeanList.add(databaseFactoryBean);
 		}
@@ -88,6 +94,16 @@ public class DbDatasourceController {
 		
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("创建数据源失败，请检查配置是否正确");
+		}
+		if (sourceId > 0) {
+			dbDatasourceService.updateById(dbDatasource);
+		} else {
+			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+			dbDatasource.setCreateTime(new Date());
+			dbDatasource.setCreateUserId(currentUser.getUserId());
+			dbDatasource.setCreateUserName(currentUser.getUsername());
+			dbDatasource.setYn(1);
+			dbDatasourceService.save(dbDatasource);
 		}
 		return DocDbResponseJson.ok();
 	}

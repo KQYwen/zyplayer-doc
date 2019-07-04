@@ -23,6 +23,12 @@
         </div>
         <!--增加数据源弹窗-->
         <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="600px">
+            <el-alert
+                    title="重要提醒"
+                    description="请录入正确可用的数据库连接、账号、密码信息，否则初始化数据源失败将影响整个系统，有可能需要重启服务才能解决"
+                    type="warning" :closable="false"
+                    show-icon style="margin-bottom: 10px;">
+            </el-alert>
             <el-form label-width="120px">
                 <el-form-item label="驱动类：">
                     <el-select v-model="newDatasource.driverClassName" placeholder="驱动类" style="width: 100%">
@@ -69,6 +75,7 @@
         methods: {
             addDatasource() {
                 this.datasourceDialogVisible = true;
+                this.newDatasource = {driverClassName: "", sourceUrl: "", sourceName: "", sourcePassword: ""};
             },
             editDatasource(row) {
                 this.newDatasource = row;
@@ -80,14 +87,11 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    var datasourceList = [];
-                    for (var i = 0; i < this.datasourceList.length; i++) {
-                        if (this.datasourceList[i].id != row.id) {
-                            datasourceList.push(this.datasourceList[i]);
-                        }
-                    }
-                    this.datasourceList = datasourceList;
-                    this.$message.success("删除成功！");
+                    row.yn = 0;
+                    this.common.post(this.apilist1.manageUpdateDatasource, row, function (json) {
+                        app.$message.success("删除成功！");
+                        app.getDatasourceList();
+                    });
                 }).catch(()=>{});
             },
             saveDatasource() {
