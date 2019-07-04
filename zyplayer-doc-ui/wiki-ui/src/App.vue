@@ -40,8 +40,9 @@
                     <el-dropdown @command="userSettingDropdown" trigger="click">
                         <i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
                         <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item command="aboutDoc">关于</el-dropdown-item>
-                            <el-dropdown-item command="" divided>我的资料</el-dropdown-item>
+                            <el-dropdown-item command="console">控制台</el-dropdown-item>
+                            <el-dropdown-item command="aboutDoc" divided>关于</el-dropdown-item>
+                            <el-dropdown-item command="myInfo">我的资料</el-dropdown-item>
                             <el-dropdown-item command="userSignOut">退出登录</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
@@ -51,7 +52,6 @@
                 </el-main>
             </el-container>
         </el-container>
-
         <!--新建空间弹窗-->
         <el-dialog title="创建空间" :visible.sync="newSpaceDialogVisible" width="600px" :close-on-click-modal="false">
             <el-form label-width="100px" :model="newSpaceForm" :rules="newSpaceFormRules" ref="newSpaceForm">
@@ -360,6 +360,8 @@
                     this.userSignOut();
                 } else if (command == 'aboutDoc') {
                     app.aboutDialogVisible = true;
+                } else if (command == 'console') {
+                    window.location = this.apilist1.HOST;
                 } else {
                     toast.notOpen();
                 }

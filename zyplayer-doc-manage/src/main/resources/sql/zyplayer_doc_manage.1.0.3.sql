@@ -1,0 +1,23 @@
+
+--
+-- ！！重要说明！！
+-- 1、本sql文件分为：从1.0.2版本升级 和 全新的库，即增量和全量的区分，请选择性执行
+-- 2、建议数据库版本：5.7.25
+--
+
+-- 从1.0.2版本升级：
+CREATE TABLE `db_datasource` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `driver_class_name` varchar(50) DEFAULT NULL COMMENT '数据源驱动类',
+  `source_url` varchar(512) DEFAULT NULL COMMENT '数据源地址',
+  `source_name` varchar(50) DEFAULT NULL COMMENT '数据源用户名',
+  `source_password` varchar(50) DEFAULT NULL COMMENT '数据源密码',
+  `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `yn` tinyint(4) DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+
+-- ------------------------全新的库：------------------------

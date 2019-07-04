@@ -22,9 +22,9 @@ export default {
 		if (!!res.message) {
 			global.vue.$message('请求错误：' + res.message);
 		} else if (res.data.errCode == 400) {
-			global.vue.$message('请先登录');
 			var href = encodeURIComponent(window.location.href);
 			if (global.vue.$router.currentRoute.path != '/user/login') {
+				global.vue.$message('请先登录');
 				global.vue.$router.push({path: '/user/login', query: {redirect: href}});
 			}
 		} else if (res.data.errCode == 402) {

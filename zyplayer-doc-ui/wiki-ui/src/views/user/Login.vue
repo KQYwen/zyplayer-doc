@@ -1,19 +1,21 @@
 <template>
-    <el-form :model="loginParam" :rules="loginRules" ref="loginParam" label-position="left" label-width="0px"
-             class="demo-ruleForm login-container">
-        <h3 class="title">系统登录</h3>
-        <el-form-item prop="userNo">
-            <el-input type="text" v-model="loginParam.userNo" auto-complete="off" placeholder="账号"></el-input>
-        </el-form-item>
-        <el-form-item prop="password">
-            <el-input type="password" v-model="loginParam.password" auto-complete="off" placeholder="密码"></el-input>
-        </el-form-item>
-        <el-form-item style="width:100%;">
-            <el-button type="primary" style="width:100%;" @click.native.prevent="loginSubmit" :loading="logining">登录
-            </el-button>
-            <!--<el-button @click.native.prevent="handleReset2">重置</el-button>-->
-        </el-form-item>
-    </el-form>
+    <div style="padding-top: 50px;" @keyup.enter="loginSubmit">
+        <el-form :model="loginParam" :rules="loginRules" ref="loginParam" label-position="left" label-width="0px"
+                 class="demo-ruleForm login-container">
+            <h3 class="title">系统登录</h3>
+            <el-form-item prop="username">
+                <el-input type="text" v-model="loginParam.username" auto-complete="off" placeholder="账号"></el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+                <el-input type="password" v-model="loginParam.password" auto-complete="off" placeholder="密码"></el-input>
+            </el-form-item>
+            <el-form-item style="width:100%;">
+                <el-button type="primary" style="width:100%;" @click.native.prevent="loginSubmit" :loading="logining">登录
+                </el-button>
+                <!--<el-button @click.native.prevent="handleReset2">重置</el-button>-->
+            </el-form-item>
+        </el-form>
+    </div>
 </template>
 
 <script>
@@ -21,12 +23,13 @@
         data() {
             return {
                 logining: false,
+                redirect: '',
                 loginParam: {
-                    userNo: '',
+                    username: '',
                     password: ''
                 },
                 loginRules: {
-                    userNo: [
+                    username: [
                         {required: true, message: '请输入账号', trigger: 'blur'},
                     ],
                     password: [
@@ -36,21 +39,20 @@
                 checked: true
             };
         },
+        mounted: function () {
+            this.redirect = this.$route.query.redirect;
+        },
         methods: {
-            loginSubmit(ev) {
+            loginSubmit() {
                 var that = this;
                 this.$refs.loginParam.validate((valid) => {
                     if (!valid) return;
                     that.common.post(that.apilist1.userLogin, that.loginParam, function (json) {
-                        // 设置cookie
-                        var token = escape(json.data);
-                        var exp = new Date();
-                        exp.setTime(exp.getTime() + 30 * 24 * 60 * 60 * 1000);
-                        document.cookie = "accessToken=" + token + ";expires=" + exp.toGMTString();
-                        that.common.setAccessToken(token);
-                        // 跳转
-                        that.global.user.isLogin = true;
-                        that.$router.push("/user/wxLogin");
+                        if(!!that.redirect) {
+                            location.href = decodeURIComponent(that.redirect);
+                        } else {
+                            that.$router.back();
+                        }
                     });
                 });
             }
@@ -64,7 +66,7 @@
         border-radius: 5px;
         -moz-border-radius: 5px;
         background-clip: padding-box;
-        margin: 80px auto;
+        margin: 0 auto;
         width: 350px;
         padding: 35px 35px 15px 35px;
         background: #fff;

@@ -1,8 +1,7 @@
 package com.zyplayer.doc.db.framework.db.bean;
 
-import javax.sql.DataSource;
-
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 
 /**
  * 描述连接信息的对象
@@ -10,22 +9,31 @@ import org.mybatis.spring.SqlSessionTemplate;
  * @since 2018年8月8日
  */
 public class DatabaseFactoryBean {
-	private DataSource dataSource;
+	private Long id;
+	private AtomikosDataSourceBean dataSource;
 	private SqlSessionTemplate sqlSessionTemplate;
 	private String url;
 	private String host;
 	private String dbName;
 	private DatabaseProduct databaseProduct;
-
+	
+	public Long getId() {
+		return id;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
 	public static enum DatabaseProduct {
 		MYSQL, SQLSERVER
 	}
 
-	public DataSource getDataSource() {
+	public AtomikosDataSourceBean getDataSource() {
 		return dataSource;
 	}
 
-	public void setDataSource(DataSource dataSource) {
+	public void setDataSource(AtomikosDataSourceBean dataSource) {
 		this.dataSource = dataSource;
 	}
 
