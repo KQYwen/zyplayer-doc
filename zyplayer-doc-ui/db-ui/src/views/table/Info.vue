@@ -123,5 +123,6 @@
     .table-info-vue .el-form-item{margin-bottom: 5px;}
     .table-info-vue .edit-table-desc{cursor: pointer; color: #409EFF;}
     .table-info-vue .description{cursor: pointer;}
+    .table-info-vue .el-table td, .table-info-vue .el-table th{padding: 5px 0;}
 </style>
 

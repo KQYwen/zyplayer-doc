@@ -19,5 +19,11 @@ CREATE TABLE `db_datasource` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
+INSERT INTO `auth_info`(`auth_name`, `auth_desc`, `can_edit`, `create_uid`, `creation_time`, `auth_type`)
+VALUES ( 'DB_DATASOURCE_MANAGE', '数据源管理权', 0, 1, '2019-06-29 13:01:20', 1);
+
+insert into user_auth(`user_id`, `auth_id`, `create_uid`, `del_flag`, `creation_time`)
+select a.id, b.id, a.id, 0, now() from user_info a,auth_info b
+where a.user_no='zyplayer' and b.auth_name='DB_DATASOURCE_MANAGE';
 
 -- ------------------------全新的库：------------------------

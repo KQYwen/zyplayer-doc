@@ -10,9 +10,7 @@ import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import java.io.IOException;
 import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatasourceUtil {

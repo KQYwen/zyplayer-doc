@@ -1,7 +1,7 @@
 var URL = {
     userLogin: '/login',
     userLogout: '/logout',
-    getUserInfo: '/user/getUserInfo',
+    getSelfUserInfo: '/user/info/selfInfo',
     pageUpdate: '/zyplayer-doc-wiki/page/update',
     pageChangeParent: '/zyplayer-doc-wiki/page/changeParent',
     pageList: '/zyplayer-doc-wiki/page/list',

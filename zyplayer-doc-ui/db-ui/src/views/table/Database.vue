@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="table-database-vue">
         <el-card style="margin: 10px;" shadow="never">
             <div slot="header" class="clearfix">库信息</div>
             <el-form label-width="100px">
@@ -65,10 +65,8 @@
             },
         }
     }
-
 </script>
 <style>
-    .search-form-box{padding: 10px;}
-    .page-info-box{text-align: right;margin: 20px 0 50px 0;}
+    .table-database-vue .el-table td, .table-database-vue .el-table th{padding: 5px 0;}
 </style>
 

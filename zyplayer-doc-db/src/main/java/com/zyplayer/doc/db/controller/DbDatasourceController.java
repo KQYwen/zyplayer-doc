@@ -2,6 +2,7 @@ package com.zyplayer.doc.db.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
@@ -10,7 +11,6 @@ import com.zyplayer.doc.db.framework.configuration.DatasourceUtil;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
-import com.zyplayer.doc.db.framework.json.ResponseJson;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 数据源控制器
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
  * @author 暮光：城中城
  * @since 2019年6月29日
  */
-@AuthMan
+@AuthMan("DB_DATASOURCE_MANAGE")
 @RestController
 @RequestMapping("/zyplayer-doc-db/datasource")
 public class DbDatasourceController {

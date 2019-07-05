@@ -4,6 +4,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo.TableInfoVo;
@@ -14,7 +15,6 @@ import com.zyplayer.doc.db.framework.db.dto.*;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
-import com.zyplayer.doc.db.framework.json.ResponseJson;
 import org.apache.commons.lang.StringUtils;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 /**
  * 文档控制器
- * 
+ *
  * @author 暮光：城中城
  * @since 2018年8月8日
  */

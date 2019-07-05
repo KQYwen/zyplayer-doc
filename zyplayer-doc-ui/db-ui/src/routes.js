@@ -8,6 +8,9 @@ import TableInfo from './views/table/Info.vue'
 import TableDatabase from './views/table/Database.vue'
 import TableRouterView from './views/table/RouterView.vue'
 
+import DataDatasourceManage from './views/data/DatasourceManage.vue'
+import DataRouterView from './views/data/RouterView.vue'
+
 import CommonNoAuth from './views/common/NoAuth.vue'
 
 let routes = [
@@ -33,6 +36,13 @@ let routes = [
         children: [
             {path: 'info', name: '表信息',component: TableInfo},
             {path: 'database', name: '库信息',component: TableDatabase},
+        ]
+    }, {
+        path: '/data',
+        name: '数据信息',
+        component: DataRouterView,
+        children: [
+            {path: 'datasourceManage', name: '数据源管理',component: DataDatasourceManage},
         ]
     }, {
         path: '/common',

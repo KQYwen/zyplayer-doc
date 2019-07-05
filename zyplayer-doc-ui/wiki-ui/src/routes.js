@@ -1,6 +1,7 @@
 import Home from './views/home/Home.vue'
 
 import UserLogin from './views/user/Login.vue'
+import UserMyInfo from './views/user/MyInfo.vue'
 import UserRouterView from './views/user/RouterView.vue'
 
 import PageShow from './views/page/Show.vue'
@@ -23,6 +24,7 @@ let routes = [
         component: UserRouterView,
         children: [
             {path: 'login', name: '系统登录',component: UserLogin, meta: {fullscreen: true}},
+            {path: 'myInfo', name: '我的信息',component: UserMyInfo},
         ]
     }, {
         path: '/page',

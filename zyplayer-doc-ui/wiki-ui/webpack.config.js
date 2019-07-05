@@ -11,15 +11,15 @@ module.exports = (options = {}) => ({
   },
   output: {
     path: resolve(__dirname, 'dist'),
-    filename: options.dev ? '[name].js' : '[name].js?[chunkhash]',
+    filename: options.dev ? '[name].js' : 'doc-wiki-[name].js?[chunkhash]',
     chunkFilename: '[id].js?[chunkhash]',
     publicPath: options.dev ? '/assets/' : publicPath
   },
   module: {
     rules: [{
-        test: /\.vue$/,
-        use: ['vue-loader']
-      },
+      test: /\.vue$/,
+      use: ['vue-loader']
+    },
       {
         test: /\.js$/,
         use: ['babel-loader'],
@@ -34,7 +34,7 @@ module.exports = (options = {}) => ({
         use: [{
           loader: 'url-loader',
           options: {
-            limit: 10000
+            limit: 800000
           }
         }]
       }
@@ -45,7 +45,8 @@ module.exports = (options = {}) => ({
       names: ['vendor', 'manifest']
     }),
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: options.dev ? 'src/index.html':'src/doc-wiki.html',
+      filename: options.dev ? 'index.html':'doc-wiki.html',
     })
   ],
   resolve: {

@@ -7,12 +7,19 @@
             <el-aside>
                 <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
                     <div style="margin-bottom: 10px;">
-                        <el-select v-model="choiceDatasource" @change="datasourceChangeEvents" filterable placeholder="选择数据源" style="width: 100%;">
+                        <el-select v-model="choiceDatasource" @change="datasourceChangeEvents" filterable placeholder="请先选择数据源" style="width: 100%;">
                             <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>
                     </div>
                     <el-menu :router="true" class="el-menu-vertical" style="height: auto;">
-                        <el-menu-item index="/"><i class="el-icon-s-home"></i>数据源管理</el-menu-item>
+                        <el-menu-item index="/"><i class="el-icon-s-home"></i>控制台</el-menu-item>
+                        <el-submenu index="1">
+                            <template slot="title">
+                                <i class="el-icon-s-platform"></i>
+                                <span slot="title">系统管理</span>
+                            </template>
+                            <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
+                        </el-submenu>
                     </el-menu>
                     <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
                              ref="databaseTree" highlight-current draggable

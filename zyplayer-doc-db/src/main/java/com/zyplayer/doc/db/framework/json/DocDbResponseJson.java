@@ -3,6 +3,7 @@ package com.zyplayer.doc.db.framework.json;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
+import com.zyplayer.doc.core.json.ResponseJson;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.servlet.http.HttpServletResponse;
@@ -11,7 +12,7 @@ import java.util.Date;
 
 /**
  * 数据库文档返回数据格式
- * 
+ *
  * @author 暮光：城中城
  * @since 2018年8月8日
  */
@@ -80,7 +81,7 @@ public class DocDbResponseJson implements ResponseJson {
 
 	/**
 	 * 提示语
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
 	 * @param errMsg 提示信息
@@ -92,7 +93,7 @@ public class DocDbResponseJson implements ResponseJson {
 	
 	/**
 	 * 错误
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
 	 * @param errMsg 错误信息
@@ -104,7 +105,7 @@ public class DocDbResponseJson implements ResponseJson {
 
 	/**
 	 * 成功的返回方法
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
 	 * @return 对象
@@ -115,7 +116,7 @@ public class DocDbResponseJson implements ResponseJson {
 
 	/**
 	 * 成功的返回方法
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
 	 * @param data 数据

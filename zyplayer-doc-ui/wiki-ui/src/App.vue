@@ -360,6 +360,8 @@
                     this.userSignOut();
                 } else if (command == 'aboutDoc') {
                     app.aboutDialogVisible = true;
+                } else if (command == 'myInfo') {
+                    this.$router.push({path: '/user/myInfo'});
                 } else if (command == 'console') {
                     window.location = this.apilist1.HOST;
                 } else {
