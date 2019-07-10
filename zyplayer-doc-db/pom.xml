@@ -25,7 +25,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.4.2.RELEASE</version>
+		<version>2.1.6.RELEASE</version>
 	</parent>
 
 	<dependencies>
@@ -90,6 +90,7 @@
 		<zyplayer.doc.version>1.0.2</zyplayer.doc.version>
 		<!-- 打包跳过单元测试 -->
 		<skipTests>true</skipTests>
+		<elasticsearch.version>6.8.0</elasticsearch.version>
 		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
 	</properties>
 	<licenses>

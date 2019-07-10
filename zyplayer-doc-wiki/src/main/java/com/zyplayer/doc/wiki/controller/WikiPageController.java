@@ -11,8 +11,13 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
+import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPage;
+import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPageService;
+import com.zyplayer.doc.data.service.elasticsearch.support.EsPage;
+import com.zyplayer.doc.data.service.elasticsearch.support.EsQueryColumn;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.data.utils.CacheUtil;
+import com.zyplayer.doc.wiki.controller.param.SearchByEsParam;
 import com.zyplayer.doc.wiki.controller.param.SpaceNewsParam;
 import com.zyplayer.doc.wiki.controller.vo.SpaceNewsVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
@@ -25,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,6 +65,8 @@ public class WikiPageController {
 	WikiPageMapper wikiPageMapper;
 	@Resource
 	Mapper mapper;
+	@Resource
+	EsWikiPageService esWikiPageService;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPageVo>> list(WikiPage wikiPage) {
@@ -256,6 +264,15 @@ public class WikiPageController {
 			pageContent.setCreateUserName(currentUser.getUsername());
 			wikiPageContentService.save(pageContent);
 		}
+		// 保存到es
+		if (esWikiPageService != null) {
+			EsWikiPage esWikiPage = mapper.map(wikiPage, EsWikiPage.class);
+			esWikiPage.setContent(content);
+			esWikiPage.setPreview(preview);
+			esWikiPageService.create(esWikiPage);
+		} else {
+			logger.warn("未开启elasticsearch服务，建议开启");
+		}
 		return DocResponseJson.ok(wikiPage);
 	}
 	
@@ -286,20 +303,42 @@ public class WikiPageController {
 		return DocResponseJson.ok();
 	}
 	
-	@PostMapping("/news")
-	public ResponseJson<Object> news(SpaceNewsParam param) {
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+	@GetMapping("/searchByEs")
+	public ResponseJson<Object> searchByEs(SearchByEsParam param) {
 		// 空间不是自己的
-		Long spaceId = param.getSpaceId();
-		if (spaceId == null || spaceId <= 0) {
+		WikiSpace wikiSpaceSel = this.getCanVisitWikiSpace(param.getSpaceId());
+		if (wikiSpaceSel == null) {
 			return DocResponseJson.ok();
 		}
-		WikiSpace wikiSpaceSel = wikiSpaceService.getById(spaceId);
-		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+		PageInfo<EsWikiPage> pageInfo = new PageInfo<>();
+		if (esWikiPageService != null) {
+			List<EsQueryColumn> condition = new LinkedList<>();
+			condition.add(EsQueryColumn.like("name", param.getKeywords()));
+			condition.add(EsQueryColumn.like("content", param.getKeywords()));
+//			condition.add(EsQueryColumn.must("delFlag", "0"));
+			String[] fields = {
+					"id", "preview", "createTime", "updateTime", "createUserId", "createUserName",
+					"updateUserId", "updateUserName", "spaceId", "name", "zanNum", "viewNum",
+			};
+			EsPage<EsWikiPage> wikiPageEsPage = esWikiPageService.getDataByCondition(condition, fields, param.getStartIndex(), param.getPageSize());
+			pageInfo.setTotal(wikiPageEsPage.getTotal());
+			pageInfo.setList(wikiPageEsPage.getData());
+		} else {
+			logger.warn("未开启elasticsearch服务，使用数据库查询匹配，建议开启");
+			
+		}
+		return DocResponseJson.ok(pageInfo);
+	}
+	
+	@PostMapping("/news")
+	public ResponseJson<Object> news(SpaceNewsParam param) {
+		// 空间不是自己的
+		WikiSpace wikiSpaceSel = this.getCanVisitWikiSpace(param.getSpaceId());
+		if (wikiSpaceSel == null) {
 			return DocResponseJson.ok();
 		}
 		QueryWrapper<WikiPage> wrapper = new QueryWrapper<>();
-		wrapper.eq("space_id", spaceId);
+		wrapper.eq("space_id", param.getSpaceId());
 		wrapper.eq("del_flag", 0);
 		wrapper.orderByDesc(param.getNewsType() == 1, "update_time");
 		wrapper.orderByDesc(param.getNewsType() == 2, "create_time");
@@ -334,6 +373,19 @@ public class WikiPageController {
 		DocResponseJson<Object> responseJson = DocResponseJson.ok(pageListPageInfo);
 		responseJson.setData(pageVoList);
 		return responseJson;
+	}
+	
+	private WikiSpace getCanVisitWikiSpace(Long spaceId){
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		// 空间不是自己的
+		if (spaceId == null || spaceId <= 0) {
+			return null;
+		}
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(spaceId);
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			return null;
+		}
+		return wikiSpaceSel;
 	}
 	
 	private void setChildren(Map<Long, List<WikiPageVo>> listMap, List<WikiPageVo> nodePageList, String path) {

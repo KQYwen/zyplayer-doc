@@ -2,7 +2,7 @@
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>com.zyplayer</groupId>
 	<artifactId>zyplayer-doc-wiki</artifactId>
 	<version>1.0.2</version>
@@ -21,13 +21,13 @@
 			<timezone>2018-05-22 16:06:06</timezone>
 		</developer>
 	</developers>
-	
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.0.6.RELEASE</version>
+		<version>2.1.6.RELEASE</version>
 	</parent>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -35,9 +35,10 @@
 		<zyplayer.doc.version>1.0.2</zyplayer.doc.version>
 		<!-- 打包跳过单元测试 -->
 		<skipTests>true</skipTests>
+        <elasticsearch.version>6.8.0</elasticsearch.version>
 		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -74,7 +75,7 @@
 		<developerConnection>scm:git@git.oschina.net:zyplayer/zyplayer-doc.git</developerConnection>
 		<url>git@git.oschina.net:zyplayer/zyplayer-doc.git</url>
 	</scm>
-	
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>snapshots</id>
@@ -85,7 +86,7 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-	
+
 	<build>
 		<resources>
 			<resource>
