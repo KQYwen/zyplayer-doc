@@ -1,6 +1,7 @@
 package com.zyplayer.doc.data.service.elasticsearch.support;
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.elasticsearch.action.DocWriteResponse;
@@ -105,6 +106,26 @@ public abstract class EsAbstractService<T> {
 	public EsPage<T> getDataByCondition(List<EsQueryColumn> condition, String[] fields, Integer startIndex, Integer pageSize) {
 		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 		// 组装条件
+		for (EsQueryColumn column : condition) {
+			if (StringUtils.isBlank(column.getValue())) {
+				if (CollectionUtils.isEmpty(column.getValues())) {
+					continue;
+				}
+				for (Object value : column.getValues()) {
+					if (column.getType() == 0) {
+						boolQueryBuilder.must(QueryBuilders.wildcardQuery(column.getKey(), value.toString()));
+					} else if (column.getType() == 1) {
+						boolQueryBuilder.must(QueryBuilders.termQuery(column.getKey(), value));
+					}
+				}
+			} else {
+				if (column.getType() == 0) {
+					boolQueryBuilder.must(QueryBuilders.wildcardQuery(column.getKey(), column.getValue()));
+				} else if (column.getType() == 1) {
+					boolQueryBuilder.must(QueryBuilders.termQuery(column.getKey(), column.getValue()));
+				}
+			}
+		}
 		condition.forEach(val -> {
 			if (StringUtils.isNotBlank(val.getValue())) {
 				if (val.getType() == 0) {
