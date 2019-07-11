@@ -69,16 +69,6 @@ public class WikiPageContent implements Serializable {
      */
     private String preview;
 
-    /**
-     * 空间ID
-     */
-    private Long spaceId;
-    
-    /**
-     * 名字
-     */
-    private String name;
-
     public Long getId() {
         return id;
     }
@@ -166,19 +156,4 @@ public class WikiPageContent implements Serializable {
         this.preview = preview;
     }
     
-    public Long getSpaceId() {
-        return spaceId;
-    }
-    
-    public void setSpaceId(Long spaceId) {
-        this.spaceId = spaceId;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
 }
