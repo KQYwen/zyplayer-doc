@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper">
+	
+	<select id="getNewsList" resultType="com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo">
+		select a.space_id as spaceId, a.id as pageId, a.zan_num as zanNum, a.view_num as viewNum,
+		a.create_user_name as createUserName, a.update_user_name as updateUserName, a.create_time as createTime,
+		a.update_time as updateTime, a.name as pageTitle, b.preview as previewContent
+		from wiki_page a
+		join wiki_page_content b on b.page_id = a.id
+		where a.del_flag = 0
+		<if test="keywords != null and keywords != ''">
+			and (
+				a.name like #{keywords} or b.preview like #{keywords}
+			)
+		</if>
+		<if test="spaceIds != null and spaceIds.size > 0">
+			and a.space_id in
+			<foreach collection="spaceIds" open="(" close=")" item="item" separator=",">#{item}</foreach>
+		</if>
+		<if test="newsType == 1">order by a.update_time desc</if>
+		<if test="newsType == 2">order by a.create_time desc</if>
+		<if test="newsType == 3">order by a.view_num desc</if>
+		<if test="newsType == 4">order by a.zan_num desc</if>
+		<if test="newsType == 5">order by a.view_num+a.zan_num desc</if>
+	</select>
 
 </mapper>

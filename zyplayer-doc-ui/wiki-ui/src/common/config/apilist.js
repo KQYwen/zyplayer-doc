@@ -9,6 +9,7 @@ var URL = {
     pageDetail: '/zyplayer-doc-wiki/page/detail',
     pageDelete: '/zyplayer-doc-wiki/page/delete',
     pageNews: '/zyplayer-doc-wiki/page/news',
+    pageSearchByEs: '/zyplayer-doc-wiki/page/searchByEs',
     pageLock: '/zyplayer-doc-wiki/page/lock',
     pageUnlock: '/zyplayer-doc-wiki/page/unlock',
     spaceList: '/zyplayer-doc-wiki/space/list',

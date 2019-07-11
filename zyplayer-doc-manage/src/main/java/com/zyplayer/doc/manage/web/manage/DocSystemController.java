@@ -19,7 +19,7 @@ public class DocSystemController {
 	@AuthMan
 	@GetMapping("/doc-wiki")
 	public ModelAndView wiki() {
-		return new ModelAndView("/doc-wiki-v2.html");
+		return new ModelAndView("/doc-wiki.html");
 	}
 	
 	@AuthMan

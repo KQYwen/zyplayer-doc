@@ -20,8 +20,8 @@
                     <div align="center">
                         <el-button v-on:click="createWiki" icon="el-icon-plus" style="width: 100%;">创建文档</el-button>
                     </div>
-                    <el-input v-model="searchKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
-                        <el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
+                    <el-input v-model="searchKeywords" @input="searchByKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
+                        <el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywordsNewPage"></el-button>
                     </el-input>
                     <el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
                              @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop"
@@ -206,6 +206,10 @@
             },
             searchByKeywords() {
                 this.$refs.wikiPageTree.filter(app.searchKeywords);
+            },
+            searchByKeywordsNewPage() {
+                var routeUrl = this.$router.resolve({path: '/page/search', query: {keywords: app.searchKeywords}});
+                window.open(routeUrl.href, '_blank');
             },
             handleNodeClick(data) {
                 console.log("点击节点：", data);

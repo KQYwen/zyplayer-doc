@@ -1,4 +1,4 @@
-package com.zyplayer.doc.wiki.controller.vo;
+package com.zyplayer.doc.data.repository.manage.vo;
 
 import java.util.Date;
 

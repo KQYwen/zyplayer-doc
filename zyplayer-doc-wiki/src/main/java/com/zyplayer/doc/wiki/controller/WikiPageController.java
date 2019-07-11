@@ -1,6 +1,5 @@
 package com.zyplayer.doc.wiki.controller;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.pagehelper.PageHelper;
@@ -11,16 +10,16 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
+import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
+import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
+import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
 import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPage;
 import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPageService;
 import com.zyplayer.doc.data.service.elasticsearch.support.EsPage;
 import com.zyplayer.doc.data.service.elasticsearch.support.EsQueryColumn;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.data.utils.CacheUtil;
-import com.zyplayer.doc.wiki.controller.param.SearchByEsParam;
-import com.zyplayer.doc.wiki.controller.param.SpaceNewsParam;
-import com.zyplayer.doc.wiki.controller.vo.SpaceNewsVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
@@ -32,7 +31,6 @@ import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,6 +55,8 @@ public class WikiPageController {
 	WikiPageService wikiPageService;
 	@Resource
 	WikiPageContentService wikiPageContentService;
+	@Resource
+	WikiPageContentMapper wikiPageContentMapper;
 	@Resource
 	WikiPageFileService wikiPageFileService;
 	@Resource
@@ -306,82 +306,66 @@ public class WikiPageController {
 		return DocResponseJson.ok();
 	}
 	
-	@GetMapping("/searchByEs")
+	@PostMapping("/searchByEs")
 	public ResponseJson<Object> searchByEs(SearchByEsParam param) {
-		// 空间不是自己的
-		Map<Long, WikiSpace> wikiSpaceSel = this.getCanVisitWikiSpace(param.getSpaceId());
-		if (wikiSpaceSel.isEmpty()) {
-			return DocResponseJson.ok();
-		}
 		if (esWikiPageService != null) {
+			Map<Long, WikiSpace> wikiSpaceMap = this.getCanVisitWikiSpace(param.getSpaceId());
+			if (wikiSpaceMap.isEmpty()) {
+				return DocResponseJson.ok();
+			}
 			List<EsQueryColumn> condition = new LinkedList<>();
 			condition.add(EsQueryColumn.like("name", param.getKeywords()));
 			condition.add(EsQueryColumn.like("content", param.getKeywords()));
 			condition.add(EsQueryColumn.must("delFlag", "0"));
-			condition.add(EsQueryColumn.in("spaceId", new ArrayList<>(wikiSpaceSel.keySet())));
+			condition.add(EsQueryColumn.in("spaceId", new ArrayList<>(wikiSpaceMap.keySet())));
 			String[] fields = {
 					"id", "preview", "createTime", "updateTime", "createUserId", "createUserName",
 					"updateUserId", "updateUserName", "spaceId", "name", "zanNum", "viewNum",
 			};
 			EsPage<EsWikiPage> wikiPageEsPage = esWikiPageService.getDataByCondition(condition, fields, param.getStartIndex(), param.getPageSize());
+			// 组装数据
+			List<EsWikiPage> esWikiPageList = wikiPageEsPage.getData();
+			List<SpaceNewsVo> pageVoList = new LinkedList<>();
+			esWikiPageList.forEach(val -> {
+				SpaceNewsVo spaceNewsVo = mapper.map(val, SpaceNewsVo.class);
+				spaceNewsVo.setSpaceName(wikiSpaceMap.get(val.getSpaceId()).getName());
+				spaceNewsVo.setPreviewContent(val.getPreview());
+				spaceNewsVo.setPageTitle(val.getName());
+				spaceNewsVo.setPageId(val.getId());
+				pageVoList.add(spaceNewsVo);
+			});
 			// 组装数据返回
-			PageInfo<EsWikiPage> pageInfo = new PageInfo<>();
+			PageInfo<SpaceNewsVo> pageInfo = new PageInfo<>();
 			pageInfo.setTotal(wikiPageEsPage.getTotal());
-			pageInfo.setList(wikiPageEsPage.getData());
+			pageInfo.setList(pageVoList);
 			return DocResponseJson.ok(pageInfo);
 		} else {
 			logger.warn("未开启elasticsearch服务，使用数据库查询匹配，建议开启");
-			SpaceNewsParam newsParam = new SpaceNewsParam();
-			newsParam.setPageNum(param.getPageNum());
-			newsParam.setPageSize(param.getPageSize());
-			newsParam.setSpaceId(param.getSpaceId());
-			return this.news(newsParam);
+			param.setNewsType(1);
+			return this.news(param);
 		}
 	}
 	
 	@PostMapping("/news")
-	public ResponseJson<Object> news(SpaceNewsParam param) {
+	public ResponseJson<Object> news(SearchByEsParam param) {
 		// 空间不是自己的
 		Map<Long, WikiSpace> wikiSpaceMap = this.getCanVisitWikiSpace(param.getSpaceId());
 		if (wikiSpaceMap.isEmpty()) {
 			return DocResponseJson.ok();
 		}
-		QueryWrapper<WikiPage> wrapper = new QueryWrapper<>();
-		wrapper.in("space_id", wikiSpaceMap.keySet());
-		wrapper.eq("del_flag", 0);
-		wrapper.orderByDesc(param.getNewsType() == 1, "update_time");
-		wrapper.orderByDesc(param.getNewsType() == 2, "create_time");
-		wrapper.orderByDesc(param.getNewsType() == 3, "view_num");
-		wrapper.orderByDesc(param.getNewsType() == 4, "zan_num");
-		wrapper.orderByDesc(param.getNewsType() == 5, "view_num+zan_num");
+		param.setSpaceIds(new ArrayList<>(wikiSpaceMap.keySet()));
+		if (StringUtils.isNotBlank(param.getKeywords())) {
+			param.setKeywords("%" + param.getKeywords() + "%");
+		}
 		// 分页查询
 		PageHelper.startPage(param.getPageNum(), param.getPageSize(), true);
-		List<WikiPage> pageList = wikiPageService.list(wrapper);
-		PageInfo<WikiPage> pageListPageInfo = new PageInfo<>(pageList);
-		if (pageList == null || pageList.isEmpty()) {
+		List<SpaceNewsVo> spaceNewsVoList = wikiPageContentMapper.getNewsList(param);
+		PageInfo<SpaceNewsVo> pageListPageInfo = new PageInfo<>(spaceNewsVoList);
+		if (spaceNewsVoList == null || spaceNewsVoList.isEmpty()) {
 			return DocResponseJson.ok(pageListPageInfo);
 		}
-		List<Long> pageIds = pageList.stream().map(WikiPage::getId).collect(Collectors.toList());
-		QueryWrapper<WikiPageContent> contentWrapper = new QueryWrapper<>();
-		contentWrapper.in("page_id", pageIds);
-		contentWrapper.select("page_id", "preview");
-		List<WikiPageContent> pageContentList = wikiPageContentService.list(contentWrapper);
-		Map<Long, String> contentMap = pageContentList.stream()
-				.filter(val -> val.getPreview() != null)
-				.collect(Collectors.toMap(WikiPageContent::getPageId, WikiPageContent::getPreview));
-		
-		List<SpaceNewsVo> pageVoList = new LinkedList<>();
-		pageList.forEach(val -> {
-			SpaceNewsVo spaceNewsVo = mapper.map(val, SpaceNewsVo.class);
-			spaceNewsVo.setSpaceName(wikiSpaceMap.get(val.getSpaceId()).getName());
-			spaceNewsVo.setPreviewContent(contentMap.get(val.getId()));
-			spaceNewsVo.setPageTitle(val.getName());
-			spaceNewsVo.setPageId(val.getId());
-			pageVoList.add(spaceNewsVo);
-		});
-		DocResponseJson<Object> responseJson = DocResponseJson.ok(pageListPageInfo);
-		responseJson.setData(pageVoList);
-		return responseJson;
+		spaceNewsVoList.forEach(val -> val.setSpaceName(wikiSpaceMap.get(val.getSpaceId()).getName()));
+		return DocResponseJson.ok(pageListPageInfo);
 	}
 	
 	private Map<Long, WikiSpace> getCanVisitWikiSpace(Long spaceId) {

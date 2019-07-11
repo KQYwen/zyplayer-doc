@@ -26,4 +26,14 @@ insert into user_auth(`user_id`, `auth_id`, `create_uid`, `del_flag`, `creation_
 select a.id, b.id, a.id, 0, now() from user_info a,auth_info b
 where a.user_no='zyplayer' and b.auth_name='DB_DATASOURCE_MANAGE';
 
+ALTER TABLE `wiki_page_content` ADD COLUMN `space_id` bigint(20) NULL COMMENT '空间ID';
+ALTER TABLE `wiki_page_content` ADD COLUMN `name` varchar(100) DEFAULT NULL COMMENT '名字';
+ALTER TABLE `wiki_page` MODIFY COLUMN `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '名字';
+
+update wiki_page_content a join wiki_page b on b.id=a.page_id set a.space_id=b.space_id;
+
+
 -- ------------------------全新的库：------------------------
+
+
+
