@@ -26,6 +26,8 @@ insert into user_auth(`user_id`, `auth_id`, `create_uid`, `del_flag`, `creation_
 select a.id, b.id, a.id, 0, now() from user_info a,auth_info b
 where a.user_no='zyplayer' and b.auth_name='DB_DATASOURCE_MANAGE';
 
+ALTER TABLE `wiki_page_content` MODIFY COLUMN `preview` varchar(16000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '预览内容';
+
 -- ------------------------全新的库：------------------------
 
 

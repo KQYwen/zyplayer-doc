@@ -14,6 +14,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
@@ -135,13 +136,22 @@ public abstract class EsAbstractService<T> {
 				}
 			}
 		});
+		return this.getDataByQuery(boolQueryBuilder, fields, startIndex, pageSize);
+	}
+	/**
+	 * 多条件 模糊查询
+	 * @param queryBuilders 查询条件
+	 * @param startIndex 开始行
+	 * @param pageSize 每页数量
+	 */
+	public EsPage<T> getDataByQuery(QueryBuilder queryBuilders, String[] fields, Integer startIndex, Integer pageSize) {
 		// 设置高亮标签
 		HighlightBuilder highlightBuilder = new HighlightBuilder();
 		highlightBuilder.preTags("<span style=\"color:red\">");
 		highlightBuilder.postTags("</span>");
 		highlightBuilder.field("*");
 		SearchRequestBuilder requestBuilder = esClient.prepareSearch(this.getIndexName()).setTypes(this.getIndexType())
-				.setQuery(boolQueryBuilder)
+				.setQuery(queryBuilders)
 				.highlighter(highlightBuilder)
 				.setFrom(startIndex).setSize(pageSize).setExplain(true);
 		// 查询指定字段

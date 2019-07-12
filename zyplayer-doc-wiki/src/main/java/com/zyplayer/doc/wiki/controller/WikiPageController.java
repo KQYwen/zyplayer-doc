@@ -17,7 +17,6 @@ import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
 import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPage;
 import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPageService;
 import com.zyplayer.doc.data.service.elasticsearch.support.EsPage;
-import com.zyplayer.doc.data.service.elasticsearch.support.EsQueryColumn;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
@@ -28,6 +27,8 @@ import com.zyplayer.doc.wiki.framework.consts.WikiCachePrefix;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,6 +208,10 @@ public class WikiPageController {
 		WikiPageContent pageContent = new WikiPageContent();
 		pageContent.setContent(content);
 		pageContent.setPreview(preview);
+		// 数据库是varchar(16000)，所以如果不开启es的话搜索超过16000的文章就搜不到~，es存preview不截断
+		if (StringUtils.isNotBlank(preview) && preview.length() > 16000) {
+			pageContent.setPreview(preview.substring(0, 16000));
+		}
 		if (StringUtils.isBlank(wikiPage.getName())) {
 			return DocResponseJson.warn("标题不能为空！");
 		}
@@ -313,23 +318,28 @@ public class WikiPageController {
 			if (wikiSpaceMap.isEmpty()) {
 				return DocResponseJson.ok();
 			}
-			List<EsQueryColumn> condition = new LinkedList<>();
-			condition.add(EsQueryColumn.like("name", param.getKeywords()));
-			condition.add(EsQueryColumn.like("content", param.getKeywords()));
-			condition.add(EsQueryColumn.must("delFlag", "0"));
-			condition.add(EsQueryColumn.in("spaceId", new ArrayList<>(wikiSpaceMap.keySet())));
 			String[] fields = {
 					"id", "preview", "createTime", "updateTime", "createUserId", "createUserName",
 					"updateUserId", "updateUserName", "spaceId", "name", "zanNum", "viewNum",
 			};
-			EsPage<EsWikiPage> wikiPageEsPage = esWikiPageService.getDataByCondition(condition, fields, param.getStartIndex(), param.getPageSize());
+			BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+			if (StringUtils.isNotBlank(param.getKeywords())) {
+				boolQueryBuilder.must(QueryBuilders.multiMatchQuery(param.getKeywords(), "name", "preview"));
+			}
+			boolQueryBuilder.must(QueryBuilders.termQuery("delFlag", "0"));
+			boolQueryBuilder.must(QueryBuilders.termsQuery("spaceId", wikiSpaceMap.keySet().toArray()));
+			EsPage<EsWikiPage> wikiPageEsPage = esWikiPageService.getDataByQuery(boolQueryBuilder, fields, param.getStartIndex(), param.getPageSize());
 			// 组装数据
 			List<EsWikiPage> esWikiPageList = wikiPageEsPage.getData();
 			List<SpaceNewsVo> pageVoList = new LinkedList<>();
 			esWikiPageList.forEach(val -> {
+				String preview = val.getPreview();
+				if (preview != null && preview.length() > 200) {
+					preview = preview.substring(0, 200);
+				}
 				SpaceNewsVo spaceNewsVo = mapper.map(val, SpaceNewsVo.class);
 				spaceNewsVo.setSpaceName(wikiSpaceMap.get(val.getSpaceId()).getName());
-				spaceNewsVo.setPreviewContent(val.getPreview());
+				spaceNewsVo.setPreviewContent(preview);
 				spaceNewsVo.setPageTitle(val.getName());
 				spaceNewsVo.setPageId(val.getId());
 				pageVoList.add(spaceNewsVo);
@@ -354,8 +364,9 @@ public class WikiPageController {
 			return DocResponseJson.ok();
 		}
 		param.setSpaceIds(new ArrayList<>(wikiSpaceMap.keySet()));
-		if (StringUtils.isNotBlank(param.getKeywords())) {
-			param.setKeywords("%" + param.getKeywords() + "%");
+		String keywords = param.getKeywords();
+		if (StringUtils.isNotBlank(keywords)) {
+			param.setKeywords("%" + keywords + "%");
 		}
 		// 分页查询
 		PageHelper.startPage(param.getPageNum(), param.getPageSize(), true);
@@ -364,7 +375,24 @@ public class WikiPageController {
 		if (spaceNewsVoList == null || spaceNewsVoList.isEmpty()) {
 			return DocResponseJson.ok(pageListPageInfo);
 		}
-		spaceNewsVoList.forEach(val -> val.setSpaceName(wikiSpaceMap.get(val.getSpaceId()).getName()));
+		spaceNewsVoList.forEach(val -> {
+			val.setSpaceName(wikiSpaceMap.get(val.getSpaceId()).getName());
+			String preview = val.getPreviewContent();
+			if (preview != null) {
+				if (preview.length() > 200) {
+					preview = preview.substring(0, 200);
+				}
+				if (keywords != null) {
+					preview = preview.replace(keywords, "<span style=\"color:red\">" + keywords + "</span>");
+				}
+			}
+			val.setPreviewContent(preview);
+			String pageTitle = val.getPageTitle();
+			if (pageTitle != null && keywords != null) {
+				pageTitle = pageTitle.replace(keywords, "<span style=\"color:red\">" + keywords + "</span>");
+			}
+			val.setPageTitle(pageTitle);
+		});
 		return DocResponseJson.ok(pageListPageInfo);
 	}
 	

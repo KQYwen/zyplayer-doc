@@ -11,9 +11,9 @@
                         <div class="line-title">
                             <span class="text-link">{{item.createUserName}}</span> 发布于 <span class="text-link">{{item.spaceName}}</span>
                         </div>
-                        <div class="page-preview-box" v-on:click="showPageDetail(item)">
-                            <div class="page-preview-title">{{item.pageTitle}}</div>
-                            <div class="page-preview-content">{{item.previewContent}}</div>
+                        <div class="page-preview-box">
+                            <div class="page-preview-title" v-on:click="showPageDetail(item)" v-html="item.pageTitle"></div>
+                            <div class="page-preview-content" v-html="item.previewContent"></div>
                             <div>
                                 <span><img src="../../assets/img/zan.png" class="zan-img"> {{item.zanNum}}　</span>
                                 <span><i class="el-icon-view view-img"></i> {{item.viewNum}}　</span>
@@ -110,8 +110,8 @@
     }
     .line-box{color: #666;border-bottom: 1px solid #eee;padding: 20px 0;}
     .line-title{font-size: 14px;}
-    .page-preview-box{cursor: pointer;}
-    .page-preview-title{font-size: 20px;margin: 10px 0 5px 0;color: #000;}
+    .page-preview-box{}
+    .page-preview-title{cursor: pointer;font-size: 20px;margin: 10px 0 5px 0;color: #3a8ee6;}
     .page-preview-content{font-size: 16px;margin-bottom: 5px;}
     .zan-img{vertical-align: middle;margin-top: -3px;}
     .view-img{font-size: 16px;color: #666;}

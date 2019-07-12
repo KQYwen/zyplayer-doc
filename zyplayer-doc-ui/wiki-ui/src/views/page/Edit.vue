@@ -85,9 +85,6 @@
 					return;
 				}
 				var preview = this.editor.txt.text();
-				if (preview.length > 200) {
-					preview = preview.substring(0, 200) + '...';
-				}
 				var param = {
 					spaceId: app.parentPath.spaceId,
 					parentId: parentId,
