@@ -1,5 +1,5 @@
 <template>
-    <div style="padding: 10px;">
+    <div style="padding: 10px;" class="home-vue">
         <div style="max-width: 800px;margin: 0 auto;">
             <el-select v-model="searchParam.newsType" v-on:change="getSpacePageNews" placeholder="请选择查看方式" style="float: right;z-index: 1;">
                 <el-option :label="val" :value="index+1" v-for="(val, index) in newsTypes"></el-option>
@@ -101,21 +101,21 @@
     }
 </script>
 <style>
-    .empty-news{text-align: center;padding: 100px;}
+    .home-vue .empty-news{text-align: center;padding: 100px;}
 
-    .text-link {
+    .home-vue .text-link {
         color: #444;
         /*cursor: pointer;*/
         /*font-weight: bold;*/
     }
-    .line-box{color: #666;border-bottom: 1px solid #eee;padding: 20px 0;}
-    .line-title{font-size: 14px;}
-    .page-preview-box{}
-    .page-preview-title{cursor: pointer;font-size: 20px;margin: 10px 0 5px 0;color: #3a8ee6;}
-    .page-preview-content{font-size: 16px;margin-bottom: 5px;}
-    .zan-img{vertical-align: middle;margin-top: -3px;}
-    .view-img{font-size: 16px;color: #666;}
+    .home-vue .line-box{color: #666;border-bottom: 1px solid #eee;padding: 20px 0;}
+    .home-vue .line-title{font-size: 14px;}
+    .home-vue .page-preview-box{}
+    .home-vue .page-preview-title{cursor: pointer;font-size: 20px;margin: 10px 0 5px 0;color: #3a8ee6;}
+    .home-vue .page-preview-content{font-size: 16px;margin-bottom: 5px;}
+    .home-vue .zan-img{vertical-align: middle;margin-top: -3px;}
+    .home-vue .view-img{font-size: 16px;color: #666;}
 
-    .page-info-box{text-align: right;margin: 20px 0 50px 0;}
+    .home-vue .page-info-box{text-align: right;margin: 20px 0 50px 0;}
 </style>
 

@@ -1,5 +1,5 @@
 <template>
-	<div style="padding: 10px;">
+	<div style="padding: 10px;" class="page-edit-vue">
 		<el-row type="border-card">
 			<div style="margin-bottom: 10px;padding: 10px;" v-if="wikiPage.id > 0">
 				编辑：{{parentPath.path}}
@@ -12,7 +12,8 @@
 			</div>
 			<el-input v-model="newPageTitle" placeholder="请输入标题"></el-input>
 			<div id="newPageContentDiv" style="margin: 10px 0;"></div>
-			<el-button type="primary" v-on:click="createWikiSave">保存</el-button>
+			<el-button type="primary" v-on:click="createWikiSave(1)">保存并查看</el-button>
+			<el-button type="success" v-on:click="createWikiSave(0)">仅保存</el-button>
 			<el-button v-on:click="createWikiCancel">取消</el-button>
 		</el-row>
 	</div>
@@ -77,7 +78,7 @@
 					app.$router.back();
 				});
 			},
-			createWikiSave() {
+			createWikiSave(saveAfter) {
 				// 修改内容时强制不能修改父路径，只能在目录上拖动修改
 				var parentId = (this.wikiPage.id > 0) ? '' : app.parentPath.parentId;
 				if (this.common.isEmpty(app.newPageTitle)) {
@@ -98,7 +99,11 @@
 					// 重新加载左侧列表，跳转到展示页面
 					global.vue.$app.doGetPageList(null);
 					app.parentPath.pageId = json.data.id;
-					app.$router.push({path: '/page/show', query: app.parentPath});
+					if (saveAfter == 1) {
+						app.$router.push({path: '/page/show', query: app.parentPath});
+					} else {
+						app.loadPageDetail(app.parentPath.pageId);
+					}
 				});
 			},
 			loadPageDetail(pageId) {
@@ -159,19 +164,19 @@
 
 </script>
 <style>
-	.icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
-	.icon-collapse:hover{color: #eee;}
-	.wiki-title{font-size: 20px;}
-	.wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
-	.wiki-content{font-size: 14px;}
-	.wiki-content.w-e-text{overflow-y: auto;}
+	.page-edit-vue .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
+	.page-edit-vue .icon-collapse:hover{color: #eee;}
+	.page-edit-vue .wiki-title{font-size: 20px;}
+	.page-edit-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
+	.page-edit-vue .wiki-content{font-size: 14px;}
+	.page-edit-vue .wiki-content.w-e-text{overflow-y: auto;}
 
-	.upload-page-file .el-upload-list{display: none;}
-	.is-link{color: #1e88e5;cursor: pointer;}
+	.page-edit-vue .upload-page-file .el-upload-list{display: none;}
+	.page-edit-vue .is-link{color: #1e88e5;cursor: pointer;}
 	/*编辑框高度*/
-	#newPageContentDiv .w-e-text-container{height: 600px !important;}
+	.page-edit-vue #newPageContentDiv .w-e-text-container{height: 600px !important;}
 	/*评论*/
-	.comment-box .head{
+	.page-edit-vue .comment-box .head{
 		float: left;background-color: #ccc;border-radius: 50%;margin-right: 10px;
 		width: 45px; height: 45px; line-height: 45px;text-align: center;color: #fff;
 	}

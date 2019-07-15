@@ -1,5 +1,5 @@
 <template>
-    <div style="padding-top: 50px;" @keyup.enter="loginSubmit">
+    <div style="padding-top: 50px;" @keyup.enter="loginSubmit" class="user-login-vue">
         <el-form :model="loginParam" :rules="loginRules" ref="loginParam" label-position="left" label-width="0px"
                  class="demo-ruleForm login-container">
             <h3 class="title">系统登录</h3>
@@ -61,7 +61,7 @@
 
 </script>
 <style>
-    .login-container {
+    .user-login-vue .login-container {
         -webkit-border-radius: 5px;
         border-radius: 5px;
         -moz-border-radius: 5px;
@@ -73,14 +73,12 @@
         border: 1px solid #eaeaea;
         box-shadow: 0 0 25px #cac6c6;
     }
-
-    .title {
+    .user-login-vue .title {
         margin: 0px auto 40px auto;
         text-align: center;
         color: #505458;
     }
-
-    .remember {
+    .user-login-vue .remember {
         margin: 0px 0px 35px 0px;
     }
 

@@ -1,5 +1,5 @@
 <template>
-	<div style="background: #f1f1f1;min-height: 100%;">
+	<div style="background: #f1f1f1;min-height: 100%;" class="page-search-vue">
 		<div style="max-width: 1200px;margin: 0 auto;background: #fff;padding: 20px;min-height: 100%;box-sizing: border-box;">
 			<div style="margin-bottom: 20px;">
 				<el-row :gutter="20" style="max-width: 700px; margin: 0 auto;">
@@ -102,21 +102,21 @@
 	}
 </script>
 <style>
-	.empty-news{text-align: center;padding: 100px;}
+	.page-search-vue .empty-news{text-align: center;padding: 100px;}
 
-	.text-link {
+	.page-search-vue .text-link {
 		color: #444;
 		/*cursor: pointer;*/
 		/*font-weight: bold;*/
 	}
-	.line-box{color: #666;border-bottom: 1px solid #eee;padding: 20px 0;}
-	.line-title{font-size: 14px;}
-	.page-preview-box{}
-	.page-preview-title{font-size: 18px;margin: 10px 0 5px 0;color: #3a8ee6;cursor: pointer;}
-	.page-preview-content{font-size: 16px;margin-bottom: 5px;}
-	.zan-img{vertical-align: middle;margin-top: -3px;}
-	.view-img{font-size: 16px;color: #666;}
+	.page-search-vue .line-box{color: #666;border-bottom: 1px solid #eee;padding: 20px 0;}
+	.page-search-vue .line-title{font-size: 14px;}
+	.page-search-vue .page-preview-box{}
+	.page-search-vue .page-preview-title{font-size: 18px;margin: 10px 0 5px 0;color: #3a8ee6;cursor: pointer;}
+	.page-search-vue .page-preview-content{font-size: 16px;margin-bottom: 5px;}
+	.page-search-vue .zan-img{vertical-align: middle;margin-top: -3px;}
+	.page-search-vue .view-img{font-size: 16px;color: #666;}
 
-	.page-info-box{text-align: right;margin: 20px 0 50px 0;}
+	.page-search-vue .page-info-box{text-align: right;margin: 20px 0 50px 0;}
 </style>
 

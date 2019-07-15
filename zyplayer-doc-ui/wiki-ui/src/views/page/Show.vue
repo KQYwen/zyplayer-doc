@@ -1,5 +1,5 @@
 <template>
-	<div style="padding: 10px;">
+	<div style="padding: 10px;" class="page-show-vue">
 		<el-row type="border-card">
 			<div class="wiki-title">
 				{{wikiPage.name}}
@@ -387,19 +387,21 @@
 
 </script>
 <style>
-	.icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
-	.icon-collapse:hover{color: #eee;}
-	.wiki-title{font-size: 20px;}
-	.wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
-	.wiki-content{font-size: 14px;}
-	.wiki-content.w-e-text{overflow-y: auto;}
+	.page-show-vue .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
+	.page-show-vue .icon-collapse:hover{color: #eee;}
+	.page-show-vue .wiki-title{font-size: 20px;}
+	.page-show-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
+	.page-show-vue .wiki-content{font-size: 14px;}
+	.page-show-vue .wiki-content.w-e-text{overflow-y: auto;}
+	.page-show-vue .wiki-content.w-e-text img{cursor: auto;}
+	.page-show-vue .wiki-content.w-e-text img:hover{box-shadow: unset;}
 
-	.upload-page-file .el-upload-list{display: none;}
-	.is-link{color: #1e88e5;cursor: pointer;}
+	.page-show-vue .upload-page-file .el-upload-list{display: none;}
+	.page-show-vue .is-link{color: #1e88e5;cursor: pointer;}
 	/*编辑框高度*/
-	#newPageContentDiv .w-e-text-container{height: 600px !important;}
+	.page-show-vue #newPageContentDiv .w-e-text-container{height: 600px !important;}
 	/*评论*/
-	.comment-box .head{
+	.page-show-vue .comment-box .head{
 		float: left;background-color: #ccc;border-radius: 50%;margin-right: 10px;
 		width: 45px; height: 45px; line-height: 45px;text-align: center;color: #fff;
 	}

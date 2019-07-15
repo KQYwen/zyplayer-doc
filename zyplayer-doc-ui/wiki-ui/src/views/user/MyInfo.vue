@@ -1,5 +1,5 @@
 <template>
-    <div class="my-info-vue">
+    <div class="user-my-info-vue">
         <el-breadcrumb separator-class="el-icon-arrow-right" style="padding: 20px 10px;">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item>我的信息</el-breadcrumb-item>
@@ -43,7 +43,7 @@
 
 </script>
 <style>
-    .my-info-vue{}
-    .my-info-vue .box-card{margin: 10px;}
+    .user-my-info-vue{}
+    .user-my-info-vue .box-card{margin: 10px;}
 </style>
 
