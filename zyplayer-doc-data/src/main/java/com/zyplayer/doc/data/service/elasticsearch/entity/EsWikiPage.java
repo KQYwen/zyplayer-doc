@@ -1,4 +1,4 @@
-package com.zyplayer.doc.data.service.elasticsearch.service;
+package com.zyplayer.doc.data.service.elasticsearch.entity;
 
 import com.zyplayer.doc.data.service.elasticsearch.support.Document;
 

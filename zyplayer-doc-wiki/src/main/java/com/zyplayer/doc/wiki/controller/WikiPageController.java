@@ -14,7 +14,7 @@ import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
 import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
-import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPage;
+import com.zyplayer.doc.data.service.elasticsearch.entity.EsWikiPage;
 import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPageService;
 import com.zyplayer.doc.data.service.elasticsearch.support.EsPage;
 import com.zyplayer.doc.data.service.manage.*;

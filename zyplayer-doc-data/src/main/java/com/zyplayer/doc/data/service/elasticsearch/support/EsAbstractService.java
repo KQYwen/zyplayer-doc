@@ -38,7 +38,7 @@ public abstract class EsAbstractService<T> {
 	private static final Logger logger = LoggerFactory.getLogger(EsAbstractService.class);
 	
 	@Resource
-	private TransportClient esClient;
+	private TransportClient transportClient;
 	@Resource
 	private Mapper mapper;
 	
@@ -58,7 +58,7 @@ public abstract class EsAbstractService<T> {
 	
 	public boolean create(T table) {
 		String pk = getPrimaryKey(table);
-		IndexResponse indexResponse = this.esClient
+		IndexResponse indexResponse = this.transportClient
 				.prepareIndex(this.getIndexName(), this.getIndexType())
 				.setId(pk)
 				.setSource(JSONObject.toJSONString(table), XContentType.JSON)
@@ -69,7 +69,7 @@ public abstract class EsAbstractService<T> {
 	
 	public boolean update(T table) {
 		String pk = getPrimaryKey(table);
-		UpdateResponse updateResponse = this.esClient
+		UpdateResponse updateResponse = this.transportClient
 				.prepareUpdate(this.getIndexName(), this.getIndexType(), pk)
 				.setDoc(JSONObject.toJSONString(table), XContentType.JSON)
 				.get();
@@ -79,7 +79,7 @@ public abstract class EsAbstractService<T> {
 	
 	public void delete(T table) {
 		String pk = getPrimaryKey(table);
-		DeleteResponse response = this.esClient
+		DeleteResponse response = this.transportClient
 				.prepareDelete(this.getIndexName(), this.getIndexType(), pk)
 				.execute()
 				.actionGet();
@@ -150,7 +150,7 @@ public abstract class EsAbstractService<T> {
 		highlightBuilder.preTags("<span style=\"color:red\">");
 		highlightBuilder.postTags("</span>");
 		highlightBuilder.field("*");
-		SearchRequestBuilder requestBuilder = esClient.prepareSearch(this.getIndexName()).setTypes(this.getIndexType())
+		SearchRequestBuilder requestBuilder = transportClient.prepareSearch(this.getIndexName()).setTypes(this.getIndexType())
 				.setQuery(queryBuilders)
 				.highlighter(highlightBuilder)
 				.setFrom(startIndex).setSize(pageSize).setExplain(true);

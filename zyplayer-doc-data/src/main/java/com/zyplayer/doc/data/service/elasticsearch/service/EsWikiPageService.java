@@ -1,6 +1,7 @@
 package com.zyplayer.doc.data.service.elasticsearch.service;
 
-import com.zyplayer.doc.data.service.elasticsearch.support.ElaticSearchConfig;
+import com.zyplayer.doc.data.service.elasticsearch.entity.EsWikiPage;
+import com.zyplayer.doc.data.service.elasticsearch.support.ElasticSearchConfig;
 import com.zyplayer.doc.data.service.elasticsearch.support.EsAbstractService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
  * @since 2019-07-07
  */
 @Service
-@ConditionalOnBean(ElaticSearchConfig.class)
+@ConditionalOnBean(ElasticSearchConfig.class)
 public class EsWikiPageService extends EsAbstractService<EsWikiPage> {
 	
 	@Override

@@ -20,7 +20,7 @@ import java.net.UnknownHostException;
  */
 @Configuration
 @ConditionalOnProperty(prefix = "zyplayer.doc.manage.elasticsearch", name = "open", havingValue = "true")
-public class ElaticSearchConfig {
+public class ElasticSearchConfig {
 	
 	@Value(value = "${zyplayer.doc.manage.elasticsearch.host:''}")
 	private String host;

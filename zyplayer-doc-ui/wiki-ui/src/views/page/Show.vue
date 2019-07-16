@@ -110,8 +110,8 @@
 				<el-table-column prop="userName" label="用户" width="150"></el-table-column>
 				<el-table-column label="权限">
 					<template slot-scope="scope">
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.editPage">查看</el-checkbox>
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.commentPage">评论</el-checkbox>
+						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.editPage">编辑</el-checkbox>
+<!--						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.commentPage">评论</el-checkbox>-->
 						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.deletePage">删除</el-checkbox>
 						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.pageFileUpload">文件上传</el-checkbox>
 						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.pageFileDelete">文件删除</el-checkbox>

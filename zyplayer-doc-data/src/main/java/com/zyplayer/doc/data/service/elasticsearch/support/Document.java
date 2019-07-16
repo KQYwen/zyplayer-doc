@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.zyplayer.doc.data.service.elasticsearch.support;
 
 import java.lang.annotation.*;
