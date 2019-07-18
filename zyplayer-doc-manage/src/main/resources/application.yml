@@ -24,7 +24,7 @@ zyplayer:
     manage:
       elasticsearch:
         # 是否开启es，true或false，现在主要用在wiki文档的搜索，使用的es是6.8.0及以上版本
-        open: true
+        open: false
         # es地址配置ip:port，多个使用英文逗号分割，例：127.0.0.1:9200,127.0.0.1:9201
         hostPort: 127.0.0.1:9200
         scheme: http
