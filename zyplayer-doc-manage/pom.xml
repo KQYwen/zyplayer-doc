@@ -29,7 +29,7 @@
 		<swagger.bootstrap.ui.version>1.9.4</swagger.bootstrap.ui.version>
 		<springfox.swagger.ui.version>2.9.2</springfox.swagger.ui.version>
 		<zyplayer.doc.version>1.0.2</zyplayer.doc.version>
-		<elasticsearch.version>6.8.0</elasticsearch.version>
+		<elasticsearch.version>7.2.0</elasticsearch.version>
 	</properties>
 
 	<dependencies>
@@ -116,12 +116,6 @@
 			<artifactId>zyplayer-doc-swagger</artifactId>
 			<version>${zyplayer.doc.version}</version>
 		</dependency>
-		<!--zyplayer-doc-swagger-->
-		<dependency>
-			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-page-console</artifactId>
-			<version>${zyplayer.doc.version}</version>
-		</dependency>
 		<!--swagger-bootstrap-ui-->
 		<dependency>
 			<groupId>com.github.xiaoymin</groupId>
@@ -154,6 +148,19 @@
 
 	<build>
 		<finalName>zyplayer-doc-manage</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/webapp/static/console</directory>
+				<targetPath>META-INF/resources/</targetPath>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -35,7 +35,7 @@
 		<zyplayer.doc.version>1.0.2</zyplayer.doc.version>
 		<!-- 打包跳过单元测试 -->
 		<skipTests>true</skipTests>
-        <elasticsearch.version>6.8.0</elasticsearch.version>
+        <elasticsearch.version>7.2.0</elasticsearch.version>
 		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
 	</properties>
 

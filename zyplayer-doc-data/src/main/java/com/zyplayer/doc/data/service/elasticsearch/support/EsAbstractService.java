@@ -1,33 +1,39 @@
 package com.zyplayer.doc.data.service.elasticsearch.support;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * es抽象类
@@ -38,7 +44,7 @@ public abstract class EsAbstractService<T> {
 	private static final Logger logger = LoggerFactory.getLogger(EsAbstractService.class);
 	
 	@Resource
-	private TransportClient transportClient;
+	private ElasticSearchUtil elasticSearchUtil;
 	@Resource
 	private Mapper mapper;
 	
@@ -56,37 +62,40 @@ public abstract class EsAbstractService<T> {
 		return annotation.indexType();
 	}
 	
-	public boolean create(T table) {
-		String pk = getPrimaryKey(table);
-		IndexResponse indexResponse = this.transportClient
-				.prepareIndex(this.getIndexName(), this.getIndexType())
-				.setId(pk)
-				.setSource(JSONObject.toJSONString(table), XContentType.JSON)
-				.get();
-		logger.debug("ElasticSearch create index with table, pk: {}", pk);
-		return indexResponse.status() == RestStatus.CREATED;
+	public boolean isOpen() {
+		return elasticSearchUtil.isOpen();
 	}
 	
-	public boolean update(T table) {
+	public boolean upsert(T table) {
 		String pk = getPrimaryKey(table);
-		UpdateResponse updateResponse = this.transportClient
-				.prepareUpdate(this.getIndexName(), this.getIndexType(), pk)
-				.setDoc(JSONObject.toJSONString(table), XContentType.JSON)
-				.get();
-		logger.info("ElasticSearch update index with table, pk: {}", pk);
-		return updateResponse.status() == RestStatus.OK;
+		UpdateRequest request = new UpdateRequest(this.getIndexName(), pk);
+		request.timeout(TimeValue.timeValueMinutes(2));
+		request.doc(JSON.toJSONString(table), XContentType.JSON);
+		request.docAsUpsert(true);
+		RestHighLevelClient esClient = elasticSearchUtil.getEsClient();
+		try {
+			UpdateResponse updateResponse = esClient.update(request, RequestOptions.DEFAULT);
+			return updateResponse.status() == RestStatus.OK;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	public void delete(T table) {
 		String pk = getPrimaryKey(table);
-		DeleteResponse response = this.transportClient
-				.prepareDelete(this.getIndexName(), this.getIndexType(), pk)
-				.execute()
-				.actionGet();
-		if (response.getResult() == DocWriteResponse.Result.NOT_FOUND) {
-			logger.warn("ElasticSearch delete index id: {} but not found!", pk);
-		} else {
-			logger.warn("ElasticSearch delete index id: {}", pk);
+		RestHighLevelClient esClient = elasticSearchUtil.getEsClient();
+		DeleteRequest request = new DeleteRequest(this.getIndexName(), pk);
+		request.timeout(TimeValue.timeValueMinutes(2));
+		try {
+			DeleteResponse deleteResponse = esClient.delete(request, RequestOptions.DEFAULT);
+			if (deleteResponse.getResult() == DocWriteResponse.Result.NOT_FOUND) {
+				logger.warn("ElasticSearch delete index id: {} but not found!", pk);
+			} else {
+				logger.warn("ElasticSearch delete index id: {}", pk);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -150,16 +159,27 @@ public abstract class EsAbstractService<T> {
 		highlightBuilder.preTags("<span style=\"color:red\">");
 		highlightBuilder.postTags("</span>");
 		highlightBuilder.field("*");
-		SearchRequestBuilder requestBuilder = transportClient.prepareSearch(this.getIndexName()).setTypes(this.getIndexType())
-				.setQuery(queryBuilders)
-				.highlighter(highlightBuilder)
-				.setFrom(startIndex).setSize(pageSize).setExplain(true);
+		// 组装条件
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(queryBuilders)
+				.highlighter(highlightBuilder).from(startIndex).size(pageSize)
+				.timeout(new TimeValue(60, TimeUnit.SECONDS));
 		// 查询指定字段
 		if (fields != null && fields.length > 0) {
-			requestBuilder.setFetchSource(fields, new String[]{});
+			sourceBuilder.fetchSource(fields, new String[]{});
 		}
-		SearchResponse response = requestBuilder.execute().actionGet();
-		return responseToList(response);
+		// 组装请求
+		SearchRequest searchRequest = new SearchRequest();
+		searchRequest.indices(this.getIndexName());
+		searchRequest.source(sourceBuilder);
+		RestHighLevelClient esClient = elasticSearchUtil.getEsClient();
+		try {
+			SearchResponse response = esClient.search(searchRequest, RequestOptions.DEFAULT);
+			return responseToList(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public EsPage<T> responseToList(SearchResponse response) {
@@ -184,7 +204,7 @@ public abstract class EsAbstractService<T> {
 			tableList.add(table);
 		}
 		EsPage<T> esPage = new EsPage<>();
-		esPage.setTotal(response.getHits().getTotalHits());
+		esPage.setTotal(response.getHits().getTotalHits().value);
 		esPage.setData(tableList);
 		return esPage;
 	}

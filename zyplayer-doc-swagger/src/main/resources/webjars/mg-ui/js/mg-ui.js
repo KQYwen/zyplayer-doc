@@ -250,7 +250,7 @@ function exportDocument(){
 	$("#exportDocumentModal .bottom-box").show();
 	$("#exportDocumentModal .alert").addClass("hidden");
 	$("#exportDocumentText").addClass("hidden");
-	
+
 	$('#exportDocumentUl').empty();
 	for (var i = 0; i < documentJsonArr.length; i++) {
 		$("#exportDocumentUl").append('<li index='+i+'>'+decodeURI(documentJsonArr[i].fullUrl)+'</li>');
@@ -503,6 +503,10 @@ $("#apiPathTree").on("click", ".show-doc", function(){
 						htmlStrExample = paramName;
 						addRequestParamObj(requestParamObj, paramName, paramType, paramIn, required, paramDesc, example);
 					}
+				} else if("body" == tempParameters.in) {
+					requestParamObj["p-body-obj"] = "";
+					htmlStr = paramName;
+					htmlStrExample = paramName;
 				} else if("string" == tempParameters.schema.type) {
 					htmlStr = paramName;
 					htmlStrExample = paramName;

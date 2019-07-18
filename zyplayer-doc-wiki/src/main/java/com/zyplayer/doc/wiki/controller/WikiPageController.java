@@ -272,12 +272,12 @@ public class WikiPageController {
 			wikiPageContentService.save(pageContent);
 		}
 		// 保存到es
-		if (esWikiPageService != null) {
+		if (esWikiPageService.isOpen()) {
 			WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
 			EsWikiPage esWikiPage = mapper.map(wikiPageSel, EsWikiPage.class);
 			esWikiPage.setContent(content);
 			esWikiPage.setPreview(preview);
-			esWikiPageService.create(esWikiPage);
+			esWikiPageService.upsert(esWikiPage);
 		} else {
 			logger.warn("未开启elasticsearch服务，建议开启");
 		}
@@ -313,7 +313,7 @@ public class WikiPageController {
 	
 	@PostMapping("/searchByEs")
 	public ResponseJson<Object> searchByEs(SearchByEsParam param) {
-		if (esWikiPageService != null) {
+		if (esWikiPageService.isOpen()) {
 			Map<Long, WikiSpace> wikiSpaceMap = this.getCanVisitWikiSpace(param.getSpaceId());
 			if (wikiSpaceMap.isEmpty()) {
 				return DocResponseJson.ok();
@@ -329,6 +329,9 @@ public class WikiPageController {
 			boolQueryBuilder.must(QueryBuilders.termQuery("delFlag", "0"));
 			boolQueryBuilder.must(QueryBuilders.termsQuery("spaceId", wikiSpaceMap.keySet().toArray()));
 			EsPage<EsWikiPage> wikiPageEsPage = esWikiPageService.getDataByQuery(boolQueryBuilder, fields, param.getStartIndex(), param.getPageSize());
+			if (wikiPageEsPage == null || wikiPageEsPage.getTotal() == null) {
+				return DocResponseJson.ok();
+			}
 			// 组装数据
 			List<EsWikiPage> esWikiPageList = wikiPageEsPage.getData();
 			List<SpaceNewsVo> pageVoList = new LinkedList<>();

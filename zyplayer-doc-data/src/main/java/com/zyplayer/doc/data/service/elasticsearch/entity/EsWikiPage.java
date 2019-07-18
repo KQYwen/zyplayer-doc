@@ -10,7 +10,7 @@ import java.util.Date;
  * @author 暮光：城中城
  * @since 2019-07-07
  */
-@Document(indexName = "zyplayer_doc", indexType = "doc_wiki")
+@Document(indexName = "zyplayer_doc_wiki", indexType = "_doc")
 public class EsWikiPage {
 	
 	private Long id;
