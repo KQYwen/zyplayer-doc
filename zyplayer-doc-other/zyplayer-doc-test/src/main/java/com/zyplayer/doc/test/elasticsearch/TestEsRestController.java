@@ -16,6 +16,9 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.GetMappingsRequest;
+import org.elasticsearch.client.indices.GetMappingsResponse;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -185,6 +188,21 @@ public class TestEsRestController {
 	@GetMapping("/terminateAfter")
 	public ResponseJson<Object> terminateAfter() {
 		return DocResponseJson.warn("失败");
+	}
+	
+	@GetMapping("/mappings")
+	public ResponseJson<Object> mappings() throws IOException {
+		GetMappingsRequest request = new GetMappingsRequest();
+//		request.indices(ES_INDEX);
+		request.setMasterTimeout(TimeValue.timeValueMinutes(1));
+		GetMappingsResponse getMappingResponse = client.indices().getMapping(request, RequestOptions.DEFAULT);
+		Map<String, MappingMetaData> allMappings = getMappingResponse.mappings();
+		MappingMetaData indexMapping = allMappings.get(ES_INDEX);
+		Map<String, Object> mapping = indexMapping.sourceAsMap();
+		// 相关文档地址
+		// https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-get-settings.html
+		// https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-settings.html
+		return DocResponseJson.ok(allMappings);
 	}
 	
 	@GetMapping("/other")

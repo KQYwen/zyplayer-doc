@@ -42,7 +42,11 @@ public class ElasticSearchUtil {
 		if (!this.isOpen()) {
 			return null;
 		}
-		String mapKey = esScheme + "_" + hostAndPort;
+		return this.getEsClient(hostAndPort, esScheme);
+	}
+	
+	public RestHighLevelClient getEsClient(String hostPort, String scheme) {
+		String mapKey = scheme + "_" + hostPort;
 		RestHighLevelClient restClient = restClientMap.get(mapKey);
 		if (restClient == null) {
 			synchronized (createLock) {
@@ -52,9 +56,9 @@ public class ElasticSearchUtil {
 						// rest请求客户端
 						// 例：10.16.32.12:9200,10.16.32.12:9201
 						List<HttpHost> hostPortList = new LinkedList<>();
-						for (String hostPortStr : hostAndPort.split(",")) {
+						for (String hostPortStr : hostPort.split(",")) {
 							String[] splitArr = hostPortStr.split(":");
-							hostPortList.add(new HttpHost(splitArr[0], Integer.valueOf(splitArr[1]), esScheme));
+							hostPortList.add(new HttpHost(splitArr[0], Integer.valueOf(splitArr[1]), scheme));
 						}
 						restClient = new RestHighLevelClient(RestClient.builder(hostPortList.toArray(new HttpHost[]{})));
 						restClientMap.put(mapKey, restClient);

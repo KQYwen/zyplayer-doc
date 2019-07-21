@@ -3,7 +3,7 @@ package com.zyplayer.doc.manage.framework.config;
 import com.zyplayer.doc.db.framework.configuration.EnableDocDb;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.dubbo.framework.config.EnableDocDubbo;
-import com.zyplayer.doc.grpc.framework.config.EnableDocGrpc;
+import com.zyplayer.doc.elasticsearch.framework.config.EnableDocEs;
 import com.zyplayer.doc.swagger.framework.configuration.EnableDocSwagger;
 import com.zyplayer.doc.wiki.framework.config.EnableDocWiki;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,6 +24,9 @@ public class ZyplayerDocConfig {
 	
 	@EnableDocWiki
 	public class enableDocWiki{}
+	
+	@EnableDocEs
+	public class enableDocEs{}
 	
 	@EnableDocDubbo
 	public class enableDocDubbo{}
