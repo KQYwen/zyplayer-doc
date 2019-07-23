@@ -39,4 +39,10 @@ public class DocSystemController {
 	public ModelAndView dubbo() {
 		return new ModelAndView("/doc-dubbo.html");
 	}
+	
+	@AuthMan
+	@GetMapping("/doc-es")
+	public ModelAndView es() {
+		return new ModelAndView("/doc-es.html");
+	}
 }

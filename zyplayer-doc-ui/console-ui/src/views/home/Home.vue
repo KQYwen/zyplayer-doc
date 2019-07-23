@@ -24,6 +24,10 @@
                             <div class="logo-img"><img src="../../assets/img/dubbo.png"></div>
                             <div>dubbo文档</div>
                         </div>
+                        <div class="item" v-on:click="jumpToDocPage('doc-es')">
+                            <div class="logo-text text1">ES</div>
+                            <div>es文档</div>
+                        </div>
                         <el-tooltip effect="dark" content="不成熟，欢迎完善" placement="top-start">
                             <div class="item disabled">
                                 <div class="logo-text text4">GRPC</div>

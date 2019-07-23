@@ -3,6 +3,7 @@ package com.zyplayer.doc.elasticsearch.controller;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.service.elasticsearch.support.ElasticSearchUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetMappingsRequest;
@@ -12,6 +13,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,15 +39,22 @@ public class EsMappingController {
 	@Resource
 	ElasticSearchUtil elasticSearchUtil;
 	
-	@GetMapping("/mappings")
-	public ResponseJson<Object> mappings() throws IOException {
+	@PostMapping("/mappings")
+	public ResponseJson<Object> mappings(String index) throws IOException {
 		GetMappingsRequest request = new GetMappingsRequest();
 		request.setMasterTimeout(TimeValue.timeValueMinutes(1));
-		
-		RestHighLevelClient client = elasticSearchUtil.getEsClient("127.0.0.1:9200", "http");
-		GetMappingsResponse getMappingResponse = client.indices().getMapping(request, RequestOptions.DEFAULT);
-		Map<String, MappingMetaData> allMappings = getMappingResponse.mappings();
-		return DocResponseJson.ok(allMappings);
+		if (StringUtils.isNotBlank(index)) {
+			request.indices(index);
+		}
+		try {
+			RestHighLevelClient client = elasticSearchUtil.getEsClient("127.0.0.1:9200", "http");
+			GetMappingsResponse getMappingResponse = client.indices().getMapping(request, RequestOptions.DEFAULT);
+			Map<String, MappingMetaData> allMappings = getMappingResponse.mappings();
+			return DocResponseJson.ok(allMappings);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return DocResponseJson.warn("获取文档失败");
 	}
 	
 	@GetMapping("/list")

@@ -4,12 +4,11 @@ import UserLogin from './views/user/Login.vue'
 import UserMyInfo from './views/user/MyInfo.vue'
 import UserRouterView from './views/user/RouterView.vue'
 
-import TableInfo from './views/table/Info.vue'
-import TableDatabase from './views/table/Database.vue'
-import TableRouterView from './views/table/RouterView.vue'
-
 import DataDatasourceManage from './views/data/DatasourceManage.vue'
 import DataRouterView from './views/data/RouterView.vue'
+
+import IndexShow from './views/index/Show.vue'
+import IndexRouterView from './views/index/RouterView.vue'
 
 import CommonNoAuth from './views/common/NoAuth.vue'
 
@@ -30,12 +29,11 @@ let routes = [
             {path: 'myInfo', name: '我的信息',component: UserMyInfo},
         ]
     }, {
-        path: '/table',
-        name: '表信息',
-        component: TableRouterView,
+        path: '/index',
+        name: '索引管理',
+        component: IndexRouterView,
         children: [
-            {path: 'info', name: '表信息',component: TableInfo},
-            {path: 'database', name: '库信息',component: TableDatabase},
+            {path: 'show', name: '索引信息',component: IndexShow},
         ]
     }, {
         path: '/data',

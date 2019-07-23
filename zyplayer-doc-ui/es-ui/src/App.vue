@@ -6,11 +6,6 @@
         <el-container v-else>
             <el-aside>
                 <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
-                    <div style="margin-bottom: 10px;">
-                        <el-select v-model="choiceDatasource" @change="datasourceChangeEvents" filterable placeholder="请先选择数据源" style="width: 100%;">
-                            <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                        </el-select>
-                    </div>
                     <el-menu :router="true" class="el-menu-vertical" style="height: auto;">
                         <el-menu-item index="/"><i class="el-icon-s-home"></i>控制台</el-menu-item>
                         <el-submenu index="1">
@@ -21,14 +16,13 @@
                             <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
                         </el-submenu>
                     </el-menu>
-                    <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
+                    <el-tree :props="defaultProps" :data="esIndexList" @node-click="handleNodeClick"
                              ref="databaseTree" highlight-current draggable
-                             :default-expanded-keys="databaseExpandedKeys"
+                             :default-expanded-keys="esIndexExpandedKeys"
                              node-key="id" @node-expand="handleNodeExpand"
                              style="background-color: #fafafa;">
                         <span slot-scope="{node, data}">
-                            <span v-if="data.needLoad"><i class="el-icon-loading"></i></span>
-                            <span v-else>{{node.label}}</span>
+                            <span>{{node.label}}</span>
                         </span>
                     </el-tree>
                 </div>
@@ -87,15 +81,10 @@
                 isCollapse: false,
                 aboutDialogVisible: false,
                 userSelfInfo: {},
-                // 数据源相关
-                datasourceOptions: [],
-                datasourceList: [],
-                choiceDatasource: "",
-                defaultProps: {children: 'children', label: 'name'},
                 // 页面展示相关
-                nowDatasourceShow: {},
-                databaseList: [],
-                databaseExpandedKeys: [],
+                defaultProps: {children: 'children', label: 'name'},
+                esIndexList: [],
+                esIndexExpandedKeys: [],
                 // 升级信息
                 upgradeInfo: {},
             }
@@ -105,7 +94,7 @@
             global.vue.$app = this;
             this.getSelfUserInfo();
             this.checkSystemUpgrade();
-            this.loadDatasourceList();
+            this.loadEsMappingList();
         },
         methods: {
             userSettingDropdown(command) {
@@ -132,96 +121,36 @@
                     app.userSelfInfo = json.data;
                 });
             },
-            datasourceChangeEvents() {
-                app.nowDatasourceShow = this.choiceDatasource;
-                app.loadDatabaseList(this.choiceDatasource);
-            },
             handleNodeClick(node) {
                 console.log("点击节点：", node);
                 if (node.type == 1) {
-                    this.nowClickPath = {host: node.host, dbName: node.dbName, tableName: node.tableName};
-                    this.$router.push({path: '/table/database', query: this.nowClickPath});
-                } else if (node.type == 2) {
-                    this.nowClickPath = {host: node.host, dbName: node.dbName, tableName: node.tableName};
-                    this.$router.push({path: '/table/info', query: this.nowClickPath});
+                    this.nowClickPath = {index: node.name};
+                    this.$router.push({path: '/index/show', query: this.nowClickPath});
                 }
             },
             handleNodeExpand(node) {
                 if (node.children.length > 0 && node.children[0].needLoad) {
                     console.log("加载节点：", node);
-                    if (node.type == 1) {
-                        app.loadGetTableList(node);
-                    }
                 }
             },
-            loadGetTableList(node, callback) {
-                this.common.post(this.apilist1.tableList, {host: node.host, dbName: node.dbName}, function (json) {
-                    var pathIndex = [];
-                    var result = json.data || [];
-                    for (var i = 0; i < result.length; i++) {
-                        var item = {
-                            id: node.host + "_" + node.dbName + "_" + result[i].tableName, host: node.host,
-                            dbName: node.dbName, tableName: result[i].tableName, name: result[i].tableName, type: 2
-                        };
-                        // item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
-                        pathIndex.push(item);
+            loadEsMappingList() {
+                this.common.post(this.apilist1.esMappings, {}, function (json) {
+                    var result = json.data || {};
+                    var pathIndex = [], pathChildren = [];
+                    for (var key in result) {
+                        // var properties = result[key].sourceAsMap.properties;
+                        // var children = [];
+                        // for (var propertiesKey in properties) {
+                        //     var propertiesItem = properties[propertiesKey];
+                        //     var item = {
+                        //         id: key + "_" + propertiesKey, name: propertiesKey
+                        //     };
+                        //     children.push(item);
+                        // }
+                        pathChildren.push({id: key, name: key, type: 1});
                     }
-                    node.children = pathIndex;
-                    if (typeof callback == 'function') {
-                        callback(pathIndex);
-                    }
-                });
-            },
-            loadDatasourceList() {
-                this.common.post(this.apilist1.datasourceList, {}, function (json) {
-                    app.datasourceList = json.data || [];
-                    var datasourceOptions = [];
-                    for (var i = 0; i < app.datasourceList.length; i++) {
-                        datasourceOptions.push({
-                            label: app.datasourceList[i], value: app.datasourceList[i]
-                        });
-                    }
-                    app.datasourceOptions = datasourceOptions;
-                });
-            },
-            loadDatabaseList(host, callback) {
-                this.common.post(this.apilist1.databaseList, {host: host}, function (json) {
-                    var result = json.data || [];
-                    var pathIndex = [];
-                    var children = [];
-                    for (var i = 0; i < result.length; i++) {
-                        var item = {
-                            id: host + "_" + result[i].dbName, host: host, dbName: result[i].dbName,
-                            name: result[i].dbName, type: 1
-                        };
-                        item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
-                        children.push(item);
-                    }
-                    pathIndex.push({id: host, host: host, name: host, children: children});
-                    app.databaseList = pathIndex;
-                    if (typeof callback == 'function') {
-                        callback();
-                    }
-                });
-            },
-            initLoadDataList(host, dbName) {
-                if (app.databaseList.length > 0) {
-                    return;
-                }
-                this.loadDatabaseList(host, function () {
-                    app.databaseExpandedKeys = [host];
-                    // 展不开、、
-                    // setTimeout(()=> {
-                    //     var node = app.$refs.databaseTree.getNode(host + "_" + dbName);
-                    //     if (!!node) {
-                    //         app.loadGetTableList(node.data, function (children) {
-                    //             var node = app.$refs.databaseTree.getNode(host + "_" + dbName);
-                    //             node.childNodes = children;
-                    //             app.$refs.databaseTree.updateKeyChildren(host + "_" + dbName);
-                    //             // node.setChildren(node.data);
-                    //         });
-                    //     }
-                    // }, 500);
+                    pathIndex.push({name: "索引列表", children: pathChildren});
+                    app.esIndexList = pathIndex;
                 });
             },
             checkSystemUpgrade() {

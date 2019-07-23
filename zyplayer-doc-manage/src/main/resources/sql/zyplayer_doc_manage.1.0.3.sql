@@ -8,6 +8,7 @@
 -- 从1.0.2版本升级：
 CREATE TABLE `db_datasource` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `name` varchar(50) DEFAULT NULL COMMENT '数据源名称',
   `driver_class_name` varchar(50) DEFAULT NULL COMMENT '数据源驱动类',
   `source_url` varchar(512) DEFAULT NULL COMMENT '数据源地址',
   `source_name` varchar(50) DEFAULT NULL COMMENT '数据源用户名',
@@ -27,6 +28,8 @@ select a.id, b.id, a.id, 0, now() from user_info a,auth_info b
 where a.user_no='zyplayer' and b.auth_name='DB_DATASOURCE_MANAGE';
 
 ALTER TABLE `wiki_page_content` MODIFY COLUMN `preview` varchar(16000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '预览内容';
+
+-- alter table `db_datasource` add `name` varchar(50) DEFAULT NULL COMMENT '数据源名称';
 
 -- ------------------------全新的库：------------------------
 
