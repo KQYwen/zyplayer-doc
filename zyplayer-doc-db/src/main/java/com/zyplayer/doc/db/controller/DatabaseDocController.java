@@ -45,7 +45,12 @@ public class DatabaseDocController {
 	@PostMapping(value = "/getDataSourceList")
 	public ResponseJson getDataSourceList() {
 		List<DatabaseFactoryBean> factoryBeanList = databaseRegistrationBean.getDatabaseFactoryBeanList();
-		Set<String> dataSourceList = factoryBeanList.stream().collect(Collectors.mapping(DatabaseFactoryBean::getHost, Collectors.toSet()));
+		List<DatabaseFactoryBean> dataSourceList = factoryBeanList.stream().map(val -> {
+			DatabaseFactoryBean bean = new DatabaseFactoryBean();
+			bean.setCnName(val.getCnName());
+			bean.setHost(val.getHost());
+			return bean;
+		}).collect(Collectors.toList());
 		return DocDbResponseJson.ok(dataSourceList);
 	}
 
@@ -90,14 +95,15 @@ public class DatabaseDocController {
 	}
 
 	@PostMapping(value = "/getTableAndColumnBySearch")
-	public ResponseJson getTableAndColumnBySearch(String host, String dbName, String tableName, String searchText) {
+	public ResponseJson getTableAndColumnBySearch(String host, String dbName, String searchText) {
 		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(host, dbName);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
-		if (StringUtils.isNotBlank(searchText)) {
-			searchText = "%" + searchText + "%";
+		if (StringUtils.isBlank(searchText)) {
+			return DocDbResponseJson.ok();
 		}
+		searchText = "%" + searchText + "%";
 		List<QueryTableColumnDescDto> columnDescDto = baseMapper.getTableAndColumnBySearch(dbName, searchText);
 		return DocDbResponseJson.ok(columnDescDto);
 	}

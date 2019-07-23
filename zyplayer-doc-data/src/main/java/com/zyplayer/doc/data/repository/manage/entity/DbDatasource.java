@@ -1,13 +1,14 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
@@ -62,6 +63,11 @@ public class DbDatasource implements Serializable {
      * 是否有效 0=无效 1=有效
      */
     private Integer yn;
+
+    /**
+     * 数据源名称
+     */
+    private String name;
 
     public Long getId() {
         return id;
@@ -140,5 +146,13 @@ public class DbDatasource implements Serializable {
         ", createTime=" + createTime +
         ", yn=" + yn +
         "}";
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 }

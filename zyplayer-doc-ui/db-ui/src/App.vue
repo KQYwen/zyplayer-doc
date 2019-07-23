@@ -178,7 +178,7 @@
                     var datasourceOptions = [];
                     for (var i = 0; i < app.datasourceList.length; i++) {
                         datasourceOptions.push({
-                            label: app.datasourceList[i], value: app.datasourceList[i]
+                            label: app.datasourceList[i].cnName, value: app.datasourceList[i].host
                         });
                     }
                     app.datasourceOptions = datasourceOptions;

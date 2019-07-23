@@ -48,7 +48,9 @@ public class DbDatasourceController {
 
 	@PostMapping(value = "/update")
 	public ResponseJson update(DbDatasource dbDatasource) {
-		if (StringUtils.isBlank(dbDatasource.getDriverClassName())) {
+		if (StringUtils.isBlank(dbDatasource.getName())) {
+			return DocDbResponseJson.warn("名字必填");
+		} else if (StringUtils.isBlank(dbDatasource.getDriverClassName())) {
 			return DocDbResponseJson.warn("驱动类必选");
 		} else if (StringUtils.isBlank(dbDatasource.getSourceUrl())) {
 			return DocDbResponseJson.warn("地址必填");

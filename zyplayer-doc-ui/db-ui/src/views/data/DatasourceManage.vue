@@ -8,6 +8,7 @@
                     <el-button style="float: right;" v-on:click="addDatasource" type="primary" icon="el-icon-circle-plus-outline" size="small">新增</el-button>
                 </div>
                 <el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
+                    <el-table-column prop="name" label="名字" width="100"></el-table-column>
                     <el-table-column prop="driverClassName" label="驱动类" width="200"></el-table-column>
                     <el-table-column prop="sourceUrl" label="数据源URL"></el-table-column>
                     <el-table-column prop="sourceName" label="账号"></el-table-column>
@@ -30,6 +31,9 @@
                     show-icon style="margin-bottom: 10px;">
             </el-alert>
             <el-form label-width="120px">
+                <el-form-item label="名字：">
+                    <el-input v-model="newDatasource.name" placeholder="中文名字"></el-input>
+                </el-form-item>
                 <el-form-item label="驱动类：">
                     <el-select v-model="newDatasource.driverClassName" placeholder="驱动类" style="width: 100%">
                         <el-option label="com.mysql.jdbc.Driver" value="com.mysql.jdbc.Driver"></el-option>
@@ -76,10 +80,10 @@
         methods: {
             addDatasource() {
                 this.datasourceDialogVisible = true;
-                this.newDatasource = {driverClassName: "", sourceUrl: "", sourceName: "", sourcePassword: ""};
+                this.newDatasource = {name: "", driverClassName: "", sourceUrl: "", sourceName: "", sourcePassword: ""};
             },
             editDatasource(row) {
-                this.newDatasource = row;
+                this.newDatasource = JSON.parse(JSON.stringify(row));
                 this.datasourceDialogVisible = true;
             },
             deleteDatasource(row) {

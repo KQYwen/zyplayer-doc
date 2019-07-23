@@ -79,6 +79,7 @@ public class DatasourceUtil {
 			SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactoryBean.getObject());
 			// 组装自定义的bean
 			databaseFactoryBean.setId(dbDatasource.getId());
+			databaseFactoryBean.setCnName(dbDatasource.getName());
 			databaseFactoryBean.setDataSource(dataSource);
 			databaseFactoryBean.setSqlSessionTemplate(sqlSessionTemplate);
 			databaseFactoryBean.setUrl(dbUrl);

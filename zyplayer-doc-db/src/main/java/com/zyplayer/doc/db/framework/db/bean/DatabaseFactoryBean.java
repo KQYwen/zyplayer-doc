@@ -15,6 +15,7 @@ public class DatabaseFactoryBean {
 	private String url;
 	private String host;
 	private String dbName;
+	private String cnName;
 	private DatabaseProduct databaseProduct;
 	
 	public Long getId() {
@@ -23,6 +24,14 @@ public class DatabaseFactoryBean {
 	
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	public String getCnName() {
+		return cnName;
+	}
+	
+	public void setCnName(String cnName) {
+		this.cnName = cnName;
 	}
 	
 	public static enum DatabaseProduct {
