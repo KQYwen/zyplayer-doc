@@ -15,6 +15,13 @@
                             </template>
                             <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
                         </el-submenu>
+                        <el-submenu index="2">
+                            <template slot="title">
+                                <img src="./assets/img/elasticsearch.png" style="width: 18px;height: 18px;padding: 0 4px;">
+                                <span slot="title">ES功能列表</span>
+                            </template>
+                            <el-menu-item index="/index/executer"><i class="el-icon-coin"></i>数据查询</el-menu-item>
+                        </el-submenu>
                     </el-menu>
                     <el-tree :props="defaultProps" :data="esIndexList" @node-click="handleNodeClick"
                              ref="databaseTree" highlight-current draggable

@@ -19,7 +19,8 @@ public class CodeGenerator {
 		final String moduleName = "manage";
 //		final String[] tableName = { "zyplayer_storage", "auth_info", "user_auth", "user_info", "db_datasource" };
 //		final String[] tableName = { "wiki_space", "wiki_page", "wiki_page_content", "wiki_page_file", "wiki_page_comment", "wiki_page_zan" };
-		final String[] tableName = { "db_datasource" };
+//		final String[] tableName = { "db_datasource" };
+		final String[] tableName = { "es_datasource" };
 
 		// 代码生成器
 		AutoGenerator mpg = new AutoGenerator();

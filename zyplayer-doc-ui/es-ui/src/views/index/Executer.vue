@@ -9,12 +9,12 @@
             </div>
             <el-input type="textarea" v-model="executeParam.sql" :rows="10" placeholder="请输入"></el-input>
             <div style="text-align: center;margin: 10px 0;">
-                <el-button type="primary" v-on:click="submitExecute">执行</el-button>
+                <el-button type="primary" icon="el-icon-video-play" v-on:click="submitExecute">执行</el-button>
             </div>
         </el-card>
-        <el-card style="margin: 10px;">
+        <el-card style="margin: 10px;" v-loading="executeLoading">
             <div style="margin: 10px 0;">
-                <span>执行结果：{{executeResult.errCode == 200 ? '成功' : '失败'}}</span>
+                <span>执行状态：{{executeResult.errCode == 200 ? '成功' : '失败'}}</span>
             </div>
             <div style="margin: 10px 0;" v-if="executeResult.errCode == 200">
                 <div style="margin: 10px 0;">返回结果：</div>
@@ -36,7 +36,6 @@
     export default {
         data() {
             return {
-                indexMappingListLoading: false,
                 vueQueryParam: {},
                 indexMappingList: [],
                 executeParam: {
@@ -44,6 +43,7 @@
                     index: '',
                 },
                 executeResult: {},
+                executeLoading: false,
             };
         },
         beforeRouteUpdate(to, from, next) {
@@ -60,7 +60,7 @@
         },
         methods: {
             submitExecute() {
-                this.indexMappingListLoading = true;
+                this.executeLoading = true;
                 this.executeResult = {};
                 this.common.postNonCheck(this.apilist1.esExecuter, this.executeParam, function (json) {
                     var executeResult = json;
@@ -70,7 +70,8 @@
                         executeResult.data = "结果解析失败";
                     }
                     app.executeResult = executeResult;
-                    app.indexMappingListLoading = false;
+                    // 防止遮罩消失太快~
+                    setTimeout(()=>{app.executeLoading = false;}, 500);
                 });
             },
             executeResultClick(e) {

@@ -11,8 +11,8 @@ var URL = {
     updateTableDesc: '/zyplayer-doc-db/doc-db/updateTableDesc',
     updateTableColumnDesc: '/zyplayer-doc-db/doc-db/updateTableColumnDesc',
 
-    manageDatasourceList: '/zyplayer-doc-db/datasource/list',
-    manageUpdateDatasource: '/zyplayer-doc-db/datasource/update',
+    manageDatasourceList: '/zyplayer-doc-es/datasource/list',
+    manageUpdateDatasource: '/zyplayer-doc-es/datasource/update',
 
     esMappings: '/zyplayer-doc-es/es-mapping/mappings',
     esExecuter: '/zyplayer-doc-es/es-mapping/execute',
