@@ -15,6 +15,7 @@ var URL = {
     manageUpdateDatasource: '/zyplayer-doc-db/datasource/update',
 
     esMappings: '/zyplayer-doc-es/es-mapping/mappings',
+    esExecuter: '/zyplayer-doc-es/es-mapping/execute',
 
     systemUpgradeInfo: '/system/info/upgrade',
 };

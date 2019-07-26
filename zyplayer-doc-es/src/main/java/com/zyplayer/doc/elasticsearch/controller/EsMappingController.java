@@ -4,21 +4,28 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.service.elasticsearch.support.ElasticSearchUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.client.indices.GetMappingsRequest;
 import org.elasticsearch.client.indices.GetMappingsResponse;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.script.ScriptType;
+import org.elasticsearch.script.mustache.SearchTemplateRequest;
+import org.elasticsearch.script.mustache.SearchTemplateResponse;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,9 +64,43 @@ public class EsMappingController {
 		return DocResponseJson.warn("获取文档失败");
 	}
 	
-	@GetMapping("/list")
-	public ResponseJson<Object> list(String keywords) throws IOException {
-		return DocResponseJson.ok();
+	@PostMapping("/execute")
+	public ResponseJson<Object> execute(String index, String sql) throws IOException {
+		SearchTemplateRequest request = new SearchTemplateRequest();
+		request.setRequest(new SearchRequest().indices(index));
+		request.setScriptType(ScriptType.INLINE);
+		request.setScript(sql);
+		request.setScriptParams(new HashMap<>());
+		try {
+			RestHighLevelClient client = elasticSearchUtil.getEsClient("127.0.0.1:9200", "http");
+			SearchTemplateResponse response = client.searchTemplate(request, RequestOptions.DEFAULT);
+			List<Map<String, Object>> resultList = new LinkedList<>();
+			for (SearchHit searchHit : response.getResponse().getHits()) {
+				resultList.add(searchHit.getSourceAsMap());
+			}
+			return DocResponseJson.ok(resultList);
+		} catch (Exception e) {
+			return DocResponseJson.warn(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/index")
+	public ResponseJson<Object> index(String index) throws IOException {
+		GetIndexRequest request = new GetIndexRequest(index);
+		request.setMasterTimeout(TimeValue.timeValueMinutes(1));
+		try {
+			RestHighLevelClient client = elasticSearchUtil.getEsClient("127.0.0.1:9200", "http");
+			GetIndexResponse indexResponse = client.indices().get(request, RequestOptions.DEFAULT);
+			Map<String, Object> resultMap = new HashMap<>();
+			resultMap.put("mapping", indexResponse.getMappings().get(index));
+			resultMap.put("setting", indexResponse.getSettings().get(index).keySet());
+			
+//			return DocResponseJson.ok(indexResponse.getSetting(index, "index.number_of_shards"));
+			return DocResponseJson.ok(resultMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return DocResponseJson.warn("获取文档失败");
 	}
 	
 }

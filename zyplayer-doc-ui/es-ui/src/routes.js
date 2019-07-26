@@ -8,6 +8,7 @@ import DataDatasourceManage from './views/data/DatasourceManage.vue'
 import DataRouterView from './views/data/RouterView.vue'
 
 import IndexShow from './views/index/Show.vue'
+import IndexExecuter from './views/index/Executer.vue'
 import IndexRouterView from './views/index/RouterView.vue'
 
 import CommonNoAuth from './views/common/NoAuth.vue'
@@ -34,6 +35,7 @@ let routes = [
         component: IndexRouterView,
         children: [
             {path: 'show', name: '索引信息',component: IndexShow},
+            {path: 'executer', name: '执行器',component: IndexExecuter},
         ]
     }, {
         path: '/data',
