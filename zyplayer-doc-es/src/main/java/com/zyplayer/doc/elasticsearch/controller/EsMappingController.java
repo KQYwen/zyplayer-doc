@@ -2,7 +2,9 @@ package com.zyplayer.doc.elasticsearch.controller;
 
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.repository.manage.entity.EsDatasource;
 import com.zyplayer.doc.data.service.elasticsearch.support.ElasticSearchUtil;
+import com.zyplayer.doc.data.service.manage.EsDatasourceService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
@@ -45,16 +47,19 @@ public class EsMappingController {
 	
 	@Resource
 	ElasticSearchUtil elasticSearchUtil;
+	@Resource
+	EsDatasourceService esDatasourceService;
 	
 	@PostMapping("/mappings")
-	public ResponseJson<Object> mappings(String index) throws IOException {
+	public ResponseJson<Object> mappings(Long id, String index) {
+		EsDatasource esDatasource = esDatasourceService.getById(id);
 		GetMappingsRequest request = new GetMappingsRequest();
 		request.setMasterTimeout(TimeValue.timeValueMinutes(1));
 		if (StringUtils.isNotBlank(index)) {
 			request.indices(index);
 		}
 		try {
-			RestHighLevelClient client = elasticSearchUtil.getEsClient("127.0.0.1:9200", "http");
+			RestHighLevelClient client = elasticSearchUtil.getEsClient(esDatasource.getHostPort(), esDatasource.getScheme());
 			GetMappingsResponse getMappingResponse = client.indices().getMapping(request, RequestOptions.DEFAULT);
 			Map<String, MappingMetaData> allMappings = getMappingResponse.mappings();
 			return DocResponseJson.ok(allMappings);
@@ -65,14 +70,15 @@ public class EsMappingController {
 	}
 	
 	@PostMapping("/execute")
-	public ResponseJson<Object> execute(String index, String sql) throws IOException {
+	public ResponseJson<Object> execute(Long id, String index, String sql) {
+		EsDatasource esDatasource = esDatasourceService.getById(id);
 		SearchTemplateRequest request = new SearchTemplateRequest();
 		request.setRequest(new SearchRequest().indices(index));
 		request.setScriptType(ScriptType.INLINE);
 		request.setScript(sql);
 		request.setScriptParams(new HashMap<>());
 		try {
-			RestHighLevelClient client = elasticSearchUtil.getEsClient("127.0.0.1:9200", "http");
+			RestHighLevelClient client = elasticSearchUtil.getEsClient(esDatasource.getHostPort(), esDatasource.getScheme());
 			SearchTemplateResponse response = client.searchTemplate(request, RequestOptions.DEFAULT);
 			List<Map<String, Object>> resultList = new LinkedList<>();
 			for (SearchHit searchHit : response.getResponse().getHits()) {
@@ -85,11 +91,12 @@ public class EsMappingController {
 	}
 	
 	@GetMapping("/index")
-	public ResponseJson<Object> index(String index) throws IOException {
+	public ResponseJson<Object> index(Long id, String index) throws IOException {
+		EsDatasource esDatasource = esDatasourceService.getById(id);
 		GetIndexRequest request = new GetIndexRequest(index);
 		request.setMasterTimeout(TimeValue.timeValueMinutes(1));
 		try {
-			RestHighLevelClient client = elasticSearchUtil.getEsClient("127.0.0.1:9200", "http");
+			RestHighLevelClient client = elasticSearchUtil.getEsClient(esDatasource.getHostPort(), esDatasource.getScheme());
 			GetIndexResponse indexResponse = client.indices().get(request, RequestOptions.DEFAULT);
 			Map<String, Object> resultMap = new HashMap<>();
 			resultMap.put("mapping", indexResponse.getMappings().get(index));

@@ -1,29 +1,52 @@
 <template>
     <div class="index-executer-vue">
         <el-card style="margin: 10px;">
-            <div style="margin: 10px 0;">
-                <span>选择索引：</span>
-                <el-select v-model="executeParam.index" filterable placeholder="选择索引">
-                    <el-option label="zyplayer_doc_wiki" value="zyplayer_doc_wiki"></el-option>
-                </el-select>
+            <div style="margin-bottom: 20px;">
+                <el-form :model="executeParam" :inline="true" :rules="paramRules" ref="paramRulesForm">
+                    <el-form-item label="选择数据源：" prop="id">
+                        <el-select v-model="executeParam.id" @change="loadIndexList" filterable placeholder="选择数据源">
+                            <el-option v-for="item in datasourceOptions" :label="item.name" :value="item.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="选择索引：">
+                        <el-select v-model="executeParam.index" filterable placeholder="选择索引">
+                            <el-option label="全部" value=""></el-option>
+                            <el-option v-for="item in esIndexList" :label="item.name" :value="item.index"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
             </div>
-            <el-input type="textarea" v-model="executeParam.sql" :rows="10" placeholder="请输入"></el-input>
-            <div style="text-align: center;margin: 10px 0;">
+<!--            例：{"_source":["id","name","createUserName","viewNum"]}-->
+            <el-input type="textarea" v-model="executeParam.sql" :rows="10" placeholder="请输入DSL查询条件"></el-input>
+            <div style="text-align: center;margin-top: 10px;">
                 <el-button type="primary" icon="el-icon-video-play" v-on:click="submitExecute">执行</el-button>
             </div>
         </el-card>
         <el-card style="margin: 10px;" v-loading="executeLoading">
-            <div style="margin: 10px 0;">
-                <span>执行状态：{{executeResult.errCode == 200 ? '成功' : '失败'}}</span>
-            </div>
-            <div style="margin: 10px 0;" v-if="executeResult.errCode == 200">
-                <div style="margin: 10px 0;">返回结果：</div>
-                <div v-html="executeResult.data" @click="executeResultClick($event)"></div>
-            </div>
-            <div style="margin: 10px 0;" v-else>
-                <div style="margin: 10px 0;">错误信息：</div>
-                <div class="error-text">{{executeResult.errMsg}}</div>
-            </div>
+            <el-tabs value="first">
+                <el-tab-pane label="返回结果" name="first">
+                    <div v-if="!!executeResult.errCode">
+                        <div v-if="executeResult.errCode == 200">
+                            <el-table :data="executeResult.data" stripe border style="width: 100%;">
+                                <el-table-column v-for="item in executeResultCols" :prop="item.prop" :label="item.prop"></el-table-column>
+                            </el-table>
+                        </div>
+                        <div class="error-text" v-else>{{executeResult.errMsg}}</div>
+                    </div>
+                    <div v-else>请先执行</div>
+                </el-tab-pane>
+                <el-tab-pane label="JSON结果" name="second">
+                    <div v-if="!!executeResult.errCode">
+                        <div v-html="executeResult.jsonHtmlStr" @click="executeResultClick($event)" v-if="executeResult.errCode == 200"></div>
+                        <div class="error-text" v-else>{{executeResult.errMsg}}</div>
+                    </div>
+                    <div v-else>请先执行</div>
+                </el-tab-pane>
+                <el-tab-pane label="执行状态" name="third">
+                    <div v-if="!!executeResult.errCode">{{executeResult.errCode == 200 ? '成功' : '失败'}}</div>
+                    <div v-else>请先执行</div>
+                </el-tab-pane>
+            </el-tabs>
         </el-card>
     </div>
 </template>
@@ -37,39 +60,57 @@
         data() {
             return {
                 vueQueryParam: {},
-                indexMappingList: [],
+                datasourceOptions: [],
+                esIndexList: [],
                 executeParam: {
+                    id: '',
                     sql: '',
                     index: '',
                 },
                 executeResult: {},
+                executeResultCols: [],
                 executeLoading: false,
+                paramRules: {
+                    id: [
+                        {required: true, message: '请选择数据源', trigger: 'change'},
+                    ],
+                },
             };
         },
         beforeRouteUpdate(to, from, next) {
-            this.initQueryParam(to);
             next();
         },
         mounted: function () {
             app = this;
-            this.initQueryParam(this.$route);
-            // 延迟设置展开的目录，edit比app先初始化
-            setTimeout(function () {
-                //global.vue.$app.initLoadDataList(app.vueQueryParam.host, app.vueQueryParam.dbName);
-            }, 500);
+            this.loadDatasourceList();
         },
         methods: {
             submitExecute() {
+                this.$refs.paramRulesForm.validate((valid) => {
+                    if (!valid) return;
+                    app.doSubmitExecute();
+                });
+            },
+            doSubmitExecute() {
                 this.executeLoading = true;
                 this.executeResult = {};
                 this.common.postNonCheck(this.apilist1.esExecuter, this.executeParam, function (json) {
                     var executeResult = json;
                     try {
-                        executeResult.data = formatjson.processObjectToHtmlPre(json.data, 0, false, false, false, false);
+                        executeResult.jsonHtmlStr = formatjson.processObjectToHtmlPre(json.data, 0, false, false, false, false);
                     } catch (e) {
-                        executeResult.data = "结果解析失败";
+                        executeResult.jsonHtmlStr = "结果解析失败";
                     }
                     app.executeResult = executeResult;
+                    var executeResultCols = [];
+                    if (!!json.data && json.data.length > 0) {
+                        var colItem = json.data[0];
+                        for (var key in colItem) {
+                            executeResultCols.push({prop: key});
+                        }
+                    }
+                    // reverse 反转下，不然查询出来的结果字段反的
+                    app.executeResultCols = executeResultCols.reverse();
                     // 防止遮罩消失太快~
                     setTimeout(()=>{app.executeLoading = false;}, 500);
                 });
@@ -79,23 +120,21 @@
                     formatjson.expImgClicked(e.target);
                 }
             },
-            initQueryParam(to) {
-                // this.indexMappingListLoading = true;
-                // this.vueQueryParam = to.query;
-                // this.common.post(this.apilist1.esMappings, this.vueQueryParam, function (json) {
-                //     var data = json.data || {};
-                //     var properties = data[app.vueQueryParam.index].sourceAsMap.properties;
-                //     var propertiesArr = [];
-                //     for (var propertiesKey in properties) {
-                //         var propertiesItem = properties[propertiesKey];
-                //         var item = {
-                //             name: propertiesKey, type: propertiesItem.type
-                //         };
-                //         propertiesArr.push(item);
-                //     }
-                //     app.indexMappingList = propertiesArr;
-                //     app.indexMappingListLoading = false;
-                // });
+            loadDatasourceList() {
+                this.common.post(this.apilist1.manageDatasourceList, {}, function (json) {
+                    app.datasourceOptions = json.data || [];
+                });
+            },
+            loadIndexList() {
+                var param = {id: this.executeParam.id};
+                this.common.post(this.apilist1.esMappings, param, function (json) {
+                    var result = json.data || {};
+                    var propertiesArr = [];
+                    for (var key in result) {
+                        propertiesArr.push({name: key, index: key});
+                    }
+                    app.esIndexList = propertiesArr;
+                });
             },
         }
     }

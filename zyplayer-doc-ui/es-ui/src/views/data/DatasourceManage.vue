@@ -21,13 +21,13 @@
             </el-card>
         </div>
         <!--增加数据源弹窗-->
-        <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="600px">
+        <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="650px">
             <el-form label-width="120px">
                 <el-form-item label="名字：">
                     <el-input v-model="newDatasource.name" placeholder="中文名字"></el-input>
                 </el-form-item>
                 <el-form-item label="数据源URL：">
-                    <el-input v-model="newDatasource.hostPort" placeholder="地址和端口"></el-input>
+                    <el-input v-model="newDatasource.hostPort" placeholder="地址和端口，集群使用英文逗号分隔，例：127.0.0.1:7200,127.0.0.1:7201"></el-input>
                 </el-form-item>
                 <el-form-item label="scheme：">
                     <el-select v-model="newDatasource.scheme" placeholder="scheme" style="width: 100%">
@@ -68,7 +68,7 @@
                 this.newDatasource = {name: "", hostPort: "", scheme: "http"};
             },
             editDatasource(row) {
-                this.newDatasource = row;
+                this.newDatasource = JSON.parse(JSON.stringify(row));
                 this.datasourceDialogVisible = true;
             },
             deleteDatasource(row) {

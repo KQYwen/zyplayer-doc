@@ -1,7 +1,7 @@
 <template>
     <div style="padding: 10px;">
         <div style="max-width: 1200px;margin: 20px auto;">
-            <div style="text-align: center;">欢迎使用ヾ(๑╹◡╹)ﾉ" - 在左上角选择一个数据源吧~</div>
+            <div style="text-align: center;">欢迎使用鸭ヾ(๑╹◡╹)ﾉ"</div>
         </div>
     </div>
 </template>
