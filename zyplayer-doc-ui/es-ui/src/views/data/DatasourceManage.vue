@@ -3,7 +3,7 @@
         <div style="max-width: 1200px;margin: 20px auto;">
             <el-card style="margin: 10px;">
                 <div slot="header" class="clearfix">
-                    <span>数据源管理</span>
+                    <span>ES数据源管理</span>
                     <el-button style="float: right;margin-left: 5px;" :loading="loadDataListLoading" v-on:click="getDatasourceList" plain icon="el-icon-refresh" size="small">刷新</el-button>
                     <el-button style="float: right;" v-on:click="addDatasource" type="primary" icon="el-icon-circle-plus-outline" size="small">新增</el-button>
                 </div>
@@ -21,7 +21,7 @@
             </el-card>
         </div>
         <!--增加数据源弹窗-->
-        <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="650px">
+        <el-dialog :inline="true" :title="newDatasource.id>0?'编辑ES数据源':'新增ES数据源'" :visible.sync="datasourceDialogVisible" width="650px">
             <el-form label-width="120px">
                 <el-form-item label="名字：">
                     <el-input v-model="newDatasource.name" placeholder="中文名字"></el-input>

@@ -96,6 +96,9 @@
                 <el-form-item label="邮箱">
                     <el-input v-model="editUserForm.email"></el-input>
                 </el-form-item>
+                <el-form-item label="新密码">
+                    <el-input v-model="editUserForm.password" placeholder="为空代表不修改密码"></el-input>
+                </el-form-item>
                 <el-form-item label="状态">
                     <el-switch v-model="editUserForm.delFlag" :active-value="0" active-text="正常" :inactive-value="2" inactive-text="停用"></el-switch>
                 </el-form-item>

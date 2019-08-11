@@ -178,7 +178,7 @@ public class DatabaseDocController {
 		exportVo.setColumnList(columnList);
 		exportVo.setTableList(tableList);
 		String content = JSON.toJSONString(exportVo);
-		content = "var database = " + content;
+		content = "var docDbDatabase = " + content;
 		
 		response.setContentType("application/octet-stream");
 		response.addHeader("Content-Disposition", "attachment;filename=database.js");

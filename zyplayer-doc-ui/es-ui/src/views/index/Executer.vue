@@ -123,6 +123,10 @@
             loadDatasourceList() {
                 this.common.post(this.apilist1.manageDatasourceList, {}, function (json) {
                     app.datasourceOptions = json.data || [];
+                    if (app.datasourceOptions.length > 0) {
+                        app.executeParam.id = app.datasourceOptions[0].id;
+                        app.loadIndexList();
+                    }
                 });
             },
             loadIndexList() {

@@ -68,7 +68,7 @@ public class UserInfoController {
 		PageHelper.startPage(param.getPageNum(), param.getPageSize(), true);
 		List<UserInfo> userInfoList = userInfoService.list(queryWrapper);
 		if (userInfoList != null && userInfoList.size() > 0) {
-			userInfoList.forEach(val -> val.setPassword(null));
+			userInfoList.forEach(val -> val.setPassword(""));
 		}
 		PageInfo<UserInfo> pageInfo = new PageInfo<>(userInfoList);
 		return DocResponseJson.ok(pageInfo);
@@ -91,8 +91,15 @@ public class UserInfoController {
 		if (count > 0) {
 			return DocResponseJson.warn("改用户账号已存在");
 		}
-		// 不允许修改密码
-		userInfo.setPassword(null);
+		// 密码支持自定义修改，管理权限都有，开放了随便改吧~
+		String password = userInfo.getPassword();
+		if (StringUtils.isNotBlank(password)) {
+			String newPassword = DigestUtils.md5DigestAsHex(password.getBytes());
+			userInfo.setPassword(newPassword);
+		} else {
+			// 防止改为空
+			userInfo.setPassword(null);
+		}
 		if (userId > 0) {
 			userInfo.setUpdateTime(new Date());
 			userInfoService.updateById(userInfo);

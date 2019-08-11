@@ -19,6 +19,7 @@
                                 <span slot="title">系统管理</span>
                             </template>
                             <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
+                            <el-menu-item index="/data/export"><i class="el-icon-finished"></i>数据库表导出</el-menu-item>
                         </el-submenu>
                     </el-menu>
                     <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"

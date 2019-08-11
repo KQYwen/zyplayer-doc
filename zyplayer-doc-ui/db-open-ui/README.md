@@ -1,4 +1,4 @@
-# zyplayer-doc-db项目的UI
+# zyplayer-doc-db项目的开放文档UI
 
 ## 环境要求
 

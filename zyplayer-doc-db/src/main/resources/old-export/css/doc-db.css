@@ -1,0 +1,33 @@
+html,body{width: 100%;height: 100%;}
+
+.container{padding-top: 20px;}
+
+.table-info,.table-columns{margin-top: 10px;}
+
+.table-info .desc{margin-top: 10px;}
+#tableDescInput{display: none;}
+
+#tableDescShow .icon-edit{cursor: pointer;margin-left: 20px;display: none;}
+
+#fuzzySearchModal .table-box{margin-top: 20px; max-height: 600px;overflow-y: auto;}
+#fuzzySearchModal .table-box td:nth-child(3){word-break:break-all;max-width: 400px;}
+
+/* S-覆盖原生样式 */
+.chosen-container-single .chosen-single div b {margin-top: 8px;}
+/* E-覆盖原生样式 */
+
+/* S-JSON展示的样式 */
+pre.json{margin-top:0px;margin-bottom:0px;}
+pre.json .canvas{font:10pt georgia;background-color:#ececec;color:#000000;border:1px solid #cecece;}
+pre.json .objectBrace{color:#00aa00;font-weight:bold;}
+pre.json .arrayBrace{color:#0033ff;font-weight:bold;}
+pre.json .propertyName{color:#cc0000;font-weight:bold;}
+pre.json .string{color:#007777;}
+pre.json .number{color:#aa00aa;}
+pre.json .boolean{color:#0000ff;}
+pre.json .function{color:#aa6633;text-decoration:italic;}
+pre.json .null{color:#0000ff;}
+pre.json .comma{color:#000000;font-weight:bold;}
+pre img{cursor: pointer;}
+/* E-JSON展示的样式 */
+
