@@ -68,7 +68,7 @@ public class MgStorageServiceImpl implements MgStorageService {
 		ZyplayerStorage entity = new ZyplayerStorage();
 		entity.setDocValue(value);
 		UpdateWrapper<ZyplayerStorage> updateWrapper = new UpdateWrapper<>();
-		updateWrapper.eq(true, "doc_key", key);
+		updateWrapper.eq("doc_key", key);
 		boolean update = zyplayerStorageService.update(entity, updateWrapper);
 		if (!update) {
 			entity = new ZyplayerStorage();

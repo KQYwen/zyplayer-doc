@@ -5,4 +5,5 @@ public class Consts {
 	public static final String ZYPLAYER_PROXY = "/zyplayer-proxy/";
 	public static final String V2_API_DOCS = "/v2/api-docs";
 	public static final String SWAGGER_RESOURCES = "/swagger-resources";
+	public static final String PROXY_API_DOCS = "/proxy-api-docs";
 }

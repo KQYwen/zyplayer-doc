@@ -10,10 +10,7 @@ import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -98,6 +95,23 @@ public class MgOpenDocController {
 		}
 		// 用默认的json解析要内存溢出，解析不了JSONObject、、就只有这样写了~
 		DocResponseJson.ok(swaggerResourceStrList).send(response);
+	}
+	
+	/**
+	 * 获取增加的json格式文档
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年8月11日
+	 * @param id swagger的文档内容的id
+	 * @return 添加结果
+	 */
+	@GetMapping(value = "/proxyApiDocs")
+	public String getApiDocs(Long id) {
+		String result = storageService.get(StorageKeys.PROXY_API_DOCS + id);
+		if (StringUtils.isBlank(result)) {
+			return DocResponseJson.warn("未找到该文档").toJson();
+		}
+		return result;
 	}
 	
 	/**

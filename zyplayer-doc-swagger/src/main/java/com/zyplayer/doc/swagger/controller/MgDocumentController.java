@@ -11,15 +11,13 @@ import com.zyplayer.doc.swagger.controller.vo.SwaggerLocationVo;
 import com.zyplayer.doc.swagger.controller.vo.SwaggerResourcesInfoVo;
 import com.zyplayer.doc.swagger.framework.configuration.EnableDocSwagger;
 import com.zyplayer.doc.swagger.framework.configuration.SpringContextUtil;
+import com.zyplayer.doc.swagger.framework.constant.Consts;
 import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
 import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.swagger.web.SwaggerResource;
 
 import javax.annotation.Resource;
@@ -300,7 +298,12 @@ public class MgDocumentController {
 	 * @return 添加结果
 	 */
 	@PostMapping(value = "/addSwaggerResources")
-	public ResponseJson<Object> addSwaggerResources(String resourcesUrl, String rewriteDomainUrl, String oldUrl, Integer openVisit) {
+	public ResponseJson<Object> addSwaggerResources(HttpServletRequest request, String swaggerJson, String resourcesUrl, String rewriteDomainUrl, String oldUrl, Integer openVisit) {
+		// 通过json文档内容来添加
+		ResponseJson<Object> responseJson = this.addSwaggerJsonApiDocs(request, swaggerJson, resourcesUrl);
+		if (responseJson != null) {
+			return responseJson;
+		}
 		// 总有些人喜欢填这个地址，那就替换来支持下吧
 		int htmlIndex = resourcesUrl.indexOf("/swagger-ui.html");
 		if (htmlIndex > 0) {
@@ -350,6 +353,38 @@ public class MgDocumentController {
 		resourcesList = resourcesList.stream().distinct().sorted(Comparator.comparing(SwaggerResourcesInfoVo::getId)).collect(Collectors.toList());
 		storageService.put(StorageKeys.SWAGGER_RESOURCES_LIST, JSON.toJSONString(resourcesList));
 		return DocResponseJson.ok();
+	}
+
+	/**
+	 * 增加json格式文档
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年8月11日
+	 * @param swaggerJson swagger的文档内容
+	 * @return 添加结果
+	 */
+	public ResponseJson<Object> addSwaggerJsonApiDocs(HttpServletRequest request, String swaggerJson, String resourcesUrl) {
+		if (StringUtils.isNotBlank(swaggerJson)) {
+			Integer nextId = 0;
+			String customUrl = resourcesUrl;
+			if (resourcesUrl.contains(Consts.PROXY_API_DOCS)) {
+				nextId = Integer.valueOf(resourcesUrl.substring(resourcesUrl.indexOf("?id=") + 4));
+			} else {
+				nextId = storageService.getNextId();
+				customUrl = request.getRequestURL().toString();
+				customUrl = customUrl.substring(0, customUrl.lastIndexOf("/"));
+				customUrl = customUrl + Consts.PROXY_API_DOCS + "?id=" + nextId;
+			}
+			boolean addResult = this.addSwaggerLocationList(swaggerJson, null, customUrl, customUrl, 0);
+			if (addResult) {
+				storageService.put(StorageKeys.PROXY_API_DOCS + nextId, swaggerJson);
+				return DocResponseJson.ok();
+			}
+			return DocResponseJson.warn("添加失败");
+		} else if (resourcesUrl.contains(Consts.PROXY_API_DOCS)) {
+			return DocResponseJson.warn("添加失败，该地址是代理地址，必须填写文档内容");
+		}
+		return null;
 	}
 
 	/**
@@ -403,6 +438,11 @@ public class MgDocumentController {
 		String locationDel = this.encodeUrlParam(location);
 		locationList = locationList.stream().filter(val -> !Objects.equals(val.getLocation(), locationDel)).collect(Collectors.toList());
 		this.storageSwaggerLocationList(locationList);
+		// 代理地址判断
+		if (location.contains(Consts.PROXY_API_DOCS)) {
+			Integer nextId = Integer.valueOf(location.substring(location.indexOf("?id=") + 4));
+			storageService.remove(StorageKeys.PROXY_API_DOCS + nextId);
+		}
 		return DocResponseJson.ok();
 	}
 

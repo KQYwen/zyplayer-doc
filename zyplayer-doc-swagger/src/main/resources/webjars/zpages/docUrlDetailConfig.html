@@ -58,8 +58,12 @@
 					</div>
 					<div class="modal-body">
 						<div class="input-line">
-							地址：
-							<input v-model="addNewDocumentInput" type="text" class="form-control" placeholder="例：http://127.0.0.1/swagger-resources 或 http://127.0.0.1/v2/api-docs">
+							文档地址：
+							<input v-model="addNewDocumentInput" type="text" class="form-control" :readonly="addNewDocumentInput.indexOf('proxy-api-docs') > 0" placeholder="例：http://127.0.0.1/swagger-resources 或 http://127.0.0.1/v2/api-docs">
+						</div>
+						<div class="input-line">
+							swagger文档内容：
+							<textarea v-model="addNewSwaggerJson" type="text" class="form-control" placeholder="swagger的json文档内容，选填，如果填了则不再请求上面的地址获取内容，而是直接返回这里输入的"></textarea>
 						</div>
 						<div class="input-line">
 							重写域名地址：
@@ -94,6 +98,7 @@
 		data: {
 			swaggerLocationList: [],
 			addNewDocumentInput: '',
+			addNewSwaggerJson: '',
 			rewriteDomainUrl: '',
 			openVisit: '',
 			oldLocation: ''
@@ -131,12 +136,13 @@
 			},
 			addNewDocumentBtn: function(){
 				var addNewDocumentInput = app.addNewDocumentInput;
-				if(isEmpty(addNewDocumentInput)) {
+				if(isEmpty(addNewDocumentInput) && isEmpty(app.addNewSwaggerJson)) {
 					Toast.error("地址不可以为空");return;
 				}
 				var param = {
 					openVisit: app.openVisit ? 1 : 0,
 					resourcesUrl: addNewDocumentInput,
+					swaggerJson: app.addNewSwaggerJson,
 					rewriteDomainUrl: app.rewriteDomainUrl,
 					oldUrl: app.oldLocation
 				};

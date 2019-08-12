@@ -24,7 +24,6 @@ import java.util.Optional;
  * @author 暮光：城中城
  * @since 2019年7月27日
  */
-@AuthMan("ES_DATASOURCE_MANAGE")
 @RestController
 @RequestMapping("/zyplayer-doc-es/datasource")
 public class EsDatasourceController {
@@ -39,7 +38,8 @@ public class EsDatasourceController {
 		List<EsDatasource> datasourceList = esDatasourceService.list(wrapper);
 		return DocResponseJson.ok(datasourceList);
 	}
-
+	
+	@AuthMan("ES_DATASOURCE_MANAGE")
 	@PostMapping(value = "/update")
 	public ResponseJson update(EsDatasource esDatasource) {
 		if (StringUtils.isBlank(esDatasource.getName())) {
