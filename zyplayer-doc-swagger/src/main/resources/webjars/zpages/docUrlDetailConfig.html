@@ -63,7 +63,7 @@
 						</div>
 						<div class="input-line">
 							swagger文档内容：
-							<textarea v-model="addNewSwaggerJson" type="text" class="form-control" placeholder="swagger的json文档内容，选填，如果填了则不再请求上面的地址获取内容，而是直接返回这里输入的"></textarea>
+							<textarea v-model="addNewSwaggerJson" type="text" rows="5" class="form-control" placeholder="swagger的json文档内容，和文档地址选填其一，如果填了则不再请求上面的地址获取内容，而是直接返回这里输入的"></textarea>
 						</div>
 						<div class="input-line">
 							重写域名地址：
@@ -102,6 +102,8 @@
 			rewriteDomainUrl: '',
 			openVisit: '',
 			oldLocation: ''
+		},
+		watch: {
 		},
 		methods: {
 			btnRefreshList: function(){
@@ -201,8 +203,6 @@
 		},
 		mounted: function(){
 			this.refreshList();
-		},
-		watch: {
 		}
 	});
 </script>

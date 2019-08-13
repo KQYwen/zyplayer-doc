@@ -23,7 +23,7 @@
             </el-card>
         </div>
         <!--增加数据源弹窗-->
-        <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="600px">
+        <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="760px">
             <el-alert
                     title="重要提醒"
                     description="请录入正确可用的数据库连接、账号、密码信息，否则初始化数据源失败将影响整个系统，有可能需要重启服务才能解决"
@@ -35,13 +35,13 @@
                     <el-input v-model="newDatasource.name" placeholder="中文名字"></el-input>
                 </el-form-item>
                 <el-form-item label="驱动类：">
-                    <el-select v-model="newDatasource.driverClassName" placeholder="驱动类" style="width: 100%">
+                    <el-select v-model="newDatasource.driverClassName" @change="driverClassNameChange" placeholder="驱动类" style="width: 100%">
                         <el-option label="com.mysql.jdbc.Driver" value="com.mysql.jdbc.Driver"></el-option>
                         <el-option label="net.sourceforge.jtds.jdbc.Driver" value="net.sourceforge.jtds.jdbc.Driver"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="数据源URL：">
-                    <el-input v-model="newDatasource.sourceUrl" placeholder="数据源URL"></el-input>
+                    <el-input v-model="newDatasource.sourceUrl" :placeholder="urlPlaceholder"></el-input>
                 </el-form-item>
                 <el-form-item label="账号：">
                     <el-input v-model="newDatasource.sourceName" placeholder="账号"></el-input>
@@ -71,6 +71,7 @@
                 datasourceDialogVisible: false,
                 datasourceList: [],
                 newDatasource: {},
+                urlPlaceholder: "数据源URL",
             };
         },
         mounted: function () {
@@ -105,6 +106,13 @@
                     app.$message.success("保存成功！");
                     app.getDatasourceList();
                 });
+            },
+            driverClassNameChange() {
+                if (this.newDatasource.driverClassName == 'com.mysql.jdbc.Driver') {
+                    this.urlPlaceholder = "例：jdbc:mysql://127.0.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8";
+                } else if (this.newDatasource.driverClassName == 'net.sourceforge.jtds.jdbc.Driver') {
+                    this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:33434;DatabaseName=user_info;socketTimeout=60;";
+                }
             },
             getDatasourceList() {
                 this.loadDataListLoading = true;
