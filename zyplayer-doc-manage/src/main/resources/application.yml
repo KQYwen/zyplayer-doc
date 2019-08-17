@@ -29,7 +29,7 @@ zyplayer:
         hostPort: 127.0.0.1:9200
         scheme: http
       # 版本和升级信息获取地址
-      version: 1.0.2
+      version: 1.0.3
       upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
       # 系统根域名，调试UI时需要使用，同时需要在host文件里配置：127.0.0.1 local.zyplayer.com
       originDomainRegex: .*\.zyplayer\.com(:\d+|)$
