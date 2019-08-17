@@ -1,7 +1,7 @@
 # zyplayer-doc
 
 #### 项目介绍
-定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档、wiki文档....等，提供一整套的解决方案，为开发者服务，欢迎有想法的一起来写，给个Star鼓励下呗！（您的一个Star是快速迭代的动力源泉！）
+定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档、wiki、ElasticSearch文档....等，提供一整套的解决方案，为开发者服务，欢迎有想法的一起来写，给个Star鼓励下呗！（您的一个Star是快速迭代的动力源泉！）
 欢迎加群讨论，QQ群号：466363173
 
 体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/) 需登录 账号：zyplayer 密码：123456 （未运行dubbo服务，不能体验dubbo文档调试）
@@ -34,11 +34,14 @@
 ##### 七、zyplayer-doc-grpc grpc文档工具
 > 用比较变态的方式实现了grpc的文档和在线调试功能，通过http的方式来请求grpc的接口
 
+##### 八、zyplayer-doc-es ElasticSearch文档工具
+> 支持ElasticSearch的文档查看和执行DSL查询的功能
+
 > 默认未开启此功能，如需使用需要在zyplayer-doc-manage项目中开启@EnableDocGrpc注解
 
 #### 运行方式
 
-1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.2.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.2.sql)
+1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.3.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.3.sql)
 
 2. 修改zyplayer-doc-manage项目的application.yml配置文件里面的数据库账号密码
 
@@ -84,10 +87,9 @@
 ##### 四、zyplayer-doc-manage
 1. 整合了上面两个功能到此项目，较少熟悉成本，`git clone`下来即可运行
 
-2. 具有简单的`权限管理`、`人员管理`功能（还没想好具体怎么控制，没需求）
+2. 具有简单的`权限管理`、`人员管理`功能
 
 3. 使用最新的一些技术框架，很简单，初学者拿来学习也是很不错的
 
 更多详细的使用部署文档：http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb
 
-如果觉得此项目对您有帮助，就捐赠一个吧！无关金额，主要是对作者的认可。
