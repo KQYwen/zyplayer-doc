@@ -300,7 +300,7 @@ public class MgDocumentController {
 	@PostMapping(value = "/addSwaggerResources")
 	public ResponseJson<Object> addSwaggerResources(HttpServletRequest request, String swaggerJson, String resourcesUrl, String rewriteDomainUrl, String oldUrl, Integer openVisit) {
 		// 通过json文档内容来添加
-		ResponseJson<Object> responseJson = this.addSwaggerJsonApiDocs(request, swaggerJson, resourcesUrl);
+		ResponseJson<Object> responseJson = this.addSwaggerJsonApiDocs(request, swaggerJson, resourcesUrl, rewriteDomainUrl, openVisit);
 		if (responseJson != null) {
 			return responseJson;
 		}
@@ -363,7 +363,7 @@ public class MgDocumentController {
 	 * @param swaggerJson swagger的文档内容
 	 * @return 添加结果
 	 */
-	public ResponseJson<Object> addSwaggerJsonApiDocs(HttpServletRequest request, String swaggerJson, String resourcesUrl) {
+	public ResponseJson<Object> addSwaggerJsonApiDocs(HttpServletRequest request, String swaggerJson, String resourcesUrl, String rewriteDomainUrl, Integer openVisit) {
 		if (StringUtils.isNotBlank(swaggerJson)) {
 			Integer nextId = 0;
 			String customUrl = resourcesUrl;
@@ -375,7 +375,7 @@ public class MgDocumentController {
 				customUrl = customUrl.substring(0, customUrl.lastIndexOf("/"));
 				customUrl = customUrl + Consts.PROXY_API_DOCS + "?id=" + nextId;
 			}
-			boolean addResult = this.addSwaggerLocationList(swaggerJson, null, customUrl, customUrl, 0);
+			boolean addResult = this.addSwaggerLocationList(swaggerJson, rewriteDomainUrl, customUrl, customUrl, openVisit);
 			if (addResult) {
 				storageService.put(StorageKeys.PROXY_API_DOCS + nextId, swaggerJson);
 				return DocResponseJson.ok();

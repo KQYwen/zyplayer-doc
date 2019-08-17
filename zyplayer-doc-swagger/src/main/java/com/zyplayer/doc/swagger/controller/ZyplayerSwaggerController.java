@@ -2,10 +2,12 @@ package com.zyplayer.doc.swagger.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.swagger.controller.vo.LocationListVo;
 import com.zyplayer.doc.swagger.controller.vo.SwaggerResourcesInfoVo;
 import com.zyplayer.doc.swagger.framework.constant.Consts;
 import com.zyplayer.doc.swagger.framework.constant.StorageKeys;
 import com.zyplayer.doc.swagger.framework.service.MgStorageService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +19,7 @@ import springfox.documentation.swagger.web.SecurityConfiguration;
 import springfox.documentation.swagger.web.SwaggerResource;
 import springfox.documentation.swagger.web.UiConfiguration;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 承接了所有的ApiResourceController的接口
@@ -41,7 +41,7 @@ public class ZyplayerSwaggerController {
 		if (resourcesInfoVoList == null || resourcesInfoVoList.isEmpty()) {
 			return Collections.emptyList();
 		}
-		List<SwaggerResource> resourceList = new LinkedList<>();
+		Set<SwaggerResource> resourceList = new HashSet<>();
 		resourcesInfoVoList.forEach(resource -> {
 			resource.getResourceList().forEach(val -> {
 				String location = val.getLocation();
@@ -49,7 +49,21 @@ public class ZyplayerSwaggerController {
 			});
 			resourceList.addAll(resource.getResourceList());
 		});
-		return resourceList;
+		List<LocationListVo> locationList = new LinkedList<>();
+		String swaggerLocationListStr = storageService.get(StorageKeys.SWAGGER_LOCATION_LIST);
+		if (StringUtils.isNotBlank(swaggerLocationListStr)) {
+			locationList = JSON.parseArray(swaggerLocationListStr, LocationListVo.class);
+		}
+		for (LocationListVo listVo : locationList) {
+			if (listVo.getLocation().contains(Consts.PROXY_API_DOCS)) {
+				SwaggerResource resource = new SwaggerResource();
+				resource.setLocation(listVo.getLocation());
+				resource.setName(listVo.getName());
+				resource.setSwaggerVersion("2.0");
+				resourceList.add(resource);
+			}
+		}
+		return new LinkedList<>(resourceList);
 	}
 	
 	@ResponseBody

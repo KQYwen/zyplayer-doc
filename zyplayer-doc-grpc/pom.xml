@@ -6,7 +6,7 @@
 
     <groupId>com.zyplayer</groupId>
     <artifactId>zyplayer-doc-grpc</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-core</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3</version>
 		</dependency>
 	</dependencies>
 

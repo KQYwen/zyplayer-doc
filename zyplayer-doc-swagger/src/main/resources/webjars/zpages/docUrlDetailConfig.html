@@ -127,8 +127,18 @@
 				app.oldLocation = item.location;
 				app.addNewDocumentInput = item.location;
 				app.rewriteDomainUrl = item.rewriteDomainUrl;
+				app.addNewSwaggerJson = "";
 				app.openVisit = (item.openVisit == 1);
-				$('#addNewDocumentModal').modal({moveable: true});
+				if (item.location.indexOf('proxy-api-docs') > 0) {
+					var docId = item.location.substring(item.location.indexOf("?id=") + 4);
+					// 获取文档内容
+					ajaxTemp(urlBase + "swagger-mg-ui/document/proxy-api-docs", "get", "text", {id: docId}, function (json) {
+						app.addNewSwaggerJson = json;
+						$('#addNewDocumentModal').modal({moveable: true});
+					});
+				} else {
+					$('#addNewDocumentModal').modal({moveable: true});
+				}
 			},
 			addNewDocument: function(){
 				app.openVisit = false;
