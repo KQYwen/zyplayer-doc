@@ -10,6 +10,7 @@ import TableRouterView from './views/table/RouterView.vue'
 
 import DataDatasourceManage from './views/data/DatasourceManage.vue'
 import DataExport from './views/data/Export.vue'
+import DataExecutor from './views/data/Executor.vue'
 import DataRouterView from './views/data/RouterView.vue'
 
 import CommonNoAuth from './views/common/NoAuth.vue'
@@ -45,6 +46,7 @@ let routes = [
         children: [
             {path: 'datasourceManage', name: '数据源管理',component: DataDatasourceManage},
             {path: 'export', name: '数据库导出',component: DataExport},
+            {path: 'executor', name: 'SQL执行器',component: DataExecutor},
         ]
     }, {
         path: '/common',

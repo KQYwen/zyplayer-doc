@@ -7,7 +7,7 @@
             <el-aside>
                 <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
                     <div style="margin-bottom: 10px;">
-                        <el-select v-model="choiceDatasource" @change="datasourceChangeEvents" filterable placeholder="请先选择数据源" style="width: 100%;">
+                        <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请先选择数据源" style="width: 100%;">
                             <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>
                     </div>
@@ -20,10 +20,11 @@
                             </template>
                             <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
                             <el-menu-item index="/data/export"><i class="el-icon-finished"></i>数据库表导出</el-menu-item>
+                            <el-menu-item index="/data/executor"><i class="el-icon-video-play"></i>SQL执行器</el-menu-item>
                         </el-submenu>
                     </el-menu>
                     <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
-                             ref="databaseTree" highlight-current draggable
+                             ref="databaseTree" highlight-current
                              :default-expanded-keys="databaseExpandedKeys"
                              node-key="id" @node-expand="handleNodeExpand"
                              style="background-color: #fafafa;">
@@ -91,7 +92,7 @@
                 // 数据源相关
                 datasourceOptions: [],
                 datasourceList: [],
-                choiceDatasource: "",
+                choiceDatasourceId: "",
                 defaultProps: {children: 'children', label: 'name'},
                 // 页面展示相关
                 nowDatasourceShow: {},
@@ -134,16 +135,23 @@
                 });
             },
             datasourceChangeEvents() {
-                app.nowDatasourceShow = this.choiceDatasource;
-                app.loadDatabaseList(this.choiceDatasource);
+                app.nowDatasourceShow = this.choiceDatasourceId;
+                var host = "";
+                for (var i = 0; i < this.datasourceList.length; i++) {
+                    if (this.datasourceList[i].id == this.choiceDatasourceId) {
+                        host = this.datasourceList[i].cnName;
+                        break;
+                    }
+                }
+                app.loadDatabaseList(this.choiceDatasourceId, host);
             },
             handleNodeClick(node) {
                 console.log("点击节点：", node);
                 if (node.type == 1) {
-                    this.nowClickPath = {host: node.host, dbName: node.dbName, tableName: node.tableName};
+                    this.nowClickPath = {sourceId: this.choiceDatasourceId, host: node.host, dbName: node.dbName, tableName: node.tableName};
                     this.$router.push({path: '/table/database', query: this.nowClickPath});
                 } else if (node.type == 2) {
-                    this.nowClickPath = {host: node.host, dbName: node.dbName, tableName: node.tableName};
+                    this.nowClickPath = {sourceId: this.choiceDatasourceId, host: node.host, dbName: node.dbName, tableName: node.tableName};
                     this.$router.push({path: '/table/info', query: this.nowClickPath});
                 }
             },
@@ -156,7 +164,7 @@
                 }
             },
             loadGetTableList(node, callback) {
-                this.common.post(this.apilist1.tableList, {host: node.host, dbName: node.dbName}, function (json) {
+                this.common.post(this.apilist1.tableList, {sourceId: this.choiceDatasourceId, dbName: node.dbName}, function (json) {
                     var pathIndex = [];
                     var result = json.data || [];
                     for (var i = 0; i < result.length; i++) {
@@ -179,14 +187,14 @@
                     var datasourceOptions = [];
                     for (var i = 0; i < app.datasourceList.length; i++) {
                         datasourceOptions.push({
-                            label: app.datasourceList[i].cnName, value: app.datasourceList[i].host
+                            label: app.datasourceList[i].cnName, value: app.datasourceList[i].id
                         });
                     }
                     app.datasourceOptions = datasourceOptions;
                 });
             },
-            loadDatabaseList(host, callback) {
-                this.common.post(this.apilist1.databaseList, {host: host}, function (json) {
+            loadDatabaseList(sourceId, host, callback) {
+                this.common.post(this.apilist1.databaseList, {sourceId: sourceId}, function (json) {
                     var result = json.data || [];
                     var pathIndex = [];
                     var children = [];
@@ -205,24 +213,13 @@
                     }
                 });
             },
-            initLoadDataList(host, dbName) {
+            initLoadDataList(sourceId, host, dbName) {
                 if (app.databaseList.length > 0) {
                     return;
                 }
-                this.loadDatabaseList(host, function () {
+                this.choiceDatasourceId = sourceId;
+                this.loadDatabaseList(sourceId, host, function () {
                     app.databaseExpandedKeys = [host];
-                    // 展不开、、
-                    // setTimeout(()=> {
-                    //     var node = app.$refs.databaseTree.getNode(host + "_" + dbName);
-                    //     if (!!node) {
-                    //         app.loadGetTableList(node.data, function (children) {
-                    //             var node = app.$refs.databaseTree.getNode(host + "_" + dbName);
-                    //             node.childNodes = children;
-                    //             app.$refs.databaseTree.updateKeyChildren(host + "_" + dbName);
-                    //             // node.setChildren(node.data);
-                    //         });
-                    //     }
-                    // }, 500);
                 });
             },
             checkSystemUpgrade() {

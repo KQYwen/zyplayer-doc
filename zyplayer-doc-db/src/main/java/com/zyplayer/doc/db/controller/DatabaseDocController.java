@@ -3,8 +3,11 @@ package com.zyplayer.doc.db.controller;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
+import com.zyplayer.doc.data.service.manage.DbDatasourceService;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo.TableInfoVo;
@@ -17,12 +20,12 @@ import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import org.apache.commons.lang.StringUtils;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.*;
@@ -38,65 +41,69 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/zyplayer-doc-db/doc-db")
 public class DatabaseDocController {
-
-	@Autowired
+	
+	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
-
+	@Resource
+	DbDatasourceService dbDatasourceService;
+	
 	@PostMapping(value = "/getDataSourceList")
 	public ResponseJson getDataSourceList() {
-		List<DatabaseFactoryBean> factoryBeanList = databaseRegistrationBean.getDatabaseFactoryBeanList();
-		List<DatabaseFactoryBean> dataSourceList = factoryBeanList.stream().map(val -> {
+		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
+		wrapper.eq("yn", 1);
+		List<DbDatasource> datasourceList = dbDatasourceService.list(wrapper);
+		List<DatabaseFactoryBean> dataSourceList = datasourceList.stream().map(val -> {
 			DatabaseFactoryBean bean = new DatabaseFactoryBean();
-			bean.setCnName(val.getCnName());
-			bean.setHost(val.getHost());
+			bean.setCnName(val.getName());
+			bean.setId(val.getId());
 			return bean;
 		}).collect(Collectors.toList());
 		return DocDbResponseJson.ok(dataSourceList);
 	}
-
+	
 	@PostMapping(value = "/getDatabaseList")
-	public ResponseJson getDatabaseList(String host) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperByHost(host);
+	public ResponseJson getDatabaseList(Long sourceId) {
+		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
 		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
 		return DocDbResponseJson.ok(dbNameDtoList);
 	}
-
+	
 	@PostMapping(value = "/getTableList")
-	public ResponseJson getTableList(String host, String dbName) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(host, dbName);
+	public ResponseJson getTableList(Long sourceId, String dbName) {
+		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
 		List<TableInfoDto> dbTableList = baseMapper.getTableList(dbName);
 		return DocDbResponseJson.ok(dbTableList);
 	}
-
+	
 	@PostMapping(value = "/getTableColumnList")
-	public ResponseJson getTableColumnList(String host, String dbName, String tableName) {
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getDatabaseFactoryBean(host, dbName);
+	public ResponseJson getTableColumnList(Long sourceId, String dbName, String tableName) {
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
 		TableColumnVo tableColumnVo = this.getTableColumnVo(databaseFactoryBean, dbName, tableName);
 		return DocDbResponseJson.ok(tableColumnVo);
 	}
-
+	
 	@PostMapping(value = "/getTableColumnDescList")
-	public ResponseJson getTableColumnDescList(String host, String dbName, String tableName) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(host, dbName);
+	public ResponseJson getTableColumnDescList(Long sourceId, String tableName) {
+		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
 		List<TableColumnDescDto> columnDescDto = baseMapper.getTableColumnDescList(tableName);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
-
+	
 	@PostMapping(value = "/getTableAndColumnBySearch")
-	public ResponseJson getTableAndColumnBySearch(String host, String dbName, String searchText) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(host, dbName);
+	public ResponseJson getTableAndColumnBySearch(Long sourceId, String dbName, String searchText) {
+		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
@@ -107,36 +114,36 @@ public class DatabaseDocController {
 		List<QueryTableColumnDescDto> columnDescDto = baseMapper.getTableAndColumnBySearch(dbName, searchText);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
-
+	
 	@PostMapping(value = "/getTableDescList")
-	public ResponseJson getTableDescList(String host, String dbName, String tableName) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(host, dbName);
+	public ResponseJson getTableDescList(Long sourceId, String tableName) {
+		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
 		List<TableDescDto> columnDescDto = baseMapper.getTableDescList(tableName);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
-
+	
 	@PostMapping(value = "/updateTableDesc")
-	public ResponseJson updateTableDesc(String host, String dbName, String tableName, String newDesc) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(host, dbName);
+	public ResponseJson updateTableDesc(Long sourceId, String dbName, String tableName, String newDesc) {
+		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
 		baseMapper.updateTableDesc(dbName, tableName, newDesc);
 		return DocDbResponseJson.ok();
 	}
-
+	
 	@PostMapping(value = "/updateTableColumnDesc")
-	public ResponseJson updateTableColumnDesc(String host, String dbName, String tableName, String columnName, String newDesc) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(host, dbName);
+	public ResponseJson updateTableColumnDesc(Long sourceId, String dbName, String tableName, String columnName, String newDesc) {
+		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(sourceId);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
 		ColumnInfoDto columnInfo = null;
 		// mysql要同时修改类型默认值等，所以先查出来
-		MysqlMapper mysqlMapper = databaseRegistrationBean.getBaseMapper(host, dbName, MysqlMapper.class);
+		MysqlMapper mysqlMapper = databaseRegistrationBean.getBaseMapper(sourceId, MysqlMapper.class);
 		if (mysqlMapper != null) {
 			columnInfo = mysqlMapper.getColumnInfo(dbName, tableName, columnName);
 			String isNullable = Optional.ofNullable(columnInfo.getIsNullable()).orElse("");
@@ -155,11 +162,11 @@ public class DatabaseDocController {
 	}
 	
 	@GetMapping(value = "/exportDatabase")
-	public ResponseJson exportDatabase(HttpServletResponse response, String host, String dbName, String tableNames) {
+	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames) {
 		if (StringUtils.isBlank(tableNames)) {
 			return DocDbResponseJson.warn("请选择需要导出的表");
 		}
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getDatabaseFactoryBean(host, dbName);
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
@@ -203,7 +210,7 @@ public class DatabaseDocController {
 			// 字段注释
 			for (TableColumnDescDto descDto : columnDescList) {
 				TableColumnDescDto tempDesc = columnMap.get(descDto.getName());
-				if(tempDesc != null) {
+				if (tempDesc != null) {
 					tempDesc.setDescription(descDto.getDescription());
 				}
 			}

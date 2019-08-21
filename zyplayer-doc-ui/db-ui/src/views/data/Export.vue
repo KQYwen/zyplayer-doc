@@ -6,7 +6,7 @@
                     <span>数据库表导出</span>
                 </div>
                 <div style="margin-bottom: 10px;">
-                    <el-select v-model="choiceDatasource" @change="datasourceChangeEvents" filterable placeholder="请选择数据源">
+                    <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请选择数据源">
                         <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                     <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库">
@@ -34,7 +34,7 @@
                 // 数据源相关
                 datasourceOptions: [],
                 datasourceList: [],
-                choiceDatasource: "",
+                choiceDatasourceId: "",
                 choiceDatabase: "",
                 choiceTable: "",
                 // 页面展示相关
@@ -50,8 +50,8 @@
         },
         methods: {
             datasourceChangeEvents() {
-                app.nowDatasourceShow = this.choiceDatasource;
-                app.loadDatabaseList(this.choiceDatasource);
+                app.nowDatasourceShow = this.choiceDatasourceId;
+                app.loadDatabaseList(this.choiceDatasourceId);
             },
             databaseChangeEvents() {
                 app.loadGetTableList();
@@ -68,12 +68,12 @@
 					}
 					tableNames += this.selectTables[i].tableName;
 				}
-				window.open("zyplayer-doc-db/doc-db/exportDatabase?host=" + this.choiceDatasource
+				window.open("zyplayer-doc-db/doc-db/exportDatabase?sourceId=" + this.choiceDatasourceId
 					+ "&dbName=" + this.choiceDatabase
 					+ "&tableNames=" + tableNames);
             },
             loadGetTableList() {
-                this.common.post(this.apilist1.tableList, {host: this.choiceDatasource, dbName: this.choiceDatabase}, function (json) {
+                this.common.post(this.apilist1.tableList, {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase}, function (json) {
                     app.tableList = json.data || [];
                 });
             },
@@ -90,7 +90,7 @@
                 });
             },
             loadDatabaseList() {
-                this.common.post(this.apilist1.databaseList, {host: this.choiceDatasource}, function (json) {
+                this.common.post(this.apilist1.databaseList, {sourceId: this.choiceDatasourceId}, function (json) {
                     app.databaseList = json.data || [];
                 });
             },

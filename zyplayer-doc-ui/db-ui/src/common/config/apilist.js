@@ -14,6 +14,9 @@ var URL = {
     manageDatasourceList: '/zyplayer-doc-db/datasource/list',
     manageUpdateDatasource: '/zyplayer-doc-db/datasource/update',
 
+    executeSql: '/zyplayer-doc-db/executor/execute',
+    executeSqlCancel: '/zyplayer-doc-db/executor/cancel',
+
     systemUpgradeInfo: '/system/info/upgrade',
 };
 

@@ -67,10 +67,17 @@ public class DbDatasourceController {
 		dbDatasource.setCreateUserId(null);
 		dbDatasource.setCreateUserName(null);
 		Long sourceId = Optional.ofNullable(dbDatasource.getId()).orElse(0L);
-		DbDatasource dbDatasourceSel = dbDatasource;
 		if (sourceId > 0) {
-			dbDatasourceSel = dbDatasourceService.getById(dbDatasource.getId());
+			dbDatasourceService.updateById(dbDatasource);
+		} else {
+			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+			dbDatasource.setCreateTime(new Date());
+			dbDatasource.setCreateUserId(currentUser.getUserId());
+			dbDatasource.setCreateUserName(currentUser.getUsername());
+			dbDatasource.setYn(1);
+			dbDatasourceService.save(dbDatasource);
 		}
+		DbDatasource dbDatasourceSel = dbDatasourceService.getById(dbDatasource.getId());
 		List<DatabaseFactoryBean> newFactoryBeanList = new LinkedList<>();
 		List<DatabaseFactoryBean> databaseFactoryBeanList = databaseRegistrationBean.getDatabaseFactoryBeanList();
 		for (DatabaseFactoryBean factoryBean : databaseFactoryBeanList) {
@@ -92,19 +99,8 @@ public class DbDatasourceController {
 			newFactoryBeanList.add(databaseFactoryBean);
 		}
 		databaseRegistrationBean.setDatabaseFactoryBeanList(newFactoryBeanList);
-		
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("创建数据源失败，请检查配置是否正确");
-		}
-		if (sourceId > 0) {
-			dbDatasourceService.updateById(dbDatasource);
-		} else {
-			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-			dbDatasource.setCreateTime(new Date());
-			dbDatasource.setCreateUserId(currentUser.getUserId());
-			dbDatasource.setCreateUserName(currentUser.getUsername());
-			dbDatasource.setYn(1);
-			dbDatasourceService.save(dbDatasource);
 		}
 		return DocDbResponseJson.ok();
 	}

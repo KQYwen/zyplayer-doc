@@ -9,15 +9,16 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.LinkedList;
 import java.util.List;
 
 @Component
 public class ApplicationListenerBean implements ApplicationListener<ContextRefreshedEvent> {
 	
-	@javax.annotation.Resource
+	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
-	@javax.annotation.Resource
+	@Resource
 	DbDatasourceService dbDatasourceService;
 	
 	private volatile static boolean IS_INIT = false;

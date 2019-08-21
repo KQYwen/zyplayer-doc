@@ -66,7 +66,7 @@
             this.initQueryParam(this.$route);
             // 延迟设置展开的目录，edit比app先初始化
             setTimeout(function () {
-                global.vue.$app.initLoadDataList(app.vueQueryParam.host, app.vueQueryParam.dbName);
+                global.vue.$app.initLoadDataList(app.vueQueryParam.sourceId, app.vueQueryParam.host, app.vueQueryParam.dbName);
             }, 500);
         },
         methods: {
