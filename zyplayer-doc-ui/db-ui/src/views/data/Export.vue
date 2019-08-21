@@ -83,7 +83,7 @@
                     var datasourceOptions = [];
                     for (var i = 0; i < app.datasourceList.length; i++) {
                         datasourceOptions.push({
-                            label: app.datasourceList[i].cnName, value: app.datasourceList[i].host
+                            label: app.datasourceList[i].cnName, value: app.datasourceList[i].id
                         });
                     }
                     app.datasourceOptions = datasourceOptions;
