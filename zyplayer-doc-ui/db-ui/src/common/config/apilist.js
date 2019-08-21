@@ -16,6 +16,9 @@ var URL = {
 
     executeSql: '/zyplayer-doc-db/executor/execute',
     executeSqlCancel: '/zyplayer-doc-db/executor/cancel',
+    updateFavorite: '/zyplayer-doc-db/executor/favorite/add',
+    favoriteList: '/zyplayer-doc-db/executor/favorite/list',
+    historyList: '/zyplayer-doc-db/executor/history/list',
 
     systemUpgradeInfo: '/system/info/upgrade',
 };

@@ -1,6 +1,12 @@
 package com.zyplayer.doc.db.framework.db.mapper.base;
 
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.DbFavorite;
+import com.zyplayer.doc.data.repository.manage.entity.DbHistory;
+import com.zyplayer.doc.data.service.manage.DbFavoriteService;
+import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.db.interceptor.SqlLogUtil;
@@ -33,6 +39,8 @@ public class SqlExecutor {
 	
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
+	@Resource
+	DbHistoryService dbHistoryService;
 	
 	// 执行中的PreparedStatement信息，用于强制取消执行
 	private static final Map<String, PreparedStatement> statementMap = new ConcurrentHashMap<>();
@@ -80,7 +88,11 @@ public class SqlExecutor {
 		StaticSqlSource parse = (StaticSqlSource) sqlSourceBuilder.parse(sql, Object.class, paramMap);
 		BoundSql boundSql = parse.getBoundSql(new Object());
 		sql = boundSql.getSql();
-		logger.info("sql ==> {}", SqlLogUtil.getSqlString(paramMap, boundSql));
+		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
+		logger.info("sql ==> {}", sqlStr);
+		// 保留历史记录
+		dbHistoryService.saveHistory(sqlStr);
+		
 		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		PreparedStatement preparedStatement = null;
 		// 执行查询
@@ -100,8 +112,8 @@ public class SqlExecutor {
 				while (resultSet.next()) {
 					Map<String, Object> resultMap = new LinkedHashMap<>();
 					ResultSetMetaData metaData = resultSet.getMetaData();
-					for (int i = 0; i < metaData.getColumnCount(); i++) {
-						resultMap.put(metaData.getColumnName(i + 1), resultSet.getObject(i + 1));
+					for (int i = 1; i < metaData.getColumnCount() + 1; i++) {
+						resultMap.put(metaData.getColumnName(i), resultSet.getObject(i));
 					}
 					if (handler != null) {
 						handler.handleResult(resultMap);
