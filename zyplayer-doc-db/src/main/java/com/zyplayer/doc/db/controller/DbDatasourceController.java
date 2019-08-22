@@ -85,7 +85,6 @@ public class DbDatasourceController {
 				try {
 					// 关闭旧的数据源
 					factoryBean.getDataSource().close();
-					factoryBean.getDataSource().destroy();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
