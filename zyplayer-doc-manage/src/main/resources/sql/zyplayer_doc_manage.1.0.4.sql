@@ -28,6 +28,14 @@ CREATE TABLE `db_history` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
+INSERT INTO `auth_info`(`auth_name`, `auth_desc`, `can_edit`, `create_uid`, `creation_time`, `auth_type`)
+VALUES ( 'DB_VIEW_', '数据源查看权', 0, 1, '2019-08-18 23:25:17', 0);
+INSERT INTO `auth_info`(`auth_name`, `auth_desc`, `can_edit`, `create_uid`, `creation_time`, `auth_type`)
+VALUES ( 'DB_SELECT_', '数据源查询权', 0, 1, '2019-08-18 23:25:17', 0);
+INSERT INTO `auth_info`(`auth_name`, `auth_desc`, `can_edit`, `create_uid`, `creation_time`, `auth_type`)
+VALUES ( 'DB_UPDATE_', '数据源增删改查权', 0, 1, '2019-08-18 23:25:17', 0);
+INSERT INTO `auth_info`(`auth_name`, `auth_desc`, `can_edit`, `create_uid`, `creation_time`, `auth_type`)
+VALUES ( 'DB_DESC_EDIT_', '表字段注释修改权', 0, 1, '2019-08-18 23:25:17', 0);
 
 
 -- ------------------------全新的库：------------------------

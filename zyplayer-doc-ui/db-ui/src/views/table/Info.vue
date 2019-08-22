@@ -35,7 +35,7 @@
                             <div v-if="scope.row.inEdit == 1" @keyup.enter="saveColumnDescription(scope.row)">
                                 <el-input v-model="scope.row.newDesc" placeholder="输入字段注释" v-on:blur="saveColumnDescription(scope.row)"></el-input>
                             </div>
-                            <div v-else class="description" v-on:click="descBoxClick(scope.row)">{{scope.row.description}}</div>
+                            <div v-else class="description" v-on:click="descBoxClick(scope.row)">{{scope.row.description||'　'}}</div>
                         </template>
                     </el-table-column>
                 </el-table>

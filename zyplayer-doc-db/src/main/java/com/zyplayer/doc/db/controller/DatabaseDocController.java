@@ -5,12 +5,19 @@ import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
+import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.DbDatasourceService;
+import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo.TableInfoVo;
+import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean.DatabaseProduct;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
@@ -19,6 +26,7 @@ import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,11 +54,27 @@ public class DatabaseDocController {
 	DatabaseRegistrationBean databaseRegistrationBean;
 	@Resource
 	DbDatasourceService dbDatasourceService;
+	@Resource
+	UserAuthService userAuthService;
 	
 	@PostMapping(value = "/getDataSourceList")
 	public ResponseJson getDataSourceList() {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
 		wrapper.eq("yn", 1);
+		// 没管理权限只返回有权限的数据源
+		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)) {
+			QueryWrapper<UserAuth> updateWrapper = new QueryWrapper<>();
+			updateWrapper.likeRight("auth_custom_suffix", DocAuthConst.DB);
+			updateWrapper.eq("del_flag", 0);
+			updateWrapper.eq("user_id", currentUser.getUserId());
+			List<UserAuth> userAuthList = userAuthService.list(updateWrapper);
+			if (userAuthList == null || userAuthList.isEmpty()) {
+				return DocDbResponseJson.ok();
+			}
+			List<Long> userAuthDbIds = userAuthList.stream().map(val -> NumberUtils.toLong(val.getAuthCustomSuffix().replace(DocAuthConst.DB, ""))).collect(Collectors.toList());
+			wrapper.in("id", userAuthDbIds);
+		}
 		List<DbDatasource> datasourceList = dbDatasourceService.list(wrapper);
 		List<DatabaseFactoryBean> dataSourceList = datasourceList.stream().map(val -> {
 			DatabaseFactoryBean bean = new DatabaseFactoryBean();
@@ -63,26 +87,23 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getDatabaseList")
 	public ResponseJson getDatabaseList(Long sourceId) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
-		if (baseMapper == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
+		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
 		return DocDbResponseJson.ok(dbNameDtoList);
 	}
 	
 	@PostMapping(value = "/getTableList")
 	public ResponseJson getTableList(Long sourceId, String dbName) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
-		if (baseMapper == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
+		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		List<TableInfoDto> dbTableList = baseMapper.getTableList(dbName);
 		return DocDbResponseJson.ok(dbTableList);
 	}
 	
 	@PostMapping(value = "/getTableColumnList")
 	public ResponseJson getTableColumnList(Long sourceId, String dbName, String tableName) {
+		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE) && !DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
+			return DocDbResponseJson.warn("没有查看该库表信息的权限");
+		}
 		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
@@ -93,20 +114,14 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getTableColumnDescList")
 	public ResponseJson getTableColumnDescList(Long sourceId, String tableName) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
-		if (baseMapper == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
+		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		List<TableColumnDescDto> columnDescDto = baseMapper.getTableColumnDescList(tableName);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
 	
 	@PostMapping(value = "/getTableAndColumnBySearch")
 	public ResponseJson getTableAndColumnBySearch(Long sourceId, String dbName, String searchText) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
-		if (baseMapper == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
+		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		if (StringUtils.isBlank(searchText)) {
 			return DocDbResponseJson.ok();
 		}
@@ -117,26 +132,23 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getTableDescList")
 	public ResponseJson getTableDescList(Long sourceId, String tableName) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
-		if (baseMapper == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
+		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		List<TableDescDto> columnDescDto = baseMapper.getTableDescList(tableName);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
 	
 	@PostMapping(value = "/updateTableDesc")
 	public ResponseJson updateTableDesc(Long sourceId, String dbName, String tableName, String newDesc) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
-		if (baseMapper == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
+		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		baseMapper.updateTableDesc(dbName, tableName, newDesc);
 		return DocDbResponseJson.ok();
 	}
 	
 	@PostMapping(value = "/updateTableColumnDesc")
 	public ResponseJson updateTableColumnDesc(Long sourceId, String dbName, String tableName, String columnName, String newDesc) {
+		if (!DocUserUtil.haveCustomAuth(DbAuthType.DESC_EDIT.getName(), DocAuthConst.DB + sourceId)) {
+			return DocDbResponseJson.warn("没有修改该表字段注释的权限");
+		}
 		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(sourceId);
 		if (baseMapper == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
@@ -163,6 +175,9 @@ public class DatabaseDocController {
 	
 	@GetMapping(value = "/exportDatabase")
 	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames) {
+		if (!DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
+			return DocDbResponseJson.warn("没有查看该库表信息的权限");
+		}
 		if (StringUtils.isBlank(tableNames)) {
 			return DocDbResponseJson.warn("请选择需要导出的表");
 		}
@@ -230,6 +245,18 @@ public class DatabaseDocController {
 		tableInfoVo.setTableName(tableName);
 		tableColumnVo.setTableInfo(tableInfoVo);
 		return tableColumnVo;
+	}
+	
+	private BaseMapper getBaseMapper(Long sourceId) {
+		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
+				&& !DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
+			throw new ConfirmException("没有查看该库表信息的权限");
+		}
+		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
+		if (baseMapper == null) {
+			throw new ConfirmException("未找到对应的数据库连接");
+		}
+		return baseMapper;
 	}
 	
 	public static void main(String[] args) {

@@ -1,11 +1,7 @@
 package com.zyplayer.doc.db.framework.db.mapper.base;
 
+import com.alibaba.druid.pool.DruidPooledConnection;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
-import com.zyplayer.doc.data.config.security.DocUserDetails;
-import com.zyplayer.doc.data.config.security.DocUserUtil;
-import com.zyplayer.doc.data.repository.manage.entity.DbFavorite;
-import com.zyplayer.doc.data.repository.manage.entity.DbHistory;
-import com.zyplayer.doc.data.service.manage.DbFavoriteService;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
@@ -20,11 +16,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -64,9 +62,9 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public ExecuteResult execute(Long datasourceId, String executeId, String sql, Map<String, Object> paramMap) {
+	public ExecuteResult execute(Long datasourceId, String executeId, ExecuteType executeType, String sql, Map<String, Object> paramMap) {
 		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getFactoryById(datasourceId);
-		return this.execute(factoryBean, executeId, sql, paramMap, null);
+		return this.execute(factoryBean, executeId, executeType, sql, paramMap, null);
 	}
 	
 	/**
@@ -74,19 +72,11 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public ExecuteResult execute(DatabaseFactoryBean factoryBean, String executeId, String sql, Map<String, Object> paramMap, ResultHandler handler) {
+	public ExecuteResult execute(DatabaseFactoryBean factoryBean, String executeId, ExecuteType executeType, String sql, Map<String, Object> paramMap, ResultHandler handler) {
 		if (factoryBean == null) {
 			return new ExecuteResult();
 		}
-		// 组装参数
-		GenericTokenParser parser = new GenericTokenParser("${", "}", content -> {
-			Object o = paramMap.get(content);
-			return (o == null) ? null : String.valueOf(o);
-		});
-		sql = parser.parse(sql);
-		SqlSourceBuilder sqlSourceBuilder = new SqlSourceBuilder(new MybatisConfiguration());
-		StaticSqlSource parse = (StaticSqlSource) sqlSourceBuilder.parse(sql, Object.class, paramMap);
-		BoundSql boundSql = parse.getBoundSql(new Object());
+		BoundSql boundSql = getBoundSql(sql, paramMap);
 		sql = boundSql.getSql();
 		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
 		logger.info("sql ==> {}", sqlStr);
@@ -95,16 +85,23 @@ public class SqlExecutor {
 		
 		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		PreparedStatement preparedStatement = null;
+		DruidPooledConnection connection = null;
 		// 执行查询
 		try {
-			Connection connection = factoryBean.getDataSource().getConnection();
+			connection = factoryBean.getDataSource().getConnection();
 			preparedStatement = connection.prepareStatement(sql);
 			// 设置当前的PreparedStatement
 			statementMap.put(executeId, preparedStatement);
 			for (int i = 0; i < parameterMappings.size(); i++) {
 				preparedStatement.setObject(i + 1, paramMap.get(parameterMappings.get(i).getProperty()));
 			}
-			preparedStatement.execute();
+			// 限制下最大数量
+			preparedStatement.setMaxRows(1000);
+			if (ExecuteType.SELECT.equals(executeType)) {
+				preparedStatement.executeQuery();
+			} else {
+				preparedStatement.execute();
+			}
 			// 查询的结果集
 			ResultSet resultSet = preparedStatement.getResultSet();
 			List<Map<String, Object>> resultList = new LinkedList<>();
@@ -137,6 +134,25 @@ public class SqlExecutor {
 			} catch (Exception e) {
 				logger.error("关闭Statement失败");
 			}
+			try {
+				if (connection != null && !connection.isClosed()) {
+					connection.recycle();
+				}
+			} catch (Exception e) {
+				logger.error("回收connection失败");
+			}
 		}
+	}
+	
+	private BoundSql getBoundSql(String sql, Map<String, Object> paramMap){
+		// 组装参数
+		GenericTokenParser parser = new GenericTokenParser("${", "}", content -> {
+			Object o = paramMap.get(content);
+			return (o == null) ? null : String.valueOf(o);
+		});
+		sql = parser.parse(sql);
+		SqlSourceBuilder sqlSourceBuilder = new SqlSourceBuilder(new MybatisConfiguration());
+		StaticSqlSource parse = (StaticSqlSource) sqlSourceBuilder.parse(sql, Object.class, paramMap);
+		return parse.getBoundSql(new Object());
 	}
 }

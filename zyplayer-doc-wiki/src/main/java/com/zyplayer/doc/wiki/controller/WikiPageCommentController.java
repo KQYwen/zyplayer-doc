@@ -92,7 +92,7 @@ public class WikiPageCommentController {
 		}
 		// 空间不是自己的，也没有权限，感觉评论没必要加权限，先去掉
 //		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-//			boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.COMMENT_PAGE.getName(), pageId);
+//			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.COMMENT_PAGE.getName(), pageId);
 //			if (!pageAuth) {
 //				return DocResponseJson.warn("您没有评论该文章的权限！");
 //			}

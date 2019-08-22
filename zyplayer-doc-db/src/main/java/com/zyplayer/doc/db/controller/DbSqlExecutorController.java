@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -13,10 +12,12 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbFavorite;
 import com.zyplayer.doc.data.repository.manage.entity.DbHistory;
-import com.zyplayer.doc.data.repository.manage.mapper.DbFavoriteMapper;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.DbFavoriteService;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
+import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
+import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import org.apache.commons.lang.StringUtils;
@@ -54,9 +55,16 @@ public class DbSqlExecutorController {
 		if (StringUtils.isBlank(sql)) {
 			return DocDbResponseJson.warn("执行的SQL不能为空");
 		}
+		boolean manageAuth = DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE);
+		boolean select = DocUserUtil.haveCustomAuth(DbAuthType.SELECT.getName(), DocAuthConst.DB + sourceId);
+		boolean update = DocUserUtil.haveCustomAuth(DbAuthType.UPDATE.getName(), DocAuthConst.DB + sourceId);
+		if (!manageAuth && !select && !update) {
+			return DocDbResponseJson.warn("没有该数据源的执行权限");
+		}
 		try {
 			Map<String, Object> paramMap = JSON.parseObject(params);
-			ExecuteResult executeResult = sqlExecutor.execute(sourceId, executeId, sql, paramMap);
+			ExecuteType executeType = (!manageAuth && select) ? ExecuteType.SELECT : ExecuteType.ALL;
+			ExecuteResult executeResult = sqlExecutor.execute(sourceId, executeId, executeType, sql, paramMap);
 			SerializeConfig mapping = new SerializeConfig();
 			mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
 			mapping.put(Timestamp.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));

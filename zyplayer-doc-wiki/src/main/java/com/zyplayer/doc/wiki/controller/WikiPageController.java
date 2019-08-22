@@ -14,6 +14,7 @@ import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
 import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.elasticsearch.entity.EsWikiPage;
 import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPageService;
 import com.zyplayer.doc.data.service.elasticsearch.support.EsPage;
@@ -157,7 +158,7 @@ public class WikiPageController {
 		}
 		// 空间不是自己的，也没有权限
 		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.EDIT_PAGE.getName(), id);
+			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.EDIT_PAGE.getName(), DocAuthConst.WIKI + id);
 			if (!pageAuth) {
 				return DocResponseJson.warn("您没有修改该文章的权限！");
 			}
@@ -186,7 +187,7 @@ public class WikiPageController {
 		}
 		// 空间不是自己的，也没有权限
 		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.DELETE_PAGE.getName(), pageId);
+			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.DELETE_PAGE.getName(), DocAuthConst.WIKI + pageId);
 			if (!pageAuth) {
 				return DocResponseJson.warn("您没有删除该文章的权限！");
 			}
@@ -228,7 +229,7 @@ public class WikiPageController {
 			}
 			// 空间不是自己的，也没有权限
 			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.EDIT_PAGE.getName(), pageId);
+				boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.EDIT_PAGE.getName(), DocAuthConst.WIKI + pageId);
 				if (!pageAuth) {
 					return DocResponseJson.warn("您没有修改该文章的权限！");
 				}

@@ -2,12 +2,13 @@ package com.zyplayer.doc.wiki.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.wiki.controller.vo.UserPageAuthVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
@@ -64,7 +65,7 @@ public class WikiPageAuthController {
 			return DocResponseJson.warn("只有个人空间才可以编辑权限");
 		}
 		if (!Objects.equals(currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			if (!DocUserUtil.havePageAuth(WikiAuthType.PAGE_AUTH_MANAGE.getName(), pageId)) {
+			if (!DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_AUTH_MANAGE.getName(), DocAuthConst.WIKI + pageId)) {
 				return DocResponseJson.warn("您不是创建人或没有权限修改");
 			}
 		}
@@ -75,12 +76,10 @@ public class WikiPageAuthController {
 		Map<String, Long> authInfoMap = authInfoList.stream().collect(Collectors.toMap(AuthInfo::getAuthName, AuthInfo::getId));
 		
 		// 先删除页面的所有用户的权限
-		UserAuth userAuthDel = new UserAuth();
-		userAuthDel.setDelFlag(1);
 		QueryWrapper<UserAuth> updateWrapper = new QueryWrapper<>();
-		updateWrapper.eq("auth_custom_suffix", pageId);
+		updateWrapper.eq("auth_custom_suffix", DocAuthConst.WIKI + pageId);
 		updateWrapper.eq("del_flag", 0);
-		userAuthService.update(userAuthDel, updateWrapper);
+		userAuthService.remove(updateWrapper);
 		
 		List<UserPageAuthVo> authVoList = JSON.parseArray(authList, UserPageAuthVo.class);
 		for (UserPageAuthVo authVo : authVoList) {
@@ -130,12 +129,12 @@ public class WikiPageAuthController {
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		if (!Objects.equals(currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			if (!DocUserUtil.havePageAuth(WikiAuthType.PAGE_AUTH_MANAGE.getName(), pageId)) {
+			if (!DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_AUTH_MANAGE.getName(), DocAuthConst.WIKI + pageId)) {
 				return DocResponseJson.warn("您没有权限管理该页面的权限");
 			}
 		}
 		QueryWrapper<UserAuth> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("auth_custom_suffix", pageId);
+		queryWrapper.eq("auth_custom_suffix", DocAuthConst.WIKI + pageId);
 		queryWrapper.eq("del_flag", 0);
 		List<UserAuth> authList = userAuthService.list(queryWrapper);
 		if (CollectionUtils.isEmpty(authList)) {
@@ -172,7 +171,7 @@ public class WikiPageAuthController {
 	
 	private UserAuth createUserAuth(Long pageId, Long loginUserId, Long userId, Long authId){
 		UserAuth userAuth = new UserAuth();
-		userAuth.setAuthCustomSuffix(String.valueOf(pageId));
+		userAuth.setAuthCustomSuffix(DocAuthConst.WIKI + pageId);
 		userAuth.setCreationTime(new Date());
 		userAuth.setCreateUid(loginUserId);
 		userAuth.setDelFlag(0);

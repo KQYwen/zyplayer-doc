@@ -1,17 +1,16 @@
 package com.zyplayer.doc.db.framework.configuration;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.interceptor.SqlLogInterceptor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.sql.DatabaseMetaData;
-import java.util.Properties;
 
 public class DatasourceUtil {
 	private static SqlLogInterceptor sqlLogInterceptor = new SqlLogInterceptor();
@@ -19,24 +18,22 @@ public class DatasourceUtil {
 	public static DatabaseFactoryBean createDatabaseFactoryBean(DbDatasource dbDatasource){
 		try {
 			// 数据源配置
-			Properties xaProperties = new Properties();
-			xaProperties.setProperty("driverClassName", dbDatasource.getDriverClassName());
-			xaProperties.setProperty("url", dbDatasource.getSourceUrl());
-			xaProperties.setProperty("username", dbDatasource.getSourceName());
-			xaProperties.setProperty("password", dbDatasource.getSourcePassword());
-			xaProperties.setProperty("maxActive", "500");
-			xaProperties.setProperty("breakAfterAcquireFailure", "true");
-			xaProperties.setProperty("testOnBorrow", "true");
-			xaProperties.setProperty("testWhileIdle", "true");
-			xaProperties.setProperty("validationQuery", "select 'x'");
-			// 数据源
-			AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
-			dataSource.setXaProperties(xaProperties);
-			dataSource.setXaDataSourceClassName("com.alibaba.druid.pool.xa.DruidXADataSource");
-			dataSource.setUniqueResourceName("zyplayer-doc-db" + dbDatasource.getId());
-			dataSource.setMaxPoolSize(500);
-			dataSource.setMinPoolSize(1);
-			dataSource.setMaxLifetime(60);
+			DruidDataSource dataSource = new DruidDataSource();
+			dataSource.setDriverClassName(dbDatasource.getDriverClassName());
+			dataSource.setUrl(dbDatasource.getSourceUrl());
+			dataSource.setUsername(dbDatasource.getSourceName());
+			dataSource.setPassword(dbDatasource.getSourcePassword());
+			dataSource.setInitialSize(2);
+			dataSource.setMinIdle(2);
+			dataSource.setMaxActive(50);
+			dataSource.setTestWhileIdle(true);
+			dataSource.setTestOnBorrow(false);
+			dataSource.setTestOnReturn(false);
+			dataSource.setValidationQuery("select 1");
+			dataSource.setMaxWait(3000);
+			dataSource.setTimeBetweenEvictionRunsMillis(60000);
+			dataSource.setMinEvictableIdleTimeMillis(3600000);
+			dataSource.setName("zyplayer-doc-db" + dbDatasource.getId());
 			// 描述连接信息的对象
 			DatabaseFactoryBean databaseFactoryBean = new DatabaseFactoryBean();
 			DatabaseMetaData metaData = dataSource.getConnection().getMetaData();
@@ -44,7 +41,7 @@ public class DatasourceUtil {
 			Resource[] resources = null;
 			String dbUrl = metaData.getURL();
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-			if (productName.indexOf("mysql") >= 0) {
+			if (productName.contains("mysql")) {
 				// jdbc:mysql://192.168.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true
 				String[] urlParamArr = dbUrl.split("\\?");
 				String[] urlDbNameArr = urlParamArr[0].split("/");
@@ -54,7 +51,7 @@ public class DatasourceUtil {
 				}
 				databaseFactoryBean.setDatabaseProduct(DatabaseFactoryBean.DatabaseProduct.MYSQL);
 				resources = resolver.getResources("classpath:com/zyplayer/doc/db/framework/db/mapper/mysql/*.xml");
-			} else if (productName.indexOf("sql server") >= 0) {
+			} else if (productName.contains("sql server")) {
 				// jdbc:jtds:sqlserver://192.168.0.1:33434;socketTimeout=60;DatabaseName=user_info;
 				String[] urlParamArr = dbUrl.split(";");
 				String[] urlDbNameArr = urlParamArr[0].split("/");

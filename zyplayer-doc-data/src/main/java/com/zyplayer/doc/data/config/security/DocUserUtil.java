@@ -15,8 +15,8 @@ public class DocUserUtil {
 		DocUserUtil.ACCESS_TOKEN.set(accessToken);
 	}
 	
-	public static boolean havePageAuth(String authName, Long pageId) {
-		return haveAuth(authName + pageId);
+	public static boolean haveCustomAuth(String authName, String suffix) {
+		return haveAuth(authName + suffix);
 	}
 	
 	public static boolean haveAuth(String... authNames) {

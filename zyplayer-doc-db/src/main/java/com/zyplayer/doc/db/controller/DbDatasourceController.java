@@ -25,8 +25,8 @@ import java.util.*;
  * @author 暮光：城中城
  * @since 2019年6月29日
  */
-@AuthMan("DB_DATASOURCE_MANAGE")
 @RestController
+@AuthMan("DB_DATASOURCE_MANAGE")
 @RequestMapping("/zyplayer-doc-db/datasource")
 public class DbDatasourceController {
 

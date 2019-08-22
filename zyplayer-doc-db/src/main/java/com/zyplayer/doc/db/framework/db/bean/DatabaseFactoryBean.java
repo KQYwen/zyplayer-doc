@@ -1,7 +1,7 @@
 package com.zyplayer.doc.db.framework.db.bean;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 
 /**
  * 描述连接信息的对象
@@ -10,7 +10,7 @@ import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
  */
 public class DatabaseFactoryBean {
 	private Long id;
-	private AtomikosDataSourceBean dataSource;
+	private DruidDataSource dataSource;
 	private SqlSessionTemplate sqlSessionTemplate;
 	private String url;
 	private String host;
@@ -38,11 +38,11 @@ public class DatabaseFactoryBean {
 		MYSQL, SQLSERVER
 	}
 
-	public AtomikosDataSourceBean getDataSource() {
+	public DruidDataSource getDataSource() {
 		return dataSource;
 	}
 
-	public void setDataSource(AtomikosDataSourceBean dataSource) {
+	public void setDataSource(DruidDataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 

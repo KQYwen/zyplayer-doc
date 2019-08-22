@@ -2,6 +2,7 @@ var URL = {
     userLogin: '/login',
     userLogout: '/logout',
     getSelfUserInfo: '/user/info/selfInfo',
+    getUserBaseInfo: '/zyplayer-doc-wiki/common/user/base',
 
     datasourceList: '/zyplayer-doc-db/doc-db/getDataSourceList',
     databaseList: '/zyplayer-doc-db/doc-db/getDatabaseList',
@@ -19,6 +20,9 @@ var URL = {
     updateFavorite: '/zyplayer-doc-db/executor/favorite/add',
     favoriteList: '/zyplayer-doc-db/executor/favorite/list',
     historyList: '/zyplayer-doc-db/executor/history/list',
+
+    assignDbUserAuth: '/zyplayer-doc-db/auth/assign',
+    dbUserAuthList: '/zyplayer-doc-db/auth/list',
 
     systemUpgradeInfo: '/system/info/upgrade',
 };

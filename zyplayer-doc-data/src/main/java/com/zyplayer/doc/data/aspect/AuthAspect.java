@@ -8,7 +8,6 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.core.util.ThreadLocalUtil;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
-import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.utils.BeanUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
@@ -28,9 +26,6 @@ import java.util.Map;
 @Aspect
 @Component
 public class AuthAspect {
-	
-	@Resource
-	private UserAuthService userAuthService;
 	
 	@Around(value = "@annotation(com.zyplayer.doc.core.annotation.AuthMan) || @within(com.zyplayer.doc.core.annotation.AuthMan)")
 	public Object authController(ProceedingJoinPoint pjp) throws Throwable {

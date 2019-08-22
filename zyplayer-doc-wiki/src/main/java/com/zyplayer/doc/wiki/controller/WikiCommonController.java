@@ -4,9 +4,9 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
@@ -14,6 +14,7 @@ import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageFileMapper;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
@@ -100,7 +101,7 @@ public class WikiCommonController {
 			}
 			// 空间不是自己的，也没有权限
 			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				boolean pageAuth = DocUserUtil.havePageAuth(WikiAuthType.PAGE_FILE_UPLOAD.getName(), pageId);
+				boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_FILE_UPLOAD.getName(), DocAuthConst.WIKI + pageId);
 				if (!pageAuth) {
 					return DocResponseJson.warn("您没有修改该文章附件的权限！");
 				}
