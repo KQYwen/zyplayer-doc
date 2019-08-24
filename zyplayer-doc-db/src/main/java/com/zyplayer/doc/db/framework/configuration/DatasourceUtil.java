@@ -1,6 +1,8 @@
 package com.zyplayer.doc.db.framework.configuration;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.pool.DruidPooledConnection;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.interceptor.SqlLogInterceptor;
@@ -33,7 +35,16 @@ public class DatasourceUtil {
 			dataSource.setMaxWait(3000);
 			dataSource.setTimeBetweenEvictionRunsMillis(60000);
 			dataSource.setMinEvictableIdleTimeMillis(3600000);
+			// 重试3次，失败退出，源码里是errorCount > connectionErrorRetryAttempts，所以写成2就是3次、、、
+			// CreateConnectionThread 源码在这个类里面
+			dataSource.setConnectionErrorRetryAttempts(2);
+			dataSource.setBreakAfterAcquireFailure(true);
 			dataSource.setName("zyplayer-doc-db" + dbDatasource.getId());
+			DruidPooledConnection tryConnection = dataSource.getConnection(3000);
+			if (tryConnection == null) {
+				throw new ConfirmException("尝试获取该数据源连接失败：" + dbDatasource.getSourceUrl());
+			}
+			tryConnection.recycle();
 			// 描述连接信息的对象
 			DatabaseFactoryBean databaseFactoryBean = new DatabaseFactoryBean();
 			DatabaseMetaData metaData = dataSource.getConnection().getMetaData();

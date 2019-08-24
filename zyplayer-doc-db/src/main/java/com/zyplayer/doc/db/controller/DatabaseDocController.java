@@ -87,7 +87,7 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getDatabaseList")
 	public ResponseJson getDatabaseList(Long sourceId) {
-		BaseMapper baseMapper = this.getBaseMapper(sourceId);
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
 		return DocDbResponseJson.ok(dbNameDtoList);
 	}
@@ -101,9 +101,7 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getTableColumnList")
 	public ResponseJson getTableColumnList(Long sourceId, String dbName, String tableName) {
-		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE) && !DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
-			return DocDbResponseJson.warn("没有查看该库表信息的权限");
-		}
+		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
 		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
@@ -114,14 +112,14 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getTableColumnDescList")
 	public ResponseJson getTableColumnDescList(Long sourceId, String tableName) {
-		BaseMapper baseMapper = this.getBaseMapper(sourceId);
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		List<TableColumnDescDto> columnDescDto = baseMapper.getTableColumnDescList(tableName);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
 	
 	@PostMapping(value = "/getTableAndColumnBySearch")
 	public ResponseJson getTableAndColumnBySearch(Long sourceId, String dbName, String searchText) {
-		BaseMapper baseMapper = this.getBaseMapper(sourceId);
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		if (StringUtils.isBlank(searchText)) {
 			return DocDbResponseJson.ok();
 		}
@@ -132,13 +130,14 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getTableDescList")
 	public ResponseJson getTableDescList(Long sourceId, String tableName) {
-		BaseMapper baseMapper = this.getBaseMapper(sourceId);
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		List<TableDescDto> columnDescDto = baseMapper.getTableDescList(tableName);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
 	
 	@PostMapping(value = "/updateTableDesc")
 	public ResponseJson updateTableDesc(Long sourceId, String dbName, String tableName, String newDesc) {
+		this.judgeAuth(sourceId, DbAuthType.DESC_EDIT.getName(), "没有修改该表注释的权限");
 		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		baseMapper.updateTableDesc(dbName, tableName, newDesc);
 		return DocDbResponseJson.ok();
@@ -146,13 +145,8 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/updateTableColumnDesc")
 	public ResponseJson updateTableColumnDesc(Long sourceId, String dbName, String tableName, String columnName, String newDesc) {
-		if (!DocUserUtil.haveCustomAuth(DbAuthType.DESC_EDIT.getName(), DocAuthConst.DB + sourceId)) {
-			return DocDbResponseJson.warn("没有修改该表字段注释的权限");
-		}
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapper(sourceId);
-		if (baseMapper == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
+		this.judgeAuth(sourceId, DbAuthType.DESC_EDIT.getName(), "没有修改该表字段注释的权限");
+		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		ColumnInfoDto columnInfo = null;
 		// mysql要同时修改类型默认值等，所以先查出来
 		MysqlMapper mysqlMapper = databaseRegistrationBean.getBaseMapper(sourceId, MysqlMapper.class);
@@ -175,9 +169,7 @@ public class DatabaseDocController {
 	
 	@GetMapping(value = "/exportDatabase")
 	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames) {
-		if (!DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
-			return DocDbResponseJson.warn("没有查看该库表信息的权限");
-		}
+		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
 		if (StringUtils.isBlank(tableNames)) {
 			return DocDbResponseJson.warn("请选择需要导出的表");
 		}
@@ -247,16 +239,36 @@ public class DatabaseDocController {
 		return tableColumnVo;
 	}
 	
-	private BaseMapper getBaseMapper(Long sourceId) {
+	/**
+	 * 权限判断
+	 * @author 暮光：城中城
+	 */
+	private void judgeAuth(Long sourceId, String authName, String noAuthInfo) {
 		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
-				&& !DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
-			throw new ConfirmException("没有查看该库表信息的权限");
+				&& !DocUserUtil.haveCustomAuth(authName, DocAuthConst.DB + sourceId)) {
+			throw new ConfirmException(noAuthInfo);
 		}
+	}
+	
+	/**
+	 * 获取BaseMapper
+	 * @author 暮光：城中城
+	 */
+	private BaseMapper getBaseMapper(Long sourceId) {
 		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
 		if (baseMapper == null) {
 			throw new ConfirmException("未找到对应的数据库连接");
 		}
 		return baseMapper;
+	}
+	
+	/**
+	 * 判断查看权和获取BaseMapper
+	 * @author 暮光：城中城
+	 */
+	private BaseMapper getViewAuthBaseMapper(Long sourceId) {
+		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
+		return this.getBaseMapper(sourceId);
 	}
 	
 	public static void main(String[] args) {

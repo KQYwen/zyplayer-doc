@@ -25,12 +25,12 @@
         </div>
         <!--增加数据源弹窗-->
         <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="760px">
-            <el-alert
-                    title="重要提醒"
-                    description="请录入正确可用的数据库连接、账号、密码信息，否则初始化数据源失败将影响整个系统，有可能需要重启服务才能解决"
-                    type="warning" :closable="false"
-                    show-icon style="margin-bottom: 10px;">
-            </el-alert>
+<!--            <el-alert-->
+<!--                    title="重要提醒"-->
+<!--                    description="请录入正确可用的数据库连接、账号、密码信息，否则初始化数据源失败将影响整个系统，有可能需要重启服务才能解决"-->
+<!--                    type="warning" :closable="false"-->
+<!--                    show-icon style="margin-bottom: 10px;">-->
+<!--            </el-alert>-->
             <el-form label-width="120px">
                 <el-form-item label="名字：">
                     <el-input v-model="newDatasource.name" placeholder="中文名字"></el-input>
@@ -197,8 +197,8 @@
                 }).catch(()=>{});
             },
             saveDatasource() {
-                this.datasourceDialogVisible = false;
                 this.common.post(this.apilist1.manageUpdateDatasource, this.newDatasource, function (json) {
+                    app.datasourceDialogVisible = false;
                     app.$message.success("保存成功！");
                     app.getDatasourceList();
                 });

@@ -21,15 +21,8 @@ public class ApplicationListenerBean implements ApplicationListener<ContextRefre
 	@Resource
 	DbDatasourceService dbDatasourceService;
 	
-	private volatile static boolean IS_INIT = false;
-	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		if (databaseRegistrationBean == null || IS_INIT) {
-			return;
-		}
-		// 会被调用两次
-		IS_INIT = true;
 		List<DatabaseFactoryBean> databaseFactoryBeanList = new LinkedList<>();
 		
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
