@@ -40,17 +40,16 @@ public class DatasourceUtil {
 			dataSource.setConnectionErrorRetryAttempts(2);
 			dataSource.setBreakAfterAcquireFailure(true);
 			dataSource.setName("zyplayer-doc-db" + dbDatasource.getId());
-			DruidPooledConnection tryConnection = dataSource.getConnection(3000);
-			if (tryConnection == null) {
+			DruidPooledConnection connection = dataSource.getConnection(3000);
+			if (connection == null) {
 				throw new ConfirmException("尝试获取该数据源连接失败：" + dbDatasource.getSourceUrl());
 			}
-			tryConnection.recycle();
 			// 描述连接信息的对象
 			DatabaseFactoryBean databaseFactoryBean = new DatabaseFactoryBean();
-			DatabaseMetaData metaData = dataSource.getConnection().getMetaData();
+			DatabaseMetaData metaData = connection.getMetaData();
 			String productName = metaData.getDatabaseProductName().toLowerCase();
 			Resource[] resources = null;
-			String dbUrl = metaData.getURL();
+			String dbUrl = dbDatasource.getSourceUrl();
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 			if (productName.contains("mysql")) {
 				// jdbc:mysql://192.168.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true
@@ -76,6 +75,7 @@ public class DatasourceUtil {
 				databaseFactoryBean.setDatabaseProduct(DatabaseFactoryBean.DatabaseProduct.SQLSERVER);
 				resources = resolver.getResources("classpath:com/zyplayer/doc/db/framework/db/mapper/sqlserver/*.xml");
 			}
+			connection.recycle();
 			if (resources == null) {
 				return null;
 			}

@@ -57,7 +57,11 @@
             </div>
         </el-dialog>
         <!--人员权限弹窗-->
-        <el-dialog title="权限编辑" :visible.sync="dbSourceAuthDialogVisible" width="900px">
+        <el-dialog :visible.sync="dbSourceAuthDialogVisible" width="900px" :close-on-click-modal="false">
+            <span slot="title">
+                <span>权限编辑</span>
+                <span style="margin-left: 10px;color: #999;font-size: 12px;"><i class="el-icon-info"></i> 添加删除或编辑之后记得点击保存哦~</span>
+            </span>
             <el-row>
                 <el-select v-model="dbSourceAuthNewUser" filterable remote reserve-keyword
                            placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList"
@@ -119,13 +123,15 @@
         methods: {
             editDbAuth(row) {
                 this.newDatasource = JSON.parse(JSON.stringify(row));
+                app.dbSourceAuthDialogVisible = true;
+                this.loadDbAuthUserList();
+            },
+            loadDbAuthUserList() {
                 app.dbSourceAuthNewUser = [];
                 app.dbSourceAuthUserList = [];
-                app.dbSourceAuthDialogVisible = true;
                 var param = {sourceId: app.newDatasource.id};
                 this.common.post(this.apilist1.dbUserAuthList, param, function (json) {
                     app.dbSourceAuthUserList = json.data || [];
-                    app.dbSourceAuthDialogVisible = true;
                 });
             },
             saveUserDbSourceAuth() {

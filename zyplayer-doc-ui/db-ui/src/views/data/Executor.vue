@@ -81,6 +81,9 @@
                 choiceDatasourceId: "",
                 databaseList: [],
                 choiceDatabase: "",
+                editorDbInfo: [],
+                editorDbTableInfo: {},
+                editorColumnInfo: {},
 
                 sqlExecuting: false,
                 executeResultList: [],
@@ -96,9 +99,10 @@
         },
         mounted: function () {
             app = this;
-            window.tableMetaInfo = "";
-            app.sqlExecutorEditor = app.initAceEditor("sqlExecutorEditor", 20);
             this.loadDatasourceList();
+            // 下面两行先后顺序不能改
+            this.addEditorCompleter();
+            app.sqlExecutorEditor = app.initAceEditor("sqlExecutorEditor", 20);
         },
         methods: {
             initAceEditor(editor, minLines) {
@@ -155,7 +159,7 @@
                 });
             },
             inputFavoriteSql(content) {
-                this.sqlExecutorEditor.setValue(content);
+                this.sqlExecutorEditor.setValue(content, 1);
                 this.historyDrawerVisible = false;
             },
             doExecutorSql() {
@@ -204,16 +208,119 @@
                     app.datasourceList = json.data || [];
                     if (app.datasourceList.length > 0) {
                         app.choiceDatasourceId = app.datasourceList[0].id;
+                        app.loadEditorData();
                     }
                 });
             },
+            loadEditorData() {
+                this.common.post(this.apilist1.getEditorData, {sourceId: this.choiceDatasourceId}, function (json) {
+                    var data = json.data || {};
+                    app.editorDbInfo = data.db || [];
+                    app.editorDbTableInfo = data.table || {};
+                    app.editorColumnInfo = data.column || {};
+                });
+            },
             datasourceChangeEvents() {
+                this.loadEditorData();
                 // this.common.post(this.apilist1.databaseList, {sourceId: this.choiceDatasourceId}, function (json) {
                 //     app.databaseList = json.data || [];
                 // });
             },
             databaseChangeEvents() {
 
+            },
+            addEditorCompleter() {
+                var languageTools = ace.require("ace/ext/language_tools");
+                languageTools.addCompleter({
+                    needDestory: true, // 一定得加上这个参数~不然页面生命周期内页面的切换，编辑器会有多个相同的completer
+                    getCompletions: function (editor, session, pos, prefix, callback) {
+                        var isFound = false;
+                        var callbackArr = [];
+                        var lineStr = session.getLine(pos.row).substring(0, pos.column - 1);
+                        if (lineStr.endsWith("from ") || lineStr.endsWith("join ")) {
+                            // 库
+                            for (var i = 0; i < app.editorDbInfo.length; i++) {
+                                callbackArr.push({caption: app.editorDbInfo[i].dbName, snippet: app.editorDbInfo[i].dbName, meta: "database", type: "snippet", score : 1000});
+                            }
+                            // 所有表
+                            for (var key in app.editorDbTableInfo) {
+                                var tableInfo = app.editorDbTableInfo[key];
+                                for (var i = 0; i < tableInfo.length; i++) {
+                                    var caption = (!!tableInfo[i].tableComment) ? tableInfo[i].tableName + "-" + tableInfo[i].tableComment : tableInfo[i].tableName;
+                                    callbackArr.push({caption: caption, snippet: tableInfo[i].tableName, meta: "table", type: "snippet", score : 1000});
+                                }
+                            }
+                            callback(null,  callbackArr);
+                        } else if (lineStr.endsWith(".")) {
+                            // 匹配 库名. 搜索表名
+                            for (var i = 0; i < app.editorDbInfo.length; i++) {
+                                if (lineStr.endsWith(app.editorDbInfo[i].dbName + ".")) {
+                                    var tableInfo = app.editorDbTableInfo[app.editorDbInfo[i].dbName];
+                                    if (!!tableInfo) {
+                                        for (var i = 0; i < tableInfo.length; i++) {
+                                            var caption = (!!tableInfo[i].tableComment) ? tableInfo[i].tableName + "-" + tableInfo[i].tableComment : tableInfo[i].tableName;
+                                            callbackArr.push({caption: caption, snippet: tableInfo[i].tableName, meta: "table", type: "snippet", score : 1000});
+                                        }
+                                        isFound = true;
+                                    }
+                                }
+                            }
+                            // 未找到，匹配 表名. 搜索字段名
+                            if (!isFound) {
+                                for (var key in app.editorColumnInfo) {
+                                    if (!lineStr.endsWith(key + ".")) {
+                                        continue;
+                                    }
+                                    var columnInfo = app.editorColumnInfo[key];
+                                    if (!!columnInfo) {
+                                        for (var i = 0; i < columnInfo.length; i++) {
+                                            var caption = (!!columnInfo[i].description) ? columnInfo[i].name + "-" + columnInfo[i].description : columnInfo[i].name;
+                                            callbackArr.push({caption: caption, snippet: columnInfo[i].name, meta: "column", type: "snippet", score : 1000});
+                                        }
+                                        isFound = true;
+                                    }
+                                }
+                            }
+                            callback(null,  callbackArr);
+                        } else if (lineStr.endsWith("select ") || lineStr.endsWith("where ") || lineStr.endsWith("and ")) {
+                            var queryText = "";
+                            // 往前加
+                            for (var i = pos.row; i >= 0; i--) {
+                                var tempLine = session.getLine(i);
+                                queryText = tempLine + " " + queryText;
+                                if (tempLine.indexOf(";") >= 0) {
+                                    break;
+                                }
+                            }
+                            // 往后加
+                            for (var i = pos.row + 1; i < session.getLength(); i++) {
+                                var tempLine = session.getLine(i);
+                                queryText = queryText + " " + tempLine;
+                                if (tempLine.indexOf(";") >= 0) {
+                                    break;
+                                }
+                            }
+                            // 所有表，找下面的字段列表
+                            for (var key in app.editorDbTableInfo) {
+                                var tableInfo = app.editorDbTableInfo[key];
+                                for (var i = 0; i < tableInfo.length; i++) {
+                                    if (queryText.indexOf(tableInfo[i].tableName) < 0) {
+                                        continue;
+                                    }
+                                    var columnInfo = app.editorColumnInfo[tableInfo[i].tableName];
+                                    if (!!columnInfo) {
+                                        for (var i = 0; i < columnInfo.length; i++) {
+                                            var caption = (!!columnInfo[i].description) ? columnInfo[i].name + "-" + columnInfo[i].description : columnInfo[i].name;
+                                            callbackArr.push({caption: caption, snippet: columnInfo[i].name, meta: "column", type: "snippet", score : 1000});
+                                        }
+                                        isFound = true;
+                                    }
+                                }
+                            }
+                            callback(null,  callbackArr);
+                        }
+                    }
+                });
             },
         }
     }

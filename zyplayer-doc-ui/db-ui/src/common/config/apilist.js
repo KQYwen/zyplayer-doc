@@ -4,6 +4,7 @@ var URL = {
     getSelfUserInfo: '/user/info/selfInfo',
     getUserBaseInfo: '/zyplayer-doc-wiki/common/user/base',
 
+    getEditorData: '/zyplayer-doc-db/doc-db/getEditorData',
     datasourceList: '/zyplayer-doc-db/doc-db/getDataSourceList',
     databaseList: '/zyplayer-doc-db/doc-db/getDatabaseList',
     tableList: '/zyplayer-doc-db/doc-db/getTableList',

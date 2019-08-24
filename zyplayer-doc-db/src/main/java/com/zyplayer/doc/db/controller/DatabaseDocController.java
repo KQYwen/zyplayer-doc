@@ -85,6 +85,45 @@ public class DatabaseDocController {
 		return DocDbResponseJson.ok(dataSourceList);
 	}
 	
+	/**
+	 * 获取编辑器所需的所有信息，用于自动补全
+	 * @param sourceId
+	 * @return
+	 */
+	@PostMapping(value = "/getEditorData")
+	public ResponseJson getEditorData(Long sourceId) {
+		// 没权限，返回空
+		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
+				&& !DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
+			return DocDbResponseJson.ok();
+		}
+		BaseMapper baseMapper = this.getBaseMapper(sourceId);
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
+		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
+		Map<String, List<TableInfoDto>> dbTableMap = new HashMap<>();
+		Map<String, List<TableColumnDescDto>> tableColumnsMap = new HashMap<>();
+		for (DatabaseInfoDto infoDto : dbNameDtoList) {
+			List<TableInfoDto> dbTableList = baseMapper.getTableList(infoDto.getDbName());
+			dbTableMap.put(infoDto.getDbName(), dbTableList);
+			for (TableInfoDto tableInfoDto : dbTableList) {
+				TableColumnVo tableColumnVo = this.getTableColumnVo(databaseFactoryBean, infoDto.getDbName(), tableInfoDto.getTableName());
+				// 重新组装一下，只返回两个字段，减少返回数据量
+				List<TableColumnDescDto> descDtoList = tableColumnVo.getColumnList().stream().map(val -> {
+					TableColumnDescDto dto = new TableColumnDescDto();
+					dto.setName(val.getName());
+					dto.setDescription(val.getDescription());
+					return dto;
+				}).collect(Collectors.toList());
+				tableColumnsMap.put(tableInfoDto.getTableName(), descDtoList);
+			}
+		}
+		Map<String, Object> dbResultMap = new HashMap<>();
+		dbResultMap.put("db", dbNameDtoList);
+		dbResultMap.put("table", dbTableMap);
+		dbResultMap.put("column", tableColumnsMap);
+		return DocDbResponseJson.ok(dbResultMap);
+	}
+	
 	@PostMapping(value = "/getDatabaseList")
 	public ResponseJson getDatabaseList(Long sourceId) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
