@@ -16,6 +16,7 @@
 			<thead>
 				<tr>
 					<td style="width: 50px;">序号</td>
+					<td>名称</td>
 					<td>地址</td>
 					<td>开放文档地址</td>
 					<td>重写域名地址</td>
@@ -25,6 +26,7 @@
 			<tbody>
 				<tr v-for="(item,index) in swaggerLocationList" :key="item.id" :data-id="item.id" :data-index="index" >
 					<td>{{index+1}}</td>
+					<td>{{item.customName}}</td>
 					<td>{{item.location}}</td>
 					<td>
 						<!--未开放时即使访问这个地址也看不了-->
@@ -39,7 +41,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td colspan="5" align="center">
+					<td colspan="6" align="center">
 						<button class="btn" type="button" v-on:click="btnRefreshList">　刷新　</button>
 						<button class="btn btn-primary" type="button" v-on:click="addNewDocument">增加文档</button>
 					</td>
@@ -57,6 +59,10 @@
 						<h4 class="modal-title">输入文档地址</h4>
 					</div>
 					<div class="modal-body">
+						<div class="input-line">
+							文档名字：
+							<input v-model="addNewCustomName" type="text" class="form-control" placeholder="可以自定义一个名字，将会在左上角下拉框里展示哦~">
+						</div>
 						<div class="input-line">
 							文档地址：
 							<input v-model="addNewDocumentInput" type="text" class="form-control" :readonly="addNewDocumentInput.indexOf('proxy-api-docs') > 0" placeholder="例：http://127.0.0.1/swagger-resources 或 http://127.0.0.1/v2/api-docs">
@@ -101,7 +107,8 @@
 			addNewSwaggerJson: '',
 			rewriteDomainUrl: '',
 			openVisit: '',
-			oldLocation: ''
+			oldLocation: '',
+			addNewCustomName: '',
 		},
 		watch: {
 		},
@@ -128,6 +135,7 @@
 				app.addNewDocumentInput = item.location;
 				app.rewriteDomainUrl = item.rewriteDomainUrl;
 				app.addNewSwaggerJson = "";
+				app.addNewCustomName = item.customName;
 				app.openVisit = (item.openVisit == 1);
 				if (item.location.indexOf('proxy-api-docs') > 0) {
 					var docId = item.location.substring(item.location.indexOf("?id=") + 4);
@@ -145,6 +153,7 @@
 				app.oldLocation = '';
 				app.addNewDocumentInput = '';
 				app.addNewSwaggerJson = "";
+				app.addNewCustomName = "";
 				$('#addNewDocumentModal').modal({moveable:true});
 			},
 			addNewDocumentBtn: function(){
@@ -157,7 +166,8 @@
 					resourcesUrl: addNewDocumentInput,
 					swaggerJson: app.addNewSwaggerJson,
 					rewriteDomainUrl: app.rewriteDomainUrl,
-					oldUrl: app.oldLocation
+					oldUrl: app.oldLocation,
+					customName: app.addNewCustomName,
 				};
 				ajaxTemp(urlBase + "swagger-mg-ui/document/addSwaggerResources", "post", "json", param, function(json){
 					if(validateResult(json)) {

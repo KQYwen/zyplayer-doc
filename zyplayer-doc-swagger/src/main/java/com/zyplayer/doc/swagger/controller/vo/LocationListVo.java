@@ -12,6 +12,7 @@ public class LocationListVo {
 	private String location;
 	private String resources;
 	private Integer openVisit;
+	private String customName;
 	private String rewriteDomainUrl;
 	
 	public LocationListVo(){
@@ -101,5 +102,13 @@ public class LocationListVo {
 	
 	public void setOpenVisit(Integer openVisit) {
 		this.openVisit = openVisit;
+	}
+	
+	public String getCustomName() {
+		return customName;
+	}
+	
+	public void setCustomName(String customName) {
+		this.customName = customName;
 	}
 }

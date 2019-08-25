@@ -9,6 +9,11 @@
 
 <body>
 	<div id="app">
+		<div class="title-info">
+			<div class="alert alert-primary">
+				<div class="content">Tips：保存的swagger-resources实际会自动获取所有文档到“详细地址管理”里，所以这里的地址无实际用处，实际起作用的是“详细地址管理”里的哦，所以这里面只保留查询列表了，不再提供增删改，想要添加修改就去“详细地址管理”里操作吧！</div>
+			</div>
+		</div>
 		<table class="table table-bordered setting-table">
 			<thead>
 				<tr>
@@ -26,8 +31,8 @@
 					<td>{{item.rewriteDomainUrl}}</td>
 					<td>{{item.lastSync}}</td>
 					<td>
-						<button class="btn btn-danger" type="button" v-on:click="deleteDocUrl($event)">删除</button>
-						<button class="btn btn-info" type="button" v-on:click="editDocUrl($event)">编辑</button>
+<!--						<button class="btn btn-danger" type="button" v-on:click="deleteDocUrl($event)">删除</button>-->
+<!--						<button class="btn btn-info" type="button" v-on:click="editDocUrl($event)">编辑</button>-->
 						<!--<button class="btn btn-danger" type="button" v-on:click="syncDocData($event)">持久化</button>-->
 					</td>
 				</tr>
@@ -35,7 +40,7 @@
 					<td colspan="5" align="center">
 						<button class="btn" type="button" v-on:click="btnRefreshList">　刷新　</button>
 						<button class="btn btn-info" type="button" v-on:click="exportDocument">导出文档</button>
-						<button class="btn btn-primary" type="button" v-on:click="addNewDocument">增加文档</button>
+<!--						<button class="btn btn-primary" type="button" v-on:click="addNewDocument">增加文档</button>-->
 					</td>
 				</tr>
 			</tbody>

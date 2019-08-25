@@ -97,7 +97,8 @@ function getDocumentListByService() {
 		if (validateResult(json) && json.data.length >= 1) {
 			for (var i = 0; i < json.data.length; i++) {
 				var item = json.data[i];
-				$("#choiceLocationList .dropdown-menu").append('<li><a href="javascript:void(0);" data-location="' + item.location + '">' + item.name + '</a></li>');
+				var itemName = (!!item.customName) ? item.customName : item.name;
+				$("#choiceLocationList .dropdown-menu").append('<li><a href="javascript:void(0);" data-location="' + item.location + '">' + itemName + '</a></li>');
 			}
 			$("#choiceLocationList .dropdown-menu").append('<li><a href="javascript:void(0);" data-location="">全部文档</a></li>');
 			$("#choiceLocationList .choice-text").text(json.data[0].name);

@@ -151,13 +151,14 @@ public class MgDocumentController {
 				if (indexV2 >= 0) {
 					resourcesUrl = location.getLocation().substring(0, indexV2);
 				}
-				// 本来想转对象之后赋值，但是在此转成JSON字符串之后格式就不是之前的了，所有不能转。。。
+				// 本来想转对象之后赋值，但是在此转成JSON字符串之后格式就不是之前的了，所以不能转。。。
 				// 直接字符串拼接，坑真多~
 				String rewriteDomainUrl = Optional.ofNullable(location.getRewriteDomainUrl()).orElse("");
 				resourceStr = resourceStr.substring(1);
 				resourceStr = "{\"fullUrl\":\"" + location.getLocation() + "\","
 						+ "\"domainUrl\":\"" + resourcesUrl + "\","
 						+ "\"rewriteDomainUrl\":\"" + rewriteDomainUrl + "\","
+						+ "\"customName\":\"" + location.getCustomName() + "\","
 						+ resourceStr;
 				swaggerResourceStrList.add(resourceStr);
 			} catch (Exception e) {
@@ -298,9 +299,10 @@ public class MgDocumentController {
 	 * @return 添加结果
 	 */
 	@PostMapping(value = "/addSwaggerResources")
-	public ResponseJson<Object> addSwaggerResources(HttpServletRequest request, String swaggerJson, String resourcesUrl, String rewriteDomainUrl, String oldUrl, Integer openVisit) {
+	public ResponseJson<Object> addSwaggerResources(HttpServletRequest request, String swaggerJson, String resourcesUrl,
+													String rewriteDomainUrl, String oldUrl, Integer openVisit, String customName) {
 		// 通过json文档内容来添加
-		ResponseJson<Object> responseJson = this.addSwaggerJsonApiDocs(request, swaggerJson, resourcesUrl, rewriteDomainUrl, openVisit);
+		ResponseJson<Object> responseJson = this.addSwaggerJsonApiDocs(request, swaggerJson, resourcesUrl, rewriteDomainUrl, openVisit, customName);
 		if (responseJson != null) {
 			return responseJson;
 		}
@@ -329,7 +331,7 @@ public class MgDocumentController {
 					.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
 					.header("Accept", "application/json, text/javascript, */*; q=0.01")
 					.timeout(docTimeout).execute().body();
-			boolean isLocation = this.addSwaggerLocationList(resourcesStr, rewriteDomainUrl, resourcesUrl, oldUrl, openVisit);
+			boolean isLocation = this.addSwaggerLocationList(resourcesStr, rewriteDomainUrl, resourcesUrl, oldUrl, openVisit, customName);
 			if (!isLocation) {
 				List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 				if (resourceList == null || resourceList.isEmpty()) {
@@ -363,7 +365,8 @@ public class MgDocumentController {
 	 * @param swaggerJson swagger的文档内容
 	 * @return 添加结果
 	 */
-	public ResponseJson<Object> addSwaggerJsonApiDocs(HttpServletRequest request, String swaggerJson, String resourcesUrl, String rewriteDomainUrl, Integer openVisit) {
+	public ResponseJson<Object> addSwaggerJsonApiDocs(HttpServletRequest request, String swaggerJson, String resourcesUrl,
+													  String rewriteDomainUrl, Integer openVisit, String customName) {
 		if (StringUtils.isNotBlank(swaggerJson)) {
 			Integer nextId = 0;
 			String customUrl = resourcesUrl;
@@ -375,7 +378,7 @@ public class MgDocumentController {
 				customUrl = customUrl.substring(0, customUrl.lastIndexOf("/"));
 				customUrl = customUrl + Consts.PROXY_API_DOCS + "?id=" + nextId;
 			}
-			boolean addResult = this.addSwaggerLocationList(swaggerJson, rewriteDomainUrl, customUrl, customUrl, openVisit);
+			boolean addResult = this.addSwaggerLocationList(swaggerJson, rewriteDomainUrl, customUrl, customUrl, openVisit, customName);
 			if (addResult) {
 				storageService.put(StorageKeys.PROXY_API_DOCS + nextId, swaggerJson);
 				return DocResponseJson.ok();
@@ -462,7 +465,8 @@ public class MgDocumentController {
 	/**
 	 * 直接添加地址
  	 */
-	private boolean addSwaggerLocationList(String resourcesStr, String rewriteDomainUrl, String locationUrl, String oldUrl, Integer openVisit) {
+	private boolean addSwaggerLocationList(String resourcesStr, String rewriteDomainUrl, String locationUrl,
+										   String oldUrl, Integer openVisit, String customName) {
 		try {
 			SwaggerLocationVo swaggerLocationVo = null;
 			try {
@@ -489,6 +493,7 @@ public class MgDocumentController {
 				locationListVo.setLocation(locationUrl);
 				locationListVo.setRewriteDomainUrl(rewriteDomainUrl);
 				locationListVo.setOpenVisit(openVisit);
+				locationListVo.setCustomName(customName);
 				// 去除旧的，加入新的
 				locationList = locationList.stream().filter(val -> !Objects.equals(val.getLocation(), oldUrl)).collect(Collectors.toList());
 				locationList.add(locationListVo);
