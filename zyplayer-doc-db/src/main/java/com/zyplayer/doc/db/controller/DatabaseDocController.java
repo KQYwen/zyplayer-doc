@@ -14,6 +14,8 @@ import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.DbDatasourceService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
+import com.zyplayer.doc.data.utils.CachePrefix;
+import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo.TableInfoVo;
@@ -97,6 +99,11 @@ public class DatabaseDocController {
 				&& !DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
 			return DocDbResponseJson.ok();
 		}
+		String cacheKey = CachePrefix.DB_EDITOR_DATA_CACHE + sourceId;
+		Object resultObj = CacheUtil.get(cacheKey);
+		if (resultObj != null) {
+			return DocDbResponseJson.ok(resultObj);
+		}
 		BaseMapper baseMapper = this.getBaseMapper(sourceId);
 		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
 		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
@@ -121,6 +128,8 @@ public class DatabaseDocController {
 		dbResultMap.put("db", dbNameDtoList);
 		dbResultMap.put("table", dbTableMap);
 		dbResultMap.put("column", tableColumnsMap);
+		// 缓存10分钟，如果10分钟内库里面增删改了表或字段，则提示不出来
+		CacheUtil.put(cacheKey, dbResultMap, 6000);
 		return DocDbResponseJson.ok(dbResultMap);
 	}
 	

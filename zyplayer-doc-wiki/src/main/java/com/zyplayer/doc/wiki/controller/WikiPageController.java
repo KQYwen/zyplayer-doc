@@ -19,12 +19,12 @@ import com.zyplayer.doc.data.service.elasticsearch.entity.EsWikiPage;
 import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPageService;
 import com.zyplayer.doc.data.service.elasticsearch.support.EsPage;
 import com.zyplayer.doc.data.service.manage.*;
+import com.zyplayer.doc.data.utils.CachePrefix;
 import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
-import com.zyplayer.doc.wiki.framework.consts.WikiCachePrefix;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
@@ -287,7 +287,7 @@ public class WikiPageController {
 	
 	@PostMapping("/unlock")
 	public ResponseJson<Object> unlock(Long pageId) {
-		String lockKey = WikiCachePrefix.WIKI_LOCK_PAGE + pageId;
+		String lockKey = CachePrefix.WIKI_LOCK_PAGE + pageId;
 		DocUserDetails pageLockUser = CacheUtil.get(lockKey);
 		if (pageLockUser != null) {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -301,7 +301,7 @@ public class WikiPageController {
 	@PostMapping("/lock")
 	public ResponseJson<Object> editLock(Long pageId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		String lockKey = WikiCachePrefix.WIKI_LOCK_PAGE + pageId;
+		String lockKey = CachePrefix.WIKI_LOCK_PAGE + pageId;
 		DocUserDetails pageLockUser = CacheUtil.get(lockKey);
 		if (pageLockUser != null) {
 			if (!Objects.equals(pageLockUser.getUserId(), currentUser.getUserId())) {

@@ -39,7 +39,7 @@ public class ZyplayerProxyFilter implements Filter {
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		
+	
 	}
 	
 	@Override
@@ -137,7 +137,7 @@ public class ZyplayerProxyFilter implements Filter {
 			httpRequest.cookie(httpCookieList.toArray(new HttpCookie[]{}));
 		}
 		String resultStr = httpRequest.execute().body();
-		if (proxyUrl.indexOf(Consts.V2_API_DOCS) >= 0) {
+		if (proxyUrl.contains(Consts.V2_API_DOCS)) {
 			// "basePath":"/" 替换成 "basePath":"/zyplayer-doc-manage/zyplayer-proxy/2/"，使其走代理接口
 			ServletContext servletContext = httpServletRequest.getServletContext();
 			Object ctx = servletContext.getAttribute("ctx");

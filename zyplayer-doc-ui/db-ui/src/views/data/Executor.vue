@@ -29,7 +29,11 @@
                         <el-table-column width="60px" v-if="executeResultCols.length > 0">
                             <template slot-scope="scope">{{scope.row._index}}</template>
                         </el-table-column>
-                        <el-table-column v-for="item in executeResultCols" :prop="item.prop" :label="item.prop"></el-table-column>
+                        <el-table-column v-for="item in executeResultCols" :prop="item.prop" :label="item.prop">
+                            <template slot-scope="scope">
+                                <el-input :value="scope.row[item.prop]" :readonly="true"></el-input>
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -257,9 +261,9 @@
                                 if (lineStr.endsWith(app.editorDbInfo[i].dbName + ".")) {
                                     var tableInfo = app.editorDbTableInfo[app.editorDbInfo[i].dbName];
                                     if (!!tableInfo) {
-                                        for (var i = 0; i < tableInfo.length; i++) {
-                                            var caption = (!!tableInfo[i].tableComment) ? tableInfo[i].tableName + "-" + tableInfo[i].tableComment : tableInfo[i].tableName;
-                                            callbackArr.push({caption: caption, snippet: tableInfo[i].tableName, meta: "table", type: "snippet", score : 1000});
+                                        for (var j = 0; j < tableInfo.length; j++) {
+                                            var caption = (!!tableInfo[j].tableComment) ? tableInfo[j].tableName + "-" + tableInfo[j].tableComment : tableInfo[j].tableName;
+                                            callbackArr.push({caption: caption, snippet: tableInfo[j].tableName, meta: "table", type: "snippet", score : 1000});
                                         }
                                         isFound = true;
                                     }
@@ -309,9 +313,9 @@
                                     }
                                     var columnInfo = app.editorColumnInfo[tableInfo[i].tableName];
                                     if (!!columnInfo) {
-                                        for (var i = 0; i < columnInfo.length; i++) {
-                                            var caption = (!!columnInfo[i].description) ? columnInfo[i].name + "-" + columnInfo[i].description : columnInfo[i].name;
-                                            callbackArr.push({caption: caption, snippet: columnInfo[i].name, meta: "column", type: "snippet", score : 1000});
+                                        for (var j = 0; j < columnInfo.length; j++) {
+                                            var caption = (!!columnInfo[j].description) ? columnInfo[j].name + "-" + columnInfo[j].description : columnInfo[j].name;
+                                            callbackArr.push({caption: caption, snippet: columnInfo[j].name, meta: "column", type: "snippet", score : 1000});
                                         }
                                         isFound = true;
                                     }
@@ -335,6 +339,11 @@
     }
     .data-executor-vue .el-table td, .el-table th{
         padding: 6px 0;
+    }
+    .data-executor-vue .el-input__inner{
+        height: 25px;
+        line-height: 25px;
+        padding: 0 5px;
     }
     .data-executor-vue-out .el-tabs__nav-scroll{
         padding-left: 20px;
