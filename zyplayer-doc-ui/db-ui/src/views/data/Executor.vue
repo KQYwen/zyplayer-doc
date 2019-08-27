@@ -25,11 +25,11 @@
                     {{executeError}}
                 </div>
                 <div v-else>
-                    <el-table :data="executeResultList" stripe border style="width: 100%; margin-bottom: 5px;" v-loading="sqlExecuting">
+                    <el-table :data="executeResultList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" v-loading="sqlExecuting" height="600">
                         <el-table-column width="60px" v-if="executeResultCols.length > 0">
                             <template slot-scope="scope">{{scope.row._index}}</template>
                         </el-table-column>
-                        <el-table-column v-for="item in executeResultCols" :prop="item.prop" :label="item.prop">
+                        <el-table-column v-for="item in executeResultCols" :prop="item.prop" :label="item.prop" :width="item.width">
                             <template slot-scope="scope">
                                 <el-input :value="scope.row[item.prop]" :readonly="true"></el-input>
                             </template>
@@ -68,6 +68,7 @@
                 </el-tabs>
             </div>
         </el-drawer>
+        <span id="widthCalculate" style="visibility: hidden; white-space: nowrap;"></span>
     </div>
 </template>
 
@@ -196,8 +197,17 @@
                     var dataList = resultData.result || [];
                     var executeResultCols = [];
                     if (dataList.length > 0) {
-                        for (var key in dataList[0]) {
-                            executeResultCols.push({prop: key});
+                        var propData = dataList[0];
+                        for (var key in propData) {
+                            // 动态计算宽度~自己想的一个方法，666
+                            document.getElementById("widthCalculate").innerText = key;
+                            var width1 = document.getElementById("widthCalculate").offsetWidth;
+                            document.getElementById("widthCalculate").innerText = propData[key];
+                            var width2 = document.getElementById("widthCalculate").offsetWidth;
+                            var width = (width1 > width2) ? width1 : width2;
+                            width = (width < 60) ? 60 : width;
+                            width = (width > 200) ? 200 : width;
+                            executeResultCols.push({prop: key, width: width + 20});
                         }
                         for (var i = 0; i < dataList.length; i++) {
                             dataList[i]._index = i + 1;
@@ -340,7 +350,7 @@
     .data-executor-vue .el-table td, .el-table th{
         padding: 6px 0;
     }
-    .data-executor-vue .el-input__inner{
+    .data-executor-vue .execute-result-table .el-input__inner{
         height: 25px;
         line-height: 25px;
         padding: 0 5px;
