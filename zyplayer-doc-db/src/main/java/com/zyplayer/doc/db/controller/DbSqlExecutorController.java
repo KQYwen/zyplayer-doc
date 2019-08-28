@@ -82,8 +82,9 @@ public class DbSqlExecutorController {
 	}
 	
 	@PostMapping(value = "/history/list")
-	public ResponseJson historyList() {
+	public ResponseJson historyList(Long sourceId) {
 		UpdateWrapper<DbHistory> wrapper = new UpdateWrapper<>();
+		wrapper.eq(sourceId != null, "datasource_id", sourceId);
 		wrapper.orderByDesc("id");
 		List<DbHistory> favoriteList = dbHistoryService.list(wrapper);
 		return DocDbResponseJson.ok(favoriteList);

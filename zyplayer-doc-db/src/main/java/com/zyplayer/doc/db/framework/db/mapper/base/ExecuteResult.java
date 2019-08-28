@@ -12,16 +12,19 @@ import java.util.Map;
  */
 public class ExecuteResult {
 	private int updateCount;
+	private long useTime;
 	private List<Map<String, Object>> result;
 	
 	public ExecuteResult() {
 		this.updateCount = 0;
+		this.useTime = 0;
 		this.result = Collections.emptyList();
 	}
 	
-	public ExecuteResult(int updateCount, List<Map<String, Object>> result) {
+	public ExecuteResult(int updateCount, List<Map<String, Object>> result, long useTime) {
 		this.updateCount = updateCount;
 		this.result = result;
+		this.useTime = useTime;
 	}
 	
 	public int getUpdateCount() {
@@ -38,5 +41,13 @@ public class ExecuteResult {
 	
 	public void setResult(List<Map<String, Object>> result) {
 		this.result = result;
+	}
+	
+	public long getUseTime() {
+		return useTime;
+	}
+	
+	public void setUseTime(long useTime) {
+		this.useTime = useTime;
 	}
 }

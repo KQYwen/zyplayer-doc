@@ -24,6 +24,11 @@ public class DbHistory implements Serializable {
     private Long id;
 
     /**
+     * 数据源ID
+     */
+    private Long datasourceId;
+
+    /**
      * sql内容
      */
     private String content;
@@ -101,5 +106,13 @@ public class DbHistory implements Serializable {
         ", createTime=" + createTime +
         ", yn=" + yn +
         "}";
+    }
+    
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+    
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
     }
 }

@@ -81,13 +81,14 @@ public class SqlExecutor {
 		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
 		logger.info("sql ==> {}", sqlStr);
 		// 保留历史记录
-		dbHistoryService.saveHistory(sqlStr);
+		dbHistoryService.saveHistory(sqlStr, factoryBean.getId());
 		
 		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		PreparedStatement preparedStatement = null;
 		DruidPooledConnection connection = null;
 		// 执行查询
 		try {
+			long startTime = System.currentTimeMillis();
 			connection = factoryBean.getDataSource().getConnection();
 			preparedStatement = connection.prepareStatement(sql);
 			// 设置当前的PreparedStatement
@@ -122,7 +123,8 @@ public class SqlExecutor {
 			// 更新的数量
 			int updateCount = preparedStatement.getUpdateCount();
 			updateCount = (updateCount < 0) ? 0 : updateCount;
-			return new ExecuteResult(updateCount, resultList);
+			long useTime = System.currentTimeMillis() - startTime;
+			return new ExecuteResult(updateCount, resultList, useTime);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {

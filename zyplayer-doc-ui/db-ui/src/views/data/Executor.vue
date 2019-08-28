@@ -15,6 +15,8 @@
                     <el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain  size="small" icon="el-icon-video-pause">取消执行</el-button>
                     <el-button v-else v-on:click="doExecutorSql" type="primary" plain  size="small" icon="el-icon-video-play">执行</el-button>
                     <div style="float: right;">
+                        <span v-if="!!executeUpdateCount" class="execute-use-time">影响行数：{{executeUpdateCount}}</span>
+                        <span v-if="!!executeUseTime" class="execute-use-time">查询时间：{{executeUseTime/1000}}s</span>
                         <el-button v-on:click="addFavorite('')" plain  size="small" icon="el-icon-star-off">收藏</el-button>
                         <el-button v-on:click="loadHistoryAndFavoriteList" plain  size="small" icon="el-icon-tickets">收藏及历史</el-button>
                     </div>
@@ -25,7 +27,7 @@
                     {{executeError}}
                 </div>
                 <div v-else>
-                    <el-table :data="executeResultList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" v-loading="sqlExecuting" height="600">
+                    <el-table :data="executeResultList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" v-loading="sqlExecuting" max-height="600">
                         <el-table-column width="60px" v-if="executeResultCols.length > 0">
                             <template slot-scope="scope">{{scope.row._index}}</template>
                         </el-table-column>
@@ -42,7 +44,7 @@
             <div style="padding: 10px;">
                 <el-tabs value="favorite">
                     <el-tab-pane label="我的收藏" name="favorite">
-                        <el-table :data="myFavoriteList" stripe border style="width: 100%; margin-bottom: 5px;">
+                        <el-table :data="myFavoriteList" stripe border style="width: 100%; margin-bottom: 5px;" v-infinite-scroll>
 <!--                            <el-table-column prop="name" label="标题"></el-table-column>-->
                             <el-table-column prop="content" label="SQL"></el-table-column>
 <!--                            <el-table-column prop="createTime" label="收藏时间" width="160px"></el-table-column>-->
@@ -93,6 +95,8 @@
                 sqlExecuting: false,
                 executeResultList: [],
                 executeResultCols: [],
+                executeUseTime: 0,
+                executeUpdateCount: 0,
                 sqlExecutorEditor: {},
                 nowExecutorId: 1,
                 executeError: "",
@@ -139,7 +143,7 @@
                 });
             },
             loadHistoryList() {
-                this.common.post(this.apilist1.historyList, {}, function (json) {
+                this.common.post(this.apilist1.historyList, {sourceId: this.choiceDatasourceId}, function (json) {
                     app.myHistoryListList = json.data || [];
                 });
             },
@@ -173,6 +177,7 @@
                     return;
                 }
                 app.executeError = "";
+                app.executeUseTime = "";
                 app.executeResultList = [];
                 app.executeResultCols = [];
 
@@ -215,6 +220,8 @@
                     }
                     app.executeResultList = dataList;
                     app.executeResultCols = executeResultCols;
+                    app.executeUseTime = resultData.useTime || 0;
+                    app.executeUpdateCount = resultData.updateCount || 0;
                 });
             },
             loadDatasourceList() {
@@ -354,6 +361,9 @@
         height: 25px;
         line-height: 25px;
         padding: 0 5px;
+    }
+    .data-executor-vue .execute-use-time{
+        font-size: 12px;margin-right: 10px;
     }
     .data-executor-vue-out .el-tabs__nav-scroll{
         padding-left: 20px;

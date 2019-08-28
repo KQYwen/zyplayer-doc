@@ -20,6 +20,7 @@ CREATE TABLE `db_favorite` (
 
 CREATE TABLE `db_history` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `datasource_id` bigint(20) NULL COMMENT '数据源ID',
   `content` varchar(10000) DEFAULT NULL COMMENT 'sql内容',
   `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
   `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
@@ -36,6 +37,8 @@ INSERT INTO `auth_info`(`auth_name`, `auth_desc`, `can_edit`, `create_uid`, `cre
 VALUES ( 'DB_UPDATE_', '数据源增删改查权', 0, 1, '2019-08-18 23:25:17', 0);
 INSERT INTO `auth_info`(`auth_name`, `auth_desc`, `can_edit`, `create_uid`, `creation_time`, `auth_type`)
 VALUES ( 'DB_DESC_EDIT_', '表字段注释修改权', 0, 1, '2019-08-18 23:25:17', 0);
+
+-- ALTER TABLE `db_history` ADD COLUMN `datasource_id` bigint(0) NULL COMMENT '数据源ID';
 
 
 -- ------------------------全新的库：------------------------
