@@ -66,6 +66,7 @@ public class DbSqlExecutorController {
 				continue;
 			}
 			try {
+				sqlItem = sqlItem.trim();
 				Map<String, Object> paramMap = JSON.parseObject(params);
 				ExecuteType executeType = (!manageAuth && select) ? ExecuteType.SELECT : ExecuteType.ALL;
 				ExecuteResult executeResult = sqlExecutor.execute(sourceId, executeId, executeType, sqlItem, paramMap);
