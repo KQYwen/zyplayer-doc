@@ -23,20 +23,27 @@
                 </div>
             </el-card>
             <el-card>
-                <div v-if="!!executeError" style="color: #f00;">
-                    {{executeError}}
-                </div>
+                <div v-if="!!executeError" style="color: #f00;">{{executeError}}</div>
+                <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting">暂无数据</div>
                 <div v-else>
-                    <el-table :data="executeResultList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" v-loading="sqlExecuting" max-height="600">
-                        <el-table-column width="60px" v-if="executeResultCols.length > 0">
-                            <template slot-scope="scope">{{scope.row._index}}</template>
-                        </el-table-column>
-                        <el-table-column v-for="item in executeResultCols" :prop="item.prop" :label="item.prop" :width="item.width">
-                            <template slot-scope="scope">
-                                <el-input :value="scope.row[item.prop]" :readonly="true"></el-input>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+                    <el-tabs value="table1">
+                        <el-tab-pane label="信息" name="table0">
+                            <pre type="textarea" :rows="10" readonly v1-model="">{{executeResultInfo}}</pre>
+                        </el-tab-pane>
+                        <el-tab-pane :label="'结果'+(index+1)" :name="'table'+(index+1)" v-for="(resultItem, index) in executeResultList">
+                            <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
+                            <el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600">
+                                <el-table-column width="60px" v-if="resultItem.dataCols.length > 0">
+                                    <template slot-scope="scope">{{scope.row._index}}</template>
+                                </el-table-column>
+                                <el-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
+                                    <template slot-scope="scope">
+                                        <el-input :value="scope.row[item.prop]" :readonly="true"></el-input>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-tab-pane>
+                    </el-tabs>
                 </div>
             </el-card>
         </div>
@@ -94,7 +101,7 @@
 
                 sqlExecuting: false,
                 executeResultList: [],
-                executeResultCols: [],
+                executeResultInfo: "",
                 executeUseTime: 0,
                 executeUpdateCount: 0,
                 sqlExecutorEditor: {},
@@ -111,7 +118,7 @@
             this.loadDatasourceList();
             // 下面两行先后顺序不能改
             this.addEditorCompleter();
-            app.sqlExecutorEditor = app.initAceEditor("sqlExecutorEditor", 20);
+            app.sqlExecutorEditor = app.initAceEditor("sqlExecutorEditor", 15);
         },
         methods: {
             initAceEditor(editor, minLines) {
@@ -179,7 +186,6 @@
                 app.executeError = "";
                 app.executeUseTime = "";
                 app.executeResultList = [];
-                app.executeResultCols = [];
 
                 this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
                 var sqlValue = this.sqlExecutorEditor.getSelectedText();
@@ -198,30 +204,22 @@
                         app.executeError = json.errMsg;
                         return;
                     }
-                    var resultData = JSON.parse(json.data) || {};
-                    var dataList = resultData.result || [];
-                    var executeResultCols = [];
-                    if (dataList.length > 0) {
-                        var propData = dataList[0];
-                        for (var key in propData) {
-                            // 动态计算宽度~自己想的一个方法，666
-                            document.getElementById("widthCalculate").innerText = key;
-                            var width1 = document.getElementById("widthCalculate").offsetWidth;
-                            document.getElementById("widthCalculate").innerText = propData[key];
-                            var width2 = document.getElementById("widthCalculate").offsetWidth;
-                            var width = (width1 > width2) ? width1 : width2;
-                            width = (width < 60) ? 60 : width;
-                            width = (width > 200) ? 200 : width;
-                            executeResultCols.push({prop: key, width: width + 20});
-                        }
-                        for (var i = 0; i < dataList.length; i++) {
-                            dataList[i]._index = i + 1;
-                        }
+                    var resultList = json.data || [];
+                    var executeResultList = [];
+                    var executeUpdateCount = 0, executeUseTime = 0;
+                    var executeResultInfo = "";
+                    for (var i = 0; i < resultList.length; i++) {
+                        var objItem = JSON.parse(resultList[i]);
+                        executeUpdateCount += (objItem.updateCount || 0);
+                        executeUseTime += (objItem.useTime || 0);
+                        executeResultInfo += app.getExecuteInfoStr(objItem);
+                        var resultItem = app.dealExecuteResult(objItem);
+                        executeResultList.push(resultItem);
                     }
-                    app.executeResultList = dataList;
-                    app.executeResultCols = executeResultCols;
-                    app.executeUseTime = resultData.useTime || 0;
-                    app.executeUpdateCount = resultData.updateCount || 0;
+                    app.executeResultInfo = executeResultInfo;
+                    app.executeUseTime = executeUseTime;
+                    app.executeUpdateCount = executeUpdateCount;
+                    app.executeResultList = executeResultList;
                 });
             },
             loadDatasourceList() {
@@ -249,6 +247,41 @@
             },
             databaseChangeEvents() {
 
+            },
+            getExecuteInfoStr(resultData) {
+                var resultStr = resultData.sql;
+                resultStr += "\n> " + ((!!resultData.errMsg) ? "ERROR" : "OK");
+                resultStr += "\n> " + (resultData.useTime || 0) / 1000 + "s";
+                resultStr += "\n\n";
+                return resultStr;
+            },
+            dealExecuteResult(resultData) {
+                var dataList = resultData.result || [];
+                var executeResultCols = [];
+                if (dataList.length > 0) {
+                    var propData = dataList[0];
+                    for (var key in propData) {
+                        // 动态计算宽度~自己想的一个方法，666
+                        document.getElementById("widthCalculate").innerText = key;
+                        var width1 = document.getElementById("widthCalculate").offsetWidth;
+                        document.getElementById("widthCalculate").innerText = propData[key];
+                        var width2 = document.getElementById("widthCalculate").offsetWidth;
+                        var width = (width1 > width2) ? width1 : width2;
+                        width = (width < 60) ? 60 : width;
+                        width = (width > 200) ? 200 : width;
+                        executeResultCols.push({prop: key, width: width + 20});
+                    }
+                    for (var i = 0; i < dataList.length; i++) {
+                        dataList[i]._index = i + 1;
+                    }
+                }
+                var resultObj = {};
+                resultObj.dataList = dataList;
+                resultObj.dataCols = executeResultCols;
+                resultObj.useTime = resultData.useTime || 0;
+                resultObj.errMsg = resultData.errMsg || "";
+                resultObj.updateCount = resultData.updateCount || 0;
+                return resultObj;
             },
             addEditorCompleter() {
                 var languageTools = ace.require("ace/ext/language_tools");

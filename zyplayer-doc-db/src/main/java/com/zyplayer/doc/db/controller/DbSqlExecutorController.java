@@ -27,10 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * sql执行器
@@ -61,18 +58,28 @@ public class DbSqlExecutorController {
 		if (!manageAuth && !select && !update) {
 			return DocDbResponseJson.warn("没有该数据源的执行权限");
 		}
-		try {
-			Map<String, Object> paramMap = JSON.parseObject(params);
-			ExecuteType executeType = (!manageAuth && select) ? ExecuteType.SELECT : ExecuteType.ALL;
-			ExecuteResult executeResult = sqlExecutor.execute(sourceId, executeId, executeType, sql, paramMap);
-			SerializeConfig mapping = new SerializeConfig();
-			mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
-			mapping.put(Timestamp.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
-			String resultJsonStr = JSON.toJSONString(executeResult, mapping, SerializerFeature.WriteMapNullValue);
-			return DocDbResponseJson.ok(resultJsonStr);
-		} catch (Exception e) {
-			return DocDbResponseJson.warn(StringUtil.getException(e));
+		List<String> resultList = new LinkedList<>();
+		// 支持;分割的多个sql执行
+		String[] sqlArr = sql.split(";");
+		for (String sqlItem : sqlArr) {
+			if (StringUtils.isBlank(sqlItem)) {
+				continue;
+			}
+			try {
+				Map<String, Object> paramMap = JSON.parseObject(params);
+				ExecuteType executeType = (!manageAuth && select) ? ExecuteType.SELECT : ExecuteType.ALL;
+				ExecuteResult executeResult = sqlExecutor.execute(sourceId, executeId, executeType, sqlItem, paramMap);
+				SerializeConfig mapping = new SerializeConfig();
+				mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
+				mapping.put(Timestamp.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
+				String resultJsonStr = JSON.toJSONString(executeResult, mapping, SerializerFeature.WriteMapNullValue);
+				resultList.add(resultJsonStr);
+			} catch (Exception e) {
+				ExecuteResult executeResult = ExecuteResult.error(StringUtil.getException(e));
+				resultList.add(JSON.toJSONString(executeResult));
+			}
 		}
+		return DocDbResponseJson.ok(resultList);
 	}
 	
 	@PostMapping(value = "/cancel")

@@ -13,6 +13,8 @@ import java.util.Map;
 public class ExecuteResult {
 	private int updateCount;
 	private long useTime;
+	private String errMsg;
+	private String sql;
 	private List<Map<String, Object>> result;
 	
 	public ExecuteResult() {
@@ -21,10 +23,11 @@ public class ExecuteResult {
 		this.result = Collections.emptyList();
 	}
 	
-	public ExecuteResult(int updateCount, List<Map<String, Object>> result, long useTime) {
+	public ExecuteResult(int updateCount, List<Map<String, Object>> result, long useTime, String sql) {
 		this.updateCount = updateCount;
 		this.result = result;
 		this.useTime = useTime;
+		this.sql = sql;
 	}
 	
 	public int getUpdateCount() {
@@ -49,5 +52,27 @@ public class ExecuteResult {
 	
 	public void setUseTime(long useTime) {
 		this.useTime = useTime;
+	}
+	
+	public String getErrMsg() {
+		return errMsg;
+	}
+	
+	public void setErrMsg(String errMsg) {
+		this.errMsg = errMsg;
+	}
+	
+	public static ExecuteResult error(String errMsg) {
+		ExecuteResult executeResult = new ExecuteResult();
+		executeResult.setErrMsg(errMsg);
+		return executeResult;
+	}
+	
+	public String getSql() {
+		return sql;
+	}
+	
+	public void setSql(String sql) {
+		this.sql = sql;
 	}
 }

@@ -124,7 +124,7 @@ public class SqlExecutor {
 			int updateCount = preparedStatement.getUpdateCount();
 			updateCount = (updateCount < 0) ? 0 : updateCount;
 			long useTime = System.currentTimeMillis() - startTime;
-			return new ExecuteResult(updateCount, resultList, useTime);
+			return new ExecuteResult(updateCount, resultList, useTime, sql);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
