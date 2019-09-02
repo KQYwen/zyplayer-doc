@@ -27,6 +27,7 @@ import com.zyplayer.doc.db.framework.db.dto.*;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -89,6 +90,7 @@ public class DatabaseDocController {
 	
 	/**
 	 * 获取编辑器所需的所有信息，用于自动补全
+	 * 此接口会返回所有库表结构，介意的话请自己手动屏蔽调此接口
 	 * @param sourceId
 	 * @return
 	 */
@@ -109,19 +111,35 @@ public class DatabaseDocController {
 		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
 		Map<String, List<TableInfoDto>> dbTableMap = new HashMap<>();
 		Map<String, List<TableColumnDescDto>> tableColumnsMap = new HashMap<>();
+		
+		Map<String, List<TableInfoDto>> tableMapList = new HashMap<>();
+		// MYSQL可以一次性查询所有库表
+		if (databaseFactoryBean.getDatabaseProduct() == DatabaseProduct.MYSQL) {
+			List<TableInfoDto> dbTableList = baseMapper.getTableList(null);
+			tableMapList = dbTableList.stream().collect(Collectors.groupingBy(TableInfoDto::getDbName));
+		}
 		for (DatabaseInfoDto infoDto : dbNameDtoList) {
-			List<TableInfoDto> dbTableList = baseMapper.getTableList(infoDto.getDbName());
-			dbTableMap.put(infoDto.getDbName(), dbTableList);
-			for (TableInfoDto tableInfoDto : dbTableList) {
-				TableColumnVo tableColumnVo = this.getTableColumnVo(databaseFactoryBean, infoDto.getDbName(), tableInfoDto.getTableName());
-				// 重新组装一下，只返回两个字段，减少返回数据量
-				List<TableColumnDescDto> descDtoList = tableColumnVo.getColumnList().stream().map(val -> {
-					TableColumnDescDto dto = new TableColumnDescDto();
-					dto.setName(val.getName());
-					dto.setDescription(val.getDescription());
-					return dto;
-				}).collect(Collectors.toList());
-				tableColumnsMap.put(tableInfoDto.getTableName(), descDtoList);
+			List<TableInfoDto> tableInfoDtoList = tableMapList.get(infoDto.getDbName());
+			// SQLSERVER必须要库才能查
+			if (databaseFactoryBean.getDatabaseProduct() == DatabaseProduct.SQLSERVER) {
+				tableInfoDtoList = baseMapper.getTableList(infoDto.getDbName());
+			}
+			if (CollectionUtils.isEmpty(tableInfoDtoList)) {
+				continue;
+			}
+			dbTableMap.put(infoDto.getDbName(), tableInfoDtoList);
+			// 小于10个库，查所有库，否则只查询当前链接的库，防止库表太多，数据量太大
+			// 如果觉得没必要就自己改吧！
+			Map<String, List<TableColumnDescDto>> columnDescDtoMap = new HashMap<>();
+			if (dbNameDtoList.size() <= 10 || Objects.equals(databaseFactoryBean.getDbName(), infoDto.getDbName())) {
+				List<TableColumnDescDto> columnDescDto = baseMapper.getTableColumnList(infoDto.getDbName(), null);
+				columnDescDtoMap = columnDescDto.stream().collect(Collectors.groupingBy(TableColumnDescDto::getTableName));
+			}
+			for (TableInfoDto tableInfoDto : tableInfoDtoList) {
+				List<TableColumnDescDto> descDtoList = columnDescDtoMap.get(tableInfoDto.getTableName());
+				if (CollectionUtils.isNotEmpty(descDtoList)) {
+					tableColumnsMap.put(tableInfoDto.getTableName(), descDtoList);
+				}
 			}
 		}
 		Map<String, Object> dbResultMap = new HashMap<>();
@@ -177,9 +195,9 @@ public class DatabaseDocController {
 	}
 	
 	@PostMapping(value = "/getTableDescList")
-	public ResponseJson getTableDescList(Long sourceId, String tableName) {
+	public ResponseJson getTableDescList(Long sourceId, String dbName, String tableName) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		List<TableDescDto> columnDescDto = baseMapper.getTableDescList(tableName);
+		List<TableDescDto> columnDescDto = baseMapper.getTableDescList(dbName, tableName);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
 	
@@ -274,7 +292,7 @@ public class DatabaseDocController {
 		tableColumnVo.setColumnList(columnDescDto);
 		// 表注释
 		TableInfoVo tableInfoVo = new TableInfoVo();
-		List<TableDescDto> tableDescList = baseMapper.getTableDescList(tableName);
+		List<TableDescDto> tableDescList = baseMapper.getTableDescList(dbName, tableName);
 		String description = null;
 		if (tableDescList.size() > 0) {
 			TableDescDto descDto = tableDescList.get(0);

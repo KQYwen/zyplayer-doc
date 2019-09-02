@@ -147,6 +147,10 @@
             },
             handleNodeClick(node) {
                 console.log("点击节点：", node);
+                // 执行器里面点击库表不跳转页面
+                // if (this.$router.currentRoute.path == "/data/executor") {
+                //     return;
+                // }
                 if (node.type == 1) {
                     this.nowClickPath = {sourceId: this.choiceDatasourceId, host: node.host, dbName: node.dbName, tableName: node.tableName};
                     this.$router.push({path: '/table/database', query: this.nowClickPath});
@@ -217,7 +221,7 @@
                 if (app.databaseList.length > 0) {
                     return;
                 }
-                this.choiceDatasourceId = sourceId;
+                this.choiceDatasourceId = parseInt(sourceId);
                 this.loadDatabaseList(sourceId, host, function () {
                     app.databaseExpandedKeys = [host];
                 });

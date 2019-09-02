@@ -1,6 +1,7 @@
 package com.zyplayer.doc.db.framework.db.dto;
 
 public class TableColumnDescDto {
+	private String tableName;
 	private String name;
 	private String isidenity;
 	private String type;
@@ -64,5 +65,12 @@ public class TableColumnDescDto {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
+	
+	public String getTableName() {
+		return tableName;
+	}
+	
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
 }

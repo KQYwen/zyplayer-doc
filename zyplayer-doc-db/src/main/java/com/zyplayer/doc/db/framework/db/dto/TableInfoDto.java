@@ -1,6 +1,7 @@
 package com.zyplayer.doc.db.framework.db.dto;
 
 public class TableInfoDto {
+	private String dbName;
 	private String tableName;
 	private String tableComment;
 	private String tableId;
@@ -28,5 +29,12 @@ public class TableInfoDto {
 	public void setTableComment(String tableComment) {
 		this.tableComment = tableComment;
 	}
-
+	
+	public String getDbName() {
+		return dbName;
+	}
+	
+	public void setDbName(String dbName) {
+		this.dbName = dbName;
+	}
 }

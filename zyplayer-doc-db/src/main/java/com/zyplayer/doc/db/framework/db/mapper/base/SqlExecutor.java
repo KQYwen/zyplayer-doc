@@ -5,11 +5,9 @@ import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
-import com.zyplayer.doc.db.framework.db.interceptor.SqlLogUtil;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.parsing.GenericTokenParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,30 +70,28 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public ExecuteResult execute(DatabaseFactoryBean factoryBean, String executeId, ExecuteType executeType, String sql, Map<String, Object> paramMap, ResultHandler handler) {
+	public ExecuteResult execute(DatabaseFactoryBean factoryBean, String executeId, ExecuteType executeType, String sqlStr, Map<String, Object> paramMap, ResultHandler handler) {
 		if (factoryBean == null) {
 			return new ExecuteResult();
 		}
-		BoundSql boundSql = getBoundSql(sql, paramMap);
-		sql = boundSql.getSql();
-		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
+//		BoundSql boundSql = getBoundSql(sql, paramMap);
+//		sql = boundSql.getSql();
+//		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
 		logger.info("sql ==> {}", sqlStr);
-		// 保留历史记录
-		dbHistoryService.saveHistory(sqlStr, factoryBean.getId());
 		
-		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+//		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		PreparedStatement preparedStatement = null;
 		DruidPooledConnection connection = null;
 		// 执行查询
 		try {
 			long startTime = System.currentTimeMillis();
 			connection = factoryBean.getDataSource().getConnection();
-			preparedStatement = connection.prepareStatement(sql);
+			preparedStatement = connection.prepareStatement(sqlStr);
 			// 设置当前的PreparedStatement
 			statementMap.put(executeId, preparedStatement);
-			for (int i = 0; i < parameterMappings.size(); i++) {
-				preparedStatement.setObject(i + 1, paramMap.get(parameterMappings.get(i).getProperty()));
-			}
+//			for (int i = 0; i < parameterMappings.size(); i++) {
+//				preparedStatement.setObject(i + 1, paramMap.get(parameterMappings.get(i).getProperty()));
+//			}
 			// 限制下最大数量
 			preparedStatement.setMaxRows(1000);
 			if (ExecuteType.SELECT.equals(executeType)) {
@@ -120,11 +116,10 @@ public class SqlExecutor {
 					}
 				}
 			}
-			// 更新的数量
+			// 更新的数量，小于0代表不是更新语句
 			int updateCount = preparedStatement.getUpdateCount();
-			updateCount = (updateCount < 0) ? 0 : updateCount;
 			long useTime = System.currentTimeMillis() - startTime;
-			return new ExecuteResult(updateCount, resultList, useTime, sql);
+			return new ExecuteResult(updateCount, resultList, useTime, sqlStr);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {

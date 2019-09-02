@@ -58,6 +58,8 @@ public class DbSqlExecutorController {
 		if (!manageAuth && !select && !update) {
 			return DocDbResponseJson.warn("没有该数据源的执行权限");
 		}
+		// 保留历史记录
+		dbHistoryService.saveHistory(sql.trim(), sourceId);
 		List<String> resultList = new LinkedList<>();
 		// 支持;分割的多个sql执行
 		String[] sqlArr = sql.split(";");
@@ -99,9 +101,10 @@ public class DbSqlExecutorController {
 	}
 	
 	@PostMapping(value = "/favorite/list")
-	public ResponseJson favoriteList() {
+	public ResponseJson favoriteList(Long sourceId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		UpdateWrapper<DbFavorite> wrapper = new UpdateWrapper<>();
+		wrapper.eq(sourceId != null, "datasource_id", sourceId);
 		wrapper.eq("create_user_id", currentUser.getUserId());
 		wrapper.eq("yn", 1);
 		wrapper.orderByDesc("id");
@@ -112,8 +115,11 @@ public class DbSqlExecutorController {
 	@PostMapping(value = "/favorite/add")
 	public ResponseJson addFavorite(DbFavorite dbFavorite) {
 		Integer yn = Optional.ofNullable(dbFavorite.getYn()).orElse(1);
-		if (yn == 1 && StringUtils.isBlank(dbFavorite.getContent())) {
-			return DocDbResponseJson.warn("收藏的SQL不能为空");
+		if (yn == 1) {
+			if (StringUtils.isBlank(dbFavorite.getContent())) {
+				return DocDbResponseJson.warn("收藏的SQL不能为空");
+			}
+			dbFavorite.setContent(dbFavorite.getContent().trim());
 		}
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		if (dbFavorite.getId() != null && dbFavorite.getId() > 0) {

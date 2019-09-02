@@ -18,7 +18,7 @@ public class ExecuteResult {
 	private List<Map<String, Object>> result;
 	
 	public ExecuteResult() {
-		this.updateCount = 0;
+		this.updateCount = -1;
 		this.useTime = 0;
 		this.result = Collections.emptyList();
 	}

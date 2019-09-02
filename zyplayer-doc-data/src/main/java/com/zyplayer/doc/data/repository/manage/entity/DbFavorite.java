@@ -1,13 +1,14 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
@@ -22,6 +23,11 @@ public class DbFavorite implements Serializable {
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+    
+    /**
+     * 数据源ID
+     */
+    private Long datasourceId;
 
     /**
      * 收藏标题
@@ -114,5 +120,13 @@ public class DbFavorite implements Serializable {
         ", createTime=" + createTime +
         ", yn=" + yn +
         "}";
+    }
+    
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+    
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
     }
 }

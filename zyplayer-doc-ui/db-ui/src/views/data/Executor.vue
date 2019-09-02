@@ -13,10 +13,10 @@
                 <pre id="sqlExecutorEditor" style="width: 100%;height: 500px;"></pre>
                 <div>
                     <el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain  size="small" icon="el-icon-video-pause">取消执行</el-button>
-                    <el-button v-else v-on:click="doExecutorSql" type="primary" plain  size="small" icon="el-icon-video-play">执行</el-button>
+                    <el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
+                        <el-button v-on:click="doExecutorSql" type="primary" plain  size="small" icon="el-icon-video-play">执行</el-button>
+                    </el-tooltip>
                     <div style="float: right;">
-                        <span v-if="!!executeUpdateCount" class="execute-use-time">影响行数：{{executeUpdateCount}}</span>
-                        <span v-if="!!executeUseTime" class="execute-use-time">查询时间：{{executeUseTime/1000}}s</span>
                         <el-button v-on:click="addFavorite('')" plain  size="small" icon="el-icon-star-off">收藏</el-button>
                         <el-button v-on:click="loadHistoryAndFavoriteList" plain  size="small" icon="el-icon-tickets">收藏及历史</el-button>
                     </div>
@@ -26,11 +26,11 @@
                 <div v-if="!!executeError" style="color: #f00;">{{executeError}}</div>
                 <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting">暂无数据</div>
                 <div v-else>
-                    <el-tabs value="table1">
+                    <el-tabs :value="executeShowTable">
                         <el-tab-pane label="信息" name="table0">
-                            <pre type="textarea" :rows="10" readonly v1-model="">{{executeResultInfo}}</pre>
+                            <pre>{{executeResultInfo}}</pre>
                         </el-tab-pane>
-                        <el-tab-pane :label="'结果'+(index+1)" :name="'table'+(index+1)" v-for="(resultItem, index) in executeResultList">
+                        <el-tab-pane :label="'结果'+resultItem.index" :name="'table'+resultItem.index" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
                             <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
                             <el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600">
                                 <el-table-column width="60px" v-if="resultItem.dataCols.length > 0">
@@ -52,9 +52,11 @@
                 <el-tabs value="favorite">
                     <el-tab-pane label="我的收藏" name="favorite">
                         <el-table :data="myFavoriteList" stripe border style="width: 100%; margin-bottom: 5px;" v-infinite-scroll>
-<!--                            <el-table-column prop="name" label="标题"></el-table-column>-->
-                            <el-table-column prop="content" label="SQL"></el-table-column>
-<!--                            <el-table-column prop="createTime" label="收藏时间" width="160px"></el-table-column>-->
+                            <el-table-column prop="content" label="SQL">
+                                <template slot-scope="scope">
+                                    <pre style="margin: 0;">{{scope.row.content}}</pre>
+                                </template>
+                            </el-table-column>
                             <el-table-column label="操作" width="150px">
                                 <template slot-scope="scope">
                                     <el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row.content)">输入</el-button>
@@ -102,8 +104,7 @@
                 sqlExecuting: false,
                 executeResultList: [],
                 executeResultInfo: "",
-                executeUseTime: 0,
-                executeUpdateCount: 0,
+                executeShowTable: "table1",
                 sqlExecutorEditor: {},
                 nowExecutorId: 1,
                 executeError: "",
@@ -119,6 +120,13 @@
             // 下面两行先后顺序不能改
             this.addEditorCompleter();
             app.sqlExecutorEditor = app.initAceEditor("sqlExecutorEditor", 15);
+            app.sqlExecutorEditor.commands.addCommand({
+                name: "execute-sql",
+                bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
+                exec: function (editor) {
+                    app.doExecutorSql();
+                }
+            });
         },
         methods: {
             initAceEditor(editor, minLines) {
@@ -145,7 +153,7 @@
                 this.loadFavoriteList();
             },
             loadFavoriteList() {
-                this.common.post(this.apilist1.favoriteList, {}, function (json) {
+                this.common.post(this.apilist1.favoriteList, {sourceId: this.choiceDatasourceId}, function (json) {
                     app.myFavoriteList = json.data || [];
                 });
             },
@@ -161,7 +169,7 @@
                         sqlValue = this.sqlExecutorEditor.getValue();
                     }
                 }
-                var param = {name: '我的收藏', content: sqlValue};
+                var param = {name: '我的收藏', content: sqlValue, datasourceId: this.choiceDatasourceId};
                 this.common.post(this.apilist1.updateFavorite, param, function (json) {
                     app.$message.success("收藏成功");
                     app.loadFavoriteList();
@@ -206,19 +214,19 @@
                     }
                     var resultList = json.data || [];
                     var executeResultList = [];
-                    var executeUpdateCount = 0, executeUseTime = 0;
-                    var executeResultInfo = "";
+                    var executeResultInfo = "", itemIndex = 1;
                     for (var i = 0; i < resultList.length; i++) {
                         var objItem = JSON.parse(resultList[i]);
-                        executeUpdateCount += (objItem.updateCount || 0);
-                        executeUseTime += (objItem.useTime || 0);
                         executeResultInfo += app.getExecuteInfoStr(objItem);
                         var resultItem = app.dealExecuteResult(objItem);
+                        if (resultItem.updateCount < 0) {
+                            resultItem.index = itemIndex;
+                            itemIndex++;
+                        }
                         executeResultList.push(resultItem);
                     }
+                    app.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
                     app.executeResultInfo = executeResultInfo;
-                    app.executeUseTime = executeUseTime;
-                    app.executeUpdateCount = executeUpdateCount;
                     app.executeResultList = executeResultList;
                 });
             },
@@ -250,8 +258,11 @@
             },
             getExecuteInfoStr(resultData) {
                 var resultStr = resultData.sql;
-                resultStr += "\n> " + ((!!resultData.errMsg) ? "ERROR" : "OK");
-                resultStr += "\n> " + (resultData.useTime || 0) / 1000 + "s";
+                resultStr += "\n> 状态：" + ((!!resultData.errMsg) ? "ERROR" : "OK");
+                if (resultData.updateCount >= 0) {
+                    resultStr += "\n> 影响行数：" + resultData.updateCount;
+                }
+                resultStr += "\n> 耗时：" + (resultData.useTime || 0) / 1000 + "s";
                 resultStr += "\n\n";
                 return resultStr;
             },
@@ -280,7 +291,7 @@
                 resultObj.dataCols = executeResultCols;
                 resultObj.useTime = resultData.useTime || 0;
                 resultObj.errMsg = resultData.errMsg || "";
-                resultObj.updateCount = resultData.updateCount || 0;
+                resultObj.updateCount = resultData.updateCount;
                 return resultObj;
             },
             addEditorCompleter() {

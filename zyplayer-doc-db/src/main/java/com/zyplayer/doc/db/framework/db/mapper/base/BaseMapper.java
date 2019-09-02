@@ -65,7 +65,7 @@ public interface BaseMapper {
 	 * @param tableName 可不传，传了只查询指定表的注释
 	 * @return 表注释
 	 */
-	List<TableDescDto> getTableDescList(@Param("tableName") String tableName);
+	List<TableDescDto> getTableDescList(@Param("dbName") String dbName, @Param("tableName") String tableName);
 
 	/**
 	 * 增加表注释
@@ -78,7 +78,7 @@ public interface BaseMapper {
 
 	/**
 	 * 增加字段注释
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月8日
 	 * @param dbName 数据库名
