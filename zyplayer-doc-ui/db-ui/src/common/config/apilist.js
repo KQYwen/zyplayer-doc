@@ -9,6 +9,7 @@ var URL = {
     databaseList: '/zyplayer-doc-db/doc-db/getDatabaseList',
     tableList: '/zyplayer-doc-db/doc-db/getTableList',
     tableColumnList: '/zyplayer-doc-db/doc-db/getTableColumnList',
+    tableStatus: '/zyplayer-doc-db/doc-db/getTableStatus',
     tableAndColumnBySearch: '/zyplayer-doc-db/doc-db/getTableAndColumnBySearch',
     updateTableDesc: '/zyplayer-doc-db/doc-db/updateTableDesc',
     updateTableColumnDesc: '/zyplayer-doc-db/doc-db/updateTableColumnDesc',

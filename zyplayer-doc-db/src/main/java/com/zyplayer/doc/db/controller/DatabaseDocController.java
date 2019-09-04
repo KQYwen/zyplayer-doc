@@ -19,6 +19,7 @@ import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo.TableInfoVo;
+import com.zyplayer.doc.db.controller.vo.TableStatusVo;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean.DatabaseProduct;
@@ -156,6 +157,13 @@ public class DatabaseDocController {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
 		return DocDbResponseJson.ok(dbNameDtoList);
+	}
+	
+	@PostMapping(value = "/getTableStatus")
+	public ResponseJson getTableStatus(Long sourceId, String dbName, String tableName) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+		TableStatusVo tableStatusVo = baseMapper.getTableStatus(dbName, tableName);
+		return DocDbResponseJson.ok(tableStatusVo);
 	}
 	
 	@PostMapping(value = "/getTableList")

@@ -19,6 +19,27 @@
 		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
 	</resultMap>
 
+	<resultMap id="TableStatusDtoMap" type="com.zyplayer.doc.db.controller.vo.TableStatusVo">
+		<result column="Name" property="name"/>
+		<result column="Engine" property="engine"/>
+		<result column="Version" property="version"/>
+		<result column="Row_format" property="rowFormat"/>
+		<result column="Rows" property="rows"/>
+		<result column="Avg_row_length" property="avgRowLength"/>
+		<result column="Data_length" property="dataLength"/>
+		<result column="Max_data_length" property="maxDataLength"/>
+		<result column="Index_length" property="indexLength"/>
+		<result column="Data_free" property="dataFree"/>
+		<result column="Auto_increment" property="autoIncrement"/>
+		<result column="Create_time" property="createTime"/>
+		<result column="Update_time" property="updateTime"/>
+		<result column="Check_time" property="checkTime"/>
+		<result column="Collation" property="collation"/>
+		<result column="Checksum" property="checksum"/>
+		<result column="Create_options" property="createOptions"/>
+		<result column="Comment" property="comment"/>
+	</resultMap>
+
 	<select id="getDatabaseList" resultType="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto">
 		select TABLE_SCHEMA dbName
 		from information_schema.tables
@@ -37,6 +58,10 @@
 		WHERE table_schema=#{dbName}
 		<if test="tableName != null">and table_name=#{tableName}</if>
 		ORDER BY ordinal_position
+	</select>
+
+	<select id="getTableStatus" resultMap="TableStatusDtoMap">
+		show table status from ${dbName} like #{tableName}
 	</select>
 
 	<select id="getTableColumnDescList" resultMap="TableColumnDescDtoMap">

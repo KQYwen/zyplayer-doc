@@ -1,5 +1,6 @@
 package com.zyplayer.doc.db.framework.db.mapper.base;
 
+import com.zyplayer.doc.db.controller.vo.TableStatusVo;
 import com.zyplayer.doc.db.framework.db.dto.*;
 import org.apache.ibatis.annotations.Param;
 
@@ -90,5 +91,14 @@ public interface BaseMapper {
 	void updateTableColumnDesc(@Param("dbName") String dbName, @Param("tableName") String tableName,
 			@Param("columnName") String columnName, @Param("newDesc") String newDesc,
 			@Param("columnInfo") ColumnInfoDto columnInfo);
-
+	
+	/**
+	 * 获取表基本信息
+	 *
+	 * @author 暮光：城中城
+	 * @since 2019年9月1日
+	 * @param dbName 数据库名
+	 * @param tableName 表名
+	 */
+	TableStatusVo getTableStatus(@Param("dbName") String dbName, @Param("tableName") String tableName);
 }

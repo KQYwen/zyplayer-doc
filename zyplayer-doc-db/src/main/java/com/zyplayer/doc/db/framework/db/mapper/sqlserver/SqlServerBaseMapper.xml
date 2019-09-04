@@ -11,15 +11,19 @@
 		<result column="ISPRAMARY" property="ispramary" jdbcType="VARCHAR" />
 		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
 	</resultMap>
-	
+
 	<resultMap id="QueryTableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto" >
 		<result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
 		<result column="COLUMN_NAME" property="columnName" jdbcType="VARCHAR" />
 		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
 	</resultMap>
-	
+
 	<select id="getDatabaseList" resultType="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto">
 		SELECT NAME as dbName FROM Master..SysDatabases ORDER BY NAME
+	</select>
+
+	<select id="getTableStatus" resultType="com.zyplayer.doc.db.controller.vo.TableStatusVo">
+		select 1
 	</select>
 
 	<select id="getTableList" resultType="com.zyplayer.doc.db.framework.db.dto.TableInfoDto">
@@ -28,8 +32,8 @@
 	</select>
 
 	<select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
-		WITH PRIMARYINFO( COLUMNNAME ,ISPRAMARY) AS 
-		( 
+		WITH PRIMARYINFO( COLUMNNAME ,ISPRAMARY) AS
+		(
 			SELECT C.NAME,'true' AS COLUMNNAME
 			FROM SYSINDEXES I
 			JOIN SYSINDEXKEYS K ON I.ID = K.ID AND I.INDID = K.INDID
@@ -48,7 +52,7 @@
 		LEFT JOIN SYSTYPES ON SYSCOLUMNS.XUSERTYPE = SYSTYPES.XUSERTYPE
 		WHERE SYSCOLUMNS.ID = OBJECT_ID(#{tableName})
 	</select>
-	
+
 	<select id="getTableColumnDescList" resultMap="TableColumnDescDtoMap">
 		SELECT B.name AS NAME,C.value AS DESCRIPTION
 		FROM sys.tables A
@@ -56,7 +60,7 @@
 		LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id
 		WHERE A.name = #{tableName}
 	</select>
-	
+
 	<select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
 		SELECT top 500
 		A.name AS TABLE_NAME,B.name AS COLUMN_NAME,C.value AS DESCRIPTION
@@ -65,7 +69,7 @@
 		LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id
 		WHERE convert(nvarchar(max),C.value) like #{searchText} OR B.name like #{searchText}
 	</select>
-	
+
 	<select id="getTableDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableDescDto">
 		select 'TABLEDESC_SYS' as tableName, value as description, major_id as majorId
 		from sys.extended_properties
@@ -74,9 +78,9 @@
 			and major_id=object_id(#{tableName})
 		</if>
 	</select>
-	
+
 	<insert id="updateTableDesc">
-		IF ((SELECT COUNT(*) from fn_listextendedproperty('MS_Description', 'SCHEMA', 'dbo', 'TABLE', #{tableName}, NULL, NULL)) > 0) 
+		IF ((SELECT COUNT(*) from fn_listextendedproperty('MS_Description', 'SCHEMA', 'dbo', 'TABLE', #{tableName}, NULL, NULL)) > 0)
 		EXEC sp_updateextendedproperty @name = 'MS_Description', @value = #{newDesc}
 		, @level0type = 'SCHEMA', @level0name = 'dbo'
 		, @level1type = 'TABLE', @level1name = #{tableName}
@@ -85,9 +89,9 @@
 		, @level0type = 'SCHEMA', @level0name = 'dbo'
 		, @level1type = 'TABLE', @level1name = #{tableName}
 	</insert>
-	
+
 	<insert id="updateTableColumnDesc">
-		IF ((SELECT COUNT(*) from fn_listextendedproperty('MS_Description', 'SCHEMA', 'dbo', 'TABLE', #{tableName}, 'COLUMN', #{columnName})) > 0) 
+		IF ((SELECT COUNT(*) from fn_listextendedproperty('MS_Description', 'SCHEMA', 'dbo', 'TABLE', #{tableName}, 'COLUMN', #{columnName})) > 0)
 		EXEC sp_updateextendedproperty @name = 'MS_Description', @value = #{newDesc}
 		, @level0type = 'SCHEMA', @level0name = 'dbo'
 		, @level1type = 'TABLE', @level1name = #{tableName}
@@ -98,6 +102,6 @@
 		, @level1type = 'TABLE', @level1name = #{tableName}
 		, @level2type = 'COLUMN', @level2name = #{columnName}
 	</insert>
-	
+
 </mapper>
 

@@ -589,7 +589,7 @@ public class MgDocumentController {
 	 */
 	private Map<String, String> getGlobalParamMap(List<GlobalParamVo> globalParamList, String paramIn) {
 		Map<String, String> paramMap = globalParamList.stream().filter(val -> Objects.equals(val.getParamIn(), paramIn))
-				.collect(Collectors.toMap(GlobalParamVo::getKey, GlobalParamVo::getValue));
+				.collect(Collectors.toMap(GlobalParamVo::getKey, GlobalParamVo::getValue, (val1, val2) -> val1, HashMap::new));
 		return paramMap;
 	}
 	
@@ -598,7 +598,7 @@ public class MgDocumentController {
 	 */
 	private Map<String, Object> getGlobalParamObjMap(List<GlobalParamVo> globalParamList, String paramIn) {
 		Map<String, Object> paramMap = globalParamList.stream().filter(val -> Objects.equals(val.getParamIn(), paramIn))
-				.collect(Collectors.toMap(GlobalParamVo::getKey, GlobalParamVo::getValue));
+				.collect(Collectors.toMap(GlobalParamVo::getKey, GlobalParamVo::getValue, (val1, val2) -> val1, HashMap::new));
 		return paramMap;
 	}
 	
