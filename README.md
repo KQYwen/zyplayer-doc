@@ -34,14 +34,14 @@
 ##### 七、zyplayer-doc-grpc grpc文档工具
 > 用比较变态的方式实现了grpc的文档和在线调试功能，通过http的方式来请求grpc的接口
 
+> 默认未开启此功能，如需使用需要在zyplayer-doc-manage项目中开启@EnableDocGrpc注解
+
 ##### 八、zyplayer-doc-es ElasticSearch文档工具
 > 支持ElasticSearch的文档查看和执行DSL查询的功能
 
-> 默认未开启此功能，如需使用需要在zyplayer-doc-manage项目中开启@EnableDocGrpc注解
-
 #### 运行方式
 
-1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.3.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.3.sql)
+1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.4.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.4.sql)
 
 2. 修改zyplayer-doc-manage项目的application.yml配置文件里面的数据库账号密码
 
