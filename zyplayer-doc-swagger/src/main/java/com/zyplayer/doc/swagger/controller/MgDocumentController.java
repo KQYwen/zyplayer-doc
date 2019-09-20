@@ -450,6 +450,29 @@ public class MgDocumentController {
 	}
 
 	/**
+	 * 禁用或启用/v2/api-docs
+	 *
+	 * @author 暮光：城中城
+	 * @since 2018年8月21日
+	 * @param location 文档地址
+	 * @param disable 0=启用 1=禁用
+	 * @return 结果
+	 */
+	@Deprecated
+	@PostMapping(value = "/disableSwaggerDoc")
+	public ResponseJson<Object> disableSwaggerDoc(String location, Integer disable) {
+		List<LocationListVo> locationList = this.getLocationSet();
+		String locationDel = this.encodeUrlParam(location);
+		for (LocationListVo locationVo : locationList) {
+			if (Objects.equals(locationVo.getLocation(), locationDel)) {
+				locationVo.setDisabled(Objects.equals(1, disable) ? 1 : 0);
+			}
+		}
+		this.storageSwaggerLocationList(locationList);
+		return DocResponseJson.ok();
+	}
+
+	/**
 	 * 获取swaggerLocation列表
 	 *
 	 * @author 暮光：城中城
@@ -459,6 +482,7 @@ public class MgDocumentController {
 	@PostMapping(value = "/getLocationList")
 	public ResponseJson<List<LocationListVo>> getLocationList() {
 		List<LocationListVo> locationSet = this.getLocationSet();
+		locationSet = locationSet.stream().filter(val -> val.getDisabled() == null || val.getDisabled() == 0).collect(Collectors.toList());
 		return DocResponseJson.ok(locationSet);
 	}
 	

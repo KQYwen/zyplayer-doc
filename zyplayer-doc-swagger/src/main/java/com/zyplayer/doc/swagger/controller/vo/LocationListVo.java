@@ -10,6 +10,7 @@ public class LocationListVo {
 	private String name;
 	private String uuid;
 	private String location;
+	private Integer disabled;
 	private String resources;
 	private Integer openVisit;
 	private String customName;
@@ -110,5 +111,13 @@ public class LocationListVo {
 	
 	public void setCustomName(String customName) {
 		this.customName = customName;
+	}
+	
+	public Integer getDisabled() {
+		return disabled;
+	}
+	
+	public void setDisabled(Integer disabled) {
+		this.disabled = disabled;
 	}
 }

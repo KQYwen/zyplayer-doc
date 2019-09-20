@@ -20,6 +20,7 @@
 					<td>地址</td>
 					<td>开放文档地址</td>
 					<td>重写域名地址</td>
+					<td>状态</td>
 					<td>操作</td>
 				</tr>
 			</thead>
@@ -34,14 +35,17 @@
 						<span v-else>暂未开放</span>
 					</td>
 					<td>{{item.rewriteDomainUrl}}</td>
+					<td>{{item.disabled==1?'已禁用':'已启用'}}</td>
 					<td>
+						<button class="btn btn-primary" type="button" @click="disableDocUrl(item.location, 0)" v-if="item.disabled==1">启用</button>
+						<button class="btn btn-primary" type="button" @click="disableDocUrl(item.location, 1)" v-else>禁用</button>
 						<button class="btn btn-danger" type="button" @click="deleteDocUrl(item.location)">删除</button>
 						<button class="btn btn-info" type="button" v-on:click="editDocUrl($event)">编辑</button>
 						<!--<button class="btn btn-danger" type="button" v-on:click="syncDocData($event)">持久化</button>-->
 					</td>
 				</tr>
 				<tr>
-					<td colspan="6" align="center">
+					<td colspan="7" align="center">
 						<button class="btn" type="button" v-on:click="btnRefreshList">　刷新　</button>
 						<button class="btn btn-primary" type="button" v-on:click="addNewDocument">增加文档</button>
 					</td>
@@ -185,6 +189,14 @@
 				}
 				ajaxTemp(urlBase + "swagger-mg-ui/document/deleteSwaggerDoc", "post", "json", {location: location}, function (json) {
 					if (validateResult(json)) {
+						app.refreshList();
+					}
+				});
+			},
+			disableDocUrl: function (location, disable) {
+				ajaxTemp(urlBase + "swagger-mg-ui/document/disableSwaggerDoc", "post", "json", {location: location, disable: disable}, function (json) {
+					if (validateResult(json)) {
+						Toast.success((disable == 1) ? "禁用成功！" : "启用成功！");
 						app.refreshList();
 					}
 				});
