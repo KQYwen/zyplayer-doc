@@ -3,9 +3,6 @@
         <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
             <el-card style="margin-bottom: 10px;">
                 <div>
-                    <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请选择数据源" style="width: 400px;">
-                        <el-option v-for="item in datasourceList" :key="item.id" :label="item.cnName" :value="item.id"></el-option>
-                    </el-select>
 <!--                    <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库">-->
 <!--                        <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>-->
 <!--                    </el-select>-->
@@ -16,9 +13,13 @@
                     <el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
                         <el-button v-on:click="doExecutorSql" type="primary" plain  size="small" icon="el-icon-video-play">执行</el-button>
                     </el-tooltip>
-                    <div style="float: right;">
-                        <el-button v-on:click="addFavorite('')" plain  size="small" icon="el-icon-star-off">收藏</el-button>
-                        <el-button v-on:click="loadHistoryAndFavoriteList" plain  size="small" icon="el-icon-tickets">收藏及历史</el-button>
+                    <el-button v-on:click="addFavorite('')" plain  size="small" icon="el-icon-star-off">收藏</el-button>
+                    <el-button v-on:click="loadHistoryAndFavoriteList" plain  size="small" icon="el-icon-tickets">收藏及历史</el-button>
+                    <div style="float: right;margin-top: -5px;">
+                        数据源：
+                        <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请选择数据源" style="width: 400px;">
+                            <el-option v-for="item in datasourceList" :key="item.id" :label="item.cnName" :value="item.id"></el-option>
+                        </el-select>
                     </div>
                 </div>
             </el-card>
@@ -38,7 +39,7 @@
                                 </el-table-column>
                                 <el-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
                                     <template slot-scope="scope">
-                                        <el-input :value="scope.row[item.prop]" :readonly="true"></el-input>
+                                        <el-input type="textarea" :rows="1" :value="scope.row[item.prop]" :readonly="true" resize="none"></el-input>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -402,6 +403,11 @@
         padding: 6px 0;
     }
     .data-executor-vue .execute-result-table .el-input__inner{
+        height: 25px;
+        line-height: 25px;
+        padding: 0 5px;
+    }
+    .data-executor-vue .execute-result-table .el-textarea__inner{
         height: 25px;
         line-height: 25px;
         padding: 0 5px;

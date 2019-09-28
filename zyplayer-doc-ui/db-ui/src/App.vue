@@ -12,19 +12,22 @@
                         </el-select>
                     </div>
                     <el-menu :router="true" class="el-menu-vertical" style="height: auto;">
-                        <el-menu-item index="/"><i class="el-icon-s-home"></i>控制台</el-menu-item>
-                        <el-submenu index="1">
-                            <template slot="title">
-                                <i class="el-icon-s-platform"></i>
-                                <span slot="title">系统管理</span>
-                            </template>
-                            <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
-                            <el-menu-item index="/data/executor"><i class="el-icon-video-play"></i>SQL执行器</el-menu-item>
-                            <el-menu-item index="/data/export"><i class="el-icon-finished"></i>数据库表导出</el-menu-item>
-                        </el-submenu>
+<!--                        <el-menu-item index="/"><i class="el-icon-s-home"></i>控制台</el-menu-item>-->
+<!--                        <el-submenu index="1">-->
+<!--                            <template slot="title">-->
+<!--                                <i class="el-icon-s-platform"></i>-->
+<!--                                <span slot="title">系统管理</span>-->
+<!--                            </template>-->
+<!--                            <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>-->
+<!--                            <el-menu-item index="/data/executor"><i class="el-icon-video-play"></i>SQL执行器</el-menu-item>-->
+<!--                            <el-menu-item index="/data/export"><i class="el-icon-finished"></i>数据库表导出</el-menu-item>-->
+<!--                        </el-submenu>-->
+                        <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
+                        <el-menu-item index="/data/executor"><i class="el-icon-video-play"></i>SQL执行器</el-menu-item>
+                        <el-menu-item index="/data/export"><i class="el-icon-finished"></i>数据库表导出</el-menu-item>
                     </el-menu>
                     <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
-                             ref="databaseTree" highlight-current
+                             ref="databaseTree" highlight-current empty-text=""
                              :default-expanded-keys="databaseExpandedKeys"
                              node-key="id" @node-expand="handleNodeExpand"
                              style="background-color: #fafafa;">
@@ -198,6 +201,7 @@
                 });
             },
             loadDatabaseList(sourceId, host, callback) {
+                app.databaseList = [];
                 this.common.post(this.apilist1.databaseList, {sourceId: sourceId}, function (json) {
                     var result = json.data || [];
                     var pathIndex = [];

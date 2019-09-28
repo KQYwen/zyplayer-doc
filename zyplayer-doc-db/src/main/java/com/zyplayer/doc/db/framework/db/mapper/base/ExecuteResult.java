@@ -17,10 +17,11 @@ public class ExecuteResult {
 	private String sql;
 	private List<Map<String, Object>> result;
 	
-	public ExecuteResult() {
+	public ExecuteResult(String sql) {
 		this.updateCount = -1;
 		this.useTime = 0;
 		this.result = Collections.emptyList();
+		this.sql = sql;
 	}
 	
 	public ExecuteResult(int updateCount, List<Map<String, Object>> result, long useTime, String sql) {
@@ -62,8 +63,8 @@ public class ExecuteResult {
 		this.errMsg = errMsg;
 	}
 	
-	public static ExecuteResult error(String errMsg) {
-		ExecuteResult executeResult = new ExecuteResult();
+	public static ExecuteResult error(String errMsg, String sql) {
+		ExecuteResult executeResult = new ExecuteResult(sql);
 		executeResult.setErrMsg(errMsg);
 		return executeResult;
 	}

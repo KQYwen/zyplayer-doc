@@ -1,60 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper">
-
-	<resultMap id="TableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto" >
-		<result column="NAME" property="name" jdbcType="VARCHAR" />
-		<result column="ISIDENITY" property="isidenity" jdbcType="VARCHAR" />
-		<result column="TYPE" property="type" jdbcType="VARCHAR" />
+    
+    <resultMap id="TableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto" >
+		<result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
+		<result column="COLUMN_NAME" property="name" jdbcType="VARCHAR" />
+		<result column="DATA_TYPE" property="type" jdbcType="VARCHAR" />
 		<result column="NULLABLE" property="nullable" jdbcType="VARCHAR" />
-		<result column="LENGTH" property="length" jdbcType="VARCHAR" />
-		<result column="ISPRAMARY" property="ispramary" jdbcType="VARCHAR" />
-		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+		<result column="COMMENTS" property="description" jdbcType="VARCHAR" />
 	</resultMap>
-
-	<resultMap id="QueryTableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto" >
+    
+    <resultMap id="QueryTableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto" >
 		<result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
 		<result column="COLUMN_NAME" property="columnName" jdbcType="VARCHAR" />
-		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+		<result column="COMMENTS" property="description" jdbcType="VARCHAR" />
 	</resultMap>
 
-	<!--想用的话就来补充下方法体吧~-->
-
-	<select id="getDatabaseList" resultType="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto">
-		SELECT 1
-	</select>
-
-	<select id="getTableStatus" resultType="com.zyplayer.doc.db.controller.vo.TableStatusVo">
-		select 1
-	</select>
-
+	<!-- 获取用户列表 -->
+    <select id="getDatabaseList" resultType="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto">
+       select USERNAME dbName db from all_users 
+    </select>
+	
+	<!-- 获取表列表 -->
 	<select id="getTableList" resultType="com.zyplayer.doc.db.framework.db.dto.TableInfoDto">
-		SELECT 1
+	   select t.OWNER as dbName,t.TABLE_NAME as tableName,c.COMMENTS as tableComment from all_tables t left join user_tab_comments c on t.TABLE_NAME = c.TABLE_NAME
+	   <where>
+	   		<if test="dbName != null"> where t.owner = #{dbName}</if>
+	   </where>
 	</select>
-
+	
+	<!-- 获取表字段集合 -->
 	<select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
-		select 1
+	    select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then 1 when 'N' then 0 end NULLABLE, c.COMMENTS 
+	    from user_tab_columns t left join user_col_comments c  on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
+	    <where>
+	        t.table_name in (select table_name from all_tables where owner = #{dbName} )
+	    	<if test="tableName != null"> and t.TABLE_NAME = #{tableName}</if>
+	    </where>
 	</select>
-
-	<select id="getTableColumnDescList" resultMap="TableColumnDescDtoMap">
-		select 1
-	</select>
-
+	
+	<!-- 条件查询表字段 -->
 	<select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
-		select 1
+	    select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then 1 when 'N' then 0 end NULLABLE, c.COMMENTS
+	    from user_tab_columns t
+	    left join user_col_comments c on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
+		<where>
+			<if test="tableName != null">and t.TABLE_NAME = #{tableName}</if>
+			AND (t.COLUMN_NAME like #{searchText} or c.COMMENTS like #{searchText})
+		</where>
 	</select>
-
+	
+	<!-- 条件查询表 -->
 	<select id="getTableDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableDescDto">
-		select 1
+	   select t.OWNER,t.TABLE_NAME as tableName,c.COMMENTS as description
+	   from all_tables t
+	   left join user_tab_comments c on t.TABLE_NAME = c.TABLE_NAME
+	   <where>
+	       t.owner = #{owner}
+			<if test="tableName != null">and t.TABLE_NAME = #{tableName}</if>
+	   </where>
 	</select>
 
+    <!-- 增加表注释 -->
 	<insert id="updateTableDesc">
-		select 1
+		comment on table ${dbName}.${tableName} is #{new Desc}
 	</insert>
 
+    <!-- 增加表字段注释 -->
 	<insert id="updateTableColumnDesc">
-		select 1
+	    comment on column ${dbName}.${tableName}.${columnName} is #{new Desc}
 	</insert>
 
 </mapper>
-

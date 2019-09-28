@@ -72,7 +72,7 @@ public class SqlExecutor {
 	 */
 	public ExecuteResult execute(DatabaseFactoryBean factoryBean, String executeId, ExecuteType executeType, String sqlStr, Map<String, Object> paramMap, ResultHandler handler) {
 		if (factoryBean == null) {
-			return new ExecuteResult();
+			return ExecuteResult.error("未找到数据库连接", sqlStr);
 		}
 //		BoundSql boundSql = getBoundSql(sql, paramMap);
 //		sql = boundSql.getSql();

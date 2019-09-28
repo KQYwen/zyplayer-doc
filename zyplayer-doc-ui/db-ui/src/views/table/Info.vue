@@ -39,7 +39,12 @@
             </el-row>
         </el-card>
         <el-card style="margin: 10px;">
-            <div slot="header" class="clearfix">字段信息</div>
+            <div slot="header" class="clearfix">
+                字段信息
+                <el-tooltip effect="dark" content="点击注释列可编辑字段注释" placement="top">
+                    <i class="el-icon-info" style="color: #999;"></i>
+                </el-tooltip>
+            </div>
             <div style="padding: 10px;" v-loading="columnListLoading">
                 <el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
                     <el-table-column prop="name" label="字段名" width="200"></el-table-column>

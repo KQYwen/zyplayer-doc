@@ -67,8 +67,8 @@ public class DbSqlExecutorController {
 			if (StringUtils.isBlank(sqlItem)) {
 				continue;
 			}
+			sqlItem = sqlItem.trim();
 			try {
-				sqlItem = sqlItem.trim();
 				Map<String, Object> paramMap = JSON.parseObject(params);
 				ExecuteType executeType = (!manageAuth && select) ? ExecuteType.SELECT : ExecuteType.ALL;
 				ExecuteResult executeResult = sqlExecutor.execute(sourceId, executeId, executeType, sqlItem, paramMap);
@@ -78,7 +78,7 @@ public class DbSqlExecutorController {
 				String resultJsonStr = JSON.toJSONString(executeResult, mapping, SerializerFeature.WriteMapNullValue);
 				resultList.add(resultJsonStr);
 			} catch (Exception e) {
-				ExecuteResult executeResult = ExecuteResult.error(StringUtil.getException(e));
+				ExecuteResult executeResult = ExecuteResult.error(StringUtil.getException(e), sqlItem);
 				resultList.add(JSON.toJSONString(executeResult));
 			}
 		}

@@ -204,8 +204,8 @@
                 }).catch(()=>{});
             },
             saveDatasource() {
+                app.datasourceDialogVisible = false;
                 this.common.post(this.apilist1.manageUpdateDatasource, this.newDatasource, function (json) {
-                    app.datasourceDialogVisible = false;
                     app.$message.success("保存成功！");
                     app.getDatasourceList();
                 });

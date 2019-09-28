@@ -35,7 +35,10 @@
 						<span v-else>暂未开放</span>
 					</td>
 					<td>{{item.rewriteDomainUrl}}</td>
-					<td>{{item.disabled==1?'已禁用':'已启用'}}</td>
+					<td>
+						<span class="label" v-if="item.disabled==1">已禁用</span>
+						<span class="label label-success" v-else>启用中</span>
+					</td>
 					<td>
 						<button class="btn btn-primary" type="button" @click="disableDocUrl(item.location, 0)" v-if="item.disabled==1">启用</button>
 						<button class="btn btn-primary" type="button" @click="disableDocUrl(item.location, 1)" v-else>禁用</button>
