@@ -39,6 +39,7 @@
                     <el-select v-model="newDatasource.driverClassName" @change="driverClassNameChange" placeholder="驱动类" style="width: 100%">
                         <el-option label="com.mysql.jdbc.Driver" value="com.mysql.jdbc.Driver"></el-option>
                         <el-option label="net.sourceforge.jtds.jdbc.Driver" value="net.sourceforge.jtds.jdbc.Driver"></el-option>
+                        <el-option label="oracle.jdbc.driver.OracleDriver" value="oracle.jdbc.driver.OracleDriver"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="数据源URL：">
@@ -214,6 +215,8 @@
                     this.urlPlaceholder = "例：jdbc:mysql://127.0.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8";
                 } else if (this.newDatasource.driverClassName == 'net.sourceforge.jtds.jdbc.Driver') {
                     this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:33434;DatabaseName=user_info;socketTimeout=60;";
+                } else if (this.newDatasource.driverClassName == 'oracle.jdbc.driver.OracleDriver') {
+                    this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
                 }
             },
             getDatasourceList() {

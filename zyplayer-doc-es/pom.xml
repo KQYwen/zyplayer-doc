@@ -58,11 +58,6 @@
             <artifactId>zyplayer-doc-core</artifactId>
             <version>${zyplayer.doc.version}</version>
         </dependency>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-http</artifactId>
-            <version>4.1.8</version>
-        </dependency>
     </dependencies>
     <licenses>
         <license>

@@ -20,13 +20,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<mybatis.plus.boot.starter.version>3.0.6</mybatis.plus.boot.starter.version>
-		<fastjson.version>1.2.53</fastjson.version>
-		<velocity.engine.core.version>2.0</velocity.engine.core.version>
-		<dozer.core.version>6.1.0</dozer.core.version>
-		<alibaba.druid.version>1.1.9</alibaba.druid.version>
 		<swagger.bootstrap.ui.version>1.9.4</swagger.bootstrap.ui.version>
-		<springfox.swagger.ui.version>2.9.2</springfox.swagger.ui.version>
 		<zyplayer.doc.version>1.0.4</zyplayer.doc.version>
 		<elasticsearch.version>7.2.0</elasticsearch.version>
 	</properties>
@@ -48,32 +42,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jta-atomikos</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.47</version>
-		</dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>${alibaba.druid.version}</version>
-        </dependency>
-		<dependency>
-			<groupId>com.baomidou</groupId>
-			<artifactId>mybatis-plus-boot-starter</artifactId>
-			<version>${mybatis.plus.boot.starter.version}</version>
-		</dependency>
-		<!-- json -->
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>${fastjson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.dozermapper</groupId>
-			<artifactId>dozer-core</artifactId>
-			<version>${dozer.core.version}</version>
 		</dependency>
 		<!-- 在线文档解析页面 -->
 		<!--zyplayer-doc-core-->
@@ -127,28 +95,6 @@
 			<artifactId>swagger-bootstrap-ui</artifactId>
 			<version>${swagger.bootstrap.ui.version}</version>
 		</dependency>
-		<!--springfox-swagger-ui-->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>${springfox.swagger.ui.version}</version>
-		</dependency>
-		<!-- velocity 模板引擎, 默认 -->
-		<dependency>
-			<groupId>org.apache.velocity</groupId>
-			<artifactId>velocity-engine-core</artifactId>
-			<version>${velocity.engine.core.version}</version>
-		</dependency>
-		<!-- freemarker 模板引擎 -->
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
-		</dependency>
-		<!-- 整合spring security -->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-security</artifactId>-->
-<!--		</dependency>-->
 	</dependencies>
 
 	<build>

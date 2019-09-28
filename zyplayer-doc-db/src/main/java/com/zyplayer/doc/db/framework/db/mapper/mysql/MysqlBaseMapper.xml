@@ -43,6 +43,8 @@
 	<select id="getDatabaseList" resultType="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto">
 		select TABLE_SCHEMA dbName
 		from information_schema.tables
+		<!--排除系统库-->
+		where TABLE_SCHEMA != 'information_schema'
 		group by TABLE_SCHEMA
 	</select>
 

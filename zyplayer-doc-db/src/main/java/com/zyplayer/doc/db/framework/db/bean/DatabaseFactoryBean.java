@@ -13,7 +13,6 @@ public class DatabaseFactoryBean {
 	private DruidDataSource dataSource;
 	private SqlSessionTemplate sqlSessionTemplate;
 	private String url;
-	private String host;
 	private String dbName;
 	private String cnName;
 	private DatabaseProduct databaseProduct;
@@ -35,7 +34,7 @@ public class DatabaseFactoryBean {
 	}
 	
 	public static enum DatabaseProduct {
-		MYSQL, SQLSERVER
+		MYSQL, SQLSERVER, ORACLE
 	}
 
 	public DruidDataSource getDataSource() {
@@ -52,14 +51,6 @@ public class DatabaseFactoryBean {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
 	}
 
 	public String getDbName() {
