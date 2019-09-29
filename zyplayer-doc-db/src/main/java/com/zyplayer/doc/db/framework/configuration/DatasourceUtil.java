@@ -38,6 +38,9 @@ public class DatasourceUtil {
 			dataSource.setConnectionErrorRetryAttempts(2);
 			dataSource.setBreakAfterAcquireFailure(true);
 			dataSource.setName("zyplayer-doc-db-" + dbDatasource.getId());
+			if (dbDatasource.getSourceUrl().contains("oracle")) {
+				dataSource.setValidationQuery("select 1 from dual");
+			}
 			DruidPooledConnection connection = dataSource.getConnection(3000);
 			if (connection == null) {
 				throw new ConfirmException("尝试获取该数据源连接失败：" + dbDatasource.getSourceUrl());

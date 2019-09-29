@@ -8,6 +8,7 @@ import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.parsing.GenericTokenParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +61,9 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public ExecuteResult execute(Long datasourceId, String executeId, ExecuteType executeType, String sql, Map<String, Object> paramMap) {
-		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getFactoryById(datasourceId);
-		return this.execute(factoryBean, executeId, executeType, sql, paramMap, null);
+	public ExecuteResult execute(ExecuteParam param) {
+		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getFactoryById(param.getDatasourceId());
+		return this.execute(factoryBean, param, null);
 	}
 	
 	/**
@@ -70,14 +71,14 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public ExecuteResult execute(DatabaseFactoryBean factoryBean, String executeId, ExecuteType executeType, String sqlStr, Map<String, Object> paramMap, ResultHandler handler) {
+	public ExecuteResult execute(DatabaseFactoryBean factoryBean, ExecuteParam executeParam, ResultHandler handler) {
 		if (factoryBean == null) {
-			return ExecuteResult.error("未找到数据库连接", sqlStr);
+			return ExecuteResult.error("未找到数据库连接", executeParam.getSql());
 		}
 //		BoundSql boundSql = getBoundSql(sql, paramMap);
 //		sql = boundSql.getSql();
 //		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
-		logger.info("sql ==> {}", sqlStr);
+		logger.info("sql ==> {}", executeParam.getSql());
 		
 //		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		PreparedStatement preparedStatement = null;
@@ -86,15 +87,19 @@ public class SqlExecutor {
 		try {
 			long startTime = System.currentTimeMillis();
 			connection = factoryBean.getDataSource().getConnection();
-			preparedStatement = connection.prepareStatement(sqlStr);
+			preparedStatement = connection.prepareStatement(executeParam.getSql());
 			// 设置当前的PreparedStatement
-			statementMap.put(executeId, preparedStatement);
-//			for (int i = 0; i < parameterMappings.size(); i++) {
-//				preparedStatement.setObject(i + 1, paramMap.get(parameterMappings.get(i).getProperty()));
-//			}
+			statementMap.put(executeParam.getExecuteId(), preparedStatement);
+			List<ParameterMapping> parameterMappings = executeParam.getParameterMappings();
+			List<Object> paramDataList = executeParam.getParamList();
+			if (parameterMappings != null && paramDataList != null && parameterMappings.size() > 0 && paramDataList.size() > 0) {
+				for (int i = 0; i < parameterMappings.size(); i++) {
+					preparedStatement.setObject(i + 1, paramDataList.get(i));
+				}
+			}
 			// 限制下最大数量
 			preparedStatement.setMaxRows(1000);
-			if (ExecuteType.SELECT.equals(executeType)) {
+			if (ExecuteType.SELECT.equals(executeParam.getExecuteType())) {
 				preparedStatement.executeQuery();
 			} else {
 				preparedStatement.execute();
@@ -119,11 +124,11 @@ public class SqlExecutor {
 			// 更新的数量，小于0代表不是更新语句
 			int updateCount = preparedStatement.getUpdateCount();
 			long useTime = System.currentTimeMillis() - startTime;
-			return new ExecuteResult(updateCount, resultList, useTime, sqlStr);
+			return new ExecuteResult(updateCount, resultList, useTime, executeParam.getSql());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
-			statementMap.remove(executeId);
+			statementMap.remove(executeParam.getExecuteId());
 			try {
 				if (preparedStatement != null && !preparedStatement.isClosed()) {
 					preparedStatement.close();

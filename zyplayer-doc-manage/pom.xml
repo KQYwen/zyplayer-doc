@@ -73,11 +73,12 @@
 			<artifactId>zyplayer-doc-data</artifactId>
 			<version>${zyplayer.doc.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-doc-grpc</artifactId>
-			<version>${zyplayer.doc.version}</version>
-		</dependency>
+        <!--zyplayer-doc-grpc 默认不加载进来-->
+<!--		<dependency>-->
+<!--			<groupId>com.zyplayer</groupId>-->
+<!--			<artifactId>zyplayer-doc-grpc</artifactId>-->
+<!--			<version>${zyplayer.doc.version}</version>-->
+<!--		</dependency>-->
 		<!--zyplayer-doc-swagger-->
 		<dependency>
 			<groupId>com.zyplayer</groupId>

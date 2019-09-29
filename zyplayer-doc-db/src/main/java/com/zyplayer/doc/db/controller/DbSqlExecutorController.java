@@ -16,6 +16,7 @@ import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.DbFavoriteService;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
+import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
@@ -69,9 +70,13 @@ public class DbSqlExecutorController {
 			}
 			sqlItem = sqlItem.trim();
 			try {
-				Map<String, Object> paramMap = JSON.parseObject(params);
 				ExecuteType executeType = (!manageAuth && select) ? ExecuteType.SELECT : ExecuteType.ALL;
-				ExecuteResult executeResult = sqlExecutor.execute(sourceId, executeId, executeType, sqlItem, paramMap);
+				ExecuteParam executeParam = new ExecuteParam();
+				executeParam.setDatasourceId(sourceId);
+				executeParam.setExecuteId(executeId);
+				executeParam.setExecuteType(executeType);
+				executeParam.setSql(sqlItem);
+				ExecuteResult executeResult = sqlExecutor.execute(executeParam);
 				SerializeConfig mapping = new SerializeConfig();
 				mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
 				mapping.put(Timestamp.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
