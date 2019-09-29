@@ -76,6 +76,7 @@ public class DbSqlExecutorController {
 				executeParam.setExecuteId(executeId);
 				executeParam.setExecuteType(executeType);
 				executeParam.setSql(sqlItem);
+				executeParam.setMaxRows(1000);
 				ExecuteResult executeResult = sqlExecutor.execute(executeParam);
 				SerializeConfig mapping = new SerializeConfig();
 				mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));

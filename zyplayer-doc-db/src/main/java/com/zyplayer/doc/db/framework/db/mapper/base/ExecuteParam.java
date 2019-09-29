@@ -15,6 +15,7 @@ public class ExecuteParam {
 	private List<Object> paramList;
 	private List<ParameterMapping> parameterMappings;
 	private Long datasourceId;
+	private Integer maxRows;
 	private String executeId;
 	private ExecuteType executeType;
 	
@@ -64,5 +65,13 @@ public class ExecuteParam {
 	
 	public void setParamList(List<Object> paramList) {
 		this.paramList = paramList;
+	}
+	
+	public Integer getMaxRows() {
+		return maxRows;
+	}
+	
+	public void setMaxRows(Integer maxRows) {
+		this.maxRows = maxRows;
 	}
 }

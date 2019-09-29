@@ -5,9 +5,13 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectBody;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
@@ -16,11 +20,14 @@ import org.apache.ibatis.session.Configuration;
 import org.springframework.util.CollectionUtils;
 
 import java.io.StringReader;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * sql预处理工具
+ *
+ * @author 暮光：城中城
+ * @since 2019年9月28日
+ */
 public class SqlParseUtil {
 	
 	/**
@@ -180,5 +187,61 @@ public class SqlParseUtil {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * 获取sql语句里面查询的列
+	 *
+	 * @return
+	 */
+	public static String getSelectCountSql(String sqlStr) {
+		try {
+			CCJSqlParserManager parser = new CCJSqlParserManager();
+			Statement stmt = parser.parse(new StringReader(sqlStr));
+			if (stmt instanceof Select) {
+				Select selectStmt = (Select) stmt;
+				SelectBody selectBody = selectStmt.getSelectBody();
+				if (selectBody instanceof PlainSelect) {
+					PlainSelect select = (PlainSelect) selectBody;
+					StringBuilder countSql = new StringBuilder();
+					countSql.append("SELECT count(0) counts");
+					if (select.getFromItem() != null) {
+						countSql.append(" FROM ").append(select.getFromItem());
+						if (select.getJoins() != null) {
+							Iterator<Join> it = select.getJoins().iterator();
+							while (it.hasNext()) {
+								Join join = it.next();
+								if (join.isSimple()) {
+									countSql.append(", ").append(join);
+								} else {
+									countSql.append(" ").append(join);
+								}
+							}
+						}
+						if (select.getWhere() != null) {
+							countSql.append(" WHERE ").append(select.getWhere());
+						}
+						if (select.getOracleHierarchical() != null) {
+							countSql.append(select.getOracleHierarchical().toString());
+						}
+						countSql.append(PlainSelect.getFormatedList(select.getGroupByColumnReferences(), "GROUP BY"));
+						if (select.getHaving() != null) {
+							countSql.append(" HAVING ").append(select.getHaving());
+						}
+					}
+					return countSql.toString();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) {
+		String storageSql = "select * from zyplayer_doc_manage.wiki_space where id=1 group by id";
+		storageSql = storageSql.replaceAll("(#\\{\\w+})", "'$1'");
+		String selectCountSql = getSelectCountSql(storageSql);
+		System.out.println(selectCountSql);
 	}
 }

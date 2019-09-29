@@ -92,14 +92,16 @@ public class DbDatasourceController {
 				newFactoryBeanList.add(factoryBean);
 			}
 		}
-		// 创建新的数据源
-		DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasourceSel);
-		if (databaseFactoryBean != null) {
-			newFactoryBeanList.add(databaseFactoryBean);
-		}
-		databaseRegistrationBean.setDatabaseFactoryBeanList(newFactoryBeanList);
-		if (databaseFactoryBean == null) {
-			return DocDbResponseJson.warn("创建数据源失败，请检查配置是否正确");
+		if (Optional.ofNullable(dbDatasourceSel.getYn()).orElse(0) == 1) {
+			// 创建新的数据源
+			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasourceSel);
+			if (databaseFactoryBean != null) {
+				newFactoryBeanList.add(databaseFactoryBean);
+			}
+			databaseRegistrationBean.setDatabaseFactoryBeanList(newFactoryBeanList);
+			if (databaseFactoryBean == null) {
+				return DocDbResponseJson.warn("创建数据源失败，请检查配置是否正确");
+			}
 		}
 		return DocDbResponseJson.ok();
 	}

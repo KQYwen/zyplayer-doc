@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
@@ -18,10 +19,7 @@ import javax.annotation.Resource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -78,7 +76,10 @@ public class SqlExecutor {
 //		BoundSql boundSql = getBoundSql(sql, paramMap);
 //		sql = boundSql.getSql();
 //		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
-		logger.info("sql ==> {}", executeParam.getSql());
+		// 有参数的时候不输出日志，暂时只有导数据才有参数
+		if (CollectionUtils.isEmpty(executeParam.getParamList())) {
+			logger.info("sql ==> {}", executeParam.getSql());
+		}
 		
 //		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		PreparedStatement preparedStatement = null;
@@ -97,12 +98,14 @@ public class SqlExecutor {
 					preparedStatement.setObject(i + 1, paramDataList.get(i));
 				}
 			}
-			// 限制下最大数量
-			preparedStatement.setMaxRows(1000);
 			if (ExecuteType.SELECT.equals(executeParam.getExecuteType())) {
 				preparedStatement.executeQuery();
 			} else {
 				preparedStatement.execute();
+			}
+			// 限制下最大数量
+			if (executeParam.getMaxRows() != null) {
+				preparedStatement.setMaxRows(executeParam.getMaxRows());
 			}
 			// 查询的结果集
 			ResultSet resultSet = preparedStatement.getResultSet();
