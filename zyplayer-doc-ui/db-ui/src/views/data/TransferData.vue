@@ -8,7 +8,7 @@
                 </div>
                 <div style="margin-bottom: 10px;text-align: right;">
                     <el-button type="success" icon="el-icon-plus" v-on:click="createNewTask">新建</el-button>
-                    <el-button type="primary" v-on:click="loadGetTaskList">查询</el-button>
+                    <el-button type="primary" v-on:click="loadGetTaskList" :loading="loadDataListLoading" icon="el-icon-refresh">查询</el-button>
                 </div>
                 <el-table :data="taskList" stripe border style="width: 100%; margin-bottom: 5px;">
                     <el-table-column prop="id" label="ID" width="55"></el-table-column>
@@ -77,6 +77,7 @@
             </el-form>
             <div style="text-align: center;">
                 <el-button type="primary" v-on:click="saveEditTask">保存</el-button>
+                <el-button type="warning" v-on:click="taskEditDialogVisible=false">取消</el-button>
             </div>
         </el-dialog>
         <!--任务查看弹窗-->
@@ -96,6 +97,7 @@
                     <pre style="word-wrap: break-word;word-break: break-all;white-space: pre-wrap;line-height: 22px;">{{taskEditInfo.lastExecuteInfo}}</pre>
                 </el-form-item>
                 <el-form-item label="操作：" v-if="taskEditInfo.lastExecuteStatus==1">
+                    <el-button type="success" v-on:click="viewTask(taskEditInfo.id)" icon="el-icon-refresh" :loading="viewTaskLoading">刷新</el-button>
                     <el-button type="danger" v-on:click="cancelTask">取消执行</el-button>
                 </el-form-item>
             </el-form>
@@ -114,6 +116,8 @@
     export default {
         data() {
             return {
+                viewTaskLoading: false,
+                loadDataListLoading: false,
                 // 数据源相关
                 datasourceOptions: [],
                 queryDatasourceId: "",
@@ -185,9 +189,11 @@
                 });
             },
             viewTask(id) {
+                this.viewTaskLoading = true;
                 this.taskViewDialogVisible = true;
                 this.common.post(this.apilist1.transferDetail, {id: id}, function (json) {
                     app.taskEditInfo = json.data || {};
+                    setTimeout(()=>{app.viewTaskLoading = false;}, 300);
                 });
             },
             cancelTask() {
@@ -198,12 +204,15 @@
                 }).then(() => {
                     this.common.post(this.apilist1.transferCancel, {id: this.taskEditInfo.id}, function (json) {
                         app.$message.success("取消成功");
+                        app.viewTask(app.taskEditInfo.id);
                     });
                 }).catch(()=>{});
             },
             loadGetTaskList() {
+                this.loadDataListLoading = true;
                 this.common.post(this.apilist1.transferList, {}, function (json) {
                     app.taskList = json.data || [];
+                    setTimeout(()=>{app.loadDataListLoading = false;}, 800);
                 });
             },
             autoFillStorageSql() {

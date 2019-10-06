@@ -279,9 +279,9 @@
                         document.getElementById("widthCalculate").innerText = propData[key];
                         var width2 = document.getElementById("widthCalculate").offsetWidth;
                         var width = (width1 > width2) ? width1 : width2;
-                        width = (width < 60) ? 60 : width;
+                        width = (width < 50) ? 50 : width;
                         width = (width > 200) ? 200 : width;
-                        executeResultCols.push({prop: key, width: width + 20});
+                        executeResultCols.push({prop: key, width: width + 25});
                     }
                     for (var i = 0; i < dataList.length; i++) {
                         dataList[i]._index = i + 1;
