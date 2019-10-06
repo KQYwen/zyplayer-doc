@@ -45,13 +45,18 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public void cancel(String executeId) {
+	public boolean cancel(String executeId) {
 		PreparedStatement preparedStatement = statementMap.remove(executeId);
 		try {
-			preparedStatement.cancel();
+			if (preparedStatement != null) {
+				preparedStatement.cancel();
+				return true;
+			}
+			logger.error("未找到指定任务，取消执行失败：{}", executeId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return false;
 	}
 	
 	/**

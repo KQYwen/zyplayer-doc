@@ -24,7 +24,14 @@
 <!--                        </el-submenu>-->
                         <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
                         <el-menu-item index="/data/executor"><i class="el-icon-video-play"></i>SQL执行器</el-menu-item>
-                        <el-menu-item index="/data/export"><i class="el-icon-finished"></i>数据库表导出</el-menu-item>
+                        <el-submenu index="1">
+                            <template slot="title">
+                                <i class="el-icon-s-platform"></i>
+                                <span slot="title">管理工具</span>
+                            </template>
+                            <el-menu-item index="/data/export"><i class="el-icon-finished"></i>数据库表导出</el-menu-item>
+                            <el-menu-item index="/data/transferData"><i class="el-icon-document-copy"></i>数据互导工具</el-menu-item>
+                        </el-submenu>
                     </el-menu>
                     <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
                              ref="databaseTree" highlight-current empty-text=""

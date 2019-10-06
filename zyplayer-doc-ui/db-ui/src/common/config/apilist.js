@@ -23,6 +23,13 @@ var URL = {
     favoriteList: '/zyplayer-doc-db/executor/favorite/list',
     historyList: '/zyplayer-doc-db/executor/history/list',
 
+    transferStart: '/zyplayer-doc-db/transfer/start',
+    transferCancel: '/zyplayer-doc-db/transfer/cancel',
+    transferList: '/zyplayer-doc-db/transfer/list',
+    transferDetail: '/zyplayer-doc-db/transfer/detail',
+    transferUpdate: '/zyplayer-doc-db/transfer/update',
+    transferSqlColumns: '/zyplayer-doc-db/transfer/sqlColumns',
+
     assignDbUserAuth: '/zyplayer-doc-db/auth/assign',
     dbUserAuthList: '/zyplayer-doc-db/auth/list',
 

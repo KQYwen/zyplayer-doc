@@ -1,17 +1,17 @@
 package com.zyplayer.doc.db.framework.db.transfer;
 
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * sql预处理工具
@@ -236,6 +237,52 @@ public class SqlParseUtil {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * 获取sql语句里面查询的列
+	 *
+	 * @param sql
+	 * @return
+	 */
+	public static List<String> getSelectNames(String sql) {
+		Statement stmt;
+		try {
+			CCJSqlParserManager parser = new CCJSqlParserManager();
+			stmt = parser.parse(new StringReader(sql));
+		} catch (JSQLParserException e) {
+			e.printStackTrace();
+			return Collections.emptyList();
+		}
+		if (stmt instanceof Select) {
+			Select selectStatement = (Select) stmt;
+			SelectBody selectBody = selectStatement.getSelectBody();
+			if (selectBody instanceof PlainSelect) {
+				PlainSelect plainBody = (PlainSelect) selectBody;
+				List<SelectItem> selectItems = plainBody.getSelectItems();
+				return selectItems.stream().map(val -> {
+							if (val instanceof SelectExpressionItem) {
+								Alias alias = ((SelectExpressionItem) val).getAlias();
+								if (alias != null) {
+									String name = alias.getName();
+									name = StringUtils.removeStart(name, "`");
+									name = StringUtils.removeEnd(name, "`");
+									return name;
+								}
+								Expression expression = ((SelectExpressionItem) val).getExpression();
+								if (expression instanceof Column) {
+									String name = ((Column) expression).getColumnName();
+									name = StringUtils.removeStart(name, "`");
+									name = StringUtils.removeEnd(name, "`");
+									return name;
+								}
+							}
+							return null;
+						})
+						.filter(StringUtils::isNotBlank).collect(Collectors.toList());
+			}
+		}
+		return Collections.emptyList();
 	}
 	
 	public static void main(String[] args) {
