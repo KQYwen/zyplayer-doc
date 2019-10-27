@@ -1,7 +1,7 @@
 <template>
     <div class="index-executer-vue">
         <el-card style="margin: 10px;">
-            <div style="margin-bottom: 20px;">
+            <div>
                 <el-form :model="executeParam" :inline="true" :rules="paramRules" ref="paramRulesForm">
                     <el-form-item label="选择数据源：" prop="id">
                         <el-select v-model="executeParam.id" @change="loadIndexList" filterable placeholder="选择数据源">
@@ -17,9 +17,12 @@
                 </el-form>
             </div>
 <!--            例：{"_source":["id","name","createUserName","viewNum"]}-->
-            <el-input type="textarea" v-model="executeParam.sql" :rows="10" placeholder="请输入DSL查询条件"></el-input>
-            <div style="text-align: center;margin-top: 10px;">
-                <el-button type="primary" icon="el-icon-video-play" v-on:click="submitExecute">执行</el-button>
+<!--            <el-input type="textarea" v-model="executeParam.sql" :rows="10" placeholder="请输入DSL查询条件"></el-input>-->
+            <pre id="dslInputEditor" placeholder="请输入DSL查询条件"></pre>
+            <div>
+                <el-tooltip effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
+                    <el-button type="primary" icon="el-icon-video-play" v-on:click="submitExecute">执行</el-button>
+                </el-tooltip>
             </div>
         </el-card>
         <el-card style="margin: 10px;" v-loading="executeLoading">
@@ -54,12 +57,20 @@
 <script>
     import global from '../../common/config/global'
     import formatjson from '../../common/lib/common/formatjson'
+    import '../../common/lib/ace/ace'
+    // import '../../common/lib/ace/es5-shim'
+    import '../../common/lib/ace/theme-monokai'
+    import '../../common/lib/ace/mode-json'
+    // import '../../common/lib/ace/worker-json'
+    import '../../common/lib/ace/ext-language_tools'
+    import '../../common/lib/ace/json'
     var app;
 
     export default {
         data() {
             return {
                 vueQueryParam: {},
+                dslInputEditor: {},
                 datasourceOptions: [],
                 esIndexList: [],
                 executeParam: {
@@ -83,8 +94,29 @@
         mounted: function () {
             app = this;
             this.loadDatasourceList();
+            app.dslInputEditor = app.initAceEditor("dslInputEditor", 20);
+            app.dslInputEditor.commands.addCommand({
+                name: "execute-query",
+                bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
+                exec: function (editor) {
+                    app.doSubmitExecute();
+                }
+            });
         },
         methods: {
+            initAceEditor(editor, minLines) {
+                return ace.edit(editor, {
+                    theme: "ace/theme/monokai",
+                    mode: "ace/mode/json",
+                    wrap: true,
+                    autoScrollEditorIntoView: true,
+                    enableBasicAutocompletion: true,
+                    enableSnippets: true,
+                    enableLiveAutocompletion: true,
+                    minLines: minLines,
+                    maxLines: 50,
+                });
+            },
             submitExecute() {
                 this.$refs.paramRulesForm.validate((valid) => {
                     if (!valid) return;
@@ -94,6 +126,11 @@
             doSubmitExecute() {
                 this.executeLoading = true;
                 this.executeResult = {};
+                var dslValue = this.dslInputEditor.getSelectedText();
+                if (!dslValue) {
+                    dslValue = this.dslInputEditor.getValue();
+                }
+                this.executeParam.sql = dslValue;
                 this.common.postNonCheck(this.apilist1.esExecuter, this.executeParam, function (json) {
                     var executeResult = json;
                     try {
@@ -149,6 +186,9 @@
     .index-executer-vue .description{cursor: pointer;}
     .index-executer-vue .error-text{color: #f00;}
     .index-executer-vue .el-table td, .table-info-vue .el-table th{padding: 5px 0;}
+    .index-executer-vue .ace-monokai .ace_print-margin{
+        display: none;
+    }
 
     /* S-JSON展示的样式 */
     .index-executer-vue pre.json {
