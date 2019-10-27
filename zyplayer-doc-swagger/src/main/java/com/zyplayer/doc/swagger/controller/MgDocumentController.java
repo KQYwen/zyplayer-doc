@@ -142,6 +142,9 @@ public class MgDocumentController {
 		List<String> swaggerResourceStrList = new LinkedList<>();
 		for (LocationListVo location : locationList) {
 			try {
+				if (Optional.ofNullable(location.getDisabled()).orElse(0) == 1) {
+					continue;
+				}
 				String resourceStr = HttpRequest.get(location.getLocation())
 						.form(this.getGlobalParamObjMap(globalParamList, "form"))
 						.addHeaders(this.getGlobalParamMap(globalParamList, "header"))
