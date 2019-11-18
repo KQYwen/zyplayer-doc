@@ -26,11 +26,11 @@ var userSettings = {};
 // 默认用户的配置对象
 var defaultUserSettings = {
 	autoFillParam : 0,// 自动填充参数，0=否  1=智能填充  2=全部填充
-	onlyUseLastParam : 0,// 是否仅使用上次请求参数
+	onlyUseLastParam : 1,// 是否仅使用上次请求参数
 	showParamType : 1,// 是否展示字段的类型
 	catalogShowType : 2,// 目录的展示方式，1=url分成一层一层的展示、2=整个url显示为一层展示
 	treeShowType : 1,// 树形菜单展示方式，1=tree-angles、2=tree-menu、3=默认，4=tree-folders、5=tree-chevrons
-	forceRewriteDomain: 0,// 强制重写域名 0=否 1=是
+	forceRewriteDomain: 1,// 强制重写域名 0=否 1=是
 	projects : [],// 所有的项目列表
 	removedProjects : [],// 被移除的项目列表
 	prevWNow : 360
@@ -225,7 +225,7 @@ function exportDocument(){
 	$("#exportDocumentModal .bottom-box").show();
 	$("#exportDocumentModal .alert").addClass("hidden");
 	$("#exportDocumentText").addClass("hidden");
-	
+
 	$('#exportDocumentUl').empty();
 	for (var i = 0; i < documentJsonArr.length; i++) {
 		$("#exportDocumentUl").append('<li index='+i+'>'+decodeURI(documentJsonArr[i].fullUrl)+'</li>');
