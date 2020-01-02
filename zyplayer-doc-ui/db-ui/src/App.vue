@@ -4,8 +4,8 @@
             <router-view></router-view>
         </template>
         <el-container v-else>
-            <el-aside>
-                <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
+            <el-aside style="background: #fafafa;">
+                <div style="padding: 10px;height: 100%;box-sizing: border-box;">
                     <div style="margin-bottom: 10px;">
                         <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请先选择数据源" style="width: 100%;">
                             <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -33,16 +33,23 @@
                             <el-menu-item index="/data/transferData"><i class="el-icon-document-copy"></i>数据互导工具</el-menu-item>
                         </el-submenu>
                     </el-menu>
-                    <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
-                             ref="databaseTree" highlight-current empty-text=""
-                             :default-expanded-keys="databaseExpandedKeys"
-                             node-key="id" @node-expand="handleNodeExpand"
-                             style="background-color: #fafafa;">
-                        <span slot-scope="{node, data}">
-                            <span v-if="data.needLoad"><i class="el-icon-loading"></i></span>
-                            <span v-else>{{node.label}}</span>
-                        </span>
-                    </el-tree>
+                    <div style="overflow: auto;padding-bottom: 30px;">
+                        <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
+                                 ref="databaseTree" highlight-current empty-text=""
+                                 :default-expanded-keys="databaseExpandedKeys"
+                                 node-key="id" @node-expand="handleNodeExpand"
+                                 class="database-list-tree">
+                            <span slot-scope="{node, data}">
+                                <span v-if="data.needLoad"><i class="el-icon-loading"></i></span>
+                                <span v-else>
+                                    {{node.label}}
+                                    <el-tooltip v-if="!!data.comment" effect="dark" :content="data.comment" placement="top-start" :open-delay="600">
+                                        <span style="color: #aaa;">-{{data.comment}}</span>
+                                    </el-tooltip>
+                                </span>
+                            </span>
+                        </el-tree>
+                    </div>
                 </div>
             </el-aside>
             <el-container>
@@ -184,7 +191,8 @@
                     for (var i = 0; i < result.length; i++) {
                         var item = {
                             id: node.host + "_" + node.dbName + "_" + result[i].tableName, host: node.host,
-                            dbName: node.dbName, tableName: result[i].tableName, name: result[i].tableName, type: 2
+                            dbName: node.dbName, tableName: result[i].tableName, name: result[i].tableName, type: 2,
+                            comment: result[i].tableComment
                         };
                         // item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
                         pathIndex.push(item);
@@ -262,6 +270,10 @@
     }
     #app, .el-container, .el-menu {
         height: 100%;
+    }
+    .database-list-tree{background-color: #fafafa;}
+    .database-list-tree .el-tree-node>.el-tree-node__children {
+        overflow: unset;
     }
     .header-right-user-name{color: #fff;padding-right: 5px;}
     .el-menu-vertical{border-right: 0;background: #fafafa;}
