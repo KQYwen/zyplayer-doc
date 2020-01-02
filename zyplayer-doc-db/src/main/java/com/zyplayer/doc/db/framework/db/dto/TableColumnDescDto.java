@@ -1,13 +1,39 @@
 package com.zyplayer.doc.db.framework.db.dto;
 
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+
 public class TableColumnDescDto {
+	@ColumnWidth(20)
+	@ExcelProperty("表名")
 	private String tableName;
+	
+	@ColumnWidth(20)
+	@ExcelProperty("字段名")
 	private String name;
+	
+	@ColumnWidth(15)
+	@ExcelProperty("是否自增")
 	private String isidenity;
+	
+	@ColumnWidth(20)
+	@ExcelProperty("类型")
 	private String type;
+	
+	@ColumnWidth(10)
+	@ExcelProperty("NULL")
 	private String nullable;
+	
+	@ColumnWidth(10)
+	@ExcelProperty("长度")
 	private String length;
+	
+	@ColumnWidth(10)
+	@ExcelProperty("主键")
 	private String ispramary;
+	
+	@ColumnWidth(80)
+	@ExcelProperty("注释")
 	private String description;
 
 	public String getName() {

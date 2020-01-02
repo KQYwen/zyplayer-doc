@@ -2,6 +2,8 @@ package com.zyplayer.doc.db.controller.vo;
 
 import java.util.List;
 
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
 
 public class TableColumnVo {
@@ -11,7 +13,13 @@ public class TableColumnVo {
 	private TableInfoVo tableInfo;
 
 	public static class TableInfoVo {
+		
+		@ColumnWidth(20)
+		@ExcelProperty("表名")
 		private String tableName;
+		
+		@ColumnWidth(80)
+		@ExcelProperty("表注释")
 		private String description;
 
 		public String getDescription() {

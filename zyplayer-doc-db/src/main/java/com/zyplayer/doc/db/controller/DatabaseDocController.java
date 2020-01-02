@@ -2,6 +2,9 @@ package com.zyplayer.doc.db.controller;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ZipUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
@@ -40,6 +43,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -92,6 +97,7 @@ public class DatabaseDocController {
 	/**
 	 * 获取编辑器所需的所有信息，用于自动补全
 	 * 此接口会返回所有库表结构，介意的话请自己手动屏蔽调此接口
+	 *
 	 * @param sourceId
 	 * @return
 	 */
@@ -242,7 +248,7 @@ public class DatabaseDocController {
 	}
 	
 	@GetMapping(value = "/exportDatabase")
-	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames) {
+	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames, Integer exportType) {
 		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
 		if (StringUtils.isBlank(tableNames)) {
 			return DocDbResponseJson.warn("请选择需要导出的表");
@@ -267,15 +273,34 @@ public class DatabaseDocController {
 		exportVo.setTableList(tableList);
 		String content = JSON.toJSONString(exportVo);
 		content = "var docDbDatabase = " + content;
-		
-		response.setContentType("application/octet-stream");
-		response.addHeader("Content-Disposition", "attachment;filename=database.js");
-		response.setCharacterEncoding("utf-8");
-		// 将文件输入流写入response的输出流中
-		try {
-			IoUtil.write(response.getOutputStream(), "utf-8", true, content);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (Objects.equals(exportType, 1)) {
+			response.setContentType("application/octet-stream");
+			response.addHeader("Content-Disposition", "attachment;filename=database.js");
+			response.setCharacterEncoding("utf-8");
+			// 将文件输入流写入response的输出流中
+			try {
+				IoUtil.write(response.getOutputStream(), "utf-8", true, content);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				response.setContentType("application/vnd.ms-excel");
+				response.setCharacterEncoding("utf-8");
+				String fileName = URLEncoder.encode("数据库表导出", "UTF-8");
+				response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+				ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream()).build();
+				WriteSheet writeSheet = EasyExcel.writerSheet(0, "表信息").head(TableInfoVo.class).build();
+				excelWriter.write(tableList, writeSheet);
+				int index = 1;
+				for (Map.Entry<String, List<TableColumnDescDto>> entry : columnList.entrySet()) {
+					writeSheet = EasyExcel.writerSheet(index++, entry.getKey()).head(TableColumnDescDto.class).build();
+					excelWriter.write(entry.getValue(), writeSheet);
+				}
+				excelWriter.finish();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return DocDbResponseJson.ok();
 	}
@@ -315,6 +340,7 @@ public class DatabaseDocController {
 	
 	/**
 	 * 权限判断
+	 *
 	 * @author 暮光：城中城
 	 */
 	private void judgeAuth(Long sourceId, String authName, String noAuthInfo) {
@@ -326,6 +352,7 @@ public class DatabaseDocController {
 	
 	/**
 	 * 获取BaseMapper
+	 *
 	 * @author 暮光：城中城
 	 */
 	private BaseMapper getBaseMapper(Long sourceId) {
@@ -338,6 +365,7 @@ public class DatabaseDocController {
 	
 	/**
 	 * 判断查看权和获取BaseMapper
+	 *
 	 * @author 暮光：城中城
 	 */
 	private BaseMapper getViewAuthBaseMapper(Long sourceId) {

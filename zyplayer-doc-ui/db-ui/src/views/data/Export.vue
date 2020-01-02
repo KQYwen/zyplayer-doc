@@ -12,6 +12,10 @@
                     <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库">
                         <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>
                     </el-select>
+                    <el-radio-group v-model="exportType">
+                        <el-radio :label="1">HTML格式</el-radio>
+                        <el-radio :label="2">Excel格式</el-radio>
+                    </el-radio-group>
                     <el-button v-on:click="exportChoiceTable" type="primary" style="margin-left: 20px;">导出选中的表</el-button>
                     <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=117&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
                 </div>
@@ -37,6 +41,7 @@
                 choiceDatasourceId: "",
                 choiceDatabase: "",
                 choiceTable: "",
+                exportType: 1,
                 // 页面展示相关
                 nowDatasourceShow: {},
                 databaseList: [],
@@ -69,6 +74,7 @@
 					tableNames += this.selectTables[i].tableName;
 				}
 				window.open("zyplayer-doc-db/doc-db/exportDatabase?sourceId=" + this.choiceDatasourceId
+					+ "&exportType=" + this.exportType
 					+ "&dbName=" + this.choiceDatabase
 					+ "&tableNames=" + tableNames);
             },
