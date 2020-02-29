@@ -9,6 +9,8 @@
 各模块的详细使用文档地址，部署必看：
 [http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb](http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 
 
+【作者项目上新】超好用免费类似阿里的DataV数据可视化工具：数据大屏，现已上线，欢迎体验，免账号密码，微信扫码登录 https://datascreen.zyplayer.com
+
 #### 软件架构
 ##### 一、zyplayer-doc-core 一些核心、公用的类
 
