@@ -1,26 +1,19 @@
 package com.zyplayer.doc.data.config;
 
-import com.atomikos.icatch.jta.UserTransactionImp;
-import com.atomikos.icatch.jta.UserTransactionManager;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.github.pagehelper.PageHelper;
 import com.zyplayer.doc.data.repository.support.interceptor.SqlLogInterceptor;
+import com.zyplayer.doc.data.utils.DruidDataSourceUtil;
 import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.jta.JtaTransactionManager;
 
 import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
 import java.util.Properties;
 
 /**
@@ -32,58 +25,17 @@ public class MybatisPlusConfig {
 	/**
 	 * sql日志
 	 **/
-	private static final SqlLogInterceptor SQL_LOG_INTERCEPTOR;
+	private static final SqlLogInterceptor SQL_LOG_INTERCEPTOR = new SqlLogInterceptor();
 	/**
 	 * MYSQL 分页
 	 **/
 	private static final PageHelper MYSQL_PAGE_HELPER;
 	
 	static {
-		{
-			MYSQL_PAGE_HELPER = new PageHelper();
-			Properties properties = new Properties();
-			properties.setProperty("dialect", "mysql");
-			MYSQL_PAGE_HELPER.setProperties(properties);
-		}
-		{
-			SQL_LOG_INTERCEPTOR = new SqlLogInterceptor();
-			Properties properties = new Properties();
-			SQL_LOG_INTERCEPTOR.setProperties(properties);
-		}
-	}
-	
-	/**
-	 * 分布式事务配置
-	 */
-	@Configuration
-	static class JTATransactionManagerConfig {
-		
-		@Bean(name = "userTransaction")
-		public UserTransaction userTransaction() throws Throwable {
-			UserTransactionImp userTransactionImp = new UserTransactionImp();
-			userTransactionImp.setTransactionTimeout(300);
-			return userTransactionImp;
-		}
-		
-		@Bean(name = "atomikosTransactionManager")
-		public TransactionManager atomikosTransactionManager() {
-			UserTransactionManager userTransactionManager = new UserTransactionManager();
-			userTransactionManager.setForceShutdown(true);
-			return userTransactionManager;
-		}
-		
-		@Bean(name = "transactionManager")
-		public PlatformTransactionManager transactionManager() throws Throwable {
-			UserTransaction userTransaction = userTransaction();
-			TransactionManager atomikosTransactionManager = atomikosTransactionManager();
-			
-			JtaTransactionManager jtaTransactionManager = new JtaTransactionManager(userTransaction, atomikosTransactionManager);
-			jtaTransactionManager.setAllowCustomIsolationLevels(true);
-			jtaTransactionManager.setGlobalRollbackOnParticipationFailure(true);
-			jtaTransactionManager.setDefaultTimeout(30);
-			
-			return jtaTransactionManager;
-		}
+		MYSQL_PAGE_HELPER = new PageHelper();
+		Properties properties = new Properties();
+		properties.setProperty("dialect", "mysql");
+		MYSQL_PAGE_HELPER.setProperties(properties);
 	}
 	
 	/**
@@ -105,24 +57,7 @@ public class MybatisPlusConfig {
 		
 		@Bean(name = "manageDatasource")
 		public DataSource manageDatasource() {
-			Properties xaProperties = new Properties();
-			xaProperties.setProperty("driverClassName", driverClassName);
-			xaProperties.setProperty("url", url);
-			xaProperties.setProperty("username", username);
-			xaProperties.setProperty("password", password);
-			xaProperties.setProperty("maxActive", "500");
-			xaProperties.setProperty("testOnBorrow", "true");
-			xaProperties.setProperty("testWhileIdle", "true");
-			xaProperties.setProperty("validationQuery", "select 'x'");
-			
-			AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
-			xaDataSource.setXaProperties(xaProperties);
-			xaDataSource.setXaDataSourceClassName("com.alibaba.druid.pool.xa.DruidXADataSource");
-			xaDataSource.setUniqueResourceName("manageDatasource");
-			xaDataSource.setMaxPoolSize(500);
-			xaDataSource.setMinPoolSize(1);
-			xaDataSource.setMaxLifetime(60);
-			return xaDataSource;
+			return DruidDataSourceUtil.createDataSource(driverClassName, url, username, password);
 		}
 		
 		@Bean(name = "manageSqlSessionFactory")
@@ -135,16 +70,6 @@ public class MybatisPlusConfig {
 			sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/manage/*Mapper.xml"));
 			return sqlSessionFactoryBean;
 		}
-	}
-	
-	@Bean
-	public PerformanceInterceptor performanceInterceptor() {
-		PerformanceInterceptor performanceInterceptor = new PerformanceInterceptor();
-		/* <!-- SQL 执行性能分析，开发环境使用，线上不推荐。 maxTime 指的是 sql 最大执行时长 --> */
-		performanceInterceptor.setMaxTime(1000);
-		/* <!--SQL是否格式化 默认false--> */
-		performanceInterceptor.setFormat(true);
-		return performanceInterceptor;
 	}
 	
 	@Bean

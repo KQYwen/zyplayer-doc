@@ -30,9 +30,6 @@
 		</encoder>
 	</appender>
 	<logger name="com.zyplayer.doc.manage.repository" level="warn" />
-	<logger name="com.atomikos.jdbc" level="warn" />
-	<logger name="com.atomikos.datasource.xa" level="warn" />
-	<logger name="com.atomikos.icatch.imp" level="warn" />
 	<root level="info">
 		<appender-ref ref="STDOUT" />
 	</root>
