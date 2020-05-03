@@ -1,13 +1,8 @@
 <template>
     <div class="data-executor-vue">
-        <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
+        <div style="padding: 0 10px;height: 100%;box-sizing: border-box;">
             <el-card style="margin-bottom: 10px;">
-                <div>
-<!--                    <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库">-->
-<!--                        <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>-->
-<!--                    </el-select>-->
-                </div>
-                <pre id="sqlExecutorEditor" style="width: 100%;height: 500px;"></pre>
+                <pre id="sqlExecutorEditor" style="width: 100%;height: 500px;margin-top: 0;"></pre>
                 <div>
                     <el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain  size="small" icon="el-icon-video-pause">取消执行</el-button>
                     <el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">

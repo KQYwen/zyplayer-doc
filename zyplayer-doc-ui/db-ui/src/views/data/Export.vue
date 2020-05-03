@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
+        <div style="padding: 10px;height: 100%;box-sizing: border-box;">
             <el-card style="margin: 10px;">
                 <div slot="header" class="clearfix">
                     <span>数据库表导出</span>

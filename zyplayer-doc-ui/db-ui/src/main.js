@@ -10,6 +10,7 @@ import toast from './common/lib/common/toast'
 
 import VueRouter from 'vue-router'
 import routes from './routes'
+import store from './store/index'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
@@ -25,6 +26,7 @@ Vue.prototype.apilist2 = apimix.apilist1;
 // 公用方法
 Vue.prototype.common = common;
 Vue.prototype.toast = toast;
+Vue.prototype.$store = store;
 
 const router = new VueRouter({routes});
 // 路由跳转时判断处理

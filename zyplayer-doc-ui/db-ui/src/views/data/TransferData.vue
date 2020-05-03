@@ -1,6 +1,6 @@
 <template>
     <div class="data-transfer-vue">
-        <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
+        <div style="padding: 0 10px;height: 100%;box-sizing: border-box;">
             <el-card style="margin: 10px;">
                 <div slot="header" class="clearfix">
                     <span>数据互导工具</span>

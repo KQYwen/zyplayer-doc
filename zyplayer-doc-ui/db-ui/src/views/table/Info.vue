@@ -115,6 +115,11 @@
                     tableInfo.newDesc = tableInfo.description;
                     app.tableInfo = tableInfo;
                     app.columnListLoading = false;
+                    var newName = {key: app.$route.fullPath, val: tableInfo.tableName};
+                    app.$store.commit('global/addTableName', newName);
+                    app.$forceUpdate();
+                    console.log(newName)
+                    // app.$store.state.global.pageTabNameMap
                 });
                 this.common.post(this.apilist1.tableStatus, this.vueQueryParam, function (json) {
                     app.tableStatusInfo = json.data || {};
