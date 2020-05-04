@@ -3,19 +3,24 @@
         <div style="padding: 0 10px;height: 100%;box-sizing: border-box;">
             <el-card>
                 <div v-if="!!executeError" style="color: #f00;">{{executeError}}</div>
-                <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting">暂无数据</div>
+                <div v-else-if="sqlExecuting" v-loading="sqlExecuting" style="padding: 20px 0;">暂无数据</div>
                 <div v-else>
+                    <el-button size="small" @click="refreshData" style="position: absolute;right: 30px;z-index: 1;">刷新</el-button>
                     <el-tabs :value="executeShowTable">
                         <el-tab-pane label="信息" name="table0">
                             <pre>{{executeResultInfo}}</pre>
                         </el-tab-pane>
                         <el-tab-pane :label="'结果'+resultItem.index" :name="'table'+resultItem.index" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
                             <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
-                            <el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600">
+                            <el-table v-else :data="resultItem.dataList" stripe border
+                                      style="width: 100%; margin-bottom: 5px;"
+                                      class="execute-result-table" :max-height="tableMaxHeight"
+                                      @sort-change="tableSortChange"
+                                      :default-sort="tableSort">
                                 <el-table-column width="60px" v-if="resultItem.dataCols.length > 0">
                                     <template slot-scope="scope">{{scope.row._index}}</template>
                                 </el-table-column>
-                                <el-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
+                                <el-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
                                     <template slot-scope="scope">
                                         <el-input type="textarea" :rows="1" :value="scope.row[item.prop]" :readonly="true" resize="none"></el-input>
                                     </template>
@@ -61,24 +66,22 @@
                 pageSize: 50,
                 currentPage: 1,
                 tableTotalCount: 0,
+                tableSort: {},
+                tableMaxHeight: 600,
             }
         },
-        beforeRouteUpdate(to, from, next) {
-            this.initQueryParam(to);
-            next();
-        },
-        mounted: function () {
+        activated: function () {
             this.initQueryParam(this.$route);
-            this.doExecutorSql();
             // 延迟设置展开的目录，edit比app先初始化
             setTimeout(()=> {
+                this.doExecutorSql();
                 global.vue.$app.initLoadDataList(this.vueQueryParam.sourceId, this.vueQueryParam.host, this.vueQueryParam.dbName);
             }, 500);
         },
         methods: {
             initQueryParam(to) {
                 this.vueQueryParam = to.query;
-                let newName = {key: this.$route.fullPath, val: this.vueQueryParam.tableName + '-数据'};
+                let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
                 this.$store.commit('global/addTableName', newName);
             },
             handleCurrentChange(to) {
@@ -87,6 +90,16 @@
             },
             handlePageSizeChange(to) {
                 this.pageSize = to;
+                this.doExecutorSql();
+            },
+            tableSortChange(sort) {
+                if (this.tableSort.prop === sort.prop && this.tableSort.order === sort.order) return;
+                this.tableSort = {prop: sort.prop, order: sort.order};
+                this.doExecutorSql();
+            },
+            refreshData() {
+                this.tableSort = {};
+                this.currentPage = 1;
                 this.doExecutorSql();
             },
             cancelExecutorSql() {
@@ -104,6 +117,7 @@
                 this.executeError = "";
                 this.executeUseTime = "";
                 this.executeResultList = [];
+                this.tableMaxHeight = document.body.offsetHeight - 240;
 
                 this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
                 this.sqlExecuting = true;
@@ -149,7 +163,12 @@
             },
             getExecuteSql() {
                 if (this.vueQueryParam.dbType == 'mysql') {
+                    let tableSort = ' ';
+                    if (!!this.tableSort.prop && !!this.tableSort.order) {
+                        tableSort = ' order by ' + this.tableSort.prop + ' ' + (this.tableSort.order === 'ascending' ? 'asc' : 'desc');
+                    }
                     return 'select * from ' + this.vueQueryParam.dbName + '.' + this.vueQueryParam.tableName
+                        + tableSort
                         + ' limit ' + this.pageSize + ' offset ' + ((this.currentPage - 1) * this.pageSize);
                 }
                 this.$message.error("暂未支持的数据库类型表数据预览");
@@ -185,7 +204,7 @@
                         var width = (width1 > width2) ? width1 : width2;
                         width = (width < 50) ? 50 : width;
                         width = (width > 200) ? 200 : width;
-                        executeResultCols.push({prop: key, width: width + 25});
+                        executeResultCols.push({prop: key, width: width + 50});
                     }
                     for (var i = 0; i < dataList.length; i++) {
                         dataList[i]._index = i + 1;

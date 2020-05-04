@@ -12,7 +12,7 @@
             </el-row>
             <el-row class="status-info-row">
                 <el-col :span="6"><span class="label">数据库：</span>{{vueQueryParam.dbName}}</el-col>
-                <el-col :span="6"><span class="label">数据表：</span>{{vueQueryParam.tableName}}</el-col>
+                <el-col :span="6"><span class="label">数据表：</span>{{tableStatusInfo.name}}</el-col>
                 <el-col :span="6"><span class="label">引擎：</span>{{tableStatusInfo.engine}}</el-col>
             </el-row>
             <el-row class="status-info-row">
@@ -88,14 +88,10 @@
                 vueQueryParam: {},
                 tableStatusInfo: {},
                 columnList: [],
-                tableInfo: [],
+                tableInfo: {},
             };
         },
-        beforeRouteUpdate(to, from, next) {
-            this.initQueryParam(to);
-            next();
-        },
-        mounted: function () {
+        activated: function () {
             this.initQueryParam(this.$route);
             // 延迟设置展开的目录，edit比app先初始化
             setTimeout(()=> {
@@ -104,6 +100,9 @@
         },
         methods: {
             initQueryParam(to) {
+                if (this.columnListLoading) {
+                    return;
+                }
                 let that = this;
                 this.columnListLoading = true;
                 this.vueQueryParam = to.query;
@@ -118,9 +117,9 @@
                     tableInfo.inEdit = 0;
                     tableInfo.newDesc = tableInfo.description;
                     that.tableInfo = tableInfo;
-                    that.columnListLoading = false;
-                    var newName = {key: that.$route.fullPath, val: tableInfo.tableName};
+                    var newName = {key: that.$route.fullPath, val: '表-' + tableInfo.tableName};
                     that.$store.commit('global/addTableName', newName);
+                    that.columnListLoading = false;
                 });
                 this.common.post(this.apilist1.tableStatus, this.vueQueryParam, function (json) {
                     that.tableStatusInfo = json.data || {};

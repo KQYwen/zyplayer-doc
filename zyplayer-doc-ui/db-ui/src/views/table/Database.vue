@@ -27,7 +27,6 @@
 
 <script>
     import global from '../../common/config/global'
-    var app;
 
     export default {
         data() {
@@ -39,28 +38,26 @@
                 keyword: '',
             };
         },
-        beforeRouteUpdate(to, from, next) {
-            this.initQueryParam(to);
-            next();
-        },
-        mounted: function () {
-            app = this;
+        activated: function () {
             this.initQueryParam(this.$route);
             // 延迟设置展开的目录，edit比app先初始化
-            setTimeout(function () {
-                global.vue.$app.initLoadDataList(app.vueQueryParam.sourceId, app.vueQueryParam.host, app.vueQueryParam.dbName);
+            setTimeout(() => {
+                global.vue.$app.initLoadDataList(this.vueQueryParam.sourceId, this.vueQueryParam.host, this.vueQueryParam.dbName);
             }, 500);
         },
         methods: {
             initQueryParam(to) {
                 this.vueQueryParam = to.query;
+                let newName = {key: this.$route.fullPath, val: '库-' + this.vueQueryParam.dbName};
+                this.$store.commit('global/addTableName', newName);
             },
             searchSubmit() {
+                let that = this;
                 this.columnListLoading = true;
                 this.vueQueryParam.searchText = this.keyword;
                 this.common.post(this.apilist1.tableAndColumnBySearch, this.vueQueryParam, function (json) {
-                    app.columnList = json.data || [];
-                    app.columnListLoading = false;
+                    that.columnList = json.data || [];
+                    that.columnListLoading = false;
                 });
             },
         }
