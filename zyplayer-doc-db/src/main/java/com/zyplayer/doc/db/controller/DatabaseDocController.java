@@ -169,6 +169,8 @@ public class DatabaseDocController {
 	public ResponseJson getTableStatus(Long sourceId, String dbName, String tableName) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		TableStatusVo tableStatusVo = baseMapper.getTableStatus(dbName, tableName);
+		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getFactoryById(sourceId);
+		tableStatusVo.setDbType(factoryBean.getDatabaseProduct().name().toLowerCase());
 		return DocDbResponseJson.ok(tableStatusVo);
 	}
 	

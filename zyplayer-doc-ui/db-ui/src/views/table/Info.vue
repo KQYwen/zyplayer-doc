@@ -1,7 +1,12 @@
 <template>
     <div class="table-info-vue">
         <el-card style="margin: 10px;">
-            <div slot="header" class="clearfix">表信息</div>
+            <div slot="header" class="clearfix">
+                表信息
+                <span style="float: right;margin-top: -5px;">
+                    <el-button class="search-submit" size="small" type="primary" icon="el-icon-search" @click="previewTableData">表数据预览</el-button>
+                </span>
+            </div>
             <el-row class="status-info-row">
                 <el-col :span="24"><span class="label">数据源：</span>{{vueQueryParam.host}}</el-col>
             </el-row>
@@ -75,7 +80,6 @@
 
 <script>
     import global from '../../common/config/global'
-    var app;
 
     export default {
         data() {
@@ -92,15 +96,15 @@
             next();
         },
         mounted: function () {
-            app = this;
             this.initQueryParam(this.$route);
             // 延迟设置展开的目录，edit比app先初始化
-            setTimeout(function () {
-                global.vue.$app.initLoadDataList(app.vueQueryParam.sourceId, app.vueQueryParam.host, app.vueQueryParam.dbName);
+            setTimeout(()=> {
+                global.vue.$app.initLoadDataList(this.vueQueryParam.sourceId, this.vueQueryParam.host, this.vueQueryParam.dbName);
             }, 500);
         },
         methods: {
             initQueryParam(to) {
+                let that = this;
                 this.columnListLoading = true;
                 this.vueQueryParam = to.query;
                 this.common.post(this.apilist1.tableColumnList, this.vueQueryParam, function (json) {
@@ -109,25 +113,32 @@
                         columnList[i].inEdit = 0;
                         columnList[i].newDesc = columnList[i].description;
                     }
-                    app.columnList = columnList;
+                    that.columnList = columnList;
                     var tableInfo = json.data.tableInfo || {};
                     tableInfo.inEdit = 0;
                     tableInfo.newDesc = tableInfo.description;
-                    app.tableInfo = tableInfo;
-                    app.columnListLoading = false;
-                    var newName = {key: app.$route.fullPath, val: tableInfo.tableName};
-                    app.$store.commit('global/addTableName', newName);
-                    app.$forceUpdate();
-                    console.log(newName)
-                    // app.$store.state.global.pageTabNameMap
+                    that.tableInfo = tableInfo;
+                    that.columnListLoading = false;
+                    var newName = {key: that.$route.fullPath, val: tableInfo.tableName};
+                    that.$store.commit('global/addTableName', newName);
                 });
                 this.common.post(this.apilist1.tableStatus, this.vueQueryParam, function (json) {
-                    app.tableStatusInfo = json.data || {};
+                    that.tableStatusInfo = json.data || {};
                 });
             },
             descBoxClick(row) {
                 // row.newDesc = row.description;
                 row.inEdit = 1;
+            },
+            previewTableData() {
+                let previewParam = {
+                    sourceId: this.vueQueryParam.sourceId,
+                    dbName: this.vueQueryParam.dbName,
+                    tableName: this.vueQueryParam.tableName,
+                    host: this.vueQueryParam.host,
+                    dbType: this.tableStatusInfo.dbType,
+                };
+                this.$router.push({path: '/data/dataPreview', query: previewParam});
             },
             getBytesSize(size) {
                 if (!size) return "0 bytes";
@@ -146,9 +157,10 @@
                 row.inEdit = 0;
                 this.vueQueryParam.columnName = row.name;
                 this.vueQueryParam.newDesc = row.newDesc;
+                let that = this;
                 this.common.post(this.apilist1.updateTableColumnDesc, this.vueQueryParam, function (json) {
                     row.description = row.newDesc;
-                    app.$message.success("修改成功");
+                    that.$message.success("修改成功");
                 });
             },
             saveTableDescription() {
@@ -158,9 +170,10 @@
                 }
                 this.tableInfo.inEdit = 0;
                 this.vueQueryParam.newDesc = this.tableInfo.newDesc;
+                let that = this;
                 this.common.post(this.apilist1.updateTableDesc, this.vueQueryParam, function (json) {
-                    app.tableInfo.description = app.tableInfo.newDesc;
-                    app.$message.success("修改成功");
+                    that.tableInfo.description = that.tableInfo.newDesc;
+                    that.$message.success("修改成功");
                 });
             },
         }

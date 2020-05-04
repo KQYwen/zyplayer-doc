@@ -1,6 +1,7 @@
 const resolve = require('path').resolve;
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 const url = require('url');
 const publicPath = '';
 

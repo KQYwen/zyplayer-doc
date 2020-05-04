@@ -21,6 +21,7 @@ public class TableStatusVo {
 	private String checksum;
 	private String createOptions;
 	private String comment;
+	private String dbType;
 	
 	public String getName() {
 		return name;
@@ -164,5 +165,13 @@ public class TableStatusVo {
 	
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+	
+	public String getDbType() {
+		return dbType;
+	}
+	
+	public void setDbType(String dbType) {
+		this.dbType = dbType;
 	}
 }
