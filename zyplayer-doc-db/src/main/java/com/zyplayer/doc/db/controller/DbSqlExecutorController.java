@@ -22,13 +22,18 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * sql执行器
@@ -40,6 +45,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/zyplayer-doc-db/executor")
 public class DbSqlExecutorController {
+	private static Logger logger = LoggerFactory.getLogger(DbSqlExecutorController.class);
 	
 	@Resource
 	SqlExecutor sqlExecutor;
@@ -84,6 +90,7 @@ public class DbSqlExecutorController {
 				String resultJsonStr = JSON.toJSONString(executeResult, mapping, SerializerFeature.WriteMapNullValue);
 				resultList.add(resultJsonStr);
 			} catch (Exception e) {
+				logger.error("执行出错", e);
 				ExecuteResult executeResult = ExecuteResult.error(StringUtil.getException(e), sqlItem);
 				resultList.add(JSON.toJSONString(executeResult));
 			}

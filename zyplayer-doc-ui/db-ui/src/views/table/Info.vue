@@ -49,6 +49,9 @@
                 <el-tooltip effect="dark" content="点击注释列可编辑字段注释" placement="top">
                     <i class="el-icon-info" style="color: #999;"></i>
                 </el-tooltip>
+                <span style="float: right;margin-top: -5px;">
+                    <el-button size="small" @click="showCreateTableDdl">DDL</el-button>
+                </span>
             </div>
             <div style="padding: 10px;" v-loading="columnListLoading">
                 <el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
@@ -75,11 +78,16 @@
                 </el-table>
             </div>
         </el-card>
+        <!--增加数据源弹窗-->
+        <el-dialog title="DDL" :visible.sync="tableDDLInfoDialogVisible" :footer="null" width="760px">
+            <pre>{{tableDDLInfo}}</pre>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import global from '../../common/config/global'
+    import {queryExecuteSql} from '../../common/api/datasource'
 
     export default {
         data() {
@@ -89,6 +97,9 @@
                 tableStatusInfo: {},
                 columnList: [],
                 tableInfo: {},
+                nowExecutorId: 1,
+                tableDDLInfo: '',
+                tableDDLInfoDialogVisible: false,
             };
         },
         activated: function () {
@@ -124,6 +135,34 @@
                 this.common.post(this.apilist1.tableStatus, this.vueQueryParam, function (json) {
                     that.tableStatusInfo = json.data || {};
                 });
+            },
+            showCreateTableDdl() {
+                this.tableDDLInfo = '';
+                this.tableDDLInfoDialogVisible = true;
+                this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
+                let param = {
+                    sourceId: this.vueQueryParam.sourceId,
+                    executeId: this.nowExecutorId,
+                    sql: this.getSelectTableInfoSql(),
+                    params: '',
+                };
+                queryExecuteSql(param).then(res => {
+                    if (res.errCode != 200 || !res.data || res.data.length <= 0) return;
+                    let objItem = JSON.parse(res.data[0]);
+                    if(!objItem.result || objItem.result.length <= 0) return;
+                    let firstItem = objItem.result[0] || {};
+                    this.tableDDLInfo = this.getSelectTableDDLInfo(firstItem);
+                });
+            },
+            getSelectTableInfoSql() {
+                if (this.tableStatusInfo.dbType === 'mysql') {
+                    return 'show create table ' + this.vueQueryParam.dbName + '.' + this.vueQueryParam.tableName;
+                }
+            },
+            getSelectTableDDLInfo(dataItem) {
+                if (this.tableStatusInfo.dbType === 'mysql') {
+                    return dataItem['Create Table'] || '';
+                }
             },
             descBoxClick(row) {
                 // row.newDesc = row.description;
@@ -179,6 +218,7 @@
     }
 </script>
 <style>
+    .table-info-vue .el-dialog__body{padding: 0 20px 10px;}
     .table-info-vue .el-form-item{margin-bottom: 5px;}
     .table-info-vue .edit-table-desc{cursor: pointer; color: #409EFF;}
     .table-info-vue .description{cursor: pointer;}

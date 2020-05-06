@@ -1,28 +1,26 @@
 <template>
-    <div style="padding: 10px;">
-        <div style="max-width: 1200px;margin: 20px auto;">
-            <el-card style="margin: 10px;">
-                <div slot="header" class="clearfix">
-                    <span>数据源管理</span>
-                    <el-button style="float: right;margin-left: 5px;" :loading="loadDataListLoading" v-on:click="getDatasourceList" plain icon="el-icon-refresh" size="small">刷新</el-button>
-                    <el-button style="float: right;" v-on:click="addDatasource" type="primary" icon="el-icon-circle-plus-outline" size="small">新增</el-button>
-                </div>
-                <el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
-                    <el-table-column prop="name" label="名字" width="100"></el-table-column>
-                    <el-table-column prop="driverClassName" label="驱动类" width="200"></el-table-column>
-                    <el-table-column prop="sourceUrl" label="数据源URL"></el-table-column>
-                    <el-table-column prop="sourceName" label="账号"></el-table-column>
-                    <el-table-column prop="sourcePassword" label="密码"></el-table-column>
-                    <el-table-column label="操作" width="220">
-                        <template slot-scope="scope">
-                            <el-button v-on:click="editDatasource(scope.row)" type="primary" size="mini">修改</el-button>
-                            <el-button v-on:click="editDbAuth(scope.row)" type="success" size="mini">权限</el-button>
-                            <el-button v-on:click="deleteDatasource(scope.row)" type="danger" size="mini">删除</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </el-card>
-        </div>
+    <div style="padding: 0 10px;">
+        <el-card>
+            <div slot="header" class="clearfix">
+                <span>数据源管理</span>
+                <el-button style="float: right;margin-left: 5px;" :loading="loadDataListLoading" v-on:click="getDatasourceList" plain icon="el-icon-refresh" size="small">刷新</el-button>
+                <el-button style="float: right;" v-on:click="addDatasource" type="primary" icon="el-icon-circle-plus-outline" size="small">新增</el-button>
+            </div>
+            <el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
+                <el-table-column prop="name" label="名字" width="100"></el-table-column>
+                <el-table-column prop="driverClassName" label="驱动类" width="200"></el-table-column>
+                <el-table-column prop="sourceUrl" label="数据源URL"></el-table-column>
+                <el-table-column prop="sourceName" label="账号"></el-table-column>
+                <el-table-column prop="sourcePassword" label="密码"></el-table-column>
+                <el-table-column label="操作" width="220">
+                    <template slot-scope="scope">
+                        <el-button v-on:click="editDatasource(scope.row)" type="primary" size="mini">修改</el-button>
+                        <el-button v-on:click="editDbAuth(scope.row)" type="success" size="mini">权限</el-button>
+                        <el-button v-on:click="deleteDatasource(scope.row)" type="danger" size="mini">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-card>
         <!--增加数据源弹窗-->
         <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="760px">
 <!--            <el-alert-->

@@ -1,7 +1,7 @@
 <template>
     <div class="data-transfer-vue">
         <div style="padding: 0 10px;height: 100%;box-sizing: border-box;">
-            <el-card style="margin: 10px;">
+            <el-card>
                 <div slot="header" class="clearfix">
                     <span>数据互导工具</span>
                     <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=128&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>

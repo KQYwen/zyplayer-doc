@@ -134,6 +134,7 @@ public class SqlExecutor {
 			long useTime = System.currentTimeMillis() - startTime;
 			return new ExecuteResult(updateCount, resultList, useTime, executeParam.getSql());
 		} catch (Exception e) {
+			logger.error("执行出错", e);
 			throw new RuntimeException(e);
 		} finally {
 			statementMap.remove(executeParam.getExecuteId());

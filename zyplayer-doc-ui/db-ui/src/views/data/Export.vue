@@ -1,31 +1,29 @@
 <template>
-    <div id="app">
-        <div style="padding: 10px;height: 100%;box-sizing: border-box;">
-            <el-card style="margin: 10px;">
-                <div slot="header" class="clearfix">
-                    <span>数据库表导出</span>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请选择数据源">
-                        <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                    </el-select>
-                    <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库">
-                        <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>
-                    </el-select>
-                    <el-radio-group v-model="exportType">
-                        <el-radio :label="1">HTML格式</el-radio>
-                        <el-radio :label="2">Excel格式</el-radio>
-                    </el-radio-group>
-                    <el-button v-on:click="exportChoiceTable" type="primary" style="margin-left: 20px;">导出选中的表</el-button>
-                    <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=117&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
-                </div>
-                <el-table :data="tableList" stripe border @selection-change="handleSelectionChange" style="width: 100%; margin-bottom: 5px;">
-                    <el-table-column type="selection" width="55"></el-table-column>
-                    <el-table-column prop="tableName" label="表名"></el-table-column>
-                    <el-table-column prop="tableComment" label="表注释"></el-table-column>
-                </el-table>
-            </el-card>
-        </div>
+    <div style="padding: 0 10px;height: 100%;box-sizing: border-box;">
+        <el-card>
+            <div slot="header" class="clearfix">
+                <span>数据库表导出</span>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请选择数据源">
+                    <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+                <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库">
+                    <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>
+                </el-select>
+                <el-radio-group v-model="exportType">
+                    <el-radio :label="1">HTML格式</el-radio>
+                    <el-radio :label="2">Excel格式</el-radio>
+                </el-radio-group>
+                <el-button v-on:click="exportChoiceTable" type="primary" style="margin-left: 20px;">导出选中的表</el-button>
+                <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=117&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
+            </div>
+            <el-table :data="tableList" stripe border @selection-change="handleSelectionChange" style="width: 100%; margin-bottom: 5px;">
+                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="tableName" label="表名"></el-table-column>
+                <el-table-column prop="tableComment" label="表注释"></el-table-column>
+            </el-table>
+        </el-card>
     </div>
 </template>
 
