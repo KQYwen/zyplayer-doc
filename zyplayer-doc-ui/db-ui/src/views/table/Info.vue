@@ -87,7 +87,7 @@
 
 <script>
     import global from '../../common/config/global'
-    import {queryExecuteSql} from '../../common/api/datasource'
+    import {queryTableDdl} from '../../common/api/datasource'
 
     export default {
         data() {
@@ -139,30 +139,14 @@
             showCreateTableDdl() {
                 this.tableDDLInfo = '';
                 this.tableDDLInfoDialogVisible = true;
-                this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
                 let param = {
                     sourceId: this.vueQueryParam.sourceId,
-                    executeId: this.nowExecutorId,
-                    sql: this.getSelectTableInfoSql(),
-                    params: '',
+                    dbName: this.vueQueryParam.dbName,
+                    tableName: this.vueQueryParam.tableName,
                 };
-                queryExecuteSql(param).then(res => {
-                    if (res.errCode != 200 || !res.data || res.data.length <= 0) return;
-                    let objItem = JSON.parse(res.data[0]);
-                    if(!objItem.result || objItem.result.length <= 0) return;
-                    let firstItem = objItem.result[0] || {};
-                    this.tableDDLInfo = this.getSelectTableDDLInfo(firstItem);
+                queryTableDdl(param).then(res => {
+                    this.tableDDLInfo = res.data || '获取失败';
                 });
-            },
-            getSelectTableInfoSql() {
-                if (this.tableStatusInfo.dbType === 'mysql') {
-                    return 'show create table ' + this.vueQueryParam.dbName + '.' + this.vueQueryParam.tableName;
-                }
-            },
-            getSelectTableDDLInfo(dataItem) {
-                if (this.tableStatusInfo.dbType === 'mysql') {
-                    return dataItem['Create Table'] || '';
-                }
             },
             descBoxClick(row) {
                 // row.newDesc = row.description;

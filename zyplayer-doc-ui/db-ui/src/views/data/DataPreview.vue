@@ -3,7 +3,8 @@
         <div style="padding: 0 10px;height: 100%;box-sizing: border-box;">
             <el-card>
                 <div v-if="!!executeError" style="color: #f00;">{{executeError}}</div>
-                <div v-else-if="sqlExecuting" v-loading="sqlExecuting" style="padding: 20px 0;">暂无数据</div>
+                <div v-else-if="sqlExecuting" v-loading="sqlExecuting" style="padding: 20px 0;">数据加载中...</div>
+                <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting" style="padding: 20px 0;">暂无数据</div>
                 <div v-else>
                     <el-button size="small" @click="refreshData" style="position: absolute;right: 30px;z-index: 1;">刷新</el-button>
                     <el-tabs :value="executeShowTable">
@@ -12,9 +13,24 @@
                         </el-tab-pane>
                         <el-tab-pane :label="'结果'+resultItem.index" :name="'table'+resultItem.index" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
                             <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
+<!--                            <pl-table v-else-->
+<!--                                      :datas="resultItem.dataList"-->
+<!--                                      :height="tableMaxHeight"-->
+<!--                                      header-drag-style-->
+<!--                                      :row-height="40">-->
+<!--                                <template slot="empty">暂无数据</template>-->
+<!--                                <pl-table-column width="60px" v-if="resultItem.dataCols.length > 0">-->
+<!--                                    <template slot-scope="scope">{{scope.row._index}}</template>-->
+<!--                                </pl-table-column>-->
+<!--                                <pl-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">-->
+<!--                                    <template slot-scope="scope">-->
+<!--                                        <textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>-->
+<!--                                    </template>-->
+<!--                                </pl-table-column>-->
+<!--                            </pl-table>-->
                             <el-table v-else :data="resultItem.dataList" stripe border
                                       style="width: 100%; margin-bottom: 5px;"
-                                      class="execute-result-table" :max-height="tableMaxHeight"
+                                      class="execute-result-table" :height="tableMaxHeight"
                                       @sort-change="tableSortChange"
                                       :default-sort="tableSort">
                                 <el-table-column width="60px" v-if="resultItem.dataCols.length > 0">
@@ -22,11 +38,12 @@
                                 </el-table-column>
                                 <el-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
                                     <template slot-scope="scope">
-                                        <el-input type="textarea" :rows="1" :value="scope.row[item.prop]" :readonly="true" resize="none"></el-input>
+                                        <textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
                                     </template>
                                 </el-table-column>
                             </el-table>
                             <el-pagination
+                                    style="margin-top: 10px;"
                                     @size-change="handlePageSizeChange"
                                     @current-change="handleCurrentChange"
                                     :current-page="currentPage"
@@ -138,9 +155,9 @@
                 }
                 param.sql = this.getExecuteSql();
                 this.common.postNonCheck(this.apilist1.executeSql, param, function (json) {
-                    that.sqlExecuting = false;
                     if (json.errCode != 200) {
                         that.executeError = json.errMsg;
+                        that.sqlExecuting = false;
                         return;
                     }
                     var resultList = json.data || [];
@@ -159,6 +176,7 @@
                     that.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
                     that.executeResultInfo = executeResultInfo;
                     that.executeResultList = executeResultList;
+                    that.sqlExecuting = false;
                 });
             },
             getExecuteSql() {
@@ -238,9 +256,11 @@
         padding: 0 5px;
     }
     .data-executor-vue .execute-result-table .el-textarea__inner{
-        height: 25px;
+        height: 27px;
+        min-height: 27px;
         line-height: 25px;
         padding: 0 5px;
+        resize: none;
     }
     .data-executor-vue .execute-use-time{
         font-size: 12px;margin-right: 10px;

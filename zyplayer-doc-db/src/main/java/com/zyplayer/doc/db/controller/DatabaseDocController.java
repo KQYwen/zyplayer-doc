@@ -158,6 +158,18 @@ public class DatabaseDocController {
 		return DocDbResponseJson.ok(dbResultMap);
 	}
 	
+	@PostMapping(value = "/getTableDdl")
+	public ResponseJson getTableDdl(Long sourceId, String dbName, String tableName) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+		Map<String, String> dataMap = baseMapper.getTableDdl(dbName, tableName);
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
+		// 不同数据源类型获取方式不一致
+		if (Objects.equals(DatabaseProduct.MYSQL, databaseFactoryBean.getDatabaseProduct())) {
+			return DocDbResponseJson.ok(dataMap.get("Create Table"));
+		}
+		return DocDbResponseJson.ok("暂未支持的数据库类型");
+	}
+	
 	@PostMapping(value = "/getDatabaseList")
 	public ResponseJson getDatabaseList(Long sourceId) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);

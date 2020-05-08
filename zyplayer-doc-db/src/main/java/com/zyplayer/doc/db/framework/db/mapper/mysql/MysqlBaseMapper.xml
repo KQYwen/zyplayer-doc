@@ -48,6 +48,10 @@
 		group by TABLE_SCHEMA
 	</select>
 
+	<select id="getTableDdl" resultType="java.util.Map">
+		show create table ${dbName}.${tableName}
+	</select>
+
 	<select id="getTableList" resultType="com.zyplayer.doc.db.framework.db.dto.TableInfoDto">
 		select table_schema dbName,table_name tableName, table_comment as tableComment
 		from information_schema.tables

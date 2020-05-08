@@ -34,7 +34,7 @@
                                 </el-table-column>
                                 <el-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
                                     <template slot-scope="scope">
-                                        <el-input type="textarea" :rows="1" :value="scope.row[item.prop]" :readonly="true" resize="none"></el-input>
+                                        <textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -403,9 +403,11 @@
         padding: 0 5px;
     }
     .data-executor-vue .execute-result-table .el-textarea__inner{
-        height: 25px;
+        height: 27px;
+        min-height: 27px;
         line-height: 25px;
         padding: 0 5px;
+        resize: none;
     }
     .data-executor-vue .execute-use-time{
         font-size: 12px;margin-right: 10px;
