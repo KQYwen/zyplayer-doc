@@ -115,8 +115,9 @@
             this.loadDatasourceList();
             // 下面两行先后顺序不能改
             this.addEditorCompleter();
-            app.sqlExecutorEditor = app.initAceEditor("sqlExecutorEditor", 15);
-            app.sqlExecutorEditor.commands.addCommand({
+            this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 15);
+            this.sqlExecutorEditor.setFontSize(18);
+            this.sqlExecutorEditor.commands.addCommand({
                 name: "execute-sql",
                 bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
                 exec: function (editor) {

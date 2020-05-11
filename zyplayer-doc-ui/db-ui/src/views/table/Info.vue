@@ -36,8 +36,8 @@
             <el-row class="status-info-row">
                 <el-col :span="24">
                     <span class="label">表注释：</span>
-                    <span v-if="tableInfo.inEdit == 1" @keyup.enter="saveTableDescription">
-                        <el-input v-model="tableInfo.newDesc" placeholder="输入表注释" v-on:blur="saveTableDescription" style="width: 500px;"></el-input>
+                    <span v-if="tableInfo.inEdit == 1">
+                        <el-input v-model="tableInfo.newDesc" placeholder="输入表注释" @keyup.enter="saveTableDescription" v-on:blur="saveTableDescription" style="width: 500px;"></el-input>
                     </span>
                     <span v-else>{{tableInfo.description || '暂无注释'}} <i class="el-icon-edit edit-table-desc" v-on:click="tableInfo.inEdit = 1"></i></span>
                 </el-col>
@@ -69,8 +69,8 @@
                     </el-table-column>
                     <el-table-column label="注释">
                         <template slot-scope="scope">
-                            <div v-if="scope.row.inEdit == 1" @keyup.enter="saveColumnDescription(scope.row)">
-                                <el-input v-model="scope.row.newDesc" placeholder="输入字段注释" v-on:blur="saveColumnDescription(scope.row)"></el-input>
+                            <div v-if="scope.row.inEdit == 1">
+                                <el-input v-model="scope.row.newDesc" placeholder="输入字段注释" @keyup.enter="saveColumnDescription(scope.row)" v-on:blur="saveColumnDescription(scope.row)"></el-input>
                             </div>
                             <div v-else class="description" v-on:click="descBoxClick(scope.row)">{{scope.row.description||'　'}}</div>
                         </template>
@@ -80,7 +80,9 @@
         </el-card>
         <!--增加数据源弹窗-->
         <el-dialog title="DDL" :visible.sync="tableDDLInfoDialogVisible" :footer="null" width="760px">
-            <pre>{{tableDDLInfo}}</pre>
+            <div v-highlight>
+                <pre><code v-html="tableDDLInfo"></code></pre>
+            </div>
         </el-dialog>
     </div>
 </template>

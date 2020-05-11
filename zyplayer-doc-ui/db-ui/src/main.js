@@ -14,9 +14,13 @@ import store from './store/index'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
+import vueHljs from "vue-hljs";
+import "vue-hljs/dist/vue-hljs.min.css";
+
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
+Vue.use(vueHljs);
 
 // 全局参数
 Vue.prototype.global = global;

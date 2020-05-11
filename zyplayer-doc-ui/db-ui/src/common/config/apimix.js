@@ -8,11 +8,11 @@ var _fn = {
     // HOST: 'http://local.zyplayer.com:8083/zyplayer-doc-manage',
     // HOST1: 'http://local.zyplayer.com:8083/zyplayer-doc-manage',
     // 也可以直接使用线上的服务调试
-    // HOST: 'http://doc.zyplayer.com/zyplayer-doc-manage',
-    // HOST1: 'http://doc.zyplayer.com/zyplayer-doc-manage',
+    HOST: 'http://doc.zyplayer.com/zyplayer-doc-manage',
+    HOST1: 'http://doc.zyplayer.com/zyplayer-doc-manage',
     // 打包时使用下面这两行，文件就放在根目录下，所以当前路劲就好
-    HOST: './',
-    HOST1: './',
+    // HOST: './',
+    // HOST1: './',
 
     mixUrl: function (host, url) {
         var p;
