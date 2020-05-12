@@ -314,6 +314,7 @@ public class DatabaseDocController {
 				excelWriter.finish();
 			} catch (IOException e) {
 				e.printStackTrace();
+				return DocDbResponseJson.error("导出失败：" + e.getMessage());
 			}
 		}
 		return DocDbResponseJson.ok();

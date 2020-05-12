@@ -1,6 +1,6 @@
 <template>
     <div class="data-executor-vue">
-        <div style="padding: 0 10px;height: 100%;box-sizing: border-box;">
+        <div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
             <el-card style="margin-bottom: 10px;">
                 <pre id="sqlExecutorEditor" style="width: 100%;height: 500px;margin-top: 0;"></pre>
                 <div>
@@ -8,6 +8,7 @@
                     <el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
                         <el-button v-on:click="doExecutorSql" type="primary" plain  size="small" icon="el-icon-video-play">执行</el-button>
                     </el-tooltip>
+                    <el-button icon="el-icon-brush" size="small" @click="formatterSql">SQL美化</el-button>
                     <el-button v-on:click="addFavorite('')" plain  size="small" icon="el-icon-star-off">收藏</el-button>
                     <el-button v-on:click="loadHistoryAndFavoriteList" plain  size="small" icon="el-icon-tickets">收藏及历史</el-button>
                     <div style="float: right;margin-top: -5px;">
@@ -75,7 +76,7 @@
                 </el-tabs>
             </div>
         </el-drawer>
-        <span id="widthCalculate" style="visibility: hidden; white-space: nowrap;"></span>
+        <span id="widthCalculate" style="visibility: hidden; white-space: nowrap;position: fixed;"></span>
     </div>
 </template>
 
@@ -85,7 +86,7 @@
     import '../../common/lib/ace/mode-sql'
     import '../../common/lib/ace/ext-language_tools'
     import '../../common/lib/ace/snippets/sql'
-    var app;
+    import sqlFormatter from "sql-formatter"
     export default {
         data() {
             return {
@@ -111,17 +112,17 @@
             }
         },
         mounted: function () {
-            app = this;
             this.loadDatasourceList();
             // 下面两行先后顺序不能改
             this.addEditorCompleter();
             this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 15);
             this.sqlExecutorEditor.setFontSize(18);
+            let that = this;
             this.sqlExecutorEditor.commands.addCommand({
                 name: "execute-sql",
                 bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
                 exec: function (editor) {
-                    app.doExecutorSql();
+                    that.doExecutorSql();
                 }
             });
         },
@@ -136,12 +137,13 @@
                     enableSnippets: true,
                     enableLiveAutocompletion: true,
                     minLines: minLines,
-                    maxLines: 50,
+                    maxLines: 30,
                 });
             },
             cancelExecutorSql() {
+                let that = this;
                 this.common.post(this.apilist1.executeSqlCancel, {executeId: this.nowExecutorId}, function (json) {
-                    app.$message.success("取消成功");
+                    that.$message.success("取消成功");
                 });
             },
             loadHistoryAndFavoriteList() {
@@ -150,13 +152,15 @@
                 this.loadFavoriteList();
             },
             loadFavoriteList() {
+                let that = this;
                 this.common.post(this.apilist1.favoriteList, {sourceId: this.choiceDatasourceId}, function (json) {
-                    app.myFavoriteList = json.data || [];
+                    that.myFavoriteList = json.data || [];
                 });
             },
             loadHistoryList() {
+                let that = this;
                 this.common.post(this.apilist1.historyList, {sourceId: this.choiceDatasourceId}, function (json) {
-                    app.myHistoryListList = json.data || [];
+                    that.myHistoryListList = json.data || [];
                 });
             },
             addFavorite(sqlValue) {
@@ -166,31 +170,47 @@
                         sqlValue = this.sqlExecutorEditor.getValue();
                     }
                 }
+                let that = this;
                 var param = {name: '我的收藏', content: sqlValue, datasourceId: this.choiceDatasourceId};
                 this.common.post(this.apilist1.updateFavorite, param, function (json) {
-                    app.$message.success("收藏成功");
-                    app.loadFavoriteList();
+                    that.$message.success("收藏成功");
+                    that.loadFavoriteList();
                 });
             },
             delFavorite(row) {
+                let that = this;
                 var param = {id: row.id, yn: 0};
                 this.common.post(this.apilist1.updateFavorite, param, function (json) {
-                    app.$message.success("删除成功");
-                    app.loadFavoriteList();
+                    that.$message.success("删除成功");
+                    that.loadFavoriteList();
                 });
             },
             inputFavoriteSql(content) {
                 this.sqlExecutorEditor.setValue(content, 1);
                 this.historyDrawerVisible = false;
             },
+            formatterSql() {
+                let dataSql = this.sqlExecutorEditor.getSelectedText();
+                if (!!dataSql) {
+                    let range = this.sqlExecutorEditor.getSelectionRange();
+                    this.sqlExecutorEditor.remove(range);
+                } else {
+                    dataSql = this.sqlExecutorEditor.getValue();
+                    this.sqlExecutorEditor.setValue('', 1);
+                }
+                if (!!dataSql) {
+                    dataSql = sqlFormatter.format(dataSql);
+                    this.sqlExecutorEditor.insert(dataSql);
+                }
+            },
             doExecutorSql() {
                 if (!this.choiceDatasourceId) {
-                    app.$message.error("请先选择数据源");
+                    this.$message.error("请先选择数据源");
                     return;
                 }
-                app.executeError = "";
-                app.executeUseTime = "";
-                app.executeResultList = [];
+                this.executeError = "";
+                this.executeUseTime = "";
+                this.executeResultList = [];
 
                 this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
                 var sqlValue = this.sqlExecutorEditor.getSelectedText();
@@ -198,15 +218,16 @@
                     sqlValue = this.sqlExecutorEditor.getValue();
                 }
                 this.sqlExecuting = true;
+                let that = this;
                 this.common.postNonCheck(this.apilist1.executeSql, {
                     sourceId: this.choiceDatasourceId,
                     executeId: this.nowExecutorId,
                     sql: sqlValue,
                     params: '',
                 }, function (json) {
-                    app.sqlExecuting = false;
+                    that.sqlExecuting = false;
                     if (json.errCode != 200) {
-                        app.executeError = json.errMsg;
+                        that.executeError = json.errMsg;
                         return;
                     }
                     var resultList = json.data || [];
@@ -214,34 +235,36 @@
                     var executeResultInfo = "", itemIndex = 1;
                     for (var i = 0; i < resultList.length; i++) {
                         var objItem = JSON.parse(resultList[i]);
-                        executeResultInfo += app.getExecuteInfoStr(objItem);
-                        var resultItem = app.dealExecuteResult(objItem);
+                        executeResultInfo += that.getExecuteInfoStr(objItem);
+                        var resultItem = that.dealExecuteResult(objItem);
                         if (resultItem.updateCount < 0) {
                             resultItem.index = itemIndex;
                             itemIndex++;
                         }
                         executeResultList.push(resultItem);
                     }
-                    app.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
-                    app.executeResultInfo = executeResultInfo;
-                    app.executeResultList = executeResultList;
+                    that.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
+                    that.executeResultInfo = executeResultInfo;
+                    that.executeResultList = executeResultList;
                 });
             },
             loadDatasourceList() {
+                let that = this;
                 this.common.post(this.apilist1.datasourceList, {}, function (json) {
-                    app.datasourceList = json.data || [];
-                    if (app.datasourceList.length > 0) {
-                        app.choiceDatasourceId = app.datasourceList[0].id;
-                        app.loadEditorData();
+                    that.datasourceList = json.data || [];
+                    if (that.datasourceList.length > 0) {
+                        that.choiceDatasourceId = that.datasourceList[0].id;
+                        that.loadEditorData();
                     }
                 });
             },
             loadEditorData() {
+                let that = this;
                 this.common.post(this.apilist1.getEditorData, {sourceId: this.choiceDatasourceId}, function (json) {
                     var data = json.data || {};
-                    app.editorDbInfo = data.db || [];
-                    app.editorDbTableInfo = data.table || {};
-                    app.editorColumnInfo = data.column || {};
+                    that.editorDbInfo = data.db || [];
+                    that.editorDbTableInfo = data.table || {};
+                    that.editorColumnInfo = data.column || {};
                 });
             },
             datasourceChangeEvents() {
@@ -292,6 +315,7 @@
                 return resultObj;
             },
             addEditorCompleter() {
+                let that = this;
                 var languageTools = ace.require("ace/ext/language_tools");
                 languageTools.addCompleter({
                     needDestory: true, // 一定得加上这个参数~不然页面生命周期内页面的切换，编辑器会有多个相同的completer
@@ -301,12 +325,12 @@
                         var lineStr = session.getLine(pos.row).substring(0, pos.column - 1);
                         if (lineStr.endsWith("from ") || lineStr.endsWith("join ")) {
                             // 库
-                            for (var i = 0; i < app.editorDbInfo.length; i++) {
-                                callbackArr.push({caption: app.editorDbInfo[i].dbName, snippet: app.editorDbInfo[i].dbName, meta: "database", type: "snippet", score : 1000});
+                            for (var i = 0; i < that.editorDbInfo.length; i++) {
+                                callbackArr.push({caption: that.editorDbInfo[i].dbName, snippet: that.editorDbInfo[i].dbName, meta: "database", type: "snippet", score : 1000});
                             }
                             // 所有表
-                            for (var key in app.editorDbTableInfo) {
-                                var tableInfo = app.editorDbTableInfo[key];
+                            for (var key in that.editorDbTableInfo) {
+                                var tableInfo = that.editorDbTableInfo[key];
                                 for (var i = 0; i < tableInfo.length; i++) {
                                     var caption = (!!tableInfo[i].tableComment) ? tableInfo[i].tableName + "-" + tableInfo[i].tableComment : tableInfo[i].tableName;
                                     callbackArr.push({caption: caption, snippet: tableInfo[i].tableName, meta: "table", type: "snippet", score : 1000});
@@ -315,9 +339,9 @@
                             callback(null,  callbackArr);
                         } else if (lineStr.endsWith(".")) {
                             // 匹配 库名. 搜索表名
-                            for (var i = 0; i < app.editorDbInfo.length; i++) {
-                                if (lineStr.endsWith(app.editorDbInfo[i].dbName + ".")) {
-                                    var tableInfo = app.editorDbTableInfo[app.editorDbInfo[i].dbName];
+                            for (var i = 0; i < that.editorDbInfo.length; i++) {
+                                if (lineStr.endsWith(that.editorDbInfo[i].dbName + ".")) {
+                                    var tableInfo = that.editorDbTableInfo[that.editorDbInfo[i].dbName];
                                     if (!!tableInfo) {
                                         for (var j = 0; j < tableInfo.length; j++) {
                                             var caption = (!!tableInfo[j].tableComment) ? tableInfo[j].tableName + "-" + tableInfo[j].tableComment : tableInfo[j].tableName;
@@ -329,11 +353,11 @@
                             }
                             // 未找到，匹配 表名. 搜索字段名
                             if (!isFound) {
-                                for (var key in app.editorColumnInfo) {
+                                for (var key in that.editorColumnInfo) {
                                     if (!lineStr.endsWith(key + ".")) {
                                         continue;
                                     }
-                                    var columnInfo = app.editorColumnInfo[key];
+                                    var columnInfo = that.editorColumnInfo[key];
                                     if (!!columnInfo) {
                                         for (var i = 0; i < columnInfo.length; i++) {
                                             var caption = (!!columnInfo[i].description) ? columnInfo[i].name + "-" + columnInfo[i].description : columnInfo[i].name;
@@ -363,13 +387,13 @@
                                 }
                             }
                             // 所有表，找下面的字段列表
-                            for (var key in app.editorDbTableInfo) {
-                                var tableInfo = app.editorDbTableInfo[key];
+                            for (var key in that.editorDbTableInfo) {
+                                var tableInfo = that.editorDbTableInfo[key];
                                 for (var i = 0; i < tableInfo.length; i++) {
                                     if (queryText.indexOf(tableInfo[i].tableName) < 0) {
                                         continue;
                                     }
-                                    var columnInfo = app.editorColumnInfo[tableInfo[i].tableName];
+                                    var columnInfo = that.editorColumnInfo[tableInfo[i].tableName];
                                     if (!!columnInfo) {
                                         for (var j = 0; j < columnInfo.length; j++) {
                                             var caption = (!!columnInfo[j].description) ? columnInfo[j].name + "-" + columnInfo[j].description : columnInfo[j].name;

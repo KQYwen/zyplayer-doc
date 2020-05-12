@@ -8,7 +8,8 @@
                     <el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
                         <el-button v-on:click="doExecutorClick" type="primary" plain  size="small" icon="el-icon-video-play">执行</el-button>
                     </el-tooltip>
-                    <el-button size="small" @click="refreshData">重置</el-button>
+                    <el-button icon="el-icon-brush" size="small" @click="formatterSql">SQL美化</el-button>
+                    <el-button icon="el-icon-refresh-left" size="small" @click="refreshData">重置</el-button>
                 </div>
             </el-card>
             <el-card>
@@ -67,7 +68,7 @@
                 </div>
             </el-card>
         </div>
-        <span id="widthCalculate" style="visibility: hidden; white-space: nowrap;"></span>
+        <span id="widthCalculate" style="visibility: hidden; white-space: nowrap;position: fixed;"></span>
     </div>
 </template>
 
@@ -79,6 +80,8 @@
     import '../../common/lib/ace/snippets/sql'
     import global from '../../common/config/global'
     import {queryExecuteSql} from '../../common/api/datasource'
+    import sqlFormatter from "sql-formatter";
+
     export default {
         data() {
             return {
@@ -141,6 +144,20 @@
                 this.tableSort = {};
                 this.currentPage = 1;
                 this.doExecutorSql();
+            },
+            formatterSql() {
+                let dataSql = this.sqlExecutorEditor.getSelectedText();
+                if (!!dataSql) {
+                    let range = this.sqlExecutorEditor.getSelectionRange();
+                    this.sqlExecutorEditor.remove(range);
+                } else {
+                    dataSql = this.sqlExecutorEditor.getValue();
+                    this.sqlExecutorEditor.setValue('', 1);
+                }
+                if (!!dataSql) {
+                    dataSql = sqlFormatter.format(dataSql);
+                    this.sqlExecutorEditor.insert(dataSql);
+                }
             },
             cancelExecutorSql() {
                 let that = this;
@@ -288,7 +305,7 @@
                     enableSnippets: true,
                     enableLiveAutocompletion: true,
                     minLines: minLines,
-                    maxLines: 50,
+                    maxLines: 30,
                 });
             },
         }
