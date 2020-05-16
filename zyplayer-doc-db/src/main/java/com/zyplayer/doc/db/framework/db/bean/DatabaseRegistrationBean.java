@@ -1,41 +1,41 @@
 package com.zyplayer.doc.db.framework.db.bean;
 
+import com.zyplayer.doc.core.exception.ConfirmException;
+import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
+import com.zyplayer.doc.data.service.manage.DbDatasourceService;
+import com.zyplayer.doc.db.framework.configuration.DatasourceUtil;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import javax.annotation.Resource;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 需要声明注入的对象，只需要设置dbConfigList即可
- * databaseFactoryBeanList是后面生成的
+ * 所有的数据源管理类
  *
  * @author 暮光：城中城
  * @since 2018年8月8日
  */
+@Repository
 public class DatabaseRegistrationBean {
 	
-	// 注入此对象必须配置的参数
-	// 配置的数据源连接、账号密码等信息，通过注入得到
-	private List<DbConfigBean> dbConfigList = new LinkedList<>();
+	@Resource
+	DbDatasourceService dbDatasourceService;
+	
 	// 描述连接信息的对象列表
-	private List<DatabaseFactoryBean> databaseFactoryBeanList = new LinkedList<>();
+	private Map<Long, DatabaseFactoryBean> databaseFactoryBeanMap = new ConcurrentHashMap<>();
 	
-	public List<DatabaseFactoryBean> getDatabaseFactoryBeanList() {
-		return databaseFactoryBeanList;
-	}
-	
-	public void setDatabaseFactoryBeanList(List<DatabaseFactoryBean> databaseFactoryBeanList) {
-		this.databaseFactoryBeanList = databaseFactoryBeanList;
-	}
-	
-	public BaseMapper getBaseMapper(Long sourceId) {
-		return getBaseMapper(sourceId, BaseMapper.class);
-	}
-	
+	/**
+	 * 获取BaseMapper
+	 *
+	 * @param sourceId 数据源ID
+	 * @param cls      指定类
+	 * @return BaseMapper
+	 */
 	public <T> T getBaseMapper(Long sourceId, Class<T> cls) {
-		DatabaseFactoryBean factoryBean = getFactoryById(sourceId);
+		DatabaseFactoryBean factoryBean = getOrCreateFactoryById(sourceId);
 		if (factoryBean != null) {
 			SqlSessionTemplate sessionTemplate = factoryBean.getSqlSessionTemplate();
 			try {
@@ -47,17 +47,14 @@ public class DatabaseRegistrationBean {
 		return null;
 	}
 	
-	public DatabaseFactoryBean getFactoryById(Long sourceId) {
-		for (DatabaseFactoryBean databaseFactoryBean : databaseFactoryBeanList) {
-			if (Objects.equals(databaseFactoryBean.getId(), sourceId)) {
-				return databaseFactoryBean;
-			}
-		}
-		return null;
-	}
-	
+	/**
+	 * 获取BaseMapper
+	 *
+	 * @param sourceId 数据源ID
+	 * @return BaseMapper
+	 */
 	public BaseMapper getBaseMapperById(Long sourceId) {
-		DatabaseFactoryBean databaseFactoryBean = this.getFactoryById(sourceId);
+		DatabaseFactoryBean databaseFactoryBean = this.getOrCreateFactoryById(sourceId);
 		if (databaseFactoryBean == null) {
 			return null;
 		}
@@ -70,11 +67,53 @@ public class DatabaseRegistrationBean {
 		return null;
 	}
 	
-	public List<DbConfigBean> getDbConfigList() {
-		return dbConfigList;
+	/**
+	 * 关闭数据源
+	 *
+	 * @param sourceId 数据源ID
+	 */
+	public void closeDatasource(Long sourceId) {
+		DatabaseFactoryBean factoryBean = databaseFactoryBeanMap.remove(sourceId);
+		if (factoryBean != null) {
+			try {
+				// 关闭数据源
+				factoryBean.getDataSource().close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
-	public void setDbConfigList(List<DbConfigBean> dbConfigList) {
-		this.dbConfigList = dbConfigList;
+	/**
+	 * 通过数据源ID获取或创建新的数据源
+	 *
+	 * @param sourceId 数据源ID
+	 * @return 数据源对象
+	 */
+	public DatabaseFactoryBean getOrCreateFactoryById(Long sourceId) {
+		DatabaseFactoryBean factoryBean = databaseFactoryBeanMap.get(sourceId);
+		if (factoryBean != null) return factoryBean;
+		return this.createFactoryById(sourceId);
+	}
+	
+	/**
+	 * 创建数据源的同步方法
+	 *
+	 * @param sourceId 数据源ID
+	 * @return 新数据源对象
+	 */
+	private synchronized DatabaseFactoryBean createFactoryById(Long sourceId) {
+		DatabaseFactoryBean factoryBean = databaseFactoryBeanMap.get(sourceId);
+		if (factoryBean != null) return factoryBean;
+		DbDatasource dbDatasource = dbDatasourceService.getById(sourceId);
+		if (dbDatasource == null) {
+			throw new ConfirmException("未找到指定数据源配置信息：" + sourceId);
+		}
+		DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource);
+		if (databaseFactoryBean == null) {
+			throw new ConfirmException("创建数据源失败：" + sourceId);
+		}
+		databaseFactoryBeanMap.put(sourceId, databaseFactoryBean);
+		return databaseFactoryBean;
 	}
 }

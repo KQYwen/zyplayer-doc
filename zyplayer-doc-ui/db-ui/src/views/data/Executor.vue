@@ -116,7 +116,7 @@
             // 下面两行先后顺序不能改
             this.addEditorCompleter();
             this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 15);
-            this.sqlExecutorEditor.setFontSize(18);
+            this.sqlExecutorEditor.setFontSize(16);
             let that = this;
             this.sqlExecutorEditor.commands.addCommand({
                 name: "execute-sql",
@@ -137,7 +137,7 @@
                     enableSnippets: true,
                     enableLiveAutocompletion: true,
                     minLines: minLines,
-                    maxLines: 30,
+                    maxLines: 40,
                 });
             },
             cancelExecutorSql() {

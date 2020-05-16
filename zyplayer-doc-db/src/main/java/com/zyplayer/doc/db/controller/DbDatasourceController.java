@@ -77,31 +77,17 @@ public class DbDatasourceController {
 			dbDatasource.setYn(1);
 			dbDatasourceService.save(dbDatasource);
 		}
+		// 关闭数据源
+		databaseRegistrationBean.closeDatasource(dbDatasource.getId());
+		// 验证新的数据源
 		DbDatasource dbDatasourceSel = dbDatasourceService.getById(dbDatasource.getId());
-		List<DatabaseFactoryBean> newFactoryBeanList = new LinkedList<>();
-		List<DatabaseFactoryBean> databaseFactoryBeanList = databaseRegistrationBean.getDatabaseFactoryBeanList();
-		for (DatabaseFactoryBean factoryBean : databaseFactoryBeanList) {
-			if (Objects.equals(factoryBean.getId(), sourceId)) {
-				try {
-					// 关闭旧的数据源
-					factoryBean.getDataSource().close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else {
-				newFactoryBeanList.add(factoryBean);
-			}
-		}
-		if (Optional.ofNullable(dbDatasourceSel.getYn()).orElse(0) == 1) {
+		if (Objects.equals(dbDatasourceSel.getYn(), 1)) {
 			// 创建新的数据源
 			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasourceSel);
-			if (databaseFactoryBean != null) {
-				newFactoryBeanList.add(databaseFactoryBean);
-			}
-			databaseRegistrationBean.setDatabaseFactoryBeanList(newFactoryBeanList);
 			if (databaseFactoryBean == null) {
 				return DocDbResponseJson.warn("创建数据源失败，请检查配置是否正确");
 			}
+			databaseFactoryBean.getDataSource().close();
 		}
 		return DocDbResponseJson.ok();
 	}

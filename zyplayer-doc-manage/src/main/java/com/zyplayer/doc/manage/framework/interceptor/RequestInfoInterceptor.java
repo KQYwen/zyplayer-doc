@@ -1,5 +1,6 @@
 package com.zyplayer.doc.manage.framework.interceptor;
 
+import cn.hutool.http.HttpUtil;
 import com.zyplayer.doc.core.util.ThreadLocalUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +29,8 @@ public class RequestInfoInterceptor implements HandlerInterceptor {
 		Long startTime = startTimeThreadLocal.get();
 		startTime = Optional.ofNullable(startTime).orElse(System.currentTimeMillis());
 		long totalTime = System.currentTimeMillis() - startTime;// 结束时间
-		logger.info("总耗时：{}ms，URI：{}", totalTime, request.getRequestURI());
-		
+		String clientIP = HttpUtil.getClientIP(request);
+		logger.info("IP：{}，总耗时：{}ms，URI：{}", clientIP, totalTime, request.getRequestURI());
 		ThreadLocalUtil.clean();
 		startTimeThreadLocal.remove();
 	}

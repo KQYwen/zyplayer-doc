@@ -104,7 +104,7 @@
         mounted: function () {
             let that = this;
             this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 6);
-            this.sqlExecutorEditor.setFontSize(18);
+            this.sqlExecutorEditor.setFontSize(16);
             this.sqlExecutorEditor.commands.addCommand({
                 name: "execute-sql",
                 bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
@@ -305,7 +305,7 @@
                     enableSnippets: true,
                     enableLiveAutocompletion: true,
                     minLines: minLines,
-                    maxLines: 30,
+                    maxLines: 40,
                 });
             },
         }

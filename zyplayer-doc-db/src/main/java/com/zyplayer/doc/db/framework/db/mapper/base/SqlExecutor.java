@@ -65,7 +65,7 @@ public class SqlExecutor {
 	 * @since 2019年8月18日
 	 */
 	public ExecuteResult execute(ExecuteParam param) {
-		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getFactoryById(param.getDatasourceId());
+		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(param.getDatasourceId());
 		return this.execute(factoryBean, param, null);
 	}
 	

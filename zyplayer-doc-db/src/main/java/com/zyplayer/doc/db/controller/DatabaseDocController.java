@@ -114,7 +114,7 @@ public class DatabaseDocController {
 			return DocDbResponseJson.ok(resultObj);
 		}
 		BaseMapper baseMapper = this.getBaseMapper(sourceId);
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
 		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
 		Map<String, List<TableInfoDto>> dbTableMap = new HashMap<>();
 		Map<String, List<TableColumnDescDto>> tableColumnsMap = new HashMap<>();
@@ -162,7 +162,7 @@ public class DatabaseDocController {
 	public ResponseJson getTableDdl(Long sourceId, String dbName, String tableName) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		Map<String, String> dataMap = baseMapper.getTableDdl(dbName, tableName);
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
 		// 不同数据源类型获取方式不一致
 		if (Objects.equals(DatabaseProduct.MYSQL, databaseFactoryBean.getDatabaseProduct())) {
 			return DocDbResponseJson.ok(dataMap.get("Create Table"));
@@ -181,7 +181,7 @@ public class DatabaseDocController {
 	public ResponseJson getTableStatus(Long sourceId, String dbName, String tableName) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		TableStatusVo tableStatusVo = baseMapper.getTableStatus(dbName, tableName);
-		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getFactoryById(sourceId);
+		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
 		tableStatusVo.setDbType(factoryBean.getDatabaseProduct().name().toLowerCase());
 		return DocDbResponseJson.ok(tableStatusVo);
 	}
@@ -196,7 +196,7 @@ public class DatabaseDocController {
 	@PostMapping(value = "/getTableColumnList")
 	public ResponseJson getTableColumnList(Long sourceId, String dbName, String tableName) {
 		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
@@ -267,7 +267,7 @@ public class DatabaseDocController {
 		if (StringUtils.isBlank(tableNames)) {
 			return DocDbResponseJson.warn("请选择需要导出的表");
 		}
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getFactoryById(sourceId);
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}

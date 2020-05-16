@@ -122,7 +122,7 @@ public class TransferDataServer {
 		String querySql = transferTask.getQuerySql();
 		String storageSql = transferTask.getStorageSql();
 		List<Map<String, Object>> selectResultList = new LinkedList<>();
-		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getFactoryById(querySourceId);
+		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(querySourceId);
 		ExecuteParam executeParam = new ExecuteParam();
 		executeParam.setDatasourceId(querySourceId);
 		executeParam.setExecuteType(ExecuteType.SELECT);

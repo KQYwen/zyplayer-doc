@@ -1,13 +1,10 @@
 package com.zyplayer.doc.manage.framework.config;
 
 import com.zyplayer.doc.db.framework.configuration.EnableDocDb;
-import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.dubbo.framework.config.EnableDocDubbo;
 import com.zyplayer.doc.elasticsearch.framework.config.EnableDocEs;
 import com.zyplayer.doc.swagger.framework.configuration.EnableDocSwagger;
 import com.zyplayer.doc.wiki.framework.config.EnableDocWiki;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -36,10 +33,4 @@ public class ZyplayerDocConfig {
 	
 	@EnableDocSwagger(selfDoc = false)
 	public class enableDocSwagger{}
-	
-	@Bean
-	@ConfigurationProperties(prefix = "zyplayer.doc.db")
-	public DatabaseRegistrationBean databaseRegistrationBean() {
-		return new DatabaseRegistrationBean();
-	}
 }

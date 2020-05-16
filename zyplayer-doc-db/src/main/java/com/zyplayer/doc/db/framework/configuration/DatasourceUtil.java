@@ -16,13 +16,11 @@ public class DatasourceUtil {
 	
 	public static DatabaseFactoryBean createDatabaseFactoryBean(DbDatasource dbDatasource){
 		try {
-			// 数据源配置
-			DruidDataSource dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword());
+			Resource[] resources = null;
 			// 描述连接信息的对象
 			DatabaseFactoryBean databaseFactoryBean = new DatabaseFactoryBean();
-			Resource[] resources = null;
-			String dbUrl = dbDatasource.getSourceUrl();
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+			String dbUrl = dbDatasource.getSourceUrl();
 			if (dbUrl.contains("mysql")) {
 				// jdbc:mysql://192.168.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true
 				String[] urlParamArr = dbUrl.split("\\?");
@@ -62,6 +60,8 @@ public class DatasourceUtil {
 			if (resources == null) {
 				return null;
 			}
+			// 数据源配置
+			DruidDataSource dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword());
 			// 创建sqlSessionTemplate
 			SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
 			sqlSessionFactoryBean.setDataSource(dataSource);

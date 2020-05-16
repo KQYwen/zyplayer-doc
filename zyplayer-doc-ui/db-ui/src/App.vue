@@ -12,16 +12,6 @@
                         </el-select>
                     </div>
                     <el-menu :router="true" class="el-menu-vertical" style="height: auto;">
-<!--                        <el-menu-item index="/"><i class="el-icon-s-home"></i>控制台</el-menu-item>-->
-<!--                        <el-submenu index="1">-->
-<!--                            <template slot="title">-->
-<!--                                <i class="el-icon-s-platform"></i>-->
-<!--                                <span slot="title">系统管理</span>-->
-<!--                            </template>-->
-<!--                            <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>-->
-<!--                            <el-menu-item index="/data/executor"><i class="el-icon-video-play"></i>SQL执行器</el-menu-item>-->
-<!--                            <el-menu-item index="/data/export"><i class="el-icon-finished"></i>数据库表导出</el-menu-item>-->
-<!--                        </el-submenu>-->
                         <el-menu-item index="/data/datasourceManage"><i class="el-icon-coin"></i>数据源管理</el-menu-item>
                         <el-menu-item index="/data/executor"><i class="el-icon-video-play"></i>SQL执行器</el-menu-item>
                         <el-submenu index="1">
