@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.zyplayer</groupId>
 	<artifactId>zyplayer-doc-dubbo</artifactId>
-	<version>1.0.4</version>
+	<version>1.0.5</version>
 	<packaging>jar</packaging>
 	<name>zyplayer-doc-dubbo</name>
 
@@ -37,7 +37,7 @@
 		<skipTests>true</skipTests>
 		<elasticsearch.version>7.2.0</elasticsearch.version>
 		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
-		<zyplayer.doc.version>1.0.4</zyplayer.doc.version>
+		<zyplayer.doc.version>1.0.5</zyplayer.doc.version>
 	</properties>
 
 	<dependencies>
