@@ -11,6 +11,7 @@ const service = axios.create({
 // 增加不需要验证结果的标记
 const noValidate = {
 	"/zyplayer-doc-db/executor/execute": true,
+	"/zyplayer-doc-db/datasource/test": true,
 };
 
 service.interceptors.request.use(

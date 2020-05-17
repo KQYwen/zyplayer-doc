@@ -12,6 +12,7 @@ import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +47,29 @@ public class DbDatasourceController {
 		return DocDbResponseJson.ok(datasourceList);
 	}
 
+	@PostMapping(value = "/test")
+	public ResponseJson test(DbDatasource dbDatasource) {
+		// 验证新的数据源
+		try {
+			// 获取原始密码
+			if (Objects.equals("***", dbDatasource.getSourcePassword()) && dbDatasource.getId() != null) {
+				DbDatasource dbDatasourceSel = dbDatasourceService.getById(dbDatasource.getId());
+				if (dbDatasourceSel != null) {
+					dbDatasource.setSourcePassword(dbDatasourceSel.getSourcePassword());
+				}
+			}
+			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource);
+			if (databaseFactoryBean == null) {
+				return DocDbResponseJson.warn("获取数据源失败，请检查配置是否正确");
+			}
+			databaseFactoryBean.getDataSource().close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return DocDbResponseJson.warn(ExceptionUtils.getFullStackTrace(e));
+		}
+		return DocDbResponseJson.ok();
+	}
+
 	@PostMapping(value = "/update")
 	public ResponseJson update(DbDatasource dbDatasource) {
 		if (StringUtils.isBlank(dbDatasource.getName())) {
@@ -69,6 +93,8 @@ public class DbDatasourceController {
 		Long sourceId = Optional.ofNullable(dbDatasource.getId()).orElse(0L);
 		if (sourceId > 0) {
 			dbDatasourceService.updateById(dbDatasource);
+			// 关闭旧数据源
+			databaseRegistrationBean.closeDatasource(dbDatasource.getId());
 		} else {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			dbDatasource.setCreateTime(new Date());
@@ -76,18 +102,6 @@ public class DbDatasourceController {
 			dbDatasource.setCreateUserName(currentUser.getUsername());
 			dbDatasource.setYn(1);
 			dbDatasourceService.save(dbDatasource);
-		}
-		// 关闭数据源
-		databaseRegistrationBean.closeDatasource(dbDatasource.getId());
-		// 验证新的数据源
-		DbDatasource dbDatasourceSel = dbDatasourceService.getById(dbDatasource.getId());
-		if (Objects.equals(dbDatasourceSel.getYn(), 1)) {
-			// 创建新的数据源
-			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasourceSel);
-			if (databaseFactoryBean == null) {
-				return DocDbResponseJson.warn("创建数据源失败，请检查配置是否正确");
-			}
-			databaseFactoryBean.getDataSource().close();
 		}
 		return DocDbResponseJson.ok();
 	}

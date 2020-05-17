@@ -107,13 +107,17 @@ public class DatabaseRegistrationBean {
 		if (factoryBean != null) return factoryBean;
 		DbDatasource dbDatasource = dbDatasourceService.getById(sourceId);
 		if (dbDatasource == null) {
-			throw new ConfirmException("未找到指定数据源配置信息：" + sourceId);
+			throw new ConfirmException("未找到指定数据源配置信息");
 		}
-		DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource);
-		if (databaseFactoryBean == null) {
-			throw new ConfirmException("创建数据源失败：" + sourceId);
+		try {
+			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource);
+			if (databaseFactoryBean == null) {
+				throw new ConfirmException("获取数据源失败");
+			}
+			databaseFactoryBeanMap.put(sourceId, databaseFactoryBean);
+			return databaseFactoryBean;
+		} catch (Exception e) {
+			throw new ConfirmException("创建数据源失败", e);
 		}
-		databaseFactoryBeanMap.put(sourceId, databaseFactoryBean);
-		return databaseFactoryBean;
 	}
 }

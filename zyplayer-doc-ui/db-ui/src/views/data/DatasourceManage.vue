@@ -49,6 +49,9 @@
                 <el-form-item label="密码：">
                     <el-input v-model="newDatasource.sourcePassword" placeholder="密码"></el-input>
                 </el-form-item>
+                <el-form-item label="测试：">
+                    <el-button v-on:click="testDatasource" type="primary" v-loading="testDatasourceErrLoading">测试数据源</el-button>
+                </el-form-item>
             </el-form>
             <div slot="footer" style="text-align: center;">
                 <el-button v-on:click="saveDatasource" type="primary">保存</el-button>
@@ -90,12 +93,19 @@
                 <el-button type="primary" v-on:click="saveUserDbSourceAuth">保存配置</el-button>
             </div>
         </el-dialog>
+        <!--错误信息弹窗-->
+        <el-dialog title="测试数据源失败" :visible.sync="testDatasourceErrVisible" :footer="null" width="760px">
+            <div v-highlight>
+                <pre><code v-html="testDatasourceErrInfo"></code></pre>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import toast from '../../common/lib/common/toast'
     import global from '../../common/config/global'
+    import {queryTestDatasource} from '../../common/api/datasource'
 
     var app;
 
@@ -113,6 +123,10 @@
                 dbSourceAuthUserLoading: false,
                 searchUserList: [],
                 dbSourceAuthNewUser: "",
+                // 测试数据源
+                testDatasourceErrInfo: "",
+                testDatasourceErrVisible: false,
+                testDatasourceErrLoading: false,
             };
         },
         mounted: function () {
@@ -206,6 +220,18 @@
                 this.common.post(this.apilist1.manageUpdateDatasource, this.newDatasource, function (json) {
                     app.$message.success("保存成功！");
                     app.getDatasourceList();
+                });
+            },
+            testDatasource() {
+                this.testDatasourceErrLoading = true;
+                queryTestDatasource(this.newDatasource).then(res => {
+                    this.testDatasourceErrLoading = false;
+                    if (res.errCode == 200) {
+                        this.$message.success("测试成功！");
+                    } else {
+                        this.testDatasourceErrVisible = true;
+                        this.testDatasourceErrInfo = res.errMsg || '';
+                    }
                 });
             },
             driverClassNameChange() {
