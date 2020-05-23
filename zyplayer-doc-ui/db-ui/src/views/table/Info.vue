@@ -88,8 +88,7 @@
 </template>
 
 <script>
-    import global from '../../common/config/global'
-    import {queryTableDdl} from '../../common/api/datasource'
+    import datasourceApi from '../../common/api/datasource'
 
     export default {
         data() {
@@ -104,38 +103,43 @@
                 tableDDLInfoDialogVisible: false,
             };
         },
-        activated: function () {
-            this.initQueryParam(this.$route);
-            // 延迟设置展开的目录，edit比app先初始化
-            setTimeout(()=> {
-                global.vue.$app.initLoadDataList(this.vueQueryParam.sourceId, this.vueQueryParam.host, this.vueQueryParam.dbName);
-            }, 500);
-        },
+		mounted: function () {
+			// 延迟设置展开的目录，edit比app先初始化
+			setTimeout(() => {
+				this.$emit('initLoadDataList', {
+					sourceId: this.vueQueryParam.sourceId,
+					host: this.vueQueryParam.host,
+					dbName: this.vueQueryParam.dbName
+				});
+			}, 500);
+		},
+		activated: function () {
+			this.initQueryParam(this.$route);
+		},
         methods: {
             initQueryParam(to) {
                 if (this.columnListLoading) {
                     return;
                 }
-                let that = this;
                 this.columnListLoading = true;
                 this.vueQueryParam = to.query;
-                this.common.post(this.apilist1.tableColumnList, this.vueQueryParam, function (json) {
-                    var columnList = json.data.columnList || [];
-                    for (var i = 0; i < columnList.length; i++) {
+                datasourceApi.tableColumnList(this.vueQueryParam).then(json => {
+                    let columnList = json.data.columnList || [];
+                    for (let i = 0; i < columnList.length; i++) {
                         columnList[i].inEdit = 0;
                         columnList[i].newDesc = columnList[i].description;
                     }
-                    that.columnList = columnList;
-                    var tableInfo = json.data.tableInfo || {};
+                    this.columnList = columnList;
+                    let tableInfo = json.data.tableInfo || {};
                     tableInfo.inEdit = 0;
                     tableInfo.newDesc = tableInfo.description;
-                    that.tableInfo = tableInfo;
-                    var newName = {key: that.$route.fullPath, val: '表-' + tableInfo.tableName};
-                    that.$store.commit('global/addTableName', newName);
-                    that.columnListLoading = false;
+                    this.tableInfo = tableInfo;
+                    let newName = {key: this.$route.fullPath, val: '表-' + tableInfo.tableName};
+                    this.$store.commit('global/addTableName', newName);
+                    this.columnListLoading = false;
                 });
-                this.common.post(this.apilist1.tableStatus, this.vueQueryParam, function (json) {
-                    that.tableStatusInfo = json.data || {};
+                datasourceApi.tableStatus(this.vueQueryParam).then(json => {
+                    this.tableStatusInfo = json.data || {};
                 });
             },
             showCreateTableDdl() {
@@ -146,7 +150,7 @@
                     dbName: this.vueQueryParam.dbName,
                     tableName: this.vueQueryParam.tableName,
                 };
-                queryTableDdl(param).then(res => {
+                datasourceApi.queryTableDdl(param).then(res => {
                     this.tableDDLInfo = res.data || '获取失败';
                 });
             },
@@ -181,10 +185,9 @@
                 row.inEdit = 0;
                 this.vueQueryParam.columnName = row.name;
                 this.vueQueryParam.newDesc = row.newDesc;
-                let that = this;
-                this.common.post(this.apilist1.updateTableColumnDesc, this.vueQueryParam, function (json) {
+                datasourceApi.updateTableColumnDesc(this.vueQueryParam).then(() => {
                     row.description = row.newDesc;
-                    that.$message.success("修改成功");
+                    this.$message.success("修改成功");
                 });
             },
             saveTableDescription() {
@@ -194,10 +197,9 @@
                 }
                 this.tableInfo.inEdit = 0;
                 this.vueQueryParam.newDesc = this.tableInfo.newDesc;
-                let that = this;
-                this.common.post(this.apilist1.updateTableDesc, this.vueQueryParam, function (json) {
-                    that.tableInfo.description = that.tableInfo.newDesc;
-                    that.$message.success("修改成功");
+                datasourceApi.updateTableDesc(this.vueQueryParam).then(() => {
+                    this.tableInfo.description = this.tableInfo.newDesc;
+                    this.$message.success("修改成功");
                 });
             },
         }

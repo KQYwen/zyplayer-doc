@@ -84,14 +84,9 @@ public class DatabaseDocController {
 			List<Long> userAuthDbIds = userAuthList.stream().map(val -> NumberUtils.toLong(val.getAuthCustomSuffix().replace(DocAuthConst.DB, ""))).collect(Collectors.toList());
 			wrapper.in("id", userAuthDbIds);
 		}
+		wrapper.select("id", "name", "group_name");
 		List<DbDatasource> datasourceList = dbDatasourceService.list(wrapper);
-		List<DatabaseFactoryBean> dataSourceList = datasourceList.stream().map(val -> {
-			DatabaseFactoryBean bean = new DatabaseFactoryBean();
-			bean.setCnName(val.getName());
-			bean.setId(val.getId());
-			return bean;
-		}).collect(Collectors.toList());
-		return DocDbResponseJson.ok(dataSourceList);
+		return DocDbResponseJson.ok(datasourceList);
 	}
 	
 	/**

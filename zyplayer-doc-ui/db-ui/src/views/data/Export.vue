@@ -8,14 +8,14 @@
                 <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请选择数据源">
                     <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
-                <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库">
+                <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库" style="margin: 0 10px;">
                     <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>
                 </el-select>
                 <el-radio-group v-model="exportType">
                     <el-radio :label="1">HTML格式</el-radio>
                     <el-radio :label="2">Excel格式</el-radio>
                 </el-radio-group>
-                <el-button v-on:click="exportChoiceTable" type="primary" style="margin-left: 20px;">导出选中的表</el-button>
+                <el-button v-on:click="exportChoiceTable" type="primary" style="margin: 0 10px 0 20px;">导出选中的表</el-button>
                 <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=117&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
             </div>
             <el-table :data="tableList" stripe border @selection-change="handleSelectionChange" style="width: 100%; margin-bottom: 5px;">
@@ -28,6 +28,7 @@
 </template>
 
 <script>
+    import datasourceApi from '../../common/api/datasource'
 
     var app;
     export default {
@@ -77,25 +78,25 @@
 					+ "&tableNames=" + tableNames);
             },
             loadGetTableList() {
-                this.common.post(this.apilist1.tableList, {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase}, function (json) {
-                    app.tableList = json.data || [];
+                datasourceApi.tableList({sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase}).then(json => {
+                    this.tableList = json.data || [];
                 });
             },
             loadDatasourceList() {
-                this.common.post(this.apilist1.datasourceList, {}, function (json) {
-                    app.datasourceList = json.data || [];
-                    var datasourceOptions = [];
-                    for (var i = 0; i < app.datasourceList.length; i++) {
+                datasourceApi.datasourceList({}).then(json => {
+                    this.datasourceList = json.data || [];
+                    let datasourceOptions = [];
+                    for (let i = 0; i < this.datasourceList.length; i++) {
                         datasourceOptions.push({
-                            label: app.datasourceList[i].cnName, value: app.datasourceList[i].id
+                            label: this.datasourceList[i].name, value: this.datasourceList[i].id
                         });
                     }
-                    app.datasourceOptions = datasourceOptions;
+                    this.datasourceOptions = datasourceOptions;
                 });
             },
             loadDatabaseList() {
-                this.common.post(this.apilist1.databaseList, {sourceId: this.choiceDatasourceId}, function (json) {
-                    app.databaseList = json.data || [];
+                datasourceApi.databaseList({sourceId: this.choiceDatasourceId}).then(json => {
+                    this.databaseList = json.data || [];
                 });
             },
             handleSelectionChange(val) {

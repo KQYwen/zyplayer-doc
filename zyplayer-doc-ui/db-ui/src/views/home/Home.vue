@@ -7,9 +7,6 @@
 </template>
 
 <script>
-    import toast from '../../common/lib/common/toast'
-    import global from '../../common/config/global'
-
     var app;
 
     export default {

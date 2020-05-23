@@ -69,6 +69,11 @@ public class DbDatasource implements Serializable {
      */
     private String name;
 
+    /**
+     * 数据源分组
+     */
+    private String groupName;
+
     public Long getId() {
         return id;
     }
@@ -154,5 +159,13 @@ public class DbDatasource implements Serializable {
     
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public String getGroupName() {
+        return groupName;
+    }
+    
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 }

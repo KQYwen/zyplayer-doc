@@ -92,11 +92,11 @@ public class TransferDataServer {
 		boolean querySelect = DocUserUtil.haveCustomAuth(DbAuthType.SELECT.getName(), DocAuthConst.DB + transferTask.getQueryDatasourceId());
 		boolean queryUpdate = DocUserUtil.haveCustomAuth(DbAuthType.UPDATE.getName(), DocAuthConst.DB + transferTask.getQueryDatasourceId());
 		if (!manageAuth && !querySelect && !queryUpdate) {
-			throw new ConfirmException("没有该数据源的查询权限，创建任务失败");
+			throw new ConfirmException("没有查询数据源的查询权限，创建任务失败");
 		}
 		boolean storageUpdate = DocUserUtil.haveCustomAuth(DbAuthType.UPDATE.getName(), DocAuthConst.DB + transferTask.getStorageDatasourceId());
 		if (!manageAuth && !storageUpdate) {
-			throw new ConfirmException("没有该数据源的写入权限，创建任务失败");
+			throw new ConfirmException("没有目标数据源的写入权限，创建任务失败");
 		}
 		dbTransferTaskService.resetExecuteInfo(taskId);
 		// 提交任务
@@ -135,13 +135,11 @@ public class TransferDataServer {
 				ExecuteResult countResult = sqlExecutor.execute(executeParam);
 				if (CollectionUtils.isEmpty(countResult.getResult())) {
 					String executeInfo = String.format("[%s] 获取总条数失败", DateTime.now().toString());
-					logger.error(executeInfo);
 					dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.ERROR.getCode(), executeInfo);
 					return;
 				}
 				Object transferCount = countResult.getResult().get(0).get("counts");
 				String executeInfo = String.format("[%s] 待处理总条数：%s，查询总条数耗时：%sms", DateTime.now().toString(), transferCount, System.currentTimeMillis() - executeStartTime);
-				logger.info(executeInfo);
 				dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.EXECUTING.getCode(), executeInfo);
 			} else {
 				String executeInfo = String.format("[%s] 未开启查询总条数，跳过条数查询", DateTime.now().toString());
@@ -149,7 +147,6 @@ public class TransferDataServer {
 			}
 			AtomicLong readCount = new AtomicLong(0L);
 			executeParam.setSql(querySql);
-//			executeParam.setSql("select sleep(10)");
 			ExecuteResult executeResult = sqlExecutor.execute(factoryBean, executeParam, resultMap -> {
 				selectResultList.add(resultMap);
 				if (readCount.incrementAndGet() % executeCountLogNum == 0) {
@@ -167,7 +164,6 @@ public class TransferDataServer {
 			}
 			if (StringUtils.isNotBlank(executeResult.getErrMsg())) {
 				String executeInfo = String.format("[%s] 执行出错：%s", DateTime.now().toString(), executeResult.getErrMsg());
-				logger.error(executeInfo);
 				dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.ERROR.getCode(), executeInfo);
 			} else {
 				String executeInfo = String.format("[%s] 任务执行成功，处理总条数：%s，总耗时：%sms", DateTime.now().toString(), readCount.get(), System.currentTimeMillis() - executeStartTime);

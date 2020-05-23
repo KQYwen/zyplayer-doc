@@ -21,7 +21,7 @@
 </template>
 
 <script>
-    var app;
+    import userApi from '../../common/api/user'
     export default {
         data() {
             return {
@@ -29,13 +29,12 @@
             };
         },
         mounted: function () {
-            app = this;
             this.getUserInfo();
         },
         methods: {
             getUserInfo() {
-                this.common.post(this.apilist1.getSelfUserInfo, this.searchParam, function (json) {
-                    app.userInfo = json.data;
+                userApi.getSelfUserInfo().then(json => {
+                    this.userInfo = json.data;
                 });
             },
         }

@@ -18,6 +18,7 @@
 </template>
 
 <script>
+    import userApi from '../../common/api/user'
     export default {
         data() {
             return {
@@ -43,14 +44,13 @@
         },
         methods: {
             loginSubmit() {
-                var that = this;
                 this.$refs.loginParam.validate((valid) => {
                     if (!valid) return;
-                    that.common.post(that.apilist1.userLogin, that.loginParam, function (json) {
-                        if(!!that.redirect) {
-                            location.href = decodeURIComponent(that.redirect);
+                    userApi.userLogin(this.loginParam).then(() => {
+                        if (!!this.redirect) {
+                            location.href = decodeURIComponent(this.redirect);
                         } else {
-                            that.$router.back();
+                            this.$router.back();
                         }
                     });
                 });

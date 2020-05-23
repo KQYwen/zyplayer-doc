@@ -78,8 +78,7 @@
     import '../../common/lib/ace/mode-sql'
     import '../../common/lib/ace/ext-language_tools'
     import '../../common/lib/ace/snippets/sql'
-    import global from '../../common/config/global'
-    import {queryExecuteSql} from '../../common/api/datasource'
+    import datasourceApi from '../../common/api/datasource'
     import sqlFormatter from "sql-formatter";
 
     export default {
@@ -112,11 +111,15 @@
                     that.doExecutorClick();
                 }
             });
-            // 延迟设置展开的目录，edit比app先初始化
-            setTimeout(()=> {
-                this.doExecutorSql();
-                global.vue.$app.initLoadDataList(this.vueQueryParam.sourceId, this.vueQueryParam.host, this.vueQueryParam.dbName);
-            }, 500);
+			// 延迟设置展开的目录，edit比app先初始化
+			setTimeout(() => {
+				this.doExecutorSql();
+				this.$emit('initLoadDataList', {
+					sourceId: this.vueQueryParam.sourceId,
+					host: this.vueQueryParam.host,
+					dbName: this.vueQueryParam.dbName
+				});
+			}, 500);
         },
         activated: function () {
             this.initQueryParam(this.$route);
@@ -160,9 +163,8 @@
                 }
             },
             cancelExecutorSql() {
-                let that = this;
-                this.common.post(this.apilist1.executeSqlCancel, {executeId: this.nowExecutorId}, function (json) {
-                    that.$message.success("取消成功");
+                datasourceApi.executeSqlCancel({executeId: this.nowExecutorId}).then(() => {
+                    this.$message.success("取消成功");
                 });
             },
             doExecutorClick() {
@@ -185,7 +187,6 @@
                 this.doExecutorSqlCommon(dataSql, countSql);
             },
             doExecutorSqlCommon(dataSql, countSql) {
-                let that = this;
                 if (!this.vueQueryParam.sourceId) {
                     this.$message.error("请先选择数据源");
                     return;
@@ -205,7 +206,7 @@
                 };
                 // 第一页才查询总条数
                 if (!!countSql && this.currentPage == 1) {
-                    queryExecuteSql(param).then(res => {
+                    datasourceApi.queryExecuteSql(param).then(res => {
                         if (res.errCode != 200 || !res.data || res.data.length <= 0) return;
                         let objItem = JSON.parse(res.data[0]);
                         if(!objItem.result || objItem.result.length <= 0) return;
@@ -213,29 +214,29 @@
                     });
                 }
                 param.sql = dataSql;
-                this.common.postNonCheck(this.apilist1.executeSql, param, function (json) {
+                datasourceApi.queryExecuteSql(param).then(json => {
                     if (json.errCode != 200) {
-                        that.executeError = json.errMsg;
-                        that.sqlExecuting = false;
+                        this.executeError = json.errMsg;
+                        this.sqlExecuting = false;
                         return;
                     }
-                    var resultList = json.data || [];
-                    var executeResultList = [];
-                    var executeResultInfo = "", itemIndex = 1;
-                    for (var i = 0; i < resultList.length; i++) {
-                        var objItem = JSON.parse(resultList[i]);
-                        executeResultInfo += that.getExecuteInfoStr(objItem);
-                        var resultItem = that.dealExecuteResult(objItem);
+                    let resultList = json.data || [];
+                    let executeResultList = [];
+                    let executeResultInfo = "", itemIndex = 1;
+                    for (let i = 0; i < resultList.length; i++) {
+                        let objItem = JSON.parse(resultList[i]);
+                        executeResultInfo += this.getExecuteInfoStr(objItem);
+                        let resultItem = this.dealExecuteResult(objItem);
                         if (resultItem.updateCount < 0) {
                             resultItem.index = itemIndex;
                             itemIndex++;
                         }
                         executeResultList.push(resultItem);
                     }
-                    that.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
-                    that.executeResultInfo = executeResultInfo;
-                    that.executeResultList = executeResultList;
-                    that.sqlExecuting = false;
+                    this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
+                    this.executeResultInfo = executeResultInfo;
+                    this.executeResultList = executeResultList;
+                    this.sqlExecuting = false;
                 });
             },
             getExecuteSql() {

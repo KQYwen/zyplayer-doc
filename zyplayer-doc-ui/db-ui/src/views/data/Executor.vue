@@ -14,7 +14,7 @@
                     <div style="float: right;margin-top: -5px;">
                         数据源：
                         <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请选择数据源" style="width: 400px;">
-                            <el-option v-for="item in datasourceList" :key="item.id" :label="item.cnName" :value="item.id"></el-option>
+                            <el-option v-for="item in datasourceList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </div>
                 </div>
@@ -54,21 +54,25 @@
                                     <pre style="margin: 0;">{{scope.row.content}}</pre>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="操作" width="150px">
+                            <el-table-column label="操作" width="160px">
                                 <template slot-scope="scope">
                                     <el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row.content)">输入</el-button>
-                                    <el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)">删除</el-button>
+                                    <el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)" style="margin-left: 10px;">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
                     </el-tab-pane>
                     <el-tab-pane label="历史记录" name="history">
                         <el-table :data="myHistoryListList" stripe border style="width: 100%; margin-bottom: 5px;">
-                            <el-table-column prop="content" label="SQL"></el-table-column>
-                            <el-table-column label="操作" width="150px">
+                            <el-table-column prop="content" label="SQL">
+								<template slot-scope="scope">
+									<pre style="margin: 0;">{{scope.row.content}}</pre>
+								</template>
+							</el-table-column>
+                            <el-table-column label="操作" width="160px">
                                 <template slot-scope="scope">
                                     <el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row.content)">输入</el-button>
-                                    <el-button size="mini" type="success" v-on:click="addFavorite(scope.row.content)">收藏</el-button>
+                                    <el-button size="mini" type="success" v-on:click="addFavorite(scope.row.content)" style="margin-left: 10px;">收藏</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -87,6 +91,8 @@
     import '../../common/lib/ace/ext-language_tools'
     import '../../common/lib/ace/snippets/sql'
     import sqlFormatter from "sql-formatter"
+    import datasourceApi from '../../common/api/datasource'
+
     export default {
         data() {
             return {
@@ -141,9 +147,8 @@
                 });
             },
             cancelExecutorSql() {
-                let that = this;
-                this.common.post(this.apilist1.executeSqlCancel, {executeId: this.nowExecutorId}, function (json) {
-                    that.$message.success("取消成功");
+                datasourceApi.executeSqlCancel({executeId: this.nowExecutorId}).then(() => {
+                    this.$message.success("取消成功");
                 });
             },
             loadHistoryAndFavoriteList() {
@@ -152,15 +157,13 @@
                 this.loadFavoriteList();
             },
             loadFavoriteList() {
-                let that = this;
-                this.common.post(this.apilist1.favoriteList, {sourceId: this.choiceDatasourceId}, function (json) {
-                    that.myFavoriteList = json.data || [];
+                datasourceApi.favoriteList({sourceId: this.choiceDatasourceId}).then(json => {
+                    this.myFavoriteList = json.data || [];
                 });
             },
             loadHistoryList() {
-                let that = this;
-                this.common.post(this.apilist1.historyList, {sourceId: this.choiceDatasourceId}, function (json) {
-                    that.myHistoryListList = json.data || [];
+                datasourceApi.historyList({sourceId: this.choiceDatasourceId}).then(json => {
+                    this.myHistoryListList = json.data || [];
                 });
             },
             addFavorite(sqlValue) {
@@ -170,19 +173,16 @@
                         sqlValue = this.sqlExecutorEditor.getValue();
                     }
                 }
-                let that = this;
-                var param = {name: '我的收藏', content: sqlValue, datasourceId: this.choiceDatasourceId};
-                this.common.post(this.apilist1.updateFavorite, param, function (json) {
-                    that.$message.success("收藏成功");
-                    that.loadFavoriteList();
+                let param = {name: '我的收藏', content: sqlValue, datasourceId: this.choiceDatasourceId};
+                datasourceApi.updateFavorite(param).then(() => {
+                    this.$message.success("收藏成功");
+                    this.loadFavoriteList();
                 });
             },
             delFavorite(row) {
-                let that = this;
-                var param = {id: row.id, yn: 0};
-                this.common.post(this.apilist1.updateFavorite, param, function (json) {
-                    that.$message.success("删除成功");
-                    that.loadFavoriteList();
+                datasourceApi.updateFavorite({id: row.id, yn: 0}).then(() => {
+                    this.$message.success("删除成功");
+                    this.loadFavoriteList();
                 });
             },
             inputFavoriteSql(content) {
@@ -218,16 +218,15 @@
                     sqlValue = this.sqlExecutorEditor.getValue();
                 }
                 this.sqlExecuting = true;
-                let that = this;
-                this.common.postNonCheck(this.apilist1.executeSql, {
+                datasourceApi.queryExecuteSql({
                     sourceId: this.choiceDatasourceId,
                     executeId: this.nowExecutorId,
                     sql: sqlValue,
                     params: '',
-                }, function (json) {
-                    that.sqlExecuting = false;
+                }).then(json => {
+                    this.sqlExecuting = false;
                     if (json.errCode != 200) {
-                        that.executeError = json.errMsg;
+                        this.executeError = json.errMsg;
                         return;
                     }
                     var resultList = json.data || [];
@@ -235,43 +234,38 @@
                     var executeResultInfo = "", itemIndex = 1;
                     for (var i = 0; i < resultList.length; i++) {
                         var objItem = JSON.parse(resultList[i]);
-                        executeResultInfo += that.getExecuteInfoStr(objItem);
-                        var resultItem = that.dealExecuteResult(objItem);
+                        executeResultInfo += this.getExecuteInfoStr(objItem);
+                        var resultItem = this.dealExecuteResult(objItem);
                         if (resultItem.updateCount < 0) {
                             resultItem.index = itemIndex;
                             itemIndex++;
                         }
                         executeResultList.push(resultItem);
                     }
-                    that.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
-                    that.executeResultInfo = executeResultInfo;
-                    that.executeResultList = executeResultList;
+                    this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
+                    this.executeResultInfo = executeResultInfo;
+                    this.executeResultList = executeResultList;
                 });
             },
             loadDatasourceList() {
-                let that = this;
-                this.common.post(this.apilist1.datasourceList, {}, function (json) {
-                    that.datasourceList = json.data || [];
-                    if (that.datasourceList.length > 0) {
-                        that.choiceDatasourceId = that.datasourceList[0].id;
-                        that.loadEditorData();
+                datasourceApi.datasourceList({}).then(json => {
+                    this.datasourceList = json.data || [];
+                    if (this.datasourceList.length > 0) {
+                        this.choiceDatasourceId = this.datasourceList[0].id;
+                        this.loadEditorData();
                     }
                 });
             },
             loadEditorData() {
-                let that = this;
-                this.common.post(this.apilist1.getEditorData, {sourceId: this.choiceDatasourceId}, function (json) {
-                    var data = json.data || {};
-                    that.editorDbInfo = data.db || [];
-                    that.editorDbTableInfo = data.table || {};
-                    that.editorColumnInfo = data.column || {};
+                datasourceApi.getEditorData({sourceId: this.choiceDatasourceId}).then(json => {
+                    let data = json.data || {};
+                    this.editorDbInfo = data.db || [];
+                    this.editorDbTableInfo = data.table || {};
+                    this.editorColumnInfo = data.column || {};
                 });
             },
             datasourceChangeEvents() {
                 this.loadEditorData();
-                // this.common.post(this.apilist1.databaseList, {sourceId: this.choiceDatasourceId}, function (json) {
-                //     app.databaseList = json.data || [];
-                // });
             },
             databaseChangeEvents() {
 

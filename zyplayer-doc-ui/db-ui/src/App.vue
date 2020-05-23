@@ -1,13 +1,17 @@
 <template>
     <div id="app">
-        <template v-if="global.fullscreen">
+        <template v-if="fullscreen">
             <router-view></router-view>
         </template>
         <el-container v-else>
             <el-aside style="background: #fafafa;">
                 <div style="padding: 10px;height: 100%;box-sizing: border-box;">
                     <div style="margin-bottom: 10px;">
-                        <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请先选择数据源" style="width: 100%;">
+                        <el-select v-model="choiceDatasourceGroup" @change="sourceGroupChangeEvents" filterable placeholder="请先选择分组" style="width: 100%;">
+							<el-option value="" label="全部分组"></el-option>
+							<el-option v-for="item in datasourceGroupList" :key="item" :value="item"></el-option>
+                        </el-select>
+                        <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请先选择数据源" style="width: 100%;margin-top: 10px;">
                             <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>
                     </div>
@@ -56,9 +60,11 @@
                     </el-dropdown>
                 </el-header>
                 <el-main style="padding: 0;">
-                    <router-view></router-view>
-                </el-main>
-            </el-container>
+					<router-view @initLoadDataList="initLoadDataList"
+								 @loadDatasourceList="loadDatasourceList">
+					</router-view>
+				</el-main>
+			</el-container>
         </el-container>
         <!--关于弹窗-->
         <el-dialog title="关于zyplayer-doc" :visible.sync="aboutDialogVisible" width="600px">
@@ -86,10 +92,9 @@
 </template>
 
 <script>
-    import global from './common/config/global'
-    import toast from './common/lib/common/toast'
+    import userApi from './common/api/user'
+    import datasourceApi from './common/api/datasource'
 
-    var app;
     export default {
         data() {
             return {
@@ -99,7 +104,9 @@
                 // 数据源相关
                 datasourceOptions: [],
                 datasourceList: [],
+				datasourceGroupList: [],
                 choiceDatasourceId: "",
+				choiceDatasourceGroup: "",
                 defaultProps: {children: 'children', label: 'name'},
                 // 页面展示相关
                 nowDatasourceShow: {},
@@ -109,9 +116,12 @@
                 upgradeInfo: {},
             }
         },
+		computed: {
+			fullscreen () {
+				return this.$store.state.global.fullscreen;
+			}
+		},
         mounted: function () {
-            app = this;
-            global.vue.$app = this;
             this.getSelfUserInfo();
             this.checkSystemUpgrade();
             this.loadDatasourceList();
@@ -122,35 +132,45 @@
                 if (command == 'userSignOut') {
                     this.userSignOut();
                 } else if (command == 'aboutDoc') {
-                    app.aboutDialogVisible = true;
+                    this.aboutDialogVisible = true;
                 } else if (command == 'myInfo') {
                     this.$router.push({path: '/user/myInfo'});
                 } else if (command == 'console') {
-                    window.location = this.apilist1.HOST;
+                    window.location = process.env.VUE_APP_BASE_API;
                 } else {
-                    toast.notOpen();
+					this.$message.warn("功能暂未开放");
                 }
             },
             userSignOut() {
-                this.common.post(this.apilist1.userLogout, {}, function (json) {
+                userApi.userLogout().then(() => {
                     location.reload();
                 });
             },
             getSelfUserInfo() {
-                this.common.post(this.apilist1.getSelfUserInfo, {}, function (json) {
-                    app.userSelfInfo = json.data;
+                userApi.getSelfUserInfo().then(json=>{
+                    this.userSelfInfo = json.data;
                 });
             },
+			sourceGroupChangeEvents() {
+				let datasourceOptions = [];
+				for (let i = 0; i < this.datasourceList.length; i++) {
+					let item = this.datasourceList[i];
+					if (!this.choiceDatasourceGroup || this.choiceDatasourceGroup == item.groupName) {
+						datasourceOptions.push({label: item.name, value: item.id});
+					}
+				}
+				this.datasourceOptions = datasourceOptions;
+            },
             datasourceChangeEvents() {
-                app.nowDatasourceShow = this.choiceDatasourceId;
+				this.nowDatasourceShow = this.choiceDatasourceId;
                 var host = "";
                 for (var i = 0; i < this.datasourceList.length; i++) {
                     if (this.datasourceList[i].id == this.choiceDatasourceId) {
-                        host = this.datasourceList[i].cnName;
+                        host = this.datasourceList[i].name;
                         break;
                     }
                 }
-                app.loadDatabaseList(this.choiceDatasourceId, host);
+				this.loadDatabaseList(this.choiceDatasourceId, host);
             },
             handleNodeClick(node) {
                 console.log("点击节点：", node);
@@ -170,16 +190,16 @@
                 if (node.children.length > 0 && node.children[0].needLoad) {
                     console.log("加载节点：", node);
                     if (node.type == 1) {
-                        app.loadGetTableList(node);
+						this.loadGetTableList(node);
                     }
                 }
             },
             loadGetTableList(node, callback) {
-                this.common.post(this.apilist1.tableList, {sourceId: this.choiceDatasourceId, dbName: node.dbName}, function (json) {
-                    var pathIndex = [];
-                    var result = json.data || [];
-                    for (var i = 0; i < result.length; i++) {
-                        var item = {
+                datasourceApi.tableList({sourceId: this.choiceDatasourceId, dbName: node.dbName}).then(json => {
+                    let pathIndex = [];
+                    let result = json.data || [];
+                    for (let i = 0; i < result.length; i++) {
+                        let item = {
                             id: node.host + "_" + node.dbName + "_" + result[i].tableName, host: node.host,
                             dbName: node.dbName, tableName: result[i].tableName, name: result[i].tableName, type: 2,
                             comment: result[i].tableComment
@@ -194,51 +214,53 @@
                 });
             },
             loadDatasourceList() {
-                this.common.post(this.apilist1.datasourceList, {}, function (json) {
-                    app.datasourceList = json.data || [];
-                    var datasourceOptions = [];
-                    for (var i = 0; i < app.datasourceList.length; i++) {
-                        datasourceOptions.push({
-                            label: app.datasourceList[i].cnName, value: app.datasourceList[i].id
-                        });
-                    }
-                    app.datasourceOptions = datasourceOptions;
-                });
+                datasourceApi.datasourceList({}).then(json => {
+                    this.datasourceList = json.data || [];
+					let datasourceOptions = [];
+					for (let i = 0; i < this.datasourceList.length; i++) {
+						let item = this.datasourceList[i];
+						datasourceOptions.push({label: item.name, value: item.id});
+					}
+                    this.datasourceOptions = datasourceOptions;
+					let datasourceGroupList = [];
+					this.datasourceList.filter(item => !!item.groupName).forEach(item => datasourceGroupList.push(item.groupName || ''));
+					this.datasourceGroupList = Array.from(new Set(datasourceGroupList));
+				});
             },
-            loadDatabaseList(sourceId, host, callback) {
-                app.databaseList = [];
-                this.common.post(this.apilist1.databaseList, {sourceId: sourceId}, function (json) {
-                    var result = json.data || [];
-                    var pathIndex = [];
-                    var children = [];
-                    for (var i = 0; i < result.length; i++) {
-                        var item = {
-                            id: host + "_" + result[i].dbName, host: host, dbName: result[i].dbName,
-                            name: result[i].dbName, type: 1
-                        };
-                        item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
-                        children.push(item);
-                    }
-                    pathIndex.push({id: host, host: host, name: host, children: children});
-                    app.databaseList = pathIndex;
-                    if (typeof callback == 'function') {
-                        callback();
-                    }
-                });
+			loadDatabaseList(sourceId, host) {
+				return new Promise((resolve, reject) => {
+					this.databaseList = [];
+					datasourceApi.databaseList({sourceId: sourceId}).then(json => {
+						let result = json.data || [];
+						let pathIndex = [];
+						let children = [];
+						for (let i = 0; i < result.length; i++) {
+							let item = {
+								id: host + "_" + result[i].dbName, host: host, dbName: result[i].dbName,
+								name: result[i].dbName, type: 1
+							};
+							item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
+							children.push(item);
+						}
+						pathIndex.push({id: host, host: host, name: host, children: children});
+						this.databaseList = pathIndex;
+						resolve();
+					});
+				});
             },
-            initLoadDataList(sourceId, host, dbName) {
-                if (app.databaseList.length > 0) {
+            initLoadDataList(param) {
+                if (this.databaseList.length > 0) {
                     return;
                 }
-                this.choiceDatasourceId = parseInt(sourceId);
-                this.loadDatabaseList(sourceId, host, function () {
-                    app.databaseExpandedKeys = [host];
-                });
+				this.choiceDatasourceId = parseInt(param.sourceId);
+				this.loadDatabaseList(param.sourceId, param.host).then(() => {
+					this.databaseExpandedKeys = [param.host];
+				});
             },
             checkSystemUpgrade() {
-                this.common.post(this.apilist1.systemUpgradeInfo, {}, function (json) {
+                datasourceApi.systemUpgradeInfo({}).then(json => {
                     if (!!json.data) {
-                        app.upgradeInfo = json.data;
+                        this.upgradeInfo = json.data;
                         console.log("zyplayer-doc发现新版本："
                             + "\n升级地址：" + json.data.upgradeUrl
                             + "\n当前版本：" + json.data.nowVersion

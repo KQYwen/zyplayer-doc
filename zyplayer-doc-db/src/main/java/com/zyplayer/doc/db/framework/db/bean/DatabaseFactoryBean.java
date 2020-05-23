@@ -15,6 +15,7 @@ public class DatabaseFactoryBean {
 	private String url;
 	private String dbName;
 	private String cnName;
+	private String groupName;
 	private DatabaseProduct databaseProduct;
 	
 	public Long getId() {
@@ -31,6 +32,14 @@ public class DatabaseFactoryBean {
 	
 	public void setCnName(String cnName) {
 		this.cnName = cnName;
+	}
+	
+	public String getGroupName() {
+		return groupName;
+	}
+	
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 	
 	public static enum DatabaseProduct {

@@ -4,7 +4,7 @@
             <el-tab-pane :label="pageTabNameMap[item.fullPath]||item.name" :name="item.fullPath" v-for="item in pageList"/>
         </el-tabs>
         <keep-alive>
-            <router-view :key="$route.fullPath"/>
+            <router-view :key="$route.fullPath" @initLoadDataList="initLoadDataList" @loadDatasourceList="loadDatasourceList"/>
         </keep-alive>
     </div>
 </template>
@@ -44,6 +44,12 @@
             },
         },
         methods: {
+			initLoadDataList(param) {
+                this.$emit('initLoadDataList', param);
+            },
+			loadDatasourceList() {
+                this.$emit('loadDatasourceList');
+            },
             changePage(key) {
                 this.activePage = key.name;
             },

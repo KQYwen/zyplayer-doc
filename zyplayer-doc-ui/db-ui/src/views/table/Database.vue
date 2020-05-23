@@ -26,7 +26,7 @@
 </template>
 
 <script>
-    import global from '../../common/config/global'
+    import datasourceApi from '../../common/api/datasource'
 
     export default {
         data() {
@@ -38,12 +38,18 @@
                 keyword: '',
             };
         },
+		mounted: function () {
+			// 延迟设置展开的目录，edit比app先初始化
+			setTimeout(() => {
+				this.$emit('initLoadDataList', {
+					sourceId: this.vueQueryParam.sourceId,
+					host: this.vueQueryParam.host,
+					dbName: this.vueQueryParam.dbName
+				});
+			}, 500);
+		},
         activated: function () {
             this.initQueryParam(this.$route);
-            // 延迟设置展开的目录，edit比app先初始化
-            setTimeout(() => {
-                global.vue.$app.initLoadDataList(this.vueQueryParam.sourceId, this.vueQueryParam.host, this.vueQueryParam.dbName);
-            }, 500);
         },
         methods: {
             initQueryParam(to) {
@@ -52,12 +58,11 @@
                 this.$store.commit('global/addTableName', newName);
             },
             searchSubmit() {
-                let that = this;
                 this.columnListLoading = true;
                 this.vueQueryParam.searchText = this.keyword;
-                this.common.post(this.apilist1.tableAndColumnBySearch, this.vueQueryParam, function (json) {
-                    that.columnList = json.data || [];
-                    that.columnListLoading = false;
+                datasourceApi.tableAndColumnBySearch(this.vueQueryParam).then(json => {
+                    this.columnList = json.data || [];
+                    this.columnListLoading = false;
                 });
             },
         }

@@ -8,6 +8,7 @@
             </div>
             <el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
                 <el-table-column prop="name" label="名字" width="100"></el-table-column>
+                <el-table-column prop="groupName" label="分组" width="100"></el-table-column>
                 <el-table-column prop="driverClassName" label="驱动类" width="200"></el-table-column>
                 <el-table-column prop="sourceUrl" label="数据源URL"></el-table-column>
                 <el-table-column prop="sourceName" label="账号"></el-table-column>
@@ -23,15 +24,15 @@
         </el-card>
         <!--增加数据源弹窗-->
         <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="760px">
-<!--            <el-alert-->
-<!--                    title="重要提醒"-->
-<!--                    description="请录入正确可用的数据库连接、账号、密码信息，否则初始化数据源失败将影响整个系统，有可能需要重启服务才能解决"-->
-<!--                    type="warning" :closable="false"-->
-<!--                    show-icon style="margin-bottom: 10px;">-->
-<!--            </el-alert>-->
             <el-form label-width="120px">
-                <el-form-item label="名字：">
-                    <el-input v-model="newDatasource.name" placeholder="中文名字"></el-input>
+                <el-form-item label="分组：">
+					<el-select v-model="newDatasource.groupName" placeholder="分组名字" style="width: 100%" filterable allow-create>
+						<el-option value="">未分组</el-option>
+						<el-option :value="item" v-for="item in datasourceGroupList"></el-option>
+					</el-select>
+                </el-form-item>
+                <el-form-item label="数据源名称：">
+                    <el-input v-model="newDatasource.name" placeholder="给数据源起个中文名称"></el-input>
                 </el-form-item>
                 <el-form-item label="驱动类：">
                     <el-select v-model="newDatasource.driverClassName" @change="driverClassNameChange" placeholder="驱动类" style="width: 100%">
@@ -49,7 +50,7 @@
                 <el-form-item label="密码：">
                     <el-input v-model="newDatasource.sourcePassword" placeholder="密码"></el-input>
                 </el-form-item>
-                <el-form-item label="测试：">
+                <el-form-item label="测试连接：">
                     <el-button v-on:click="testDatasource" type="primary" v-loading="testDatasourceErrLoading">测试数据源</el-button>
                 </el-form-item>
             </el-form>
@@ -103,12 +104,8 @@
 </template>
 
 <script>
-    import toast from '../../common/lib/common/toast'
-    import global from '../../common/config/global'
-    import {queryTestDatasource} from '../../common/api/datasource'
-
-    var app;
-
+    import datasourceApi from '../../common/api/datasource'
+    import userApi from '../../common/api/user'
     export default {
         data() {
             return {
@@ -127,30 +124,31 @@
                 testDatasourceErrInfo: "",
                 testDatasourceErrVisible: false,
                 testDatasourceErrLoading: false,
+				// 数据源分组
+				datasourceGroupList: [],
             };
         },
         mounted: function () {
-            app = this;
             this.getDatasourceList();
         },
         methods: {
             editDbAuth(row) {
                 this.newDatasource = JSON.parse(JSON.stringify(row));
-                app.dbSourceAuthDialogVisible = true;
+                this.dbSourceAuthDialogVisible = true;
                 this.loadDbAuthUserList();
             },
             loadDbAuthUserList() {
-                app.dbSourceAuthNewUser = [];
-                app.dbSourceAuthUserList = [];
-                var param = {sourceId: app.newDatasource.id};
-                this.common.post(this.apilist1.dbUserAuthList, param, function (json) {
-                    app.dbSourceAuthUserList = json.data || [];
+                this.dbSourceAuthNewUser = [];
+                this.dbSourceAuthUserList = [];
+                let param = {sourceId: this.newDatasource.id};
+                datasourceApi.dbUserAuthList(param).then(json => {
+                    this.dbSourceAuthUserList = json.data || [];
                 });
             },
             saveUserDbSourceAuth() {
-                var param = {sourceId: app.newDatasource.id, authList: JSON.stringify(app.dbSourceAuthUserList)};
-                this.common.post(this.apilist1.assignDbUserAuth, param, function (json) {
-                    toast.success("保存成功！");
+                let param = {sourceId: this.newDatasource.id, authList: JSON.stringify(this.dbSourceAuthUserList)};
+                datasourceApi.assignDbUserAuth(param).then(() => {
+					this.$message.success("保存成功");
                 });
             },
             deleteUserDbSourceAuth(row) {
@@ -165,7 +163,7 @@
             },
             addDbSourceAuthUser() {
                 if (this.dbSourceAuthNewUser.length <= 0) {
-                    toast.warn("请先选择用户");
+					this.$message.warn("请先选择用户");
                     return;
                 }
                 var userName = "";
@@ -184,19 +182,16 @@
                 this.dbSourceAuthNewUser = "";
             },
             getSearchUserList(query) {
-                if (query == '') {
-                    return;
-                }
+                if (!query) return;
                 this.dbSourceAuthUserLoading = true;
-                var param = {search: query};
-                this.common.post(this.apilist1.getUserBaseInfo, param, function (json) {
-                    app.searchUserList = json.data || [];
-                    app.dbSourceAuthUserLoading = false;
+                userApi.getUserBaseInfo({search: query}).then(json => {
+					this.searchUserList = json.data || [];
+					this.dbSourceAuthUserLoading = false;
                 });
             },
             addDatasource() {
                 this.datasourceDialogVisible = true;
-                this.newDatasource = {name: "", driverClassName: "", sourceUrl: "", sourceName: "", sourcePassword: ""};
+                this.newDatasource = {name: "", driverClassName: "", sourceUrl: "", sourceName: "", sourcePassword: "", groupName: ""};
             },
             editDatasource(row) {
                 this.newDatasource = JSON.parse(JSON.stringify(row));
@@ -209,25 +204,27 @@
                     type: 'warning'
                 }).then(() => {
                     row.yn = 0;
-                    this.common.post(this.apilist1.manageUpdateDatasource, row, function (json) {
-                        app.$message.success("删除成功！");
-                        app.getDatasourceList();
+                    datasourceApi.manageUpdateDatasource(row).then(() => {
+                        this.$message.success("删除成功！");
+						this.$emit('loadDatasourceList');
+                        this.getDatasourceList();
                     });
                 }).catch(()=>{});
             },
             saveDatasource() {
-                app.datasourceDialogVisible = false;
-                this.common.post(this.apilist1.manageUpdateDatasource, this.newDatasource, function (json) {
-                    app.$message.success("保存成功！");
-                    app.getDatasourceList();
+                this.datasourceDialogVisible = false;
+                datasourceApi.manageUpdateDatasource(this.newDatasource).then(() => {
+                    this.$message.success("保存成功！");
+					this.$emit('loadDatasourceList');
+                    this.getDatasourceList();
                 });
             },
             testDatasource() {
                 this.testDatasourceErrLoading = true;
-                queryTestDatasource(this.newDatasource).then(res => {
+                datasourceApi.queryTestDatasource(this.newDatasource).then(res => {
                     this.testDatasourceErrLoading = false;
                     if (res.errCode == 200) {
-                        this.$message.success("测试成功！");
+                        this.$message.success("连接成功！");
                     } else {
                         this.testDatasourceErrVisible = true;
                         this.testDatasourceErrInfo = res.errMsg || '';
@@ -245,9 +242,14 @@
             },
             getDatasourceList() {
                 this.loadDataListLoading = true;
-                this.common.post(this.apilist1.manageDatasourceList, {}, function (json) {
-                    app.datasourceList = json.data || [];
-                    setTimeout(()=>{app.loadDataListLoading = false;}, 800);
+				datasourceApi.manageDatasourceList({}).then(json => {
+					this.datasourceList = json.data || [];
+					let datasourceGroupList = [];
+					this.datasourceList.filter(item => !!item.groupName).forEach(item => datasourceGroupList.push(item.groupName));
+					this.datasourceGroupList = Array.from(new Set(datasourceGroupList));
+					setTimeout(() => {
+						this.loadDataListLoading = false;
+                    }, 800);
                 });
             },
         }

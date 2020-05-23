@@ -111,6 +111,7 @@
     import '../../common/lib/ace/mode-sql'
     import '../../common/lib/ace/ext-language_tools'
     import '../../common/lib/ace/snippets/sql'
+    import datasourceApi from '../../common/api/datasource'
 
     var app;
     export default {
@@ -162,9 +163,9 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.common.post(this.apilist1.transferUpdate, {id: id, delFlag: 1}, function (json) {
-                        app.$message.success("删除成功");
-                        app.loadGetTaskList();
+                    datasourceApi.transferUpdate({id: id, delFlag: 1}).then(() => {
+                        this.$message.success("删除成功");
+                        this.loadGetTaskList();
                     });
                 }).catch(()=>{});
             },
@@ -174,26 +175,28 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.common.post(this.apilist1.transferStart, {id: id}, function (json) {
-                        app.$message.success("任务提交成功");
+                    datasourceApi.transferStart({id: id}).then(() => {
+                        this.$message.success("任务提交成功");
                     });
                 }).catch(()=>{});
             },
             saveEditTask() {
-                this.taskEditInfo.querySql = app.querySqlEditor.getValue();
-                this.taskEditInfo.storageSql = app.storageSqlEditor.getValue();
-                this.common.post(this.apilist1.transferUpdate, this.taskEditInfo, function (json) {
-                    app.$message.success("保存成功");
-                    app.taskEditDialogVisible = false;
-                    app.loadGetTaskList();
+                this.taskEditInfo.querySql = this.querySqlEditor.getValue();
+                this.taskEditInfo.storageSql = this.storageSqlEditor.getValue();
+                datasourceApi.transferUpdate(this.taskEditInfo).then(() => {
+                    this.$message.success("保存成功");
+                    this.taskEditDialogVisible = false;
+                    this.loadGetTaskList();
                 });
             },
             viewTask(id) {
                 this.viewTaskLoading = true;
                 this.taskViewDialogVisible = true;
-                this.common.post(this.apilist1.transferDetail, {id: id}, function (json) {
-                    app.taskEditInfo = json.data || {};
-                    setTimeout(()=>{app.viewTaskLoading = false;}, 300);
+                datasourceApi.transferDetail({id: id}).then(json => {
+                    this.taskEditInfo = json.data || {};
+                    setTimeout(() => {
+                        app.viewTaskLoading = false;
+                    }, 300);
                 });
             },
             cancelTask() {
@@ -202,51 +205,54 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.common.post(this.apilist1.transferCancel, {id: this.taskEditInfo.id}, function (json) {
-                        app.$message.success("取消成功");
-                        app.viewTask(app.taskEditInfo.id);
+                    datasourceApi.transferCancel({id: this.taskEditInfo.id}).then(() => {
+                        this.$message.success("取消成功");
+                        this.viewTask(this.taskEditInfo.id);
                     });
                 }).catch(()=>{});
             },
             loadGetTaskList() {
                 this.loadDataListLoading = true;
-                this.common.post(this.apilist1.transferList, {}, function (json) {
-                    app.taskList = json.data || [];
-                    setTimeout(()=>{app.loadDataListLoading = false;}, 800);
+                datasourceApi.transferList({}).then(json => {
+                    this.taskList = json.data || [];
+                    setTimeout(()=>{this.loadDataListLoading = false;}, 800);
                 });
             },
             autoFillStorageSql() {
-                var sqlStr = app.querySqlEditor.getValue();
-                this.common.post(this.apilist1.transferSqlColumns, {sql: sqlStr}, function (json) {
-                    var resultData = json.data || [];
+                let sqlStr = this.querySqlEditor.getValue();
+                datasourceApi.transferSqlColumns({sql: sqlStr}).then(json => {
+                    let resultData = json.data || [];
                     if (resultData.length <= 0) {
-                        app.$message.error("查询的字段不明确，不能自动填充");
+                        this.$message.error("查询的字段不明确，不能自动填充");
                         return;
                     }
-                    var storageSql = "\n";
+                    let storageSql = "\n";
                     storageSql += "insert into TableName (\n";
-                    for (var i = 0; i < resultData.length; i++) {
+                    for (let i = 0; i < resultData.length; i++) {
                         storageSql += "\t" + ((i === 0) ? "" : ",") + resultData[i] + "\n";
                     }
                     storageSql += ") values (\n";
-                    for (var i = 0; i < resultData.length; i++) {
+                    for (let i = 0; i < resultData.length; i++) {
                         storageSql += "\t" + ((i === 0) ? "" : ",") + "#{" + resultData[i] + "}\n";
                     }
                     storageSql += ")\n\n";
-                    app.storageSqlEditor.setValue(storageSql, 1);
+                    this.storageSqlEditor.setValue(storageSql, 1);
                 });
             },
             loadDatasourceList() {
-                this.common.post(this.apilist1.datasourceList, {}, function (json) {
-                    app.datasourceList = json.data || [];
-                    var datasourceOptions = [], datasourceMap = {};
-                    for (var i = 0; i < app.datasourceList.length; i++) {
-                        datasourceMap[app.datasourceList[i].id] = app.datasourceList[i].cnName;
-                        datasourceOptions.push({label: app.datasourceList[i].cnName, value: app.datasourceList[i].id});
+                datasourceApi.datasourceList({}).then(json => {
+                    this.datasourceList = json.data || [];
+                    let datasourceOptions = [], datasourceMap = {};
+                    for (let i = 0; i < this.datasourceList.length; i++) {
+                        datasourceMap[this.datasourceList[i].id] = this.datasourceList[i].name;
+                        datasourceOptions.push({
+                            label: this.datasourceList[i].name,
+                            value: this.datasourceList[i].id
+                        });
                     }
-                    app.datasourceMap = datasourceMap;
-                    app.datasourceOptions = datasourceOptions;
-                    app.loadGetTaskList();
+                    this.datasourceMap = datasourceMap;
+                    this.datasourceOptions = datasourceOptions;
+                    this.loadGetTaskList();
                 });
             },
             initAceEditor(editor, minLines) {
