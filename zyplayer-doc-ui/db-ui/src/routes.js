@@ -40,6 +40,7 @@ let routes = [
             {path: '/data/executor', name: 'SQL执行器',component: DataExecutor},
             {path: '/data/transferData', name: '数据互导工具',component: DataTransferData},
             {path: '/data/dataPreview', name: '表数据预览',component: DataPreview},
+			{path: '/user/myInfo', name: '我的信息',component: UserMyInfo},
         ]
     }, {
         path: '/user',
@@ -47,7 +48,6 @@ let routes = [
         component: UserRouterView,
         children: [
             {path: 'login', name: '系统登录',component: UserLogin, meta: {fullscreen: true}},
-            {path: 'myInfo', name: '我的信息',component: UserMyInfo},
         ]
     }, {
         path: '/common',

@@ -7,12 +7,11 @@
                 <el-button style="float: right;" v-on:click="addDatasource" type="primary" icon="el-icon-circle-plus-outline" size="small">新增</el-button>
             </div>
             <el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
-                <el-table-column prop="name" label="名字" width="100"></el-table-column>
+                <el-table-column prop="name" label="名字" width="200"></el-table-column>
                 <el-table-column prop="groupName" label="分组" width="100"></el-table-column>
                 <el-table-column prop="driverClassName" label="驱动类" width="200"></el-table-column>
                 <el-table-column prop="sourceUrl" label="数据源URL"></el-table-column>
-                <el-table-column prop="sourceName" label="账号"></el-table-column>
-                <el-table-column prop="sourcePassword" label="密码"></el-table-column>
+                <el-table-column prop="sourceName" label="账号" width="200"></el-table-column>
                 <el-table-column label="操作" width="220">
                     <template slot-scope="scope">
                         <el-button v-on:click="editDatasource(scope.row)" type="primary" size="mini">修改</el-button>
@@ -26,7 +25,7 @@
         <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="760px">
             <el-form label-width="120px">
                 <el-form-item label="分组：">
-					<el-select v-model="newDatasource.groupName" placeholder="分组名字" style="width: 100%" filterable allow-create>
+					<el-select v-model="newDatasource.groupName" placeholder="请选择或输入新的分组名字" style="width: 100%" filterable allow-create>
 						<el-option value="">未分组</el-option>
 						<el-option :value="item" v-for="item in datasourceGroupList"></el-option>
 					</el-select>
@@ -63,17 +62,17 @@
         <el-dialog :visible.sync="dbSourceAuthDialogVisible" width="900px" :close-on-click-modal="false">
             <span slot="title">
                 <span>权限编辑</span>
-                <span style="margin-left: 10px;color: #999;font-size: 12px;"><i class="el-icon-info"></i> 添加删除或编辑之后记得点击保存哦~</span>
+                <span style="margin-left: 10px;color: #999;font-size: 12px;"><i class="el-icon-info"></i> 添加、删除或编辑之后记得点击保存哦~</span>
             </span>
             <el-row>
                 <el-select v-model="dbSourceAuthNewUser" filterable remote reserve-keyword
                            placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList"
-                           :loading="dbSourceAuthUserLoading" style="width: 750px;">
+                           :loading="dbSourceAuthUserLoading" style="width: 750px;margin-right: 10px;">
                     <el-option v-for="item in searchUserList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
                 </el-select>
                 <el-button v-on:click="addDbSourceAuthUser">添加</el-button>
             </el-row>
-            <el-table :data="dbSourceAuthUserList" border style="width: 100%; margin: 10px 0;">
+            <el-table :data="dbSourceAuthUserList" border style="width: 100%; margin: 10px 0;" size="mini">
                 <el-table-column prop="userName" label="用户" width="150"></el-table-column>
                 <el-table-column label="权限">
                     <template slot-scope="scope">
@@ -163,7 +162,7 @@
             },
             addDbSourceAuthUser() {
                 if (this.dbSourceAuthNewUser.length <= 0) {
-					this.$message.warn("请先选择用户");
+					this.$message.warning("请先选择用户");
                     return;
                 }
                 var userName = "";

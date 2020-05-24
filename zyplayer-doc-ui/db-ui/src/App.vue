@@ -7,11 +7,11 @@
             <el-aside style="background: #fafafa;">
                 <div style="padding: 10px;height: 100%;box-sizing: border-box;">
                     <div style="margin-bottom: 10px;">
-                        <el-select v-model="choiceDatasourceGroup" @change="sourceGroupChangeEvents" filterable placeholder="请先选择分组" style="width: 100%;">
+                        <el-select v-model="choiceDatasourceGroup" @change="sourceGroupChangeEvents" size="small" filterable placeholder="请先选择分组" style="width: 100%;">
 							<el-option value="" label="全部分组"></el-option>
 							<el-option v-for="item in datasourceGroupList" :key="item" :value="item"></el-option>
                         </el-select>
-                        <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请先选择数据源" style="width: 100%;margin-top: 10px;">
+                        <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="small" filterable placeholder="请先选择数据源" style="width: 100%;margin-top: 10px;">
                             <el-option v-for="item in datasourceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>
                     </div>
@@ -138,7 +138,7 @@
                 } else if (command == 'console') {
                     window.location = process.env.VUE_APP_BASE_API;
                 } else {
-					this.$message.warn("功能暂未开放");
+					this.$message.warning("功能暂未开放");
                 }
             },
             userSignOut() {
@@ -283,6 +283,9 @@
     #app, .el-container, .el-menu {
         height: 100%;
     }
+	.el-header {
+		background-color: #1D4E89 !important;
+	}
     .database-list-tree{background-color: #fafafa;}
     .database-list-tree .el-tree-node>.el-tree-node__children {
         overflow: unset;

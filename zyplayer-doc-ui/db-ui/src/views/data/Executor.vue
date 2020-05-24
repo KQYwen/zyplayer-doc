@@ -11,10 +11,13 @@
                     <el-button icon="el-icon-brush" size="small" @click="formatterSql">SQL美化</el-button>
                     <el-button v-on:click="addFavorite('')" plain  size="small" icon="el-icon-star-off">收藏</el-button>
                     <el-button v-on:click="loadHistoryAndFavoriteList" plain  size="small" icon="el-icon-tickets">收藏及历史</el-button>
-                    <div style="float: right;margin-top: -5px;">
-                        数据源：
-                        <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" filterable placeholder="请选择数据源" style="width: 400px;">
-                            <el-option v-for="item in datasourceList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                    <div style="float: right;">
+						<el-select v-model="choiceDatasourceGroup" @change="sourceGroupChangeEvents" size="small" filterable placeholder="请先选择分组" style="width: 200px;">
+							<el-option value="" label="全部分组"></el-option>
+							<el-option v-for="item in datasourceGroupList" :key="item" :value="item"></el-option>
+						</el-select>
+                        <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="small" filterable placeholder="请选择数据源" style="width: 300px;margin-left: 10px;">
+                            <el-option v-for="item in datasourceOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </div>
                 </div>
@@ -98,6 +101,10 @@
             return {
                 datasourceList: [],
                 choiceDatasourceId: "",
+				datasourceOptions: [],
+				datasourceGroupList: [],
+				choiceDatasourceGroup: "",
+
                 databaseList: [],
                 choiceDatabase: "",
                 editorDbInfo: [],
@@ -250,6 +257,10 @@
             loadDatasourceList() {
                 datasourceApi.datasourceList({}).then(json => {
                     this.datasourceList = json.data || [];
+					this.datasourceOptions = this.datasourceList;
+					let datasourceGroupList = [];
+					this.datasourceList.filter(item => !!item.groupName).forEach(item => datasourceGroupList.push(item.groupName || ''));
+					this.datasourceGroupList = Array.from(new Set(datasourceGroupList));
                     if (this.datasourceList.length > 0) {
                         this.choiceDatasourceId = this.datasourceList[0].id;
                         this.loadEditorData();
@@ -264,6 +275,16 @@
                     this.editorColumnInfo = data.column || {};
                 });
             },
+			sourceGroupChangeEvents() {
+				let datasourceOptions = [];
+				for (let i = 0; i < this.datasourceList.length; i++) {
+					let item = this.datasourceList[i];
+					if (!this.choiceDatasourceGroup || this.choiceDatasourceGroup == item.groupName) {
+						datasourceOptions.push(item);
+					}
+				}
+				this.datasourceOptions = datasourceOptions;
+			},
             datasourceChangeEvents() {
                 this.loadEditorData();
             },

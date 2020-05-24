@@ -1,9 +1,5 @@
 <template>
     <div class="my-info-vue">
-        <el-breadcrumb separator-class="el-icon-arrow-right" style="padding: 20px 10px;">
-            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item>我的信息</el-breadcrumb-item>
-        </el-breadcrumb>
         <div style="margin: 0 auto;max-width: 1000px;">
             <el-card class="box-card">
                 <div slot="header" class="clearfix">我的信息</div>
