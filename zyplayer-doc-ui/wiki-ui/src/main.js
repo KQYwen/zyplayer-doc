@@ -25,7 +25,7 @@ router.beforeEach((to, from, next) => {
     store.commit('global/setFullscreen', !!to.meta.fullscreen);
     next();
 });
-npm
+
 let vue = new Vue({
     el: '#app',
     router,
