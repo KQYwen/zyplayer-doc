@@ -43,10 +43,7 @@
 </template>
 
 <script>
-	import toast from '../../common/lib/common/toast'
-	import global from '../../common/config/global'
-
-	var app;
+	import pageApi from '../../common/api/page'
 
 	export default {
 		data() {
@@ -68,13 +65,12 @@
 		},
 		mounted: function () {
 			this.initQueryParam(this.$route);
-			app = this;
 		},
 		methods: {
 			getSpacePageNews() {
-				this.common.post(this.apilist1.pageSearchByEs, this.searchParam, function (json) {
-					app.spacePageNews = json.data || [];
-					app.totalCount = json.total;
+				pageApi.pageSearchByEs(this.searchParam).then(json => {
+					this.spacePageNews = json.data || [];
+					this.totalCount = json.total;
 				});
 			},
 			handleSizeChange(val) {

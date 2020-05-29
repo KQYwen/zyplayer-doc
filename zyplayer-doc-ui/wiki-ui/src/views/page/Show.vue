@@ -132,9 +132,9 @@
 </template>
 
 <script>
-	import toast from '../../common/lib/common/toast'
-	import global from '../../common/config/global'
-	var app;
+	import common from '../../common/lib/common'
+	import pageApi from '../../common/api/page'
+	import userApi from '../../common/api/user'
 	var page = {
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
 		userHeadColor: {},
@@ -168,24 +168,23 @@
 			next();
 		},
 		mounted: function () {
-			app = this;
 			this.initQueryParam(this.$route);
 			if (!!this.parentPath.pageId) {
 				// 延迟设置展开的目录，edit比app先初始化
-				setTimeout(function () {
-					if (!!app.parentPath.spaceId) {
+				setTimeout(() => {
+					if (!!this.parentPath.spaceId) {
 						// 调用父方法切换选择的空间
-						global.vue.$app.switchSpacePage(app.parentPath.spaceId);
+						this.$emit('switchSpace', this.parentPath.spaceId);
 					}
-					global.vue.$app.changeWikiPageExpandedKeys(app.parentPath.pageId);
+					this.$emit('changeExpandedKeys', this.parentPath.pageId);
 				}, 500);
 			}
 		},
 		methods: {
 			editWiki() {
-				var param = {pageId: app.parentPath.pageId};
-				this.common.post(this.apilist1.pageLock, param, function (json) {
-					app.$router.push({path: '/page/edit', query: app.parentPath});
+				var param = {pageId: this.parentPath.pageId};
+				pageApi.pageLock(param).then(() => {
+					this.$router.push({path: '/page/edit', query: this.parentPath});
 				});
 			},
 			getSearchUserList(query) {
@@ -194,14 +193,14 @@
 				}
 				this.pageAuthUserLoading = true;
 				var param = {search: query};
-				this.common.post(this.apilist1.getUserBaseInfo, param, function (json) {
-					app.searchUserList = json.data || [];
-					app.pageAuthUserLoading = false;
+				userApi.getUserBaseInfo(param).then(json => {
+					this.searchUserList = json.data || [];
+					this.pageAuthUserLoading = false;
 				});
 			},
             addPageAuthUser() {
                 if (this.pageAuthNewUser.length <= 0) {
-                    toast.warn("请先选择用户");
+					this.$message.warning("请先选择用户");
                     return;
                 }
 				var userName = "";
@@ -224,22 +223,22 @@
 				this.pageAuthNewUser = "";
 			},
 			editWikiAuth() {
-				app.pageAuthNewUser = [];
-				app.pageAuthUserList = [];
-				var param = {pageId: app.wikiPage.id};
-				this.common.post(this.apilist1.getPageUserAuthList, param, function (json) {
-					app.pageAuthUserList = json.data || [];
-					app.pageAuthDialogVisible = true;
+				this.pageAuthNewUser = [];
+				this.pageAuthUserList = [];
+				var param = {pageId: this.wikiPage.id};
+				pageApi.getPageUserAuthList(param).then(json => {
+					this.pageAuthUserList = json.data || [];
+					this.pageAuthDialogVisible = true;
 				});
 			},
 			saveUserPageAuth() {
-				var param = {pageId: app.wikiPage.id, authList: JSON.stringify(app.pageAuthUserList)};
-				this.common.post(this.apilist1.assignPageUserAuth, param, function (json) {
-					toast.success("保存成功！");
+				var param = {pageId: this.wikiPage.id, authList: JSON.stringify(this.pageAuthUserList)};
+				pageApi.assignPageUserAuth(param).then(() => {
+					this.$message.success("保存成功！");
 				});
 			},
 			notOpen() {
-				toast.notOpen();
+				this.$message.warning("暂未开放");
 			},
             deleteUserPageAuth(row) {
                 var pageAuthUserList = [];
@@ -257,63 +256,63 @@
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					var param = {pageId: app.wikiPage.id};
-					this.common.post(this.apilist1.pageDelete, param, function (json) {
+					var param = {pageId: this.wikiPage.id};
+					pageApi.pageDelete(param).then(() => {
 						// 重新加载左侧列表，跳转到展示页面
-						global.vue.$app.doGetPageList(null);
-						app.$router.push({path: '/home', query: {spaceId: app.wikiPage.spaceId}});
+						this.$emit('loadPageList');
+						this.$router.push({path: '/home', query: {spaceId: this.wikiPage.spaceId}});
 					});
 				}).catch(()=>{});
 			},
 			loadPageDetail(pageId) {
-				app.rightContentType = 1;
+				this.rightContentType = 1;
 				var param = {id: pageId};
-				this.common.post(this.apilist1.pageDetail, param, function (json) {
+				pageApi.pageDetail(param).then(json => {
 					var wikiPage = json.data.wikiPage || {};
 					wikiPage.selfZan = json.data.selfZan || 0;
-					app.wikiPage = wikiPage;
-					app.pageContent = json.data.pageContent || {};
-					app.pageFileList = json.data.fileList || [];
-					app.uploadFormData = {pageId: app.wikiPage.id};
-					app.parentPath.spaceId = wikiPage.spaceId;
+					this.wikiPage = wikiPage;
+					this.pageContent = json.data.pageContent || {};
+					this.pageFileList = json.data.fileList || [];
+					this.uploadFormData = {pageId: this.wikiPage.id};
+					this.parentPath.spaceId = wikiPage.spaceId;
 					// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
-					// if (!app.lastClickNode.id) {
-					// 	app.lastClickNode = {id: wikiPage.id, nodePath: wikiPage.name};
+					// if (!this.lastClickNode.id) {
+					// 	this.lastClickNode = {id: wikiPage.id, nodePath: wikiPage.name};
 					// }
 				});
 				this.loadCommentList(pageId);
 			},
 			loadCommentList(pageId) {
-				app.commentList = [];
-				app.cancelCommentUser();
+				this.commentList = [];
+				this.cancelCommentUser();
 				var param = {pageId: pageId};
-				this.common.post(this.apilist1.pageCommentList, param, function (json) {
+				pageApi.pageCommentList(param).then(json => {
 					var commentList = json.data || [];
 					for (var i = 0; i < commentList.length; i++) {
-						commentList[i].color = app.getUserHeadBgColor(commentList[i].createUserId);
+						commentList[i].color = this.getUserHeadBgColor(commentList[i].createUserId);
 						var subCommentList = commentList[i].commentList || [];
 						for (var j = 0; j < subCommentList.length; j++) {
 							var subItem = subCommentList[j];
-							subItem.color = app.getUserHeadBgColor(subItem.createUserId);
+							subItem.color = this.getUserHeadBgColor(subItem.createUserId);
 						}
 						commentList[i].commentList = subCommentList;
 					}
-					app.commentList = commentList;
+					this.commentList = commentList;
 				});
 			},
 			zanPage(yn) {
-				var param = {yn: yn, pageId: app.wikiPage.id};
-				this.common.post(this.apilist1.updatePageZan, param, function (json) {
-					app.wikiPage.selfZan = yn;
-					app.wikiPage.zanNum = app.wikiPage.zanNum + (yn == 1 ? 1 : -1);
+				var param = {yn: yn, pageId: this.wikiPage.id};
+				pageApi.updatePageZan(param).then(() => {
+					this.wikiPage.selfZan = yn;
+					this.wikiPage.zanNum = this.wikiPage.zanNum + (yn == 1 ? 1 : -1);
 				});
 			},
 			showZanPageUser() {
-				app.zanUserDialogVisible = true;
-				app.zanUserList = [];
-				var param = {pageId: app.wikiPage.id};
-				this.common.post(this.apilist1.pageZanList, param, function (json) {
-					app.zanUserList = json.data;
+				this.zanUserDialogVisible = true;
+				this.zanUserList = [];
+				var param = {pageId: this.wikiPage.id};
+				pageApi.pageZanList(param).then(json => {
+					this.zanUserList = json.data;
 				});
 			},
 			recommentUser(id, index) {
@@ -323,28 +322,28 @@
 				this.recommentInfo = {};
 			},
 			submitPageComment() {
-				if (app.commentTextInput.length <= 0) {
-					toast.error("请输入评论内容");
+				if (this.commentTextInput.length <= 0) {
+					this.$message.error("请输入评论内容");
 					return;
 				}
 				var param = {
-					pageId: app.wikiPage.id, content: app.commentTextInput,
-					parentId: app.recommentInfo.id
+					pageId: this.wikiPage.id, content: this.commentTextInput,
+					parentId: this.recommentInfo.id
 				};
-				this.common.post(this.apilist1.updatePageComment, param, function (json) {
+				pageApi.updatePageComment(param).then(json => {
 					var data = json.data;
-					data.color = app.getUserHeadBgColor(data.createUserId);
-					app.commentTextInput = "";
-					app.commentList.push(data);
+					data.color = this.getUserHeadBgColor(data.createUserId);
+					this.commentTextInput = "";
+					this.commentList.push(data);
 				});
 			},
 			uploadFileError(err) {
-				toast.error("上传失败，" + err);
+				this.$message.error("上传失败，" + err);
 			},
 			uploadFileSuccess(response) {
-				this.common.validateResult({data: response}, function () {
-					app.pageFileList.push(response.data);
-					toast.success("上传成功！");
+				common.validateResult({data: response}).then(() => {
+					this.pageFileList.push(response.data);
+					this.$message.success("上传成功！");
 				});
 			},
 			deletePageFile(row) {
@@ -353,20 +352,20 @@
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					var param = {id: row.id, delFlag: 1};
-					this.common.post(this.apilist1.updatePageFile, param, function (json) {
-						var pageFileList = [];
-						for (var i = 0; i < app.pageFileList.length; i++) {
-							if (app.pageFileList[i].id != row.id) {
-								pageFileList.push(app.pageFileList[i]);
+					let param = {id: row.id, delFlag: 1};
+					pageApi.updatePageFile(param).then(() => {
+						let pageFileList = [];
+						for (let i = 0; i < this.pageFileList.length; i++) {
+							if (this.pageFileList[i].id != row.id) {
+								pageFileList.push(this.pageFileList[i]);
 							}
 						}
-						app.pageFileList = pageFileList;
+						this.pageFileList = pageFileList;
 					});
 				});
 			},
 			getUserHeadBgColor(userId) {
-				var color = page.userHeadColor[userId];
+				let color = page.userHeadColor[userId];
 				if (!color) {
 					color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
 					page.userHeadColor[userId] = color;

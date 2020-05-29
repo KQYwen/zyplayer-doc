@@ -1,9 +1,5 @@
 <template>
-    <div class="user-my-info-vue">
-        <el-breadcrumb separator-class="el-icon-arrow-right" style="padding: 20px 10px;">
-            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item>我的信息</el-breadcrumb-item>
-        </el-breadcrumb>
+    <div class="my-info-vue">
         <div style="margin: 0 auto;max-width: 1000px;">
             <el-card class="box-card">
                 <div slot="header" class="clearfix">我的信息</div>
@@ -21,7 +17,7 @@
 </template>
 
 <script>
-    var app;
+    import userApi from '../../common/api/user'
     export default {
         data() {
             return {
@@ -29,13 +25,12 @@
             };
         },
         mounted: function () {
-            app = this;
             this.getUserInfo();
         },
         methods: {
             getUserInfo() {
-                this.common.post(this.apilist1.getSelfUserInfo, this.searchParam, function (json) {
-                    app.userInfo = json.data;
+                userApi.getSelfUserInfo().then(json => {
+                    this.userInfo = json.data;
                 });
             },
         }
@@ -43,7 +38,7 @@
 
 </script>
 <style>
-    .user-my-info-vue{}
-    .user-my-info-vue .box-card{margin: 10px;}
+    .my-info-vue{}
+    .my-info-vue .box-card{margin: 10px;}
 </style>
 

@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <template v-if="global.fullscreen">
+        <template v-if="fullscreen">
             <router-view></router-view>
         </template>
         <el-container v-else>
@@ -48,9 +48,12 @@
                     </el-dropdown>
                 </el-header>
                 <el-main style="padding: 0;">
-                    <router-view></router-view>
-                </el-main>
-            </el-container>
+					<router-view @loadPageList="loadPageList"
+								 @changeExpandedKeys="changeWikiPageExpandedKeys"
+								 @switchSpace="switchSpacePage">
+					</router-view>
+				</el-main>
+			</el-container>
         </el-container>
         <!--新建空间弹窗-->
         <el-dialog title="创建空间" :visible.sync="newSpaceDialogVisible" width="600px" :close-on-click-modal="false">
@@ -138,10 +141,9 @@
 </template>
 
 <script>
-    import global from './common/config/global'
-    import toast from './common/lib/common/toast'
+    import userApi from './common/api/user'
+    import pageApi from './common/api/page'
 
-    var app;
     export default {
         data() {
             return {
@@ -183,13 +185,20 @@
                 upgradeInfo: {},
             }
         },
+        computed: {
+            fullscreen () {
+                return this.$store.state.global.fullscreen;
+            }
+        },
         mounted: function () {
-            app = this;
-            global.vue.$app = this;
             this.loadSpaceList();
             this.checkSystemUpgrade();
         },
         methods: {
+			loadPageList(param) {
+				param = param || {};
+				this.doGetPageList(param.parentId, param.node);
+			},
             createWiki() {
                 if (this.nowClickPath.spaceId > 0) {
                     var param = {
@@ -198,17 +207,17 @@
                     };
                     this.$router.push({path: '/page/edit', query: param});
                 } else {
-                    toast.warn("请先选择或创建空间");
+					this.$message.warning("请先选择或创建空间");
                 }
             },
             changeWikiPageExpandedKeys(pageId) {
                 this.wikiPageExpandedKeys = [pageId];
             },
             searchByKeywords() {
-                this.$refs.wikiPageTree.filter(app.searchKeywords);
+                this.$refs.wikiPageTree.filter(this.searchKeywords);
             },
             searchByKeywordsNewPage() {
-                var routeUrl = this.$router.resolve({path: '/page/search', query: {keywords: app.searchKeywords}});
+                var routeUrl = this.$router.resolve({path: '/page/search', query: {keywords: this.searchKeywords}});
                 window.open(routeUrl.href, '_blank');
             },
             handleNodeClick(data) {
@@ -219,7 +228,7 @@
             handleNodeExpand(node) {
                 if (node.children.length > 0 && node.children[0].needLoad) {
                     console.log("加载节点：", node);
-                    app.doGetPageList(node.id, node);
+					this.doGetPageList(node.id, node);
                 }
             },
             handlePageDrop(draggingNode, dropNode, dropType, ev) {
@@ -234,75 +243,75 @@
                 } else if (dropType == 'after') {
                     param.afterSeq = dropNode.data.seqNo;
                 }
-                this.common.post(this.apilist1.pageChangeParent, param, function (json) {
-                    app.doGetPageList(null);
-                });
+				pageApi.pageChangeParent(param).then(res => {
+					this.doGetPageList(null);
+				});
             },
             filterPageNode(value, data) {
                 if (!value) return true;
                 return data.name.indexOf(value) !== -1;
             },
             editSpaceInfo(row) {
-                app.newSpaceForm = {
+				this.newSpaceForm = {
                     id: row.id, name: row.name, spaceExplain: row.spaceExplain,
                     treeLazyLoad: row.treeLazyLoad, openDoc: row.openDoc, type: row.type
                 };
-                app.newSpaceDialogVisible = true;
+				this.newSpaceDialogVisible = true;
             },
             deleteSpaceInfo(row) {
-                this.$confirm('确定要删除此空间及下面的所有文档吗？', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    var param = {id: row.id, delFlag: 1};
-                    this.common.post(this.apilist1.updateSpace, param, function (json) {
-                        app.loadSpaceList();
-                    });
-                });
+				this.$confirm('确定要删除此空间及下面的所有文档吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					let param = {id: row.id, delFlag: 1};
+					pageApi.updateSpace(param).then(() => {
+						this.loadSpaceList();
+					});
+				});
             },
             spaceChangeEvents(data) {
                 if (data == 0) {
-                    app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
-                    app.choiceSpace = app.nowClickPath.spaceId;
-                    app.newSpaceDialogVisible = true;
+					this.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
+					this.choiceSpace = this.nowClickPath.spaceId;
+					this.newSpaceDialogVisible = true;
                 } else if (data == -1) {
                     // 使得选择的空间展示不变
-                    app.choiceSpace = app.nowClickPath.spaceId;
-                    app.manageSpaceDialogVisible = true;
+					this.choiceSpace = this.nowClickPath.spaceId;
+					this.manageSpaceDialogVisible = true;
                 } else {
                     // 切换空间，重新初始化当前点击项，防止创建保存到之前点击的空间下去了
-                    app.nowClickPath = {spaceId: data};
-                    for (var i = 0; i < app.spaceList.length; i++) {
-                        if (app.spaceList[i].id == data) {
-                            app.nowSpaceShow = app.spaceList[i];
+					this.nowClickPath = {spaceId: data};
+                    for (var i = 0; i < this.spaceList.length; i++) {
+                        if (this.spaceList[i].id == data) {
+							this.nowSpaceShow = this.spaceList[i];
                             break;
                         }
                     }
-                    app.doGetPageList(null);
-                    app.$router.push({path: '/home', query: {spaceId: data}});
+					this.doGetPageList(null);
+					this.$router.push({path: '/home', query: {spaceId: data}});
                 }
             },
             loadSpaceList() {
-                this.common.post(this.apilist1.spaceList, {}, function (json) {
-                    app.spaceList = json.data || [];
+				pageApi.spaceList({}).then(json => {
+					this.spaceList = json.data || [];
                     var spaceOptions = [];
-                    for (var i = 0; i < app.spaceList.length; i++) {
+                    for (var i = 0; i < this.spaceList.length; i++) {
                         spaceOptions.push({
-                            label: app.spaceList[i].name, value: app.spaceList[i].id
+                            label: this.spaceList[i].name, value: this.spaceList[i].id
                         });
                     }
-                    app.spaceOptions = spaceOptions;
-                    if (app.spaceList.length > 0) {
-                        var spaceId = app.spaceList[0].id;
-                        app.nowSpaceShow = app.spaceList[0];
-                        app.nowClickPath = {spaceId: spaceId};
-                        app.choiceSpace = spaceId;
-                        app.doGetPageList(null);
-                        // 在首页时跳转
+					this.spaceOptions = spaceOptions;
+                    if (this.spaceList.length > 0) {
+                        var spaceId = this.spaceList[0].id;
+                        this.nowSpaceShow = this.spaceList[0];
+                        this.nowClickPath = {spaceId: spaceId};
+                        this.choiceSpace = spaceId;
+                        this.doGetPageList(null);
+                        // TODO 在首页时跳转
                         try {
-                            if (app.$router.app._route.path == "/home") {
-                                app.$router.push({path: '/home', query: {spaceId: spaceId}});
+                            if (this.$router.app._route.path == "/home") {
+                                this.$router.push({path: '/home', query: {spaceId: spaceId}});
                             }
                         } catch (e) {
                             console.log(e);
@@ -320,16 +329,16 @@
                 } else {
                     nodePath = "/";
                 }
-                var param = {spaceId: app.nowClickPath.spaceId, parentId: parentId || 0};
-                if (app.nowSpaceShow.treeLazyLoad == 0) {
+                var param = {spaceId: this.nowClickPath.spaceId, parentId: parentId || 0};
+                if (this.nowSpaceShow.treeLazyLoad == 0) {
                     param.parentId = null;
                 }
-                this.common.post(this.apilist1.pageList, param, function (json) {
-                    var result = json.data || [];
-                    var pathIndex = [];
-                    if (app.nowSpaceShow.treeLazyLoad == 0) {
-                        pathIndex = result;
-                    } else {
+				pageApi.pageList(param).then(json => {
+					var result = json.data || [];
+					var pathIndex = [];
+					if (this.nowSpaceShow.treeLazyLoad == 0) {
+						pathIndex = result;
+					} else {
                         for (var i = 0; i < result.length; i++) {
                             var item = result[i];
                             item.parentId = item.parentId || 0;
@@ -337,12 +346,12 @@
                             pathIndex.push(item);
                         }
                     }
-                    app.createNodePath(pathIndex, nodePath);
+					this.createNodePath(pathIndex, nodePath);
                     if (parentId > 0) {
                         node.children = pathIndex;
                     } else {
-                        app.wikiPageList = pathIndex;
-                        //app.lastClickNode = {};
+						this.wikiPageList = pathIndex;
+                        //this.lastClickNode = {};
                     }
                 });
             },
@@ -363,46 +372,46 @@
                 if (command == 'userSignOut') {
                     this.userSignOut();
                 } else if (command == 'aboutDoc') {
-                    app.aboutDialogVisible = true;
+					this.aboutDialogVisible = true;
                 } else if (command == 'myInfo') {
                     this.$router.push({path: '/user/myInfo'});
                 } else if (command == 'console') {
                     window.location = this.apilist1.HOST;
                 } else {
-                    toast.notOpen();
+					this.$message.warning("暂未开放");
                 }
             },
             userSignOut() {
-                this.common.post(this.apilist1.userLogout, {}, function (json) {
-                    location.reload();
-                });
+				userApi.userLogout().then(() => {
+					location.reload();
+				});
             },
             onNewSpaceSubmit(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         var param = {
-                            id: app.newSpaceForm.id,
-                            name: app.newSpaceForm.name,
-                            type: app.newSpaceForm.type,
-                            openDoc: app.newSpaceForm.openDoc,
-                            spaceExplain: app.newSpaceForm.spaceExplain,
-                            treeLazyLoad: app.newSpaceForm.treeLazyLoad,
+                            id: this.newSpaceForm.id,
+                            name: this.newSpaceForm.name,
+                            type: this.newSpaceForm.type,
+                            openDoc: this.newSpaceForm.openDoc,
+                            spaceExplain: this.newSpaceForm.spaceExplain,
+                            treeLazyLoad: this.newSpaceForm.treeLazyLoad,
                         };
-                        this.common.post(this.apilist1.updateSpace, param, function (json) {
-                            if (param.id > 0) {
-                                app.loadSpaceList();
-                            } else {
-                                app.spaceList.push(json.data);
-                                app.spaceOptions.push({
+						pageApi.updateSpace(param).then(json => {
+							if (param.id > 0) {
+								this.loadSpaceList();
+							} else {
+                                this.spaceList.push(json.data);
+                                this.spaceOptions.push({
                                     label: json.data.name, value: json.data.id
                                 });
-                                app.nowSpaceShow = json.data;
-                                app.nowClickPath = {spaceId: json.data.id};
-                                app.choiceSpace = json.data.id;
-                                app.doGetPageList(null);
+                                this.nowSpaceShow = json.data;
+                                this.nowClickPath = {spaceId: json.data.id};
+                                this.choiceSpace = json.data.id;
+                                this.doGetPageList(null);
                             }
-                            app.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
-                            app.newSpaceDialogVisible = false;
+                            this.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
+                            this.newSpaceDialogVisible = false;
                         });
                     }
                 });
@@ -411,9 +420,9 @@
                 this.newSpaceDialogVisible = false;
             },
             checkSystemUpgrade() {
-                this.common.post(this.apilist1.systemUpgradeInfo, {}, function (json) {
+				userApi.systemUpgradeInfo({}).then(json => {
                     if (!!json.data) {
-                        app.upgradeInfo = json.data;
+                        this.upgradeInfo = json.data;
                         console.log("zyplayer-doc发现新版本："
                             + "\n升级地址：" + json.data.upgradeUrl
                             + "\n当前版本：" + json.data.nowVersion
@@ -423,16 +432,13 @@
                     }
                 });
             },
-            init() {
-
-            },
             switchSpacePage(spaceId) {
                 spaceId = parseInt(spaceId);
-                if (app.choiceSpace == spaceId) {
+                if (this.choiceSpace == spaceId) {
                     return;
                 }
-                app.choiceSpace = spaceId;
-                app.nowClickPath.spaceId = spaceId;
+				this.choiceSpace = spaceId;
+				this.nowClickPath.spaceId = spaceId;
                 this.doGetPageList(null);
             },
         }

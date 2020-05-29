@@ -20,18 +20,9 @@
 </template>
 
 <script>
-	import toast from '../../common/lib/common/toast'
-	import global from '../../common/config/global'
 	import WangEditor from 'wangeditor'
+	import pageApi from '../../common/api/page'
 
-	window.onunload = function () {
-        app.unlockPage();
-	};
-	window.onbeforeunload = function () {
-        app.unlockPage();
-	};
-
-	var app;
 	export default {
 		data() {
 			return {
@@ -51,13 +42,19 @@
 			next();
 		},
 		mounted: function () {
-			app = this;
 			this.initEditor();
 			this.initQueryParam(this.$route);
+			let that = this;
+			window.onunload = function () {
+				that.unlockPage();
+			};
+			window.onbeforeunload = function () {
+				that.unlockPage();
+			};
 		},
 		methods: {
 			changeToRootPath() {
-				app.parentPath = {spaceId: this.parentPath.spaceId};
+				this.parentPath = {spaceId: this.parentPath.spaceId};
 			},
             unlockPage() {
 			    // 防止各种事件重复调这个接口，只需要调一次就好了
@@ -65,8 +62,9 @@
                     return;
                 }
                 this.isUnlock = true;
-                var param = {pageId: app.parentPath.pageId};
-                this.common.post(this.apilist1.pageUnlock, param, function (json) {});
+				var param = {pageId: this.parentPath.pageId};
+				pageApi.pageUnlock(param).then(() => {
+				});
             },
 			createWikiCancel() {
 				this.$confirm('确定要取消编辑吗？您编辑的内容将不会被保存哦~', '提示', {
@@ -74,57 +72,57 @@
 					cancelButtonText: '继续编辑',
 					type: 'warning'
 				}).then(() => {
-				    app.unlockPage();
-					app.$router.back();
+					this.unlockPage();
+					this.$router.back();
 				});
 			},
 			createWikiSave(saveAfter) {
 				// 修改内容时强制不能修改父路径，只能在目录上拖动修改
-				var parentId = (this.wikiPage.id > 0) ? '' : app.parentPath.parentId;
-				if (this.common.isEmpty(app.newPageTitle)) {
-					toast.warn("标题不能为空");
+				var parentId = (this.wikiPage.id > 0) ? '' : this.parentPath.parentId;
+				if (!this.newPageTitle) {
+					this.$message.warning("标题不能为空");
 					return;
 				}
 				var preview = this.editor.txt.text();
 				var param = {
-					spaceId: app.parentPath.spaceId,
+					spaceId: this.parentPath.spaceId,
 					parentId: parentId,
-					id: app.wikiPage.id,
-					name: app.newPageTitle,
+					id: this.wikiPage.id,
+					name: this.newPageTitle,
 					content: this.editor.txt.html(),
 					preview: preview,
 				};
-				this.common.post(this.apilist1.updatePage, param, function (json) {
-					toast.success("保存成功！");
+				pageApi.updatePage(param).then(json => {
+					this.$message.success("保存成功！");
 					// 重新加载左侧列表，跳转到展示页面
-					global.vue.$app.doGetPageList(null);
-					app.parentPath.pageId = json.data.id;
+					this.$emit('loadPageList');
+					this.parentPath.pageId = json.data.id;
 					if (saveAfter == 1) {
-						app.$router.push({path: '/page/show', query: app.parentPath});
+						this.$router.push({path: '/page/show', query: this.parentPath});
 					} else {
-						app.loadPageDetail(app.parentPath.pageId);
+						this.loadPageDetail(this.parentPath.pageId);
 					}
 				});
 			},
 			loadPageDetail(pageId) {
-				app.rightContentType = 1;
+				this.rightContentType = 1;
 				var param = {id: pageId};
-				this.common.post(this.apilist1.pageDetail, param, function (json) {
-					app.wikiPage = json.data.wikiPage || {};
-					app.pageContent = json.data.pageContent || {};
-					app.pageFileList = json.data.fileList || [];
+				pageApi.pageDetail(param).then(json => {
+					this.wikiPage = json.data.wikiPage || {};
+					this.pageContent = json.data.pageContent || {};
+					this.pageFileList = json.data.fileList || [];
 					// 内容
-					app.newPageTitle = app.wikiPage.name;
-					app.editor.txt.html(app.pageContent.content || "");
+					this.newPageTitle = this.wikiPage.name;
+					this.editor.txt.html(this.pageContent.content || "");
 				});
 			},
 			cleanPage() {
-				app.wikiPage = {};
-				app.pageContent = {};
-				app.pageFileList = [];
-				app.newPageTitle = "";
-				if (!!app.editor.txt) {
-					app.editor.txt.html("");
+				this.wikiPage = {};
+				this.pageContent = {};
+				this.pageFileList = [];
+				this.newPageTitle = "";
+				if (!!this.editor.txt) {
+					this.editor.txt.html("");
 				}
 			},
 			initQueryParam(to) {
@@ -137,13 +135,14 @@
 				} else {
 					this.cleanPage();
 				}
-				var param = {pageId: app.parentPath.pageId};
-				this.common.postNonCheck(this.apilist1.pageLock, param, function (json) {
+				let param = {pageId: this.parentPath.pageId};
+				pageApi.pageLock(param).then(json => {
 					if (json.errCode !== 200) {
-						app.$alert(json.errMsg || '未知错误', '错误', {
+						let that = this;
+						this.$alert(json.errMsg || '未知错误', '错误', {
 							confirmButtonText: '确定',
 							callback: () => {
-								app.$router.back();
+								that.$router.back();
 							}
 						});
 					}
@@ -151,7 +150,7 @@
 			},
 			initEditor() {
 				this.editor = new WangEditor('#newPageContentDiv');
-				this.editor.customConfig.uploadImgServer = this.apilist1.HOST + '/zyplayer-doc-wiki/common/wangEditor/upload';
+				this.editor.customConfig.uploadImgServer = process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/common/wangEditor/upload';
 				this.editor.customConfig.zIndex = 100;
 				this.editor.customConfig.uploadFileName = 'files';
 				this.editor.customConfig.uploadImgMaxLength = 1;
