@@ -19,8 +19,8 @@ Vue.prototype.$store = store;
 const router = new VueRouter({routes});
 // 路由跳转时判断处理
 router.beforeEach((to, from, next) => {
-    if (to.meta.title) {
-        document.title = to.meta.name;
+    if (to.name) {
+        document.title = to.name;
     }
     store.commit('global/setFullscreen', !!to.meta.fullscreen);
     next();

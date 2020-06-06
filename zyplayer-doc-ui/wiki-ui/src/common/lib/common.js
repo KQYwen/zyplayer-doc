@@ -23,7 +23,7 @@ export default {
 			} else if (res.data.errCode == 400) {
 				vue.$message('请先登录');
 				var href = encodeURIComponent(window.location.href);
-				window.location = apimix.apilist1.HOST + "#/user/login?redirect=" + href;
+				window.location = process.env.VUE_APP_BASE_API + "#/user/login?redirect=" + href;
 			} else if (res.data.errCode == 402) {
 				vue.$router.push("/common/noAuth");
 			} else if (res.data.errCode !== 200) {

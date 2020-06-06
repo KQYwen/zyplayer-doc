@@ -1,0 +1,258 @@
+<template>
+	<div class="mg-editor-box">
+		<div ref="mgEditor" class="mg-editor" contenteditable="true"></div>
+		<div class="mg-editor-toolbar" :style="getMgEditorToolbarStyle(selectionInfo)">
+			<span class="iconfont icon-h1" @click.stop="toolbarHn('h1')"></span>
+			<span class="iconfont icon-h2" @click.stop="toolbarHn('h2')"></span>
+			<span class="iconfont icon-h3" @click.stop="toolbarHn('h3')"></span>
+			<span class="iconfont icon-hn"></span>
+			<span class="iconfont icon-border"></span>
+			<span class="iconfont icon-delete"></span>
+			<span class="iconfont icon-backcolor"></span>
+			<span class="iconfont icon-orderedlist"></span>
+			<span class="iconfont icon-unorderedlist"></span>
+			<span class="iconfont icon-checkbox"></span>
+			<span class="iconfont icon-link"></span>
+			<span class="iconfont icon-more"></span>
+		</div>
+	</div>
+</template>
+
+<script>
+	import "./MgEditor.css";
+	import "./MgEditorIconfont.css";
+	const $ = require("jquery")(window);
+
+	export default {
+		name: "mg-editor",
+		data() {
+			return {
+				editor: {},
+				selectionInfo: {
+					pageX: 0,
+					pageY: 0,
+					haveSelect: false,
+				},
+				compositionEnd: true,
+			};
+		},
+		mounted: function () {
+			this.editor = this.$refs.mgEditor;
+			this.appendEditorLastLine();
+			this.editor.addEventListener('mouseup', e => {
+				// 不延时还能获取到选中的文字（选择文字，单击选中文字的中间）
+				setTimeout(() => {
+					let selectText = window.getSelection().getRangeAt(0).toString();
+					this.selectionInfo = {
+						pageX: e.pageX,
+						pageY: e.pageY,
+						haveSelect: !!selectText,
+					};
+					console.log("mouseup", selectText, e);
+				}, 100);
+			});
+			document.body.addEventListener('click', e => {
+				this.selectionInfo.haveSelect = false;
+			});
+			// 粘贴事件
+			this.editor.addEventListener('paste', e => {
+				let cbd = e.clipboardData;
+				if (!(e.clipboardData && e.clipboardData.items)) {
+					return;
+				}
+				debugger
+				for (var i = 0; i < cbd.items.length; i++) {
+					var item = cbd.items[i];
+				}
+				setTimeout(() => this.handleUserInput(e), 300);
+			});
+			this.editor.addEventListener('compositionstart', () => {
+				this.compositionEnd = false;
+			});
+			this.editor.addEventListener('compositionend', () => {
+				this.compositionEnd = true;
+			});
+			this.editor.addEventListener('click', e => {
+				this.handleUserInput(e);
+			});
+			this.editor.addEventListener('keyup', e => {
+				this.handleUserInput(e);
+			});
+			this.editor.addEventListener('keydown', e => {
+				if (e.which == 13) {
+					let nowContainerOrigin = window.getSelection().getRangeAt(0).commonAncestorContainer;
+					let nowContainer = this.findListCodeNode(nowContainerOrigin);
+					// 如果是回车，而且是code行，修改行号
+					if (nowContainer != null) {
+						e.preventDefault();
+						let parentNode = nowContainer.parentNode;
+						let nextSibling = nowContainer.nextSibling;
+						// 在最后加一行
+						let nowNum = parseInt(nowContainer.getAttribute("start")) + 1;
+						// let codeEle = document.createElement("code");
+						// codeEle.setAttribute("start", nowNum);
+						// if (parentNode.lastChild == nowContainer) {
+						// 	parentNode.appendChild(codeEle);
+						// } else {
+						// 	parentNode.insertBefore(codeEle, nextSibling);
+						// }
+						// 修改内容
+
+						let innerText = nowContainer.innerText;
+						if (!!innerText) {
+							let startOffset = window.getSelection().getRangeAt(0).startOffset;
+							nowContainer.innerText = innerText.substring(0, startOffset);
+							codeEle.innerText = innerText.substring(startOffset, innerText.length);
+						}
+						$(nowContainer).after("<code start='" + nowNum + "'></code>");
+						// 光标下移一行
+						let rangeNew = document.createRange();
+						rangeNew.setStart(codeEle, 0);
+						rangeNew.setEnd(codeEle, 0);
+						window.getSelection().removeAllRanges();
+						window.getSelection().addRange(rangeNew);
+						// 改后面的序号
+						for (; nextSibling; nextSibling = nextSibling.nextSibling) {
+							if (nextSibling.nodeType === 1) {
+								nextSibling.setAttribute("start", ++nowNum);
+							}
+						}
+					}
+					// 回车时上一行是最后一行，取消标记
+					if (this.domHaveClass(nowContainerOrigin, "locate")) {
+						nowContainerOrigin.classList.remove("locate");
+						setTimeout(() => this.editor.lastChild.classList.add("locate"), 100);
+					}
+				}
+			});
+		},
+		methods: {
+			handleUserInput(e) {
+				if (!this.compositionEnd) return;
+				// 判断输入内容，如果是markdown语法则处理成目标样式
+				let nowContainer = window.getSelection().getRangeAt(0).commonAncestorContainer;
+				let parentNode = nowContainer.parentNode;
+				let lineText = nowContainer.data;
+				if (lineText == '```') {
+					let containerNow = window.getSelection().getRangeAt(0).commonAncestorContainer;
+					let divEle = this.findRootDomOnNotCode(containerNow);
+					if (divEle == null) {
+						return;
+					}
+					divEle.classList.add("list-code");
+					let codeEle = document.createElement("code");
+					codeEle.setAttribute("start", "1");
+					divEle.appendChild(codeEle);
+					// 光标放到代码框里
+					let rangeNew = document.createRange();
+					rangeNew.setStart(codeEle, 0);
+					rangeNew.setEnd(codeEle, 0);
+					window.getSelection().removeAllRanges();
+					window.getSelection().addRange(rangeNew);
+				}
+				// 判断是否是在最后一行输入，如果是就再在最后加一行
+				let locate = this.findParentClassDom(nowContainer, 'locate');
+				if (locate != null && !!locate.innerText && !!locate.innerText.trim()) {
+					locate.classList.remove("locate");
+					this.appendEditorLastLine();
+				} else if (!this.domHaveClass(this.editor.lastChild, "locate")) {
+					this.editor.lastChild.classList.add("locate");
+				}
+			},
+			findRootDomOnNotCode(container) {
+				// 如果自己是root，创建一个div放最后
+				if (this.isRootBox(container)) {
+					let lastEle = document.createElement("div");
+					this.editor.appendChild(lastEle);
+					return lastEle;
+				}
+				// 如果父元素是root，添加一个新的div，再把自己移除
+				let parentNode = container.parentNode;
+				if (this.isRootBox(parentNode)) {
+					let lastEle = document.createElement("div");
+					parentNode.insertBefore(lastEle, container);
+					container.remove();
+					return lastEle;
+				}
+				// 在code里面输入```无效
+				if (this.domHaveClass(parentNode, "list-code")) {
+					return null;
+				}
+				return this.findRootDomOnNotCode(parentNode);
+			},
+			findListCodeNode(container) {
+				// 如果自己是root，创建一个div放最后
+				if (this.isRootBox(container)) {
+					return null;
+				}
+				let parentNode = container.parentNode;
+				if (this.domHaveClass(parentNode, "list-code")) {
+					return container;
+				}
+				return this.findListCodeNode(parentNode);
+			},
+			findParentClassDom(container, cls) {
+				if (!container || this.isRootBox(container)) return null;
+				if (this.domHaveClass(container, cls)) return container;
+				return this.findParentClassDom(container.parentNode, cls);
+			},
+			appendEditorLastLine() {
+				// 最后再加一行，防止光标没法到最后了
+				let lastEle = document.createElement("div");
+				lastEle.classList.add("locate");
+				lastEle.appendChild(document.createElement("br"));
+				this.editor.appendChild(lastEle);
+			},
+			isRootBox(container) {
+				return this.domHaveClass(container, "mg-editor");
+			},
+			domHaveClass(container, cls) {
+				return container && container.classList && container.classList.contains(cls);
+			},
+			getSelectionContainer(judgeRoot) {
+				let container = window.getSelection().getRangeAt(0).commonAncestorContainer;
+				if (container.nodeType != 1) {
+					container = container.parentNode;
+				}
+				if (container.nodeType != 1 || (judgeRoot && this.isRootBox(container))) {
+					return null;
+				}
+				return container;
+			},
+			toolbarHn(hn) {
+				let container = this.getSelectionContainer();
+				if (container == null) return;
+				document.execCommand("formatBlock", false, "<" + hn + ">");
+				container = this.getSelectionContainer(true);
+				if (container == null) {
+					return;
+				}
+				let innerTextArr = container.innerText.split("\n");
+				if (innerTextArr.length > 1) {
+					innerTextArr.forEach(item => {
+						if (!!item) {
+							let newEle = document.createElement(hn);
+							newEle.innerText = item;
+							container.parentNode.insertBefore(newEle, container);
+						}
+					});
+					container.remove();
+				}
+			},
+			getMgEditorToolbarStyle(selectionInfo) {
+				let style = {};
+				style.display = selectionInfo.haveSelect ? 'block' : 'none';
+				if (selectionInfo.haveSelect) {
+					let top = selectionInfo.pageY - 20 - 50;
+					if (top < 0) top = selectionInfo.pageY + 20;
+					let left = selectionInfo.pageX - 220;
+					if (left < 10) left = 10;
+					style.top = top + 'px';
+					style.left = left + 'px';
+				}
+				return style;
+			}
+		}
+	}
+</script>
+

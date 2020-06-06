@@ -8,5 +8,5 @@ module.exports = {
 		host: 'local.zyplayer.com'
 	},
 	publicPath: './',
-	productionSourceMap: false
+	productionSourceMap: false,
 };

@@ -2,10 +2,10 @@
     <div style="padding: 10px;" class="home-vue">
         <div style="max-width: 800px;margin: 0 auto;">
             <el-select v-model="searchParam.newsType" v-on:change="getSpacePageNews" placeholder="请选择查看方式" style="float: right;z-index: 1;">
-                <el-option :label="val" :value="index+1" v-for="(val, index) in newsTypes"></el-option>
+                <el-option :label="item.val" :value="item.key" :key="item.key" v-for="item in newsTypesArr"></el-option>
             </el-select>
             <el-tabs value="first">
-                <el-tab-pane :label="newsTypes[searchParam.newsType-1]" name="first">
+                <el-tab-pane :label="newsTypesMap[searchParam.newsType]" name="first">
                     <div v-if="spacePageNews.length <= 0" class="empty-news">暂无数据</div>
                     <div v-else class="line-box" v-for="item in spacePageNews">
                         <div class="line-title">
@@ -52,8 +52,13 @@
                     pageNum: 1,
                     pageSize: 20,
                 },
-                spacePageNews:[],
-                newsTypes:["最近更新", "最新创建", "查看最多", "点赞最多", "查看+点赞最多"],
+				spacePageNews: [],
+				// 列表类型
+				newsTypesArr: [
+					{key: 1, val: '最近更新'}, {key: 2, val: '最新创建'}, {key: 3, val: '查看最多'},
+					{key: 4, val: '点赞最多'}, {key: 5, val: '查看+点赞最多'}
+				],
+				newsTypesMap: {},
             };
         },
         beforeRouteUpdate(to, from, next) {
@@ -92,6 +97,8 @@
                 if (!!this.searchParam.spaceId) {
                     this.getSpacePageNews();
                 }
+				this.newsTypesMap = {};
+				this.newsTypesArr.forEach(item => this.newsTypesMap[item.key] = item.val);
             },
         }
     }

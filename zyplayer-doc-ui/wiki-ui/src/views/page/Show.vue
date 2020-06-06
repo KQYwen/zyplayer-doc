@@ -9,7 +9,7 @@
 					创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　
 					<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span>
 					<div style="float: right;">
-						<el-upload class="upload-page-file" :action="apilist1.commonUpload"
+						<el-upload class="upload-page-file" :action="uploadFileUrl"
 								   :with-credentials="true"
 								   :on-success="uploadFileSuccess" :on-error="uploadFileError"
 								   name="files" show-file-list multiple :data="uploadFormData" :limit="999"
@@ -155,6 +155,7 @@
 				commentTextInput: "",
 				commentList: [],
 				recommentInfo: {},
+				uploadFileUrl: process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/common/upload',
 				// 页面权限
 				pageAuthDialogVisible: false,
 				pageAuthUserList: [],

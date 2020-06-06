@@ -4,7 +4,6 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.zyplayer.doc.core.exception.ConfirmException;
 
-import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DruidDataSourceUtil {
@@ -31,7 +30,8 @@ public class DruidDataSourceUtil {
 		// 重试3次，失败退出，源码里是errorCount > connectionErrorRetryAttempts，所以写成2就是3次、、、
 		// CreateConnectionThread 源码在这个类里面
 		dataSource.setConnectionErrorRetryAttempts(2);
-		dataSource.setBreakAfterAcquireFailure(true);
+		dataSource.setBreakAfterAcquireFailure(false);// 连接出错后不退出，等待下个定时周期重试
+		dataSource.setTimeBetweenConnectErrorMillis(180000);// 连接出错后重试时间间隔3分钟
 		dataSource.setName("zyplayer-doc-db-" + nameId.incrementAndGet());
 		if (url.contains("oracle")) {
 			dataSource.setValidationQuery("select 1 from dual");
