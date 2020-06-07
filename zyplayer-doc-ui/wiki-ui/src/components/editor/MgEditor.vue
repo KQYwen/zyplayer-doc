@@ -9,12 +9,12 @@
 	<div class="mg-editor-box">
 		<div ref="mgEditor" class="mg-editor" contenteditable="true"></div>
 		<div class="mg-editor-toolbar" :style="getMgEditorToolbarStyle(selectionInfo)">
-			<span class="iconfont icon-h1" @click.stop="handleToolbarHn('h1')"></span>
-			<span class="iconfont icon-h2" @click.stop="handleToolbarHn('h2')"></span>
-			<span class="iconfont icon-h3" @click.stop="handleToolbarHn('h3')"></span>
+			<span class="iconfont icon-h1" @click="handleToolbarHn('h1')"></span>
+			<span class="iconfont icon-h2" @click="handleToolbarHn('h2')"></span>
+			<span class="iconfont icon-h3" @click="handleToolbarHn('h3')"></span>
 			<span class="iconfont icon-hn"></span>
-			<span class="iconfont icon-border"></span>
-			<span class="iconfont icon-delete"></span>
+			<span class="iconfont icon-border" @click="handleToolbarBorder()"></span>
+			<span class="iconfont icon-delete" @click="handleToolbarStrikeThrough()"></span>
 			<span class="iconfont icon-backcolor"></span>
 			<span class="iconfont icon-orderedlist"></span>
 			<span class="iconfont icon-unorderedlist"></span>
@@ -30,9 +30,12 @@
 	import "./css/MgEditorIconfont.css";
 	import utilPast from './util/past';
 	import utilBase from './util/util';
+	import utilSelection from './util/selection';
 	import toolbarHn from "./toolbar/hn";
 	import toolbarCommon from './toolbar/common';
 	import toolbarCodeList from "./toolbar/inlineCodeList";
+	import toolbarBorder from "./toolbar/border";
+	import toolbarStrikeThrough from "./toolbar/strikeThrough";
 
 	const $ = require("jquery");
 
@@ -121,7 +124,7 @@
 						let domInnerText = handleClassDom.innerText;
 						let selectRange = window.getSelection().getRangeAt(0);
 						// 光标在行的最后才执行此操作，否则用系统默认的
-						if (selectRange.startOffset == selectRange.endOffset && selectRange.endOffset == domInnerText.length) {
+						if (utilSelection.isSelectionEmpty() && selectRange.endOffset == domInnerText.length) {
 							e.preventDefault();
 							let newEle = $(`<div><br/></div>`)[0];
 							$(handleClassDom).after(newEle);
@@ -139,7 +142,7 @@
 				let nowContainer = window.getSelection().getRangeAt(0).commonAncestorContainer;
 				let lineText = nowContainer.data;
 				if (lineText == '```') {
-					toolbarCodeList.createCodeListBlock();
+					toolbarCodeList.handleCodeList();
 				}
 				// 判断是否是在最后一行输入，如果是就再在最后加一行
 				let locate = this.findParentClassDom(nowContainer, 'locate');
@@ -176,9 +179,14 @@
 			domHaveClass(container, cls) {
 				return container && container.classList && container.classList.contains(cls);
 			},
+			handleToolbarBorder() {
+				toolbarBorder.handleBorder();
+			},
+			handleToolbarStrikeThrough() {
+				toolbarStrikeThrough.handleStrikeThrough();
+			},
 			handleToolbarHn(hn) {
-				toolbarHn.toolbarHn(hn);
-				this.selectionInfo.haveSelect = false;
+				toolbarHn.handleHn(hn);
 			},
 			getMgEditorToolbarStyle(selectionInfo) {
 				let style = {};

@@ -145,3 +145,11 @@
 }
 
 /*Hn样式-E-*/
+
+.mg-editor .border {
+	font-weight: bold;
+}
+
+.mg-editor .strikethrough {
+	text-decoration: line-through;
+}

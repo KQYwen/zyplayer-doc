@@ -4,7 +4,7 @@ import utilBase from '../util/util';
 const $ = require("jquery");
 
 export default {
-	createCodeListBlock() {
+	handleCodeList() {
 		let containerNow = window.getSelection().getRangeAt(0).commonAncestorContainer;
 		let divEle = this.findRootDomOnNotCode(containerNow);
 		if (divEle == null) return;
