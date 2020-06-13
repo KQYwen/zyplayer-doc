@@ -1,0 +1,242 @@
+// 构造函数
+import TextStyle from "./textStyle";
+
+function Dom(type = 'text', cls = '', text = '') {
+	this.type = type;
+	this.text = text;
+	this.target = '';
+	this.cls = cls;
+	this.clsSet = new Set(cls.split(" "));
+	this.startOffset = -1;
+	this.endOffset = -1;
+	this.dom = [];
+	this.textStyle = [];
+}
+
+// 原型
+Dom.prototype = {
+	constructor: Dom,
+	// 删除class
+	removeClass(cls) {
+		if (!this.hasClass(cls)) return;
+		this.clsSet.delete(cls);
+		this.cls = Array.from(this.clsSet).join(" ");
+	},
+	hasClass(cls) {
+		return this.clsSet.has(cls);
+	},
+	addClass(cls) {
+		if (this.hasClass(cls)) return;
+		this.clsSet.add(cls);
+		this.cls = Array.from(this.clsSet).join(" ");
+	},
+	setOffset(start, end) {
+		this.startOffset = start;
+		this.endOffset = end;
+	},
+	setOffsetAll() {
+		this.startOffset = 0;
+		this.endOffset = this.text.length;
+	},
+	addText(startOffset, data) {
+		if (!data) return;
+		// todo 删除选中的内容
+		let textStyleNew = [];
+		let len = this.text.length;
+		if (len > 0) {
+			if (startOffset < this.text.length) {
+				for (let i = 0; i < len; i++) {
+					if (i == startOffset) {
+						let styleCopy = this.textStyle[i];
+						for (let j = 0; j < data.length; j++) {
+							textStyleNew.push(styleCopy.clone());
+						}
+					}
+					textStyleNew.push(this.textStyle[i]);
+				}
+				this.text = this.text.substring(0, startOffset) + data + this.text.substring(startOffset, this.text.length);
+			} else {
+				textStyleNew = textStyleNew.concat(this.textStyle);
+				let styleCopyNew = this.textStyle[this.textStyle.length - 1];
+				for (let j = 0; j < data.length; j++) {
+					textStyleNew.push(styleCopyNew.clone());
+				}
+				this.text = this.text + data;
+			}
+		} else {
+			for (let j = 0; j < data.length; j++) {
+				textStyleNew.push(new TextStyle());
+			}
+			this.text = data;
+		}
+		this.textStyle = textStyleNew;
+		this.computerTextStyleToDom();
+	},
+	addSelectionTextStyle(type, value) {
+		if (this.startOffset < 0 || this.endOffset < 0) {
+			return;
+		}
+		for (let i = this.startOffset; i < this.endOffset; i++) {
+			this.textStyle[i][type] = value;
+		}
+		this.startOffset = this.endOffset = -1;
+		this.computerTextStyleToDom();
+	},
+	computerTextStyleToDom() {
+		this.dom = [];
+		let len = this.text.length;
+		for (let i = 0; i < len; i++) {
+			let startIndex = i;
+			for (let j = i + 1; j < len; j++, i++) {
+				if (this.textStyle[i].notEq(this.textStyle[j])) break;
+			}
+			let text = this.text.substring(startIndex, i + 1);
+			this.dom.push(new Dom('', this.textStyle[i].getCls(), text));
+		}
+	},
+	borderSelection1() {
+		this.removeClass('border');
+		if (this.startOffset == 0 && this.endOffset > 0) {
+			if (this.endOffset == this.text.length) {
+				// 全选
+				this.addClass('border');
+			} else {
+				// 选中前面的部分 xx-xxxxxx-xx
+				if (this.dom.length > 0) {
+					// 有元素的时候
+					let len = 0;
+					let newDomArr = [];
+					this.dom.forEach(item => {
+						let domSub = false;
+						let textLen = item.text.length;
+						if (len < this.endOffset) {
+							if (!this.hasClass('border') && !item.hasClass('border')) {
+								if (len + textLen <= this.endOffset) {
+									item.addClass('border');
+								} else {
+									// 再次拆分
+									domSub = true;
+									let textEnd = this.endOffset - len;
+									newDomArr.push(new Dom('', item.cls + ' border', item.text.substring(0, textEnd)));
+									newDomArr.push(new Dom('', item.cls, item.text.substring(textEnd, textLen)));
+								}
+							}
+						}
+						if (!domSub) {
+							newDomArr.push(item);
+						}
+						len += textLen;
+					});
+					this.dom = newDomArr;
+				} else {
+					let newDom = new Dom('', 'border', this.text.substring(0, this.endOffset));
+					let lastDom = new Dom('', '', this.text.substring(this.endOffset, this.text.length));
+					this.dom = [newDom, lastDom];
+				}
+			}
+		}
+		else if (this.startOffset > 0) {
+			if (this.dom.length > 0) {
+				// 有元素的时候
+				if (this.endOffset == this.text.length) {
+					// 选中后面的部分 xx-xxxxxx-xx
+					let len = 0;
+					let newDomArr = [];
+					this.dom.forEach(item => {
+						let domSub = false;
+						let textLen = item.text.length;
+						if (len + textLen > this.startOffset) {
+							if (!this.hasClass('border') && !item.hasClass('border')) {
+								if (len == this.startOffset) {
+									item.addClass('border');
+								} else {
+									// 再次拆分
+									domSub = true;
+									let textStart = this.startOffset - len;
+									newDomArr.push(new Dom('', item.cls, item.text.substring(0, textStart)));
+									newDomArr.push(new Dom('', item.cls + ' border', item.text.substring(textStart, textLen)));
+								}
+							}
+						}
+						if (!domSub) {
+							newDomArr.push(item);
+						}
+						len += textLen;
+					});
+					this.dom = newDomArr;
+				} else {
+					// 选中中间一部分 xx  xx-xxxxxx-xx
+					let len = 0;
+					let newDomArr = [];
+					this.dom.forEach(item => {
+						let domSub = false;
+						let textLen = item.text.length;
+						len += textLen;
+						if (len > this.startOffset && len <= this.endOffset) {
+							if (!this.hasClass('border') && !item.hasClass('border')) {
+								let textEnd = textLen - (len - this.endOffset);
+								if (len - textLen <= this.startOffset) {
+									if (this.endOffset >= len) {
+										// 全选
+										item.addClass('border');
+									} else {
+										// 选择前面
+										domSub = true;
+										newDomArr.push(new Dom('', item.cls + ' border', item.text.substring(0, textEnd)));
+										newDomArr.push(new Dom('', item.cls, item.text.substring(textEnd, textLen)));
+									}
+								} else {
+									domSub = true;
+									let textStart = len - this.startOffset;
+									newDomArr.push(new Dom('', item.cls, item.text.substring(0, textStart)));
+									if (this.endOffset >= len) {
+										// 选择后面
+										newDomArr.push(new Dom('', item.cls + ' border', item.text.substring(textStart, textLen)));
+									} else {
+										// 选择中间
+										newDomArr.push(new Dom('', 'border', item.text.substring(textStart, textEnd)));
+										newDomArr.push(new Dom('', '', item.text.substring(textEnd, textLen)));
+									}
+								}
+							}
+						}
+						if (!domSub) {
+							newDomArr.push(item);
+						}
+					});
+					this.dom = newDomArr;
+				}
+			} else {
+				// 空的时候
+				this.dom.push(new Dom('', '', this.text.substring(0, this.startOffset)));
+				if (this.endOffset == this.text.length) {
+					// 选中后面的部分
+					this.dom.push(new Dom('', 'border', this.text.substring(this.startOffset, this.text.length)));
+				} else {
+					// 选中中间一部分
+					this.dom.push(new Dom('', 'border', this.text.substring(this.startOffset, this.endOffset)));
+					this.dom.push(new Dom('', '', this.text.substring(this.endOffset, this.text.length)));
+				}
+			}
+		}
+		this.startOffset = this.endOffset = -1;
+	},
+	// 回车事件处理
+	keyEnter(editorDom, editorRange) {
+		let nextText = '';
+		let oldText = this.text || '';
+		// 如果文字的中间位置点击，则把内容分割到两行
+		if (editorRange.startOffset < oldText.length) {
+			this.text = oldText.substring(0, editorRange.startOffset);
+			nextText = oldText.substring(editorRange.startOffset, oldText.length);
+		}
+		for (let i = 0; i < editorDom.length; i++) {
+			if (this == editorDom[i]) {
+				editorDom.splice(i + 1, 0, new Dom('text', this.cls, nextText));
+				break;
+			}
+		}
+	},
+};
+
+export default Dom;

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-	import mgEditor from '../../components/editor/MgEditor'
+	import mgEditor from '../../components/editor2/MgEditor'
 
 	export default {
 		data() {
