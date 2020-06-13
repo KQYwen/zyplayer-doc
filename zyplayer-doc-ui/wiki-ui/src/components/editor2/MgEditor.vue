@@ -89,52 +89,42 @@
 				let selectionRange = window.getSelection().getRangeAt(0);
 				let selectText = selectionRange.toString();
 				if (!!selectText) {
-					let isOneDom = selectionRange.startContainer == selectionRange.endContainer;
 					let startNode = toolbarCommon.getRootDom(selectionRange.startContainer);
-					let index = startNode.getAttribute("index");
-					if (index >= 0) {
+					let endNode = toolbarCommon.getRootDom(selectionRange.endContainer);
+					let startIndex = parseInt(startNode.getAttribute("index"));
+					let endIndex = parseInt(endNode.getAttribute("index"));
+					let isOneDom = startIndex == endIndex;
+					if (startIndex >= 0) {
 						let startOffset = selectionRange.startOffset;
 						let previousSibling = toolbarCommon.getRealElem(selectionRange.startContainer).previousSibling;
 						for (; previousSibling;) {
 							startOffset += previousSibling.innerText.length;
 							previousSibling = previousSibling.previousSibling;
 						}
-						let domTemp = this.editorDom[index];
+						let domTemp = this.editorDom[startIndex];
 						let endOffset = isOneDom ? selectionRange.endOffset : domTemp.text.length;
+						let endPreviousSibling = toolbarCommon.getRealElem(selectionRange.endContainer).previousSibling;
+						for (; endPreviousSibling;) {
+							endOffset += endPreviousSibling.innerText.length;
+							endPreviousSibling = endPreviousSibling.previousSibling;
+						}
 						domTemp.setOffset(startOffset, endOffset);
 					}
 					if (!isOneDom) {
+						for (let i = startIndex + 1; i < endIndex; i++) {
+							this.editorDom[i].setOffsetAll();
+						}
 						let endOffset = selectionRange.endOffset;
 						let previousSibling = toolbarCommon.getRealElem(selectionRange.endContainer).previousSibling;
 						for (; previousSibling;) {
 							endOffset += previousSibling.innerText.length;
 							previousSibling = previousSibling.previousSibling;
 						}
-						let endNode = toolbarCommon.getRootDom(selectionRange.endContainer);
-						let index = endNode.getAttribute("index");
-						if (index >= 0) {
-							let domTemp = this.editorDom[index];
+						if (endIndex >= 0) {
+							let domTemp = this.editorDom[endIndex];
 							domTemp.setOffset(0, endOffset);
 						}
 					}
-					// let documentFragment = selectionRange.cloneContents();
-					// let childNodesLen = documentFragment.childNodes.length;
-					// if (childNodesLen > 2) {
-					// 	for (let i = 1; i < childNodesLen - 1; i++) {
-					// 		let childNode = documentFragment.childNodes[i];
-					// 		let index = childNode.getAttribute("index");
-					// 		if (index >= 0) {
-					// 			let domTemp = this.editorDom[index];
-					// 			if (i == 0) {
-					// 				domTemp.setOffset(selectionRange.startOffset, domTemp.text.length);
-					// 			} else if (i == childNodesLen - 1) {
-					// 				domTemp.setOffset(0, selectionRange.endOffset);
-					// 			} else {
-					// 				domTemp.setOffsetAll();
-					// 			}
-					// 		}
-					// 	}
-					// }
 					this.editorToolbarStyle.display = 'block';
 				}
 				// console.log("mouseup", selectText, e);
@@ -166,12 +156,28 @@
 				this.editorCursorStyle.height = computedStyle.fontSize;
 				this.editorCursorStyle.display = 'block';
 				// 设置光标所在对象的位置
-				let range = window.getSelection().getRangeAt(0);
-				this.editorRange.startOffset = range.startOffset;
-				this.editorRange.endOffset = range.endOffset;
-				// 没展示出来时不能获取焦点
-				let selectText = window.getSelection().getRangeAt(0).toString();
-				if (!selectText) {
+				let selectionRange = window.getSelection().getRangeAt(0);
+				let startNode = toolbarCommon.getRootDom(selectionRange.startContainer);
+				let endNode = toolbarCommon.getRootDom(selectionRange.endContainer);
+				let startIndex = startNode.getAttribute("index");
+				let endIndex = endNode.getAttribute("index");
+				if (startIndex != endIndex) {
+					return;
+				}
+				let startOffset = selectionRange.startOffset;
+				let previousSibling = toolbarCommon.getRealElem(selectionRange.startContainer).previousSibling;
+				for (; previousSibling; previousSibling = previousSibling.previousSibling) {
+					startOffset += previousSibling.innerText.length;
+				}
+				let endOffset = selectionRange.endOffset;
+				let endPreviousSibling = toolbarCommon.getRealElem(selectionRange.endContainer).previousSibling;
+				for (; endPreviousSibling; endPreviousSibling = endPreviousSibling.previousSibling) {
+					endOffset += endPreviousSibling.innerText.length;
+				}
+				this.editorRange.startOffset = startOffset;
+				this.editorRange.endOffset = endOffset;
+				console.log(startOffset, endOffset);
+				if (startOffset == endOffset) {
 					setTimeout(() => this.userInput.focus(), 50);
 				}
 			},

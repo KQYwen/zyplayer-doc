@@ -62,55 +62,41 @@ Dom.prototype = {
 		if (this.startOffset < 0 || this.endOffset < 0 || this.startOffset == this.endOffset) {
 			return;
 		}
-		let styleRangeNew = [];
-		// 拆分
-		for (let i = 0; i < this.styleRange.length; i++) {
-			let item = this.styleRange[i];
-			// 全选  前面  中间  后面  全包含
-			if (this.startOffset == item.start && this.endOffset == item.end) {
-				item.addClass(cls);
-				styleRangeNew.push(item);
-			} else if (this.startOffset == item.start && this.endOffset < item.end) {
-				styleRangeNew.push(new StyleRange(this.startOffset, this.endOffset, item.cls + ' ' + cls));
-				styleRangeNew.push(new StyleRange(this.endOffset, item.end, item.cls));
-			} else if (this.startOffset > item.start && this.endOffset < item.end) {
-				styleRangeNew.push(new StyleRange(item.start, this.startOffset, item.cls));
-				styleRangeNew.push(new StyleRange(this.startOffset, this.endOffset, item.cls + ' ' + cls));
-				styleRangeNew.push(new StyleRange(this.endOffset, item.end, item.cls));
-			} else if (this.startOffset > item.start && this.endOffset >= item.end) {
-				styleRangeNew.push(new StyleRange(0, this.startOffset, item.cls));
-				styleRangeNew.push(new StyleRange(this.startOffset, item.end, item.cls + ' ' + cls));
-			} else if (this.startOffset <= item.start && this.endOffset >= item.end) {
-				if (this.startOffset < item.start) {
-					styleRangeNew.push(new StyleRange(this.startOffset, item.start, cls));
-				}
-				item.addClass(cls);
-				styleRangeNew.push(item);
-				if (this.endOffset > item.end) {
-					styleRangeNew.push(new StyleRange(item.end, this.endOffset, cls));
-				}
-			} else {
-				styleRangeNew.push(item);
-			}
+		// 添加新的分区
+		let styleRangeNew = [].concat(this.styleRange);
+		styleRangeNew.push(new StyleRange(this.startOffset, this.endOffset, cls));
+		let textStyleArr = [];
+		let textLen = this.text.length;
+		for (let i = 0; i < textLen; i++) {
+			textStyleArr[i] = '';
 		}
-		if (styleRangeNew.length <= 0) {
-			styleRangeNew.push(new StyleRange(this.startOffset, this.endOffset, cls));
-		}
-		styleRangeNew.sort((val1, val2) => val1.start - val2.start);
-		// 合并同一个范围内样式表重叠的
-		let styleRangeLast = [];
-		let len = styleRangeNew.length;
-		for (let i = 0; i < len; i++) {
+		// 所有范围值拆分到每个字
+		let rangeLen = styleRangeNew.length;
+		for (let i = 0; i < rangeLen; i++) {
 			let item = styleRangeNew[i];
-			for (let j = i + 1; j < len; j++, i++) {
-				let itemNext = styleRangeNew[j];
-				if (!item.classSameAll(itemNext)) break;
-				item.start = Math.min(item.start, itemNext.start);
-				item.end = Math.max(item.end, itemNext.end);
+			for (let j = item.start; j < item.end && j < textLen; j++) {
+				textStyleArr[j] += ' ' + item.cls;
 			}
-			styleRangeLast.push(item);
 		}
-		this.styleRange = styleRangeLast;
+		// 去重再排序，获取排序后的字符串
+		for (let i = 0; i < textLen; i++) {
+			if (!!textStyleArr[i]) {
+				let clsSet = new Set(textStyleArr[i].split(" "));
+				textStyleArr[i] = Array.from(clsSet).sort((val1, val2) => val1 - val2).join(" ");
+			}
+		}
+		// 合并同一个范围内样式表重叠的
+		let styleRangeMerged = [];
+		for (let i = 0; i < textLen; i++) {
+			if (!!textStyleArr[i]) {
+				let start = i;
+				for (let j = i + 1; j < textLen; j++, i++) {
+					if (textStyleArr[i] !== textStyleArr[j]) break;
+				}
+				styleRangeMerged.push(new StyleRange(start, i + 1, textStyleArr[i]));
+			}
+		}
+		this.styleRange = styleRangeMerged;
 		this.startOffset = this.endOffset = -1;
 		this.computerStyleRangeToDom();
 	},

@@ -27,6 +27,9 @@ StyleRange.prototype = {
 		this.clsSet.add(cls);
 		this.cls = Array.from(this.clsSet).join(" ");
 	},
+	getSortClass() {
+		return Array.from(this.clsSet).sort((val1, val2) => val1 - val2).join(" ");
+	},
 	classSameAll(compare) {
 		if (compare.clsSet.size != this.clsSet.size) return false;
 		let values = Array.from(compare.clsSet);
