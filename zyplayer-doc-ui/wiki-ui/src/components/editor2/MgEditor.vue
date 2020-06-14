@@ -44,6 +44,7 @@
 	import "./css/MgEditor.css";
 	import "./css/MgEditorIconfont.css";
 	import Dom from './util/dom';
+	import UndoRedo from './util/undoRedo';
 	import toolbarCommon from './toolbar/common';
 
 	const $ = require("jquery");
@@ -56,6 +57,8 @@
 				editorRange: {
 					startOffset: 0,
 					endOffset: 0,
+					startDomIndex: -1,
+					endDomIndex: -1,
 				},
 				userInput: {},
 				userInputStyle: {
@@ -70,23 +73,44 @@
 				editorDom: [],
 				editDom: {},
 				userInputData: '',
+				undoRedo: {},
 			};
 		},
 		mounted: function () {
+			this.undoRedo = new UndoRedo(this.editorDom);
 			this.editor = this.$refs.mgEditor;
 			this.userInput = this.$refs.userInput;
 			this.editorDom.push(new Dom('text', 'head head-h1'));
+			document.body.addEventListener('click', e => {
+				for (let i = 0; i < this.editorDom.length; i++) {
+					this.editorDom[i].clearRange();
+				}
+				this.editorToolbarStyle.display = 'none';
+			});
 			// 监听输入框的特殊按键
 			this.userInput.addEventListener('keydown', e => {
 				if (e.which == 13) {
 					e.preventDefault();
 					this.editDom.keyEnter(this.editorDom, this.editorRange);
+				} else if (e.keyCode == 90 && e.ctrlKey) {
+					e.preventDefault();
+					this.undoRedo.undo();
+					this.$forceUpdate();
+				} else if (e.keyCode == 89 && e.ctrlKey) {
+					e.preventDefault();
+					this.undoRedo.redo();
+					this.$forceUpdate();
 				}
+				// console.log(e)
 			});
 			// 鼠标选中事件
 			this.editor.addEventListener('mouseup', e => {
 				// 不延时还能获取到选中的文字（选择文字，单击选中文字的中间）
-				let selectionRange = window.getSelection().getRangeAt(0);
+				let selectionRange = this.getSelectionRange();
+				if (selectionRange == null) {
+					this.hideToolbar();
+					return;
+				}
 				let selectText = selectionRange.toString();
 				if (!!selectText) {
 					let startNode = toolbarCommon.getRootDom(selectionRange.startContainer);
@@ -125,7 +149,11 @@
 							domTemp.setOffset(0, endOffset);
 						}
 					}
+					this.editorRange.startDomIndex = startIndex;
+					this.editorRange.endDomIndex = endIndex + 1;
 					this.editorToolbarStyle.display = 'block';
+				} else {
+					this.hideToolbar();
 				}
 				// console.log("mouseup", selectText, e);
 			});
@@ -140,6 +168,9 @@
 				setTimeout(() => event.target.lastChild.click(), 100);
 			},
 			domClick(dom, event) {
+				setTimeout(() => this.domClickTimer(dom, event), 50);
+			},
+			domClickTimer(dom, event) {
 				this.editDom = dom;
 				this.editDom.target = event.target;
 				// 设置接收用户输入的输入框绝对位置
@@ -156,7 +187,11 @@
 				this.editorCursorStyle.height = computedStyle.fontSize;
 				this.editorCursorStyle.display = 'block';
 				// 设置光标所在对象的位置
-				let selectionRange = window.getSelection().getRangeAt(0);
+				let selectionRange = this.getSelectionRange();
+				if (selectionRange == null) {
+					this.hideToolbar();
+					return;
+				}
 				let startNode = toolbarCommon.getRootDom(selectionRange.startContainer);
 				let endNode = toolbarCommon.getRootDom(selectionRange.endContainer);
 				let startIndex = startNode.getAttribute("index");
@@ -178,20 +213,24 @@
 				this.editorRange.endOffset = endOffset;
 				console.log(startOffset, endOffset);
 				if (startOffset == endOffset) {
+					this.hideToolbar();
 					setTimeout(() => this.userInput.focus(), 50);
 				}
 			},
 			userInputDataChange() {
+				if (!this.userInputData) return;
 				// 如果在最后一个div里面输入，则改为非最后一个，然后在最后再加一行
 				if (this.editDom.type == 'locate') {
 					this.editDom.type = 'text';
 					this.editDom.removeClass('locate');
 					this.editorDom.push(new Dom('locate', 'locate'));
 				}
+				let beforeJson = JSON.stringify(this.editDom);
 				let oldText = this.editDom.text || '';
 				// 如果文字的中间位置点击，则把内容放到指定位置
 				let startOffset = this.editorRange.startOffset;
 				this.editDom.addText(startOffset, this.userInputData);
+				let afterJson = JSON.stringify(this.editDom);
 				if (startOffset < oldText.length) {
 					this.editorRange.startOffset = this.editorRange.endOffset = (startOffset + this.userInputData.length);
 				} else {
@@ -202,25 +241,42 @@
 				// let letterSpacing = this.userInputData.length * 0.52;
 				// this.editorCursorStyle.left = (parseInt(this.editorCursorStyle.left) + (parseInt(fontSize) * newLength) + letterSpacing) + 'px';
 				this.userInputData = '';
+				let editDomNode = toolbarCommon.getRootDom(this.editDom.target);
+				let editIndex = parseInt(editDomNode.getAttribute("index"));
+				this.undoRedo.execute(1, editIndex, beforeJson, afterJson);
 			},
 			handleToolbarBold() {
-				for (let i = 0; i < this.editorDom.length; i++) {
+				for (let i = this.editorRange.startDomIndex; i < this.editorRange.endDomIndex; i++) {
 					this.editorDom[i].addSelectionTextStyle('bold', 1);
 				}
 				this.editorToolbarStyle.display = 'none';
 				window.getSelection().removeAllRanges();
 			},
 			handleToolbarStrikeThrough() {
-				for (let i = 0; i < this.editorDom.length; i++) {
+				for (let i = this.editorRange.startDomIndex; i < this.editorRange.endDomIndex; i++) {
 					this.editorDom[i].addSelectionTextStyle('strikethrough', 1);
 				}
 				this.editorToolbarStyle.display = 'none';
 				window.getSelection().removeAllRanges();
 			},
 			handleToolbarHn(hn) {
-				debugger
+				for (let i = this.editorRange.startDomIndex; i < this.editorRange.endDomIndex; i++) {
+					this.editorDom[i].addSelectionTextHead(hn);
+				}
 				this.editorToolbarStyle.display = 'none';
 				window.getSelection().removeAllRanges();
+			},
+			hideToolbar() {
+				this.editorRange.startDomIndex = -1;
+				this.editorRange.endDomIndex = -1;
+				this.editorToolbarStyle.display = 'none';
+			},
+			getSelectionRange() {
+				let selection = window.getSelection();
+				if (selection.rangeCount > 0) {
+					return selection.getRangeAt(0);
+				}
+				return null;
 			},
 		}
 	}

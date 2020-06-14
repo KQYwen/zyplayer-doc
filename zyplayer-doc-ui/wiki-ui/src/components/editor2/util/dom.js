@@ -1,8 +1,7 @@
 // 构造函数
-import TextStyle from "./textStyle";
 import StyleRange from "./styleRange";
 
-function Dom(type = 'text', cls = '', text = '') {
+function Dom(type = 'text', cls = '', text = '', styleRange = []) {
 	this.type = type;
 	this.text = text;
 	this.target = '';
@@ -13,7 +12,7 @@ function Dom(type = 'text', cls = '', text = '') {
 	this.dom = [];
 	this.textStyle = [];
 	// 一个范围的样式，例：{start: 1, end: 2, class: 'xx xxx'}
-	this.styleRange = [];
+	this.styleRange = styleRange;
 }
 
 // 原型
@@ -29,9 +28,10 @@ Dom.prototype = {
 		return this.clsSet.has(cls);
 	},
 	addClass(cls) {
-		if (this.hasClass(cls)) return;
+		if (this.hasClass(cls)) return this;
 		this.clsSet.add(cls);
 		this.cls = Array.from(this.clsSet).join(" ");
+		return this;
 	},
 	setOffset(start, end) {
 		this.startOffset = start;
@@ -40,6 +40,9 @@ Dom.prototype = {
 	setOffsetAll() {
 		this.startOffset = 0;
 		this.endOffset = this.text.length;
+	},
+	clearRange() {
+		this.startOffset = this.endOffset = -1;
 	},
 	addText(startOffset, data) {
 		if (!data) return;
@@ -57,6 +60,13 @@ Dom.prototype = {
 			this.text = this.text + data;
 		}
 		this.computerStyleRangeToDom();
+	},
+	addSelectionTextHead(hn) {
+		if (this.startOffset < 0 || this.endOffset < 0) {
+			return;
+		}
+		this.addClass('head').addClass('head-' + hn);
+		this.clearRange();
 	},
 	addSelectionTextStyle(cls) {
 		if (this.startOffset < 0 || this.endOffset < 0 || this.startOffset == this.endOffset) {
@@ -97,7 +107,7 @@ Dom.prototype = {
 			}
 		}
 		this.styleRange = styleRangeMerged;
-		this.startOffset = this.endOffset = -1;
+		this.clearRange();
 		this.computerStyleRangeToDom();
 	},
 	computerStyleRangeToDom() {
