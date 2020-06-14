@@ -1,5 +1,6 @@
 // 构造函数
 import StyleRange from "./styleRange";
+import toolbarCommon from "../../editor/toolbar/common";
 
 function Dom(type = 'text', cls = '', text = '', styleRange = []) {
 	this.type = type;
@@ -128,20 +129,21 @@ Dom.prototype = {
 		}
 	},
 	// 回车事件处理
-	keyEnter(editorDom, editorRange) {
+	keyEnter(editorDom, editorRange, undoRedo) {
 		let nextText = '';
 		let oldText = this.text || '';
 		// 如果文字的中间位置点击，则把内容分割到两行
 		if (editorRange.startOffset < oldText.length) {
+			let beforeJson = JSON.stringify(this);
 			this.text = oldText.substring(0, editorRange.startOffset);
+			undoRedo.execute(1, editIndex, beforeJson, JSON.stringify(this));
 			nextText = oldText.substring(editorRange.startOffset, oldText.length);
 		}
-		for (let i = 0; i < editorDom.length; i++) {
-			if (this == editorDom[i]) {
-				editorDom.splice(i + 1, 0, new Dom('text', this.cls, nextText));
-				break;
-			}
-		}
+		let editDomNode = toolbarCommon.getRootDom(this.target);
+		let editIndex = parseInt(editDomNode.getAttribute("index"));
+		let domNew = new Dom('text', this.cls, nextText);
+		editorDom.splice(editIndex + 1, 0, domNew);
+		undoRedo.execute(2, editIndex + 1, JSON.stringify(domNew), '');
 	},
 };
 

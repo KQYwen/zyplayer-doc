@@ -16,7 +16,7 @@
 					<template v-else-if="!!item.text">{{item.text}}</template>
 					<br v-else/>
 				</div>
-				<div v-else-if="item.type=='locate'" :class="item.cls" @click.stop="domClick(item, $event)">
+				<div v-else-if="item.type=='locate'" :class="item.cls" :index="index" @click.stop="domClick(item, $event)">
 					<br/>
 				</div>
 			</template>
@@ -91,7 +91,7 @@
 			this.userInput.addEventListener('keydown', e => {
 				if (e.which == 13) {
 					e.preventDefault();
-					this.editDom.keyEnter(this.editorDom, this.editorRange);
+					this.editDom.keyEnter(this.editorDom, this.editorRange, this.undoRedo);
 				} else if (e.keyCode == 90 && e.ctrlKey) {
 					e.preventDefault();
 					this.undoRedo.undo();
@@ -164,6 +164,7 @@
 				if (lastDom.type != 'locate') {
 					lastDom = new Dom('locate', 'locate');
 					this.editorDom.push(lastDom);
+					this.undoRedo.execute(2, this.editorDom.length - 1, JSON.stringify(lastDom), '');
 				}
 				setTimeout(() => event.target.lastChild.click(), 100);
 			},
@@ -220,10 +221,12 @@
 			userInputDataChange() {
 				if (!this.userInputData) return;
 				// 如果在最后一个div里面输入，则改为非最后一个，然后在最后再加一行
+				let domNew;
 				if (this.editDom.type == 'locate') {
 					this.editDom.type = 'text';
 					this.editDom.removeClass('locate');
-					this.editorDom.push(new Dom('locate', 'locate'));
+					domNew = new Dom('locate', 'locate');
+					this.editorDom.push(domNew);
 				}
 				let beforeJson = JSON.stringify(this.editDom);
 				let oldText = this.editDom.text || '';
@@ -244,6 +247,10 @@
 				let editDomNode = toolbarCommon.getRootDom(this.editDom.target);
 				let editIndex = parseInt(editDomNode.getAttribute("index"));
 				this.undoRedo.execute(1, editIndex, beforeJson, afterJson);
+				// 如果在最后一个div里面输入，则改为非最后一个，然后在最后再加一行
+				if (!!domNew) {
+					this.undoRedo.execute(2, this.editorDom.length - 1, JSON.stringify(domNew), '');
+				}
 			},
 			handleToolbarBold() {
 				for (let i = this.editorRange.startDomIndex; i < this.editorRange.endDomIndex; i++) {

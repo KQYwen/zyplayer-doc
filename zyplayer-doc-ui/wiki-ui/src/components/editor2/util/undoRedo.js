@@ -2,6 +2,7 @@
 
 import UndoInfo from "./undoInfo";
 import Dom from "./dom";
+import vue from '../../../main'
 
 function UndoRedo(editorDom) {
 	this.editorDom = editorDom;
@@ -13,15 +14,19 @@ function UndoRedo(editorDom) {
 UndoRedo.prototype = {
 	constructor: UndoRedo,
 	execute(type, index, before, after) {
-		// 最多保留20步
-		if (this.undoRedoList.length >= 20) {
+		// 忽略后面的操作步骤
+		if (this.undoRedoIndex >= 0 && this.undoRedoIndex < this.undoRedoList.length - 1) {
+			this.undoRedoList.splice(this.undoRedoIndex, this.undoRedoList.length - this.undoRedoIndex);
+		}
+		// 最多保留50步
+		if (this.undoRedoList.length >= 50) {
 			this.undoRedoList.splice(0, 1);
 		}
 		this.undoRedoList.push(new UndoInfo(type, index, before, after));
 		this.undoRedoIndex = this.undoRedoList.length - 1;
 	},
 	undo() {
-		if (this.undoRedoIndex < 0 || this.undoRedoIndex >= this.undoRedoList.length) {
+		if (this.undoRedoIndex >= this.undoRedoList.length) {
 			this.undoRedoIndex = this.undoRedoList.length - 1;
 		}
 		if (this.undoRedoIndex < 0) {
@@ -36,7 +41,7 @@ UndoRedo.prototype = {
 		} else {
 			this.undoObjDomToEditor(undoInfo, changeContent);
 		}
-		this.undoRedoIndex = Math.max(this.undoRedoIndex - 1, 0);
+		this.undoRedoIndex = Math.max(this.undoRedoIndex - 1, -1);
 	},
 	redo() {
 		this.undoRedoIndex++;
@@ -45,7 +50,8 @@ UndoRedo.prototype = {
 			return;
 		}
 		let undoInfo = this.undoRedoList[this.undoRedoIndex];
-		let changeContent = JSON.parse(undoInfo.after);
+		let actionText = (undoInfo.type == 1) ? undoInfo.after : undoInfo.before;
+		let changeContent = JSON.parse(actionText);
 		if (changeContent instanceof Array) {
 			changeContent.forEach(item => {
 				this.redoObjDomToEditor(undoInfo, item);
@@ -59,16 +65,14 @@ UndoRedo.prototype = {
 		if (undoInfo.type == 1) {
 			// 1=修改 2=添加 3=删除
 			if (this.editorDom.length > undoInfo.index) {
-				this.editorDom[undoInfo.index] = dom;
+				vue.$set(this.editorDom, undoInfo.index, dom);
 			}
 		} else if (undoInfo.type == 2) {
 			// 1=修改 2=添加 3=删除
-			if (this.editorDom.length > undoInfo.index) {
-				if (this.editorDom.length == undoInfo.index) {
-					this.editorDom.push(dom);
-				} else if (this.editorDom.length > undoInfo.index) {
-					this.editorDom.splice(undoInfo.index, 0, dom);
-				}
+			if (this.editorDom.length == undoInfo.index) {
+				this.editorDom.push(dom);
+			} else if (this.editorDom.length > undoInfo.index) {
+				this.editorDom.splice(undoInfo.index, 0, dom);
 			}
 		} else if (undoInfo.type == 3) {
 			// 1=修改 2=添加 3=删除
@@ -82,7 +86,7 @@ UndoRedo.prototype = {
 		if (undoInfo.type == 1) {
 			// 1=修改 2=添加 3=删除
 			if (this.editorDom.length > undoInfo.index) {
-				this.editorDom[undoInfo.index] = dom;
+				vue.$set(this.editorDom, undoInfo.index, dom);
 			}
 		} else if (undoInfo.type == 2) {
 			// 1=修改 2=添加 3=删除
