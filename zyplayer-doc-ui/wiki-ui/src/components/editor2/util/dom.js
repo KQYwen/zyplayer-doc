@@ -11,9 +11,11 @@ function Dom(type = 'text', cls = '', text = '', styleRange = []) {
 	this.startOffset = -1;
 	this.endOffset = -1;
 	this.dom = [];
-	this.textStyle = [];
 	// 一个范围的样式，例：{start: 1, end: 2, class: 'xx xxx'}
-	this.styleRange = styleRange;
+	this.styleRange = [];
+	styleRange.forEach(item => {
+		this.styleRange.push(new StyleRange(item.start, item.end, this.styleRange.cls));
+	});
 }
 
 // 原型
@@ -128,22 +130,26 @@ Dom.prototype = {
 			this.dom.push(new Dom('', '', this.text.substring(lastStart, this.text.length)));
 		}
 	},
+	clone() {
+		return new Dom(this.type, this.cls, this.text, this.styleRange);
+	},
 	// 回车事件处理
 	keyEnter(editorDom, editorRange, undoRedo) {
 		let nextText = '';
 		let oldText = this.text || '';
 		// 如果文字的中间位置点击，则把内容分割到两行
 		if (editorRange.startOffset < oldText.length) {
-			let beforeJson = JSON.stringify(this);
+			let beforeDom = this.clone();
 			this.text = oldText.substring(0, editorRange.startOffset);
-			undoRedo.execute(1, editIndex, beforeJson, JSON.stringify(this));
+			undoRedo.execute(1, editIndex, beforeDom, this);
 			nextText = oldText.substring(editorRange.startOffset, oldText.length);
 		}
 		let editDomNode = toolbarCommon.getRootDom(this.target);
 		let editIndex = parseInt(editDomNode.getAttribute("index"));
 		let domNew = new Dom('text', this.cls, nextText);
 		editorDom.splice(editIndex + 1, 0, domNew);
-		undoRedo.execute(2, editIndex + 1, JSON.stringify(domNew), '');
+		undoRedo.execute(2, editIndex + 1, domNew, '');
+		return domNew;
 	},
 };
 

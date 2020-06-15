@@ -22,8 +22,23 @@ UndoRedo.prototype = {
 		if (this.undoRedoList.length >= 50) {
 			this.undoRedoList.splice(0, 1);
 		}
+		// 处理下，只保留有用的字段
+		before = this.handleDomColumn(before);
+		after = this.handleDomColumn(after);
 		this.undoRedoList.push(new UndoInfo(type, index, before, after));
 		this.undoRedoIndex = this.undoRedoList.length - 1;
+	},
+	handleDomColumn(content) {
+		if (!content) return '';
+		let beforeObj = [];
+		if (content instanceof Array) {
+			content.forEach(item => {
+				beforeObj.push({type: item.type, cls: item.cls, text: item.text, styleRange: item.styleRange});
+			});
+		} else {
+			beforeObj.push({type: content.type, cls: content.cls, text: content.text, styleRange: content.styleRange});
+		}
+		return JSON.stringify(beforeObj);
 	},
 	undo() {
 		if (this.undoRedoIndex >= this.undoRedoList.length) {
@@ -34,13 +49,11 @@ UndoRedo.prototype = {
 		}
 		let undoInfo = this.undoRedoList[this.undoRedoIndex];
 		let changeContent = JSON.parse(undoInfo.before);
-		if (changeContent instanceof Array) {
-			changeContent.forEach(item => {
-				this.undoObjDomToEditor(undoInfo, item);
-			});
-		} else {
-			this.undoObjDomToEditor(undoInfo, changeContent);
-		}
+		let undoIndex = undoInfo.index;
+		changeContent.forEach(item => {
+			this.undoObjDomToEditor(undoInfo, undoIndex, item);
+			undoIndex--;
+		});
 		this.undoRedoIndex = Math.max(this.undoRedoIndex - 1, -1);
 	},
 	redo() {
@@ -52,53 +65,51 @@ UndoRedo.prototype = {
 		let undoInfo = this.undoRedoList[this.undoRedoIndex];
 		let actionText = (undoInfo.type == 1) ? undoInfo.after : undoInfo.before;
 		let changeContent = JSON.parse(actionText);
-		if (changeContent instanceof Array) {
-			changeContent.forEach(item => {
-				this.redoObjDomToEditor(undoInfo, item);
-			});
-		} else {
-			this.redoObjDomToEditor(undoInfo, changeContent);
-		}
+		let undoIndex = undoInfo.index;
+		changeContent.forEach(item => {
+			this.redoObjDomToEditor(undoInfo, item);
+			undoIndex++;
+		});
 	},
-	redoObjDomToEditor(undoInfo, domObj) {
+	redoObjDomToEditor(undoInfo, undoIndex, domObj) {
 		let dom = new Dom(domObj.type, domObj.cls, domObj.text, domObj.styleRange);
 		if (undoInfo.type == 1) {
 			// 1=修改 2=添加 3=删除
-			if (this.editorDom.length > undoInfo.index) {
-				vue.$set(this.editorDom, undoInfo.index, dom);
+			if (this.editorDom.length > undoIndex) {
+				vue.$set(this.editorDom, undoIndex, dom);
 			}
 		} else if (undoInfo.type == 2) {
 			// 1=修改 2=添加 3=删除
-			if (this.editorDom.length == undoInfo.index) {
+			if (this.editorDom.length == undoIndex) {
 				this.editorDom.push(dom);
-			} else if (this.editorDom.length > undoInfo.index) {
-				this.editorDom.splice(undoInfo.index, 0, dom);
+			} else if (this.editorDom.length > undoIndex) {
+				this.editorDom.splice(undoIndex, 0, dom);
 			}
 		} else if (undoInfo.type == 3) {
 			// 1=修改 2=添加 3=删除
-			if (this.editorDom.length > undoInfo.index) {
-				this.editorDom.splice(undoInfo.index, 1);
+			if (this.editorDom.length > undoIndex) {
+				this.editorDom.splice(undoIndex, 1);
 			}
 		}
 	},
-	undoObjDomToEditor(undoInfo, domObj) {
+	undoObjDomToEditor(undoInfo, undoIndex, domObj) {
 		let dom = new Dom(domObj.type, domObj.cls, domObj.text, domObj.styleRange);
 		if (undoInfo.type == 1) {
 			// 1=修改 2=添加 3=删除
-			if (this.editorDom.length > undoInfo.index) {
-				vue.$set(this.editorDom, undoInfo.index, dom);
+			if (this.editorDom.length > undoIndex) {
+				vue.$set(this.editorDom, undoIndex, dom);
 			}
 		} else if (undoInfo.type == 2) {
 			// 1=修改 2=添加 3=删除
-			if (this.editorDom.length > undoInfo.index) {
-				this.editorDom.splice(undoInfo.index, 1);
+			if (this.editorDom.length > undoIndex) {
+				this.editorDom.splice(undoIndex, 1);
 			}
 		} else if (undoInfo.type == 3) {
 			// 1=修改 2=添加 3=删除
-			if (this.editorDom.length == undoInfo.index) {
+			if (this.editorDom.length == undoIndex) {
 				this.editorDom.push(dom);
-			} else if (this.editorDom.length > undoInfo.index) {
-				this.editorDom.splice(undoInfo.index, 0, dom);
+			} else if (this.editorDom.length > undoIndex) {
+				this.editorDom.splice(undoIndex, 0, dom);
 			}
 		}
 	},

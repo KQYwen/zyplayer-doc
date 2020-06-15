@@ -101,7 +101,7 @@
 			<el-row>
 				<el-select v-model="pageAuthNewUser" filterable remote reserve-keyword
 						placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList"
-					   :loading="pageAuthUserLoading" style="width: 750px;">
+					   :loading="pageAuthUserLoading" style="width: 750px;margin-right: 10px;">
 					<el-option v-for="item in searchUserList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
 				</el-select>
                 <el-button v-on:click="addPageAuthUser">添加</el-button>
@@ -276,6 +276,8 @@
 					this.pageFileList = json.data.fileList || [];
 					this.uploadFormData = {pageId: this.wikiPage.id};
 					this.parentPath.spaceId = wikiPage.spaceId;
+					// 修改标题
+					document.title = wikiPage.name || '页面展示';
 					// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
 					// if (!this.lastClickNode.id) {
 					// 	this.lastClickNode = {id: wikiPage.id, nodePath: wikiPage.name};

@@ -98,7 +98,7 @@
                 <el-table-column prop="spaceExplain" label="说明"></el-table-column>
                 <el-table-column label="开放地址">
                     <template slot-scope="scope">
-                        <a target="_blank" :href="'open-wiki.html?space='+scope.row.uuid" v-if="scope.row.openDoc == 1">{{scope.row.name}}</a>
+						<el-button type="text" @click="showOpenSpace(scope.row.uuid)" v-if="scope.row.openDoc == 1">{{scope.row.name}}</el-button>
                         <span v-else>暂未开放</span>
                     </template>
                 </el-table-column>
@@ -247,6 +247,10 @@
             filterPageNode(value, data) {
                 if (!value) return true;
                 return data.name.indexOf(value) !== -1;
+            },
+			showOpenSpace(space) {
+				let routeUrl = this.$router.resolve({path: '/page/openView', query: {space: space}});
+				window.open(routeUrl.href, '_blank');
             },
             editSpaceInfo(row) {
 				this.newSpaceForm = {

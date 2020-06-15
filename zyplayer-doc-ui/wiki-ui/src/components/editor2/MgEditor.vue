@@ -91,7 +91,11 @@
 			this.userInput.addEventListener('keydown', e => {
 				if (e.which == 13) {
 					e.preventDefault();
-					this.editDom.keyEnter(this.editorDom, this.editorRange, this.undoRedo);
+					this.editDom = this.editDom.keyEnter(this.editorDom, this.editorRange, this.undoRedo);
+					// 修改光标位置为下一行的开始
+					this.editorRange.startDomIndex = 0;
+					this.editorRange.endDomIndex = 0;
+					this.$forceUpdate();
 				} else if (e.keyCode == 90 && e.ctrlKey) {
 					e.preventDefault();
 					this.undoRedo.undo();
@@ -164,7 +168,7 @@
 				if (lastDom.type != 'locate') {
 					lastDom = new Dom('locate', 'locate');
 					this.editorDom.push(lastDom);
-					this.undoRedo.execute(2, this.editorDom.length - 1, JSON.stringify(lastDom), '');
+					this.undoRedo.execute(2, this.editorDom.length - 1, lastDom, '');
 				}
 				setTimeout(() => event.target.lastChild.click(), 100);
 			},
@@ -200,11 +204,13 @@
 				if (startIndex != endIndex) {
 					return;
 				}
+				// 光标开始位置计算
 				let startOffset = selectionRange.startOffset;
 				let previousSibling = toolbarCommon.getRealElem(selectionRange.startContainer).previousSibling;
 				for (; previousSibling; previousSibling = previousSibling.previousSibling) {
 					startOffset += previousSibling.innerText.length;
 				}
+				// 光标结束位置计算
 				let endOffset = selectionRange.endOffset;
 				let endPreviousSibling = toolbarCommon.getRealElem(selectionRange.endContainer).previousSibling;
 				for (; endPreviousSibling; endPreviousSibling = endPreviousSibling.previousSibling) {
@@ -212,7 +218,8 @@
 				}
 				this.editorRange.startOffset = startOffset;
 				this.editorRange.endOffset = endOffset;
-				console.log(startOffset, endOffset);
+				// console.log(startOffset, endOffset);
+				// 如果没有选中内容，隐藏工具栏，输入框获取焦点
 				if (startOffset == endOffset) {
 					this.hideToolbar();
 					setTimeout(() => this.userInput.focus(), 50);
@@ -228,12 +235,11 @@
 					domNew = new Dom('locate', 'locate');
 					this.editorDom.push(domNew);
 				}
-				let beforeJson = JSON.stringify(this.editDom);
+				let beforeDom = this.editDom.clone();
 				let oldText = this.editDom.text || '';
 				// 如果文字的中间位置点击，则把内容放到指定位置
 				let startOffset = this.editorRange.startOffset;
 				this.editDom.addText(startOffset, this.userInputData);
-				let afterJson = JSON.stringify(this.editDom);
 				if (startOffset < oldText.length) {
 					this.editorRange.startOffset = this.editorRange.endOffset = (startOffset + this.userInputData.length);
 				} else {
@@ -244,12 +250,15 @@
 				// let letterSpacing = this.userInputData.length * 0.52;
 				// this.editorCursorStyle.left = (parseInt(this.editorCursorStyle.left) + (parseInt(fontSize) * newLength) + letterSpacing) + 'px';
 				this.userInputData = '';
+				// 增加撤销重做记录
 				let editDomNode = toolbarCommon.getRootDom(this.editDom.target);
-				let editIndex = parseInt(editDomNode.getAttribute("index"));
-				this.undoRedo.execute(1, editIndex, beforeJson, afterJson);
+				if (editDomNode != null) {
+					let editIndex = parseInt(editDomNode.getAttribute("index"));
+					this.undoRedo.execute(1, editIndex, beforeDom, this.editDom);
+				}
 				// 如果在最后一个div里面输入，则改为非最后一个，然后在最后再加一行
 				if (!!domNew) {
-					this.undoRedo.execute(2, this.editorDom.length - 1, JSON.stringify(domNew), '');
+					this.undoRedo.execute(2, this.editorDom.length - 1, domNew, '');
 				}
 			},
 			handleToolbarBold() {
