@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +59,7 @@ public class WikiPageCommentController {
 			return DocResponseJson.warn("您没有查看该空间的评论权！");
 		}
 		UpdateWrapper<WikiPageComment> wrapper = new UpdateWrapper<>();
+		wrapper.eq("del_flag", 0);
 		wrapper.eq("page_id", pageComment.getPageId());
 		wrapper.eq(pageComment.getParentId() != null, "parent_id", pageComment.getParentId());
 		List<WikiPageComment> authList = wikiPageCommentService.list(wrapper);
@@ -71,19 +73,39 @@ public class WikiPageCommentController {
 		return DocResponseJson.ok(commentList);
 	}
 	
+	@PostMapping("/delete")
+	public ResponseJson<Object> delete(Long id) {
+		WikiPageComment pageCommentSel = wikiPageCommentService.getById(id);
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		if (!Objects.equals(pageCommentSel.getCreateUserId(), currentUser.getUserId())) {
+			WikiPage wikiPageSel = wikiPageService.getById(pageCommentSel.getPageId());
+			if (!Objects.equals(currentUser.getUserId(), wikiPageSel.getCreateUserId())) {
+				return DocResponseJson.warn("只有评论人或页面创建人才有权限删除此评论！");
+			}
+		}
+		WikiPageComment pageComment = new WikiPageComment();
+		pageComment.setId(id);
+		pageComment.setDelFlag(1);
+		wikiPageCommentService.updateById(pageComment);
+		return DocResponseJson.ok();
+	}
+	
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPageComment pageComment) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		Long id = pageComment.getId();
 		Long pageId;
 		if (id != null && id > 0) {
 			WikiPageComment pageCommentSel = wikiPageCommentService.getById(id);
+			if (!Objects.equals(pageCommentSel.getCreateUserId(), currentUser.getUserId())) {
+				return DocResponseJson.warn("只能修改自己的评论！");
+			}
 			pageId = pageCommentSel.getPageId();
 		} else if (pageComment.getPageId() != null) {
 			pageId = pageComment.getPageId();
 		} else {
 			return DocResponseJson.warn("需指定所属页面！");
 		}
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 私人空间
@@ -98,6 +120,7 @@ public class WikiPageCommentController {
 //			}
 //		}
 		if (id != null && id > 0) {
+			pageComment.setDelFlag(0);
 			wikiPageCommentService.updateById(pageComment);
 		} else {
 			pageComment.setCreateTime(new Date());

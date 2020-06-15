@@ -53,6 +53,9 @@ export default {
 	updatePageComment: data => {
         return request({url: '/zyplayer-doc-wiki/page/comment/update', method: 'post', data: Qs.stringify(data)});
     },
+	deletePageComment: data => {
+        return request({url: '/zyplayer-doc-wiki/page/comment/delete', method: 'post', data: Qs.stringify(data)});
+    },
 	pageZanList: data => {
         return request({url: '/zyplayer-doc-wiki/page/zan/list', method: 'post', data: Qs.stringify(data)});
     },

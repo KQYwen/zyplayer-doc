@@ -132,6 +132,7 @@ public class WikiPageController {
 		vo.setPageContent(pageContent);
 		vo.setFileList(pageFiles);
 		vo.setSelfZan((pageZan != null) ? 1 : 0);
+		vo.setSelfUserId(currentUser.getUserId());
 		// 高并发下会有覆盖问题，但不重要~
 		Integer viewNum =  Optional.ofNullable(wikiPageSel.getViewNum()).orElse(0);
 		WikiPage wikiPageUp = new WikiPage();

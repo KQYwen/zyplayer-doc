@@ -67,6 +67,7 @@
 						{{comment.createUserName}}
 						<span style="color: #888;font-size: 13px;padding-left: 10px;">{{comment.createTime}}</span>
 						<span style="color: #888;font-size: 13px;margin-left: 10px;cursor: pointer;" @click="recommentUser(comment.id, index)">回复</span>
+						<span style="color: #888;font-size: 13px;margin-left: 10px;cursor: pointer;" @click="deleteComment(comment.id)" v-if="canDeleteComment(comment)">删除</span>
 					</div>
 					<pre style="padding: 10px 0 0 55px;">{{comment.content}}</pre>
 					<div v-for="(commentSub,indexSub) in comment.commentList" :key="commentSub.id" :data-id="commentSub.id" :data-index="indexSub" style="border-bottom: 1px solid #eee;padding: 10px;margin-left: 40px;">
@@ -76,6 +77,7 @@
 						<div style="padding-left: 55px;">
 							{{commentSub.createUserName}}
 							<span style="color: #888;font-size: 13px;padding-left: 10px;">{{commentSub.createTime}}</span>
+							<span style="color: #888;font-size: 13px;margin-left: 10px;cursor: pointer;" @click="deleteComment(commentSub.id)" v-if="canDeleteComment(commentSub)">删除</span>
 						</div>
 						<pre style="padding: 10px 0 0 55px;">{{commentSub.content}}</pre>
 					</div>
@@ -146,6 +148,7 @@
 				wikiPage: {},
 				pageContent: {},
 				pageFileList: [],
+				selfUserId: 0,
 				uploadFileList: [],
 				uploadFormData: {pageId: 0},
 				zanUserDialogVisible: false,
@@ -274,6 +277,7 @@
 					this.wikiPage = wikiPage;
 					this.pageContent = json.data.pageContent || {};
 					this.pageFileList = json.data.fileList || [];
+					this.selfUserId = json.data.selfUserId || 0;
 					this.uploadFormData = {pageId: this.wikiPage.id};
 					this.parentPath.spaceId = wikiPage.spaceId;
 					// 修改标题
@@ -321,6 +325,21 @@
 			recommentUser(id, index) {
 				this.recommentInfo = {id: id, index: index, placeholder: '回复' + (index + 1) + '楼'};
 			},
+			canDeleteComment(row) {
+				return this.selfUserId == row.createUserId || this.wikiPage.createUserId == this.selfUserId;
+			},
+			deleteComment(id) {
+				this.$confirm('确定要除删此评论吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					pageApi.deletePageComment({id: id}).then(() => {
+						this.$message.success("删除成功！");
+						this.loadCommentList(this.parentPath.pageId);
+					});
+				});
+			},
 			cancelCommentUser() {
 				this.recommentInfo = {};
 			},
@@ -337,7 +356,7 @@
 					var data = json.data;
 					data.color = this.getUserHeadBgColor(data.createUserId);
 					this.commentTextInput = "";
-					this.commentList.push(data);
+					this.loadCommentList(this.parentPath.pageId);
 				});
 			},
 			uploadFileError(err) {

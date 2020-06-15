@@ -11,6 +11,7 @@ public class WikiPageContentVo {
 	private WikiPageContent pageContent;
 	private List<WikiPageFile> fileList;
 	private Integer selfZan;
+	private Long selfUserId;
 	
 	public WikiPage getWikiPage() {
 		return wikiPage;
@@ -42,5 +43,13 @@ public class WikiPageContentVo {
 	
 	public void setSelfZan(Integer selfZan) {
 		this.selfZan = selfZan;
+	}
+	
+	public Long getSelfUserId() {
+		return selfUserId;
+	}
+	
+	public void setSelfUserId(Long selfUserId) {
+		this.selfUserId = selfUserId;
 	}
 }
