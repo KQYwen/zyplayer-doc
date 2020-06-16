@@ -2,12 +2,17 @@ package com.zyplayer.doc.wiki.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageContent;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
+import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
+import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
+import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
 import com.zyplayer.doc.data.service.manage.WikiPageContentService;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
@@ -15,6 +20,7 @@ import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,28 +52,62 @@ public class WikiOpenApiController {
 	@Resource
 	WikiPageFileService wikiPageFileService;
 	@Resource
+	WikiPageContentMapper wikiPageContentMapper;
+	@Resource
 	Mapper mapper;
 	
 	@PostMapping("/space/info")
 	public ResponseJson<WikiSpace> spaceInfo(String space) {
-		UpdateWrapper<WikiSpace> wrapper = new UpdateWrapper<>();
-		wrapper.eq("uuid", space);
-		wrapper.eq("del_flag", 0);
-		WikiSpace wikiSpace = wikiSpaceService.getOne(wrapper);
-		// 不存在或未开放
-		if (wikiSpace == null || wikiSpace.getOpenDoc() != 1) {
+		WikiSpace wikiSpace = this.getWikiSpace(space);
+		if (wikiSpace == null) {
 			return DocResponseJson.warn("未找到该文档");
 		}
 		return DocResponseJson.ok(wikiSpace);
 	}
 	
+	@PostMapping("/page/news")
+	public ResponseJson<List<WikiPageVo>> news(SearchByEsParam param, String space) {
+		WikiSpace wikiSpace = this.getWikiSpace(space);
+		if (wikiSpace == null) {
+			return DocResponseJson.warn("未找到该文档");
+		}
+		String keywords = param.getKeywords();
+		if (StringUtils.isNotBlank(keywords)) {
+			param.setKeywords("%" + keywords + "%");
+		}
+		// 分页查询
+		param.setSpaceIds(Collections.singletonList(wikiSpace.getId()));
+		PageHelper.startPage(param.getPageNum(), param.getPageSize(), true);
+		List<SpaceNewsVo> spaceNewsVoList = wikiPageContentMapper.getNewsList(param);
+		PageInfo<SpaceNewsVo> pageListPageInfo = new PageInfo<>(spaceNewsVoList);
+		if (CollectionUtils.isNotEmpty(spaceNewsVoList)) {
+			spaceNewsVoList.forEach(val -> {
+				val.setSpace(wikiSpace.getUuid());
+				val.setSpaceName(wikiSpace.getName());
+				String preview = val.getPreviewContent();
+				if (preview != null) {
+					if (preview.length() > 200) {
+						preview = preview.substring(0, 200);
+					}
+					if (keywords != null) {
+						preview = preview.replace(keywords, "<span style=\"color:red\">" + keywords + "</span>");
+					}
+				}
+				val.setPreviewContent(preview);
+				String pageTitle = val.getPageTitle();
+				if (pageTitle != null && keywords != null) {
+					pageTitle = pageTitle.replace(keywords, "<span style=\"color:red\">" + keywords + "</span>");
+				}
+				val.setPageTitle(pageTitle);
+			});
+		}
+		return DocResponseJson.ok(pageListPageInfo);
+	}
+	
 	@PostMapping("/page/list")
 	public ResponseJson<List<WikiPageVo>> list(String space) {
-		UpdateWrapper<WikiSpace> wrapperSpace = new UpdateWrapper<>();
-		wrapperSpace.eq("uuid", space);
-		WikiSpace wikiSpace = wikiSpaceService.getOne(wrapperSpace);
-		// 不存在或未开放
-		if (wikiSpace == null || wikiSpace.getOpenDoc() != 1) {
+		WikiSpace wikiSpace = this.getWikiSpace(space);
+		if (wikiSpace == null) {
 			return DocResponseJson.warn("未找到该文档");
 		}
 		QueryWrapper<WikiPage> wrapper = new QueryWrapper<>();
@@ -88,11 +128,8 @@ public class WikiOpenApiController {
 	
 	@PostMapping("/page/detail")
 	public ResponseJson<WikiPageContentVo> detail(String space, Long pageId) {
-		UpdateWrapper<WikiSpace> wrapperSpace = new UpdateWrapper<>();
-		wrapperSpace.eq("uuid", space);
-		WikiSpace wikiSpace = wikiSpaceService.getOne(wrapperSpace);
-		// 不存在或未开放
-		if (wikiSpace == null || wikiSpace.getOpenDoc() != 1) {
+		WikiSpace wikiSpace = this.getWikiSpace(space);
+		if (wikiSpace == null) {
 			return DocResponseJson.warn("未找到该文档");
 		}
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
@@ -137,6 +174,23 @@ public class WikiOpenApiController {
 				this.setChildren(listMap, wikiPageVos);
 			}
 		}
+	}
+	
+	/**
+	 * 获取空间信息
+	 * @param space
+	 * @return
+	 */
+	private WikiSpace getWikiSpace(String space) {
+		QueryWrapper<WikiSpace> wrapperSpace = new QueryWrapper<>();
+		wrapperSpace.eq("uuid", space);
+		wrapperSpace.eq("del_flag", 0);
+		WikiSpace wikiSpace = wikiSpaceService.getOne(wrapperSpace);
+		// 不存在或未开放
+		if (wikiSpace == null || wikiSpace.getOpenDoc() != 1) {
+			return null;
+		}
+		return wikiSpace;
 	}
 }
 

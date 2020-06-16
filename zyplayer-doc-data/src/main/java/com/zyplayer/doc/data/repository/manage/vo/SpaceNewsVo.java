@@ -3,6 +3,7 @@ package com.zyplayer.doc.data.repository.manage.vo;
 import java.util.Date;
 
 public class SpaceNewsVo {
+	private String space;
 	private Long spaceId;
 	private Long pageId;
 	private Integer zanNum;
@@ -102,5 +103,13 @@ public class SpaceNewsVo {
 	
 	public void setSpaceId(Long spaceId) {
 		this.spaceId = spaceId;
+	}
+	
+	public String getSpace() {
+		return space;
+	}
+	
+	public void setSpace(String space) {
+		this.space = space;
 	}
 }

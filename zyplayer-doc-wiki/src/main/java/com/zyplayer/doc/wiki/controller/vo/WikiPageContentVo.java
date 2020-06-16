@@ -12,6 +12,10 @@ public class WikiPageContentVo {
 	private List<WikiPageFile> fileList;
 	private Integer selfZan;
 	private Long selfUserId;
+	private Integer canEdit;
+	private Integer canDelete;
+	private Integer canUploadFile;
+	private Integer canConfigAuth;
 	
 	public WikiPage getWikiPage() {
 		return wikiPage;
@@ -51,5 +55,37 @@ public class WikiPageContentVo {
 	
 	public void setSelfUserId(Long selfUserId) {
 		this.selfUserId = selfUserId;
+	}
+	
+	public Integer getCanEdit() {
+		return canEdit;
+	}
+	
+	public void setCanEdit(Integer canEdit) {
+		this.canEdit = canEdit;
+	}
+	
+	public Integer getCanDelete() {
+		return canDelete;
+	}
+	
+	public void setCanDelete(Integer canDelete) {
+		this.canDelete = canDelete;
+	}
+	
+	public Integer getCanConfigAuth() {
+		return canConfigAuth;
+	}
+	
+	public void setCanConfigAuth(Integer canConfigAuth) {
+		this.canConfigAuth = canConfigAuth;
+	}
+	
+	public Integer getCanUploadFile() {
+		return canUploadFile;
+	}
+	
+	public void setCanUploadFile(Integer canUploadFile) {
+		this.canUploadFile = canUploadFile;
 	}
 }

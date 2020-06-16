@@ -4,7 +4,7 @@
             <el-aside v-show="leftCollapse">
                 <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
                     <div style="margin-bottom: 10px;">
-                        <el-select v-model="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
+                        <el-select :value="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
                             <el-option-group label="">
                                 <el-option key="0" label="创建空间" value="0"></el-option>
                                 <el-option key="-1" label="空间管理" value="-1"></el-option>
@@ -47,7 +47,8 @@
                 <el-main style="padding: 0;">
 					<router-view @loadPageList="loadPageList"
 								 @changeExpandedKeys="changeWikiPageExpandedKeys"
-								 @switchSpace="switchSpacePage">
+								 @switchSpace="switchSpacePage"
+								 :spaceId="choiceSpace">
 					</router-view>
 				</el-main>
 			</el-container>
@@ -166,11 +167,8 @@
                         {min: 2, max: 25, message: '长度在 2 到 25 个字符', trigger: 'blur'}
                     ],
                 },
-                nowClickPath: {
-                    id: '',
-                    path: '',
-                },
-                // 依据目录树存储的map全局对象
+				nowPageId: '',
+				// 依据目录树存储的map全局对象
                 treePathDataMap: new Map(),
                 // 搜索的输入内容
                 searchKeywords: "",
@@ -183,9 +181,6 @@
             }
         },
         computed: {
-            fullscreen () {
-                return this.$store.state.global.fullscreen;
-            }
         },
         mounted: function () {
             this.loadSpaceList();
@@ -197,12 +192,8 @@
 				this.doGetPageList(param.parentId, param.node);
 			},
             createWiki() {
-                if (this.nowClickPath.spaceId > 0) {
-                    var param = {
-                        spaceId: this.nowClickPath.spaceId,
-                        parentId: this.nowClickPath.parentId, path: this.nowClickPath.path
-                    };
-                    this.$router.push({path: '/page/edit', query: param});
+                if (this.choiceSpace > 0) {
+                    this.$router.push({path: '/page/edit', query: {parentId: this.nowPageId}});
                 } else {
 					this.$message.warning("请先选择或创建空间");
                 }
@@ -219,8 +210,8 @@
             },
             handleNodeClick(data) {
                 console.log("点击节点：", data);
-                this.nowClickPath = {spaceId: this.nowClickPath.spaceId, pageId: data.id, parentId: data.id, path: data.path};
-                this.$router.push({path: '/page/show', query: this.nowClickPath});
+                this.nowPageId = data.id;
+                this.$router.push({path: '/page/show', query: {pageId: data.id}});
             },
             handleNodeExpand(node) {
                 if (node.children.length > 0 && node.children[0].needLoad) {
@@ -249,7 +240,7 @@
                 return data.name.indexOf(value) !== -1;
             },
 			showOpenSpace(space) {
-				let routeUrl = this.$router.resolve({path: '/page/openView', query: {space: space}});
+				let routeUrl = this.$router.resolve({path: '/page/share/home', query: {space: space}});
 				window.open(routeUrl.href, '_blank');
             },
             editSpaceInfo(row) {
@@ -273,22 +264,21 @@
             },
             spaceChangeEvents(data) {
                 if (data == 0) {
+					// 新建空间
 					this.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
-					this.choiceSpace = this.nowClickPath.spaceId;
 					this.newSpaceDialogVisible = true;
                 } else if (data == -1) {
-                    // 使得选择的空间展示不变
-					this.choiceSpace = this.nowClickPath.spaceId;
+                    // 管理空间
 					this.manageSpaceDialogVisible = true;
                 } else {
-                    // 切换空间，重新初始化当前点击项，防止创建保存到之前点击的空间下去了
-					this.nowClickPath = {spaceId: data};
-                    for (var i = 0; i < this.spaceList.length; i++) {
+					this.choiceSpace = data;
+                    for (let i = 0; i < this.spaceList.length; i++) {
                         if (this.spaceList[i].id == data) {
 							this.nowSpaceShow = this.spaceList[i];
                             break;
                         }
                     }
+					this.nowPageId = '';
 					this.doGetPageList(null);
 					this.$router.push({path: '/home', query: {spaceId: data}});
                 }
@@ -296,18 +286,18 @@
             loadSpaceList() {
 				pageApi.spaceList({}).then(json => {
 					this.spaceList = json.data || [];
-                    var spaceOptions = [];
-                    for (var i = 0; i < this.spaceList.length; i++) {
+					let spaceOptions = [];
+                    for (let i = 0; i < this.spaceList.length; i++) {
                         spaceOptions.push({
                             label: this.spaceList[i].name, value: this.spaceList[i].id
                         });
                     }
 					this.spaceOptions = spaceOptions;
                     if (this.spaceList.length > 0) {
-                        var spaceId = this.spaceList[0].id;
+						let spaceId = this.spaceList[0].id;
                         this.nowSpaceShow = this.spaceList[0];
-                        this.nowClickPath = {spaceId: spaceId};
                         this.choiceSpace = spaceId;
+						this.nowPageId = '';
                         this.doGetPageList(null);
                         // TODO 在首页时跳转
                         try {
@@ -321,52 +311,29 @@
                 });
             },
             doGetPageList(parentId, node) {
-                var nodePath = "";
-                if (!!node) {
-                    nodePath = node.nodePath || "/";
-                    if (!nodePath.endsWith("/")) {
-                        nodePath += "/";
-                    }
-                } else {
-                    nodePath = "/";
-                }
-                var param = {spaceId: this.nowClickPath.spaceId, parentId: parentId || 0};
+				let param = {spaceId: this.choiceSpace, parentId: parentId || 0};
                 if (this.nowSpaceShow.treeLazyLoad == 0) {
                     param.parentId = null;
                 }
 				pageApi.pageList(param).then(json => {
-					var result = json.data || [];
-					var pathIndex = [];
+					let result = json.data || [];
+					let pathIndex = [];
 					if (this.nowSpaceShow.treeLazyLoad == 0) {
 						pathIndex = result;
 					} else {
-                        for (var i = 0; i < result.length; i++) {
-                            var item = result[i];
+                        for (let i = 0; i < result.length; i++) {
+							let item = result[i];
                             item.parentId = item.parentId || 0;
                             item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
                             pathIndex.push(item);
                         }
                     }
-					this.createNodePath(pathIndex, nodePath);
                     if (parentId > 0) {
                         node.children = pathIndex;
                     } else {
 						this.wikiPageList = pathIndex;
-                        //this.lastClickNode = {};
                     }
                 });
-            },
-            createNodePath(node, nodePath) {
-                if (!nodePath.endsWith("/")) {
-                    nodePath += "/";
-                }
-                for (var i = 0; i < node.length; i++) {
-                    var item = node[i];
-                    item.nodePath = nodePath + item.name;
-                    if (!!item.children && item.children.length > 0) {
-                        this.createNodePath(item.children, item.nodePath);
-                    }
-                }
             },
             userSettingDropdown(command) {
                 console.log("command:" + command);
@@ -390,7 +357,7 @@
             onNewSpaceSubmit(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        var param = {
+						let param = {
                             id: this.newSpaceForm.id,
                             name: this.newSpaceForm.name,
                             type: this.newSpaceForm.type,
@@ -407,7 +374,6 @@
                                     label: json.data.name, value: json.data.id
                                 });
                                 this.nowSpaceShow = json.data;
-                                this.nowClickPath = {spaceId: json.data.id};
                                 this.choiceSpace = json.data.id;
                                 this.doGetPageList(null);
                             }
@@ -439,7 +405,6 @@
                     return;
                 }
 				this.choiceSpace = spaceId;
-				this.nowClickPath.spaceId = spaceId;
                 this.doGetPageList(null);
             },
         }

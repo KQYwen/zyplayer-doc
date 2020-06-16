@@ -22,7 +22,6 @@ router.beforeEach((to, from, next) => {
     if (to.name) {
         document.title = to.name;
     }
-    store.commit('global/setFullscreen', !!to.meta.fullscreen);
     next();
 });
 

@@ -63,14 +63,17 @@ export default {
         return request({url: '/zyplayer-doc-wiki/page/zan/update', method: 'post', data: Qs.stringify(data)});
     },
 	openPageDetail: data => {
-        return request({url: 'zyplayer-doc-wiki/open-api/page/detail', method: 'post', data: Qs.stringify(data)});
+        return request({url: '/zyplayer-doc-wiki/open-api/page/detail', method: 'post', data: Qs.stringify(data)});
     },
 	openPageList: data => {
-        return request({url: 'zyplayer-doc-wiki/open-api/page/list', method: 'post', data: Qs.stringify(data)});
+        return request({url: '/zyplayer-doc-wiki/open-api/page/list', method: 'post', data: Qs.stringify(data)});
     },
 	openSpaceInfo: data => {
-        return request({url: 'zyplayer-doc-wiki/open-api/space/info', method: 'post', data: Qs.stringify(data)});
+        return request({url: '/zyplayer-doc-wiki/open-api/space/info', method: 'post', data: Qs.stringify(data)});
     },
+	openPageNews: data => {
+		return request({url: '/zyplayer-doc-wiki/open-api/page/news', method: 'post', data: Qs.stringify(data)});
+	},
 	xxxxxxxxxxxx: data => {
         return request({url: 'update', method: 'post', data: Qs.stringify(data)});
     },

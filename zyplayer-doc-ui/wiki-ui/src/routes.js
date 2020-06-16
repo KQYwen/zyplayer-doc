@@ -1,5 +1,5 @@
 import GlobalLayout from './components/layouts/GlobalLayout'
-import OpenLayout from './components/layouts/OpenLayout'
+import OpenLayout from './components/layouts/ShareLayout'
 
 let routes = [
 	{path: '/', redirect: '/home'},
@@ -23,7 +23,8 @@ let routes = [
 		name: '页面管理',
 		component: OpenLayout,
 		children: [
-			{path: '/page/openView', name: 'WIKI-内容展示', component: () => import('@/views/page/OpenView')},
+			{path: '/page/share/home', name: 'WIKI-开放文档', component: () => import('@/views/page/share/Home')},
+			{path: '/page/share/view', name: 'WIKI-内容展示', component: () => import('@/views/page/share/View')},
 		]
 	}
 ];

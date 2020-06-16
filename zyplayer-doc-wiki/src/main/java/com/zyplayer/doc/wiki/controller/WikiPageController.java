@@ -14,7 +14,6 @@ import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
 import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
-import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.elasticsearch.entity.EsWikiPage;
 import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPageService;
 import com.zyplayer.doc.data.service.elasticsearch.support.EsPage;
@@ -24,7 +23,7 @@ import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
-import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
+import com.zyplayer.doc.wiki.service.WikiPageAuthService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
@@ -67,6 +66,8 @@ public class WikiPageController {
 	WikiSpaceService wikiSpaceService;
 	@Resource
 	WikiPageMapper wikiPageMapper;
+	@Resource
+	WikiPageAuthService wikiPageAuthService;
 	@Resource
 	Mapper mapper;
 	@Autowired(required = false)
@@ -133,6 +134,15 @@ public class WikiPageController {
 		vo.setFileList(pageFiles);
 		vo.setSelfZan((pageZan != null) ? 1 : 0);
 		vo.setSelfUserId(currentUser.getUserId());
+		// 上传附件、编辑、权限设置、删除 的权限
+		String canEdit = wikiPageAuthService.canEdit(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
+		String canDelete = wikiPageAuthService.canDelete(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
+		String canUploadFile = wikiPageAuthService.canUploadFile(wikiSpaceSel, wikiPageSel.getId(), currentUser.getUserId());
+		String canConfigAuth = wikiPageAuthService.canConfigAuth(wikiSpaceSel, wikiPageSel.getId(), currentUser.getUserId());
+		vo.setCanEdit((canEdit == null) ? 1 : 0);
+		vo.setCanDelete((canDelete == null) ? 1 : 0);
+		vo.setCanUploadFile((canUploadFile == null) ? 1 : 0);
+		vo.setCanConfigAuth((canConfigAuth == null) ? 1 : 0);
 		// 高并发下会有覆盖问题，但不重要~
 		Integer viewNum =  Optional.ofNullable(wikiPageSel.getViewNum()).orElse(0);
 		WikiPage wikiPageUp = new WikiPage();
@@ -149,20 +159,11 @@ public class WikiPageController {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		Long id = wikiPage.getId();
 		WikiPage wikiPageSel = wikiPageService.getById(id);
-		if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
-			return DocResponseJson.warn("当前页面不允许编辑！");
-		}
+		// 编辑权限判断
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-		// 私人空间不允许调用接口获取文章
-		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			return DocResponseJson.warn("您没有权限修改该空间的文章！");
-		}
-		// 空间不是自己的，也没有权限
-		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.EDIT_PAGE.getName(), DocAuthConst.WIKI + id);
-			if (!pageAuth) {
-				return DocResponseJson.warn("您没有修改该文章的权限！");
-			}
+		String canEdit = wikiPageAuthService.canEdit(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
+		if (canEdit != null) {
+			return DocResponseJson.warn(canEdit);
 		}
 		WikiPage wikiPageUp = new WikiPage();
 		wikiPageUp.setId(wikiPage.getId());
@@ -178,20 +179,11 @@ public class WikiPageController {
 	public ResponseJson<Object> delete(Long pageId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
-		if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
-			return DocResponseJson.warn("当前页面不允许编辑！");
-		}
+		// 删除权限判断
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-		// 私人空间不允许调用接口获取文章
-		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			return DocResponseJson.warn("您没有权限修改该空间的文章！");
-		}
-		// 空间不是自己的，也没有权限
-		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.DELETE_PAGE.getName(), DocAuthConst.WIKI + pageId);
-			if (!pageAuth) {
-				return DocResponseJson.warn("您没有删除该文章的权限！");
-			}
+		String canDelete = wikiPageAuthService.canDelete(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
+		if (canDelete != null) {
+			return DocResponseJson.warn(canDelete);
 		}
 		// 执行删除
 		WikiPage wikiPage = new WikiPage();
@@ -220,20 +212,11 @@ public class WikiPageController {
 		Long pageId = wikiPage.getId();
 		if (pageId != null && pageId > 0) {
 			WikiPage wikiPageSel = wikiPageService.getById(pageId);
-			if (wikiPageSel == null || Objects.equals(wikiPageSel.getEditType(), 1)) {
-				return DocResponseJson.warn("当前页面不允许编辑！");
-			}
+			// 编辑权限判断
 			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-			// 私人空间不允许调用接口获取文章
-			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				return DocResponseJson.warn("您没有权限修改该空间的文章！");
-			}
-			// 空间不是自己的，也没有权限
-			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.EDIT_PAGE.getName(), DocAuthConst.WIKI + pageId);
-				if (!pageAuth) {
-					return DocResponseJson.warn("您没有修改该文章的权限！");
-				}
+			String canEdit = wikiPageAuthService.canEdit(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
+			if (canEdit != null) {
+				return DocResponseJson.warn(canEdit);
 			}
 			wikiPage.setSpaceId(null);
 			wikiPage.setEditType(null);
@@ -250,6 +233,9 @@ public class WikiPageController {
 			wikiPageContentService.update(pageContent, wrapper);
 		} else {
 			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
+			if (wikiSpaceSel == null) {
+				return DocResponseJson.warn("未找到指定的空间！");
+			}
 			// 空间不是自己的
 			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有权限新增该空间的文章！");

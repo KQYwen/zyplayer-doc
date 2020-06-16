@@ -13,6 +13,7 @@ import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.wiki.controller.vo.UserPageAuthVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
+import com.zyplayer.doc.wiki.service.WikiPageAuthService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,8 @@ public class WikiPageAuthController {
 	UserAuthService userAuthService;
 	@Resource
 	AuthInfoService authInfoService;
+	@Resource
+	WikiPageAuthService wikiPageAuthService;
 	
 	@PostMapping("/assign")
 	public ResponseJson<List<WikiPageZan>> assign(Long pageId, String authList) {
@@ -61,13 +64,9 @@ public class WikiPageAuthController {
 //		if (SpaceType.isPublic(wikiSpaceSel.getType())) {
 //			return DocResponseJson.warn("公共空间不需要编辑权限");
 //		}
-		if (!SpaceType.isPersonal(wikiSpaceSel.getType())) {
-			return DocResponseJson.warn("只有个人空间才可以编辑权限");
-		}
-		if (!Objects.equals(currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			if (!DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_AUTH_MANAGE.getName(), DocAuthConst.WIKI + pageId)) {
-				return DocResponseJson.warn("您不是创建人或没有权限修改");
-			}
+		String canConfigAuth = wikiPageAuthService.canConfigAuth(wikiSpaceSel, pageId, currentUser.getUserId());
+		if (canConfigAuth != null) {
+			return DocResponseJson.warn(canConfigAuth);
 		}
 		List<String> authNameList = Stream.of(WikiAuthType.values()).map(WikiAuthType::getName).collect(Collectors.toList());
 		QueryWrapper<AuthInfo> queryWrapper = new QueryWrapper<>();

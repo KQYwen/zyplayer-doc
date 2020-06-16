@@ -1,11 +1,8 @@
 <template>
 	<div style="padding: 10px;" class="page-edit-vue">
 		<el-row type="border-card">
-			<div style="margin-bottom: 10px;padding: 10px;" v-if="wikiPage.id > 0">
-				编辑：{{parentPath.path}}
-			</div>
-			<div style="margin-bottom: 10px;padding: 10px;" v-else>
-				父级：{{parentPath.path || '/'}}　
+			<div style="margin-bottom: 10px;padding: 10px;" v-if="!pageId">
+				父级：{{parentWikiPage.name || '/'}}　
 				<el-tooltip class="item" content="在根目录创建文档">
 					<el-button type="text" @click="changeToRootPath" style="padding: 0 10px;">根目录</el-button>
 				</el-tooltip>
@@ -24,14 +21,19 @@
 	import pageApi from '../../common/api/page'
 
 	export default {
+		props: ['spaceId'],
 		data() {
 			return {
 				editor: {},
 				// 编辑相关
 				newPageTitle: "",
-				parentPath: {},
 				wikiPage: {},
+				parentWikiPage: {},
                 isUnlock: false,
+				// 页面ID，有值代表编辑
+				pageId: '',
+				// 父级，有值代表在此父级新建文档
+				parentId: '',
 			};
 		},
 		destroyed: function () {
@@ -54,17 +56,15 @@
 		},
 		methods: {
 			changeToRootPath() {
-				this.parentPath = {spaceId: this.parentPath.spaceId};
+				// 没有父级，就是在根目录创建
+				this.parentId = '';
+				this.parentWikiPage = {};
 			},
             unlockPage() {
 			    // 防止各种事件重复调这个接口，只需要调一次就好了
-                if (this.isUnlock) {
-                    return;
-                }
-                this.isUnlock = true;
-				var param = {pageId: this.parentPath.pageId};
-				pageApi.pageUnlock(param).then(() => {
-				});
+				if (this.isUnlock) return;
+				this.isUnlock = true;
+				pageApi.pageUnlock({pageId: this.pageId});
             },
 			createWikiCancel() {
 				this.$confirm('确定要取消编辑吗？您编辑的内容将不会被保存哦~', '提示', {
@@ -77,43 +77,46 @@
 				});
 			},
 			createWikiSave(saveAfter) {
-				// 修改内容时强制不能修改父路径，只能在目录上拖动修改
-				var parentId = (this.wikiPage.id > 0) ? '' : this.parentPath.parentId;
 				if (!this.newPageTitle) {
 					this.$message.warning("标题不能为空");
 					return;
 				}
-				var preview = this.editor.txt.text();
-				var param = {
-					spaceId: this.parentPath.spaceId,
+				// 修改内容时强制不能修改父路径，只能在目录上拖动修改
+				let parentId = (this.pageId > 0) ? '' : this.parentId;
+				let param = {
+					spaceId: this.spaceId,
 					parentId: parentId,
 					id: this.wikiPage.id,
 					name: this.newPageTitle,
 					content: this.editor.txt.html(),
-					preview: preview,
+					preview: this.editor.txt.text(),
 				};
 				pageApi.updatePage(param).then(json => {
 					this.$message.success("保存成功！");
 					// 重新加载左侧列表，跳转到展示页面
 					this.$emit('loadPageList');
-					this.parentPath.pageId = json.data.id;
+					this.pageId = json.data.id;
 					if (saveAfter == 1) {
-						this.$router.push({path: '/page/show', query: this.parentPath});
+						this.$router.push({path: '/page/show', query: {pageId: this.pageId}});
 					} else {
-						this.loadPageDetail(this.parentPath.pageId);
+						this.loadPageDetail(this.pageId);
 					}
 				});
 			},
 			loadPageDetail(pageId) {
-				this.rightContentType = 1;
-				var param = {id: pageId};
-				pageApi.pageDetail(param).then(json => {
+				pageApi.pageDetail({id: pageId}).then(json => {
 					this.wikiPage = json.data.wikiPage || {};
 					this.pageContent = json.data.pageContent || {};
 					this.pageFileList = json.data.fileList || [];
 					// 内容
 					this.newPageTitle = this.wikiPage.name;
 					this.editor.txt.html(this.pageContent.content || "");
+				});
+			},
+			loadParentPageDetail(pageId) {
+				if (!pageId) return;
+				pageApi.pageDetail({id: pageId}).then(json => {
+					this.parentWikiPage = json.data.wikiPage || {};
 				});
 			},
 			cleanPage() {
@@ -126,18 +129,12 @@
 				}
 			},
 			initQueryParam(to) {
-				this.parentPath = {
-					spaceId: to.query.spaceId, pageId: to.query.pageId,
-					parentId: to.query.parentId, path: to.query.path
-				};
-				if (!!this.parentPath.pageId) {
-					this.loadPageDetail(this.parentPath.pageId);
-				} else {
-					this.cleanPage();
-				}
-				let param = {pageId: this.parentPath.pageId};
-				pageApi.pageLock(param).then(json => {
-					if (json.errCode !== 200) {
+				// pageId和parentId二选一，传了pageId代表编辑页面，否则代表新建页面
+				this.pageId = to.query.pageId;
+				this.parentId = to.query.parentId;
+				if (!!this.pageId) {
+					this.loadPageDetail(this.pageId);
+					pageApi.pageLock({pageId: this.pageId}).catch(json => {
 						let that = this;
 						this.$alert(json.errMsg || '未知错误', '错误', {
 							confirmButtonText: '确定',
@@ -145,8 +142,11 @@
 								that.$router.back();
 							}
 						});
-					}
-				});
+					});
+				} else {
+					this.loadParentPageDetail(this.parentId);
+					this.cleanPage();
+				}
 			},
 			initEditor() {
 				this.editor = new WangEditor('#newPageContentDiv');

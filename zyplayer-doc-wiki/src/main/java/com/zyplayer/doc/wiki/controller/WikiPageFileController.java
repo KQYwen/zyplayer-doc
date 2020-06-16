@@ -8,12 +8,10 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
-import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
-import com.zyplayer.doc.wiki.framework.consts.SpaceType;
-import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
+import com.zyplayer.doc.wiki.service.WikiPageAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +39,8 @@ public class WikiPageFileController {
 	WikiSpaceService wikiSpaceService;
 	@Resource
 	WikiPageService wikiPageService;
+	@Resource
+	WikiPageAuthService wikiPageAuthService;
 	
 //	@PostMapping("/list")
 //	public ResponseJson<List<WikiPageFile>> list(WikiPageFile wikiPageFile) {
@@ -70,16 +70,10 @@ public class WikiPageFileController {
 		}
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-		// 私人空间
-		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			return DocResponseJson.warn("您没有该空间的文件上传权限！");
-		}
-		// 空间不是自己的，也没有权限
-		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_FILE_UPLOAD.getName(), DocAuthConst.WIKI + pageId);
-			if (!pageAuth) {
-				return DocResponseJson.warn("您没有修改该文章附件的权限！");
-			}
+		// 权限判断
+		String canUploadFile = wikiPageAuthService.canUploadFile(wikiSpaceSel, pageId, currentUser.getUserId());
+		if (canUploadFile != null) {
+			return DocResponseJson.warn(canUploadFile);
 		}
 		if (id != null && id > 0) {
 			wikiPageFile.setUpdateUserId(currentUser.getUserId());

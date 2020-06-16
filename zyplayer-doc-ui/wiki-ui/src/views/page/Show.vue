@@ -9,16 +9,17 @@
 					创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　
 					<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span>
 					<div style="float: right;">
-						<el-upload class="upload-page-file" :action="uploadFileUrl"
+						<el-upload v-if="wikiPageAuth.canUploadFile==1"
+								   class="upload-page-file" :action="uploadFileUrl"
 								   :with-credentials="true"
 								   :on-success="uploadFileSuccess" :on-error="uploadFileError"
 								   name="files" show-file-list multiple :data="uploadFormData" :limit="999"
 								   style="display: inline;margin-right: 10px;">
 							<el-button type="text" icon="el-icon-upload">上传附件</el-button>
 						</el-upload>
-						<el-button type="text" icon="el-icon-edit" v-on:click="editWiki">编辑</el-button>
-						<el-button type="text" icon="el-icon-setting" v-on:click="editWikiAuth">权限设置</el-button>
-						<el-button type="text" icon="el-icon-delete" v-on:click="deleteWikiPage">删除</el-button>
+						<el-button v-if="wikiPageAuth.canEdit==1" type="text" icon="el-icon-edit" @click="editWiki">编辑</el-button>
+						<el-button v-if="wikiPageAuth.canConfigAuth==1" type="text" icon="el-icon-setting" @click="editWikiAuth">权限设置</el-button>
+						<el-button v-if="wikiPageAuth.canDelete==1" type="text" icon="el-icon-delete" @click="deleteWikiPage">删除</el-button>
 					</div>
 				</div>
 			</div>
@@ -32,7 +33,7 @@
 					<el-table-column prop="createUserName" label="创建人"></el-table-column>
 					<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
 					<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
-					<el-table-column label="操作" width="100px">
+					<el-table-column label="操作" width="100px" v-if="wikiPageAuth.canUploadFile==1">
 						<template slot-scope="scope">
 							<el-button size="small" v-on:click="deletePageFile(scope.row)">删除</el-button>
 						</template>
@@ -146,6 +147,7 @@
 			return {
 				// 页面展示相关
 				wikiPage: {},
+				wikiPageAuth: {},
 				pageContent: {},
 				pageFileList: [],
 				selfUserId: 0,
@@ -173,22 +175,12 @@
 		},
 		mounted: function () {
 			this.initQueryParam(this.$route);
-			if (!!this.parentPath.pageId) {
-				// 延迟设置展开的目录，edit比app先初始化
-				setTimeout(() => {
-					if (!!this.parentPath.spaceId) {
-						// 调用父方法切换选择的空间
-						this.$emit('switchSpace', this.parentPath.spaceId);
-					}
-					this.$emit('changeExpandedKeys', this.parentPath.pageId);
-				}, 500);
-			}
 		},
 		methods: {
 			editWiki() {
 				var param = {pageId: this.parentPath.pageId};
 				pageApi.pageLock(param).then(() => {
-					this.$router.push({path: '/page/edit', query: this.parentPath});
+					this.$router.push({path: '/page/edit', query: {pageId: this.parentPath.pageId}});
 				});
 			},
 			getSearchUserList(query) {
@@ -269,23 +261,32 @@
 				}).catch(()=>{});
 			},
 			loadPageDetail(pageId) {
-				this.rightContentType = 1;
 				var param = {id: pageId};
 				pageApi.pageDetail(param).then(json => {
-					var wikiPage = json.data.wikiPage || {};
-					wikiPage.selfZan = json.data.selfZan || 0;
+					let result = json.data || {};
+					var wikiPage = result.wikiPage || {};
+					wikiPage.selfZan = result.selfZan || 0;
 					this.wikiPage = wikiPage;
-					this.pageContent = json.data.pageContent || {};
-					this.pageFileList = json.data.fileList || [];
-					this.selfUserId = json.data.selfUserId || 0;
+					this.pageContent = result.pageContent || {};
+					this.pageFileList = result.fileList || [];
+					this.selfUserId = result.selfUserId || 0;
 					this.uploadFormData = {pageId: this.wikiPage.id};
-					this.parentPath.spaceId = wikiPage.spaceId;
+					this.wikiPageAuth = {
+						canEdit: result.canEdit,
+						canDelete: result.canDelete,
+						canUploadFile: result.canUploadFile,
+						canConfigAuth: result.canConfigAuth,
+					};
 					// 修改标题
-					document.title = wikiPage.name || '页面展示';
+					document.title = wikiPage.name || 'WIKI-内容展示';
 					// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
 					// if (!this.lastClickNode.id) {
 					// 	this.lastClickNode = {id: wikiPage.id, nodePath: wikiPage.name};
 					// }
+					// 调用父方法切换选择的空间
+					this.$emit('switchSpace', this.wikiPage.spaceId);
+					// 调用父方法展开目录树
+					this.$emit('changeExpandedKeys', pageId);
 				});
 				this.loadCommentList(pageId);
 			},
@@ -395,10 +396,7 @@
 				return color;
 			},
 			initQueryParam(to) {
-				this.parentPath = {
-					spaceId: to.query.spaceId, pageId: to.query.pageId,
-					parentId: to.query.parentId, path: to.query.path
-				};
+				this.parentPath = {pageId: to.query.pageId};
 				if (!!this.parentPath.pageId) {
 					this.loadPageDetail(this.parentPath.pageId);
 				}
