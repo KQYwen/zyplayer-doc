@@ -39,10 +39,12 @@ zyplayer:
         url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
         username: root
         password: root
-    # ------wiki文档相关------
+    # ------WIKI文档相关------
     wiki:
-      # wiki文档的文件上传后的存储目录
-      upload-path: e:/tmp/wikiFiles
+      # WIKI文档的文件上传后的存储目录，！！截图或文件还是很重要的，建议您还要定期备份此目录的文件呢！！
+      upload-path: e:/zyplayerDoc/wikiFiles
+      # 是否检查目录有被系统定期清理的风险，强烈建议开启
+      upload-path-check: true
     # ------swagger相关配置------
     swagger:
       proxy-request:

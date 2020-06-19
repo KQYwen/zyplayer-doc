@@ -7,7 +7,7 @@ zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、�
 体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/) 需登录 账号：zyplayer 密码：123456 （未运行dubbo服务，不能体验dubbo文档调试）
 
 各模块的详细使用文档地址，部署必看：
-[http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb](http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 
+[http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb](http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 
 
 
 #### 模块介绍
@@ -48,7 +48,7 @@ zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、�
 
 3. 启动zyplayer-doc-manage项目，访问地址：http://127.0.0.1:8083/zyplayer-doc-manage/
 
-更多详细的使用部署文档：http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb
+更多详细的使用部署文档：http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb
 
 #### 界面展示
 ![主页面](https://images.gitee.com/uploads/images/2020/0516/125840_d6284954_596905.png "主页面.png")

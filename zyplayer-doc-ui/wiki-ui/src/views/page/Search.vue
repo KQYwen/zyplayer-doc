@@ -78,7 +78,7 @@
 				this.getSpacePageNews();
 			},
 			showPageDetail(row) {
-				window.open('#/page/show?spaceId=' + row.spaceId + "&pageId=" + row.pageId);
+				window.open('#/page/show?pageId=' + row.pageId);
 			},
 			handleCurrentChange(val) {
 				this.searchParam.pageNum = val;

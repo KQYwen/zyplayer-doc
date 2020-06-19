@@ -16,7 +16,6 @@ public class DocSystemController {
 		return new ModelAndView("/doc-console.html");
 	}
 	
-	@AuthMan
 	@GetMapping("/doc-wiki")
 	public ModelAndView wiki() {
 		return new ModelAndView("/doc-wiki.html");

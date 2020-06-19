@@ -80,7 +80,7 @@
                 this.getSpacePageNews();
             },
             showPageDetail(row) {
-                this.nowClickPath = {spaceId: row.spaceId, pageId: row.pageId};
+                this.nowClickPath = {pageId: row.pageId};
                 this.$router.push({path: '/page/show', query: this.nowClickPath});
             },
             handleCurrentChange(val) {

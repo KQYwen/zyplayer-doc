@@ -41,7 +41,7 @@
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
                         <span>二方库-集成代理版</span>
-                        <a target="_blank" href="http://doc.zyplayer.com/zyplayer-doc-manage/open-wiki.html?pageId=76&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
+                        <a target="_blank" href="http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=76&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
                     </div>
                     <div class="product-list">
                         <el-tooltip effect="dark" content="swagger的原生官方文档" placement="top-start">
