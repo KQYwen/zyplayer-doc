@@ -98,6 +98,11 @@ public class WikiPage implements Serializable {
      * 顺序
      */
     private Integer seqNo;
+
+    /**
+     * 编辑框类型 1=HTML 2=Markdown
+     */
+    private Integer editorType;
     
     public Long getId() {
         return id;
@@ -232,5 +237,13 @@ public class WikiPage implements Serializable {
         ", viewNum=" + viewNum +
         ", seqNo=" + seqNo +
         "}";
+    }
+    
+    public Integer getEditorType() {
+        return editorType;
+    }
+    
+    public void setEditorType(Integer editorType) {
+        this.editorType = editorType;
     }
 }

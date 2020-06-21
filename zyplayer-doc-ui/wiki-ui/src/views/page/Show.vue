@@ -18,8 +18,16 @@
 							<el-button type="text" icon="el-icon-upload">上传附件</el-button>
 						</el-upload>
 						<el-button v-if="wikiPageAuth.canEdit==1" type="text" icon="el-icon-edit" @click="editWiki">编辑</el-button>
-						<el-button v-if="wikiPageAuth.canConfigAuth==1" type="text" icon="el-icon-setting" @click="editWikiAuth">权限设置</el-button>
-						<el-button v-if="wikiPageAuth.canDelete==1" type="text" icon="el-icon-delete" @click="deleteWikiPage">删除</el-button>
+						<el-dropdown style="margin-left: 10px;" @command="handleMoreCommand">
+							<el-button type="text">
+								更多<i class="el-icon-arrow-down el-icon--right"></i>
+							</el-button>
+							<el-dropdown-menu slot="dropdown">
+								<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete==1" icon="el-icon-delete">删除</el-dropdown-item>
+								<el-dropdown-item command="editAuth" v-if="wikiPageAuth.canConfigAuth==1" icon="el-icon-s-check">权限设置</el-dropdown-item>
+								<el-dropdown-item command="showOpenPage" v-if="spaceInfo.openDoc == 1" icon="el-icon-share">查看开放文档</el-dropdown-item>
+							</el-dropdown-menu>
+						</el-dropdown>
 					</div>
 				</div>
 			</div>
@@ -138,11 +146,14 @@
 	import common from '../../common/lib/common'
 	import pageApi from '../../common/api/page'
 	import userApi from '../../common/api/user'
+	import {mavonEditor, markdownIt} from 'mavon-editor'
+
 	var page = {
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
 		userHeadColor: {},
 	};
 	export default {
+		props: ['spaceInfo'],
 		data() {
 			return {
 				// 页面展示相关
@@ -193,6 +204,23 @@
 					this.searchUserList = json.data || [];
 					this.pageAuthUserLoading = false;
 				});
+			},
+			handleMoreCommand(val) {
+				if (val == 'editAuth') {
+					this.editWikiAuth();
+				} else if (val == 'deletePage') {
+					this.deleteWikiPage();
+				} else if (val == 'showOpenPage') {
+					if (this.spaceInfo.openDoc != 1) {
+						this.$message.warning("该空间未开放，无法查看开放文档地址");
+					} else {
+						let routeUrl = this.$router.resolve({
+							path: '/page/share/view',
+							query: {pageId: this.wikiPage.id, space: this.spaceInfo.uuid}
+						});
+						window.open(routeUrl.href, '_blank');
+					}
+				}
 			},
             addPageAuthUser() {
                 if (this.pageAuthNewUser.length <= 0) {
@@ -277,6 +305,9 @@
 						canUploadFile: result.canUploadFile,
 						canConfigAuth: result.canConfigAuth,
 					};
+					if (this.wikiPage.editorType === 2) {
+						this.pageContent.content = markdownIt.render(this.pageContent.content);
+					}
 					// 修改标题
 					document.title = wikiPage.name || 'WIKI-内容展示';
 					// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项

@@ -1,17 +1,36 @@
 <template>
 	<div style="padding: 10px;" class="page-edit-vue">
 		<el-row type="border-card">
-			<div style="margin-bottom: 10px;padding: 10px;" v-if="!pageId">
-				父级：{{parentWikiPage.name || '/'}}　
-				<el-tooltip class="item" content="在根目录创建文档">
-					<el-button type="text" @click="changeToRootPath" style="padding: 0 10px;">根目录</el-button>
-				</el-tooltip>
-			</div>
-			<el-input v-model="newPageTitle" placeholder="请输入标题"></el-input>
-			<div id="newPageContentDiv" style="margin: 10px 0;"></div>
-			<el-button type="primary" v-on:click="createWikiSave(1)">保存并查看</el-button>
-			<el-button type="success" v-on:click="createWikiSave(0)">仅保存</el-button>
-			<el-button v-on:click="createWikiCancel">取消</el-button>
+			<el-row :gutter="20">
+				<el-col :span="16">
+					<template v-if="pageId">
+						<span>编辑方式：</span>
+						<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId">
+							<el-option label="HTML" :value="1"></el-option>
+							<el-option label="Markdown" :value="2"></el-option>
+						</el-select>
+					</template>
+					<template v-else>
+						<span style="margin-right: 20px;">父级：{{parentWikiPage.name || '/'}}</span>
+						<el-tooltip class="item" content="在根目录创建文档" v-if="parentId">
+							<el-button type="text" @click="changeToRootPath" style="padding: 0 10px;">根目录</el-button>
+						</el-tooltip>
+						<span style="margin-left: 50px;">编辑方式：</span>
+						<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId">
+							<el-option label="HTML" :value="1"></el-option>
+							<el-option label="Markdown" :value="2"></el-option>
+						</el-select>
+					</template>
+				</el-col>
+				<el-col :span="8" style="text-align: right;">
+					<el-button type="primary" v-on:click="createWikiSave(1)" icon="el-icon-document-checked">保存并查看</el-button>
+					<el-button type="success" v-on:click="createWikiSave(0)" icon="el-icon-check">仅保存</el-button>
+					<el-button v-on:click="createWikiCancel" icon="el-icon-back">取消</el-button>
+				</el-col>
+			</el-row>
+			<el-input v-model="wikiPageEdit.pageTitle" placeholder="请输入标题" class="page-title-input"></el-input>
+			<mavon-editor v-show="wikiPageEdit.editorType===2" v-model="markdownContent" @save="createWikiSave(0)" :toolbars="toolbars" placeholder="请录入文档内容" class="page-content-editor"/>
+			<div v-show="wikiPageEdit.editorType===1" id="newPageContentDiv" class="page-content-editor"></div>
 		</el-row>
 	</div>
 </template>
@@ -19,6 +38,8 @@
 <script>
 	import WangEditor from 'wangeditor'
 	import pageApi from '../../common/api/page'
+	import {mavonEditor, markdownIt} from 'mavon-editor'
+	import 'mavon-editor/dist/css/index.css'
 
 	export default {
 		props: ['spaceId'],
@@ -26,7 +47,10 @@
 			return {
 				editor: {},
 				// 编辑相关
-				newPageTitle: "",
+				wikiPageEdit: {
+					editorType: 1,
+					pageTitle: "",
+				},
 				wikiPage: {},
 				parentWikiPage: {},
                 isUnlock: false,
@@ -34,7 +58,44 @@
 				pageId: '',
 				// 父级，有值代表在此父级新建文档
 				parentId: '',
+				markdownContent: '',
+				toolbars: {
+					bold: true, // 粗体
+					italic: true, // 斜体
+					header: true, // 标题
+					underline: true, // 下划线
+					strikethrough: true, // 中划线
+					mark: true, // 标记
+					superscript: true, // 上角标
+					subscript: true, // 下角标
+					quote: true, // 引用
+					ol: true, // 有序列表
+					ul: true, // 无序列表
+					link: true, // 链接
+					imagelink: true, // 图片链接
+					code: true, // code
+					table: true, // 表格
+					fullscreen: true, // 全屏编辑
+					readmodel: true, // 沉浸式阅读
+					/* 1.3.5 */
+					undo: true, // 上一步
+					redo: true, // 下一步
+					trash: true, // 清空
+					save: true, // 保存（触发events中的save事件）
+					/* 1.4.2 */
+					navigation: true, // 导航目录
+					/* 2.1.8 */
+					alignleft: true, // 左对齐
+					aligncenter: true, // 居中
+					alignright: true, // 右对齐
+					/* 2.2.1 */
+					subfield: true, // 单双栏模式
+					preview: true, // 预览
+				}
 			};
+		},
+		components: {
+			'mavon-editor': mavonEditor
 		},
 		destroyed: function () {
             this.unlockPage();
@@ -60,6 +121,8 @@
 				this.parentId = '';
 				this.parentWikiPage = {};
 			},
+			editorTypeChange() {
+			},
             unlockPage() {
 			    // 防止各种事件重复调这个接口，只需要调一次就好了
 				if (this.isUnlock) return;
@@ -77,9 +140,17 @@
 				});
 			},
 			createWikiSave(saveAfter) {
-				if (!this.newPageTitle) {
+				if (!this.wikiPageEdit.pageTitle) {
 					this.$message.warning("标题不能为空");
 					return;
+				}
+				let content = '', preview = '';
+				if (this.wikiPageEdit.editorType === 2) {
+					content = this.markdownContent;
+					preview = this.markdownContent;
+				} else {
+					content = this.editor.txt.html();
+					preview = this.editor.txt.text();
 				}
 				// 修改内容时强制不能修改父路径，只能在目录上拖动修改
 				let parentId = (this.pageId > 0) ? '' : this.parentId;
@@ -87,9 +158,10 @@
 					spaceId: this.spaceId,
 					parentId: parentId,
 					id: this.wikiPage.id,
-					name: this.newPageTitle,
-					content: this.editor.txt.html(),
-					preview: this.editor.txt.text(),
+					name: this.wikiPageEdit.pageTitle,
+					editorType: this.wikiPageEdit.editorType,
+					content: content,
+					preview: preview,
 				};
 				pageApi.updatePage(param).then(json => {
 					this.$message.success("保存成功！");
@@ -109,8 +181,13 @@
 					this.pageContent = json.data.pageContent || {};
 					this.pageFileList = json.data.fileList || [];
 					// 内容
-					this.newPageTitle = this.wikiPage.name;
-					this.editor.txt.html(this.pageContent.content || "");
+					this.wikiPageEdit.pageTitle = this.wikiPage.name;
+					this.wikiPageEdit.editorType = this.wikiPage.editorType;
+					if (this.wikiPageEdit.editorType === 2) {
+						this.markdownContent = this.pageContent.content || "";
+					} else {
+						this.editor.txt.html(this.pageContent.content || "");
+					}
 				});
 			},
 			loadParentPageDetail(pageId) {
@@ -123,7 +200,7 @@
 				this.wikiPage = {};
 				this.pageContent = {};
 				this.pageFileList = [];
-				this.newPageTitle = "";
+				this.wikiPageEdit.pageTitle = "";
 				if (!!this.editor.txt) {
 					this.editor.txt.html("");
 				}
@@ -178,6 +255,12 @@
 	.page-edit-vue .comment-box .head{
 		float: left;background-color: #ccc;border-radius: 50%;margin-right: 10px;
 		width: 45px; height: 45px; line-height: 45px;text-align: center;color: #fff;
+	}
+	.page-edit-vue .page-content-editor{
+		padding: 10px 0;
+	}
+	.page-edit-vue .page-title-input{
+		padding: 10px 0;
 	}
 </style>
 

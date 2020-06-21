@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="global-layout-vue">
         <el-container>
             <el-aside v-show="leftCollapse">
                 <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
@@ -48,7 +48,8 @@
 					<router-view @loadPageList="loadPageList"
 								 @changeExpandedKeys="changeWikiPageExpandedKeys"
 								 @switchSpace="switchSpacePage"
-								 :spaceId="choiceSpace">
+								 :spaceId="choiceSpace"
+								 :spaceInfo="getSpaceInfo(choiceSpace)">
 					</router-view>
 				</el-main>
 			</el-container>
@@ -354,6 +355,14 @@
 					location.reload();
 				});
             },
+			getSpaceInfo(spaceId) {
+				for (let i = 0; i < this.spaceList.length; i++) {
+					if (this.spaceList[i].id == spaceId) {
+						return this.spaceList[i];
+					}
+				}
+				return {};
+			},
             onNewSpaceSubmit(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
@@ -417,6 +426,7 @@
         padding: 0;
         height: 100%;
     }
+	.global-layout-vue{height: 100%;}
 
     #app, .el-container, .el-menu {
         height: 100%;

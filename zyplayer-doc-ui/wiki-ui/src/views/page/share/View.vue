@@ -29,6 +29,7 @@
 
 <script>
 	import pageApi from '../../../common/api/page'
+	import {mavonEditor, markdownIt} from 'mavon-editor'
 
 	export default {
 		data() {
@@ -57,6 +58,9 @@
 					this.wikiPage = wikiPage;
 					this.pageContent = json.data.pageContent || {};
 					this.pageFileList = json.data.fileList || [];
+					if (this.wikiPage.editorType === 2) {
+						this.pageContent.content = markdownIt.render(this.pageContent.content);
+					}
 					document.title = wikiPage.name || 'WIKI-内容展示';
 				});
 			},

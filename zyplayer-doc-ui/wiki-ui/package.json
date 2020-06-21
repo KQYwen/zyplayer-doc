@@ -13,6 +13,7 @@
 		"element-ui": "^2.10.0",
 		"jquery": "^3.5.1",
 		"js-cookie": "^2.2.1",
+		"mavon-editor": "^2.9.0",
 		"pouchdb": "^7.1.1",
 		"sql-formatter": "^2.3.3",
 		"vue": "^2.6.10",

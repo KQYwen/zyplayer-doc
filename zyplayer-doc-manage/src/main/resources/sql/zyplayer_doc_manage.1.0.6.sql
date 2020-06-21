@@ -8,6 +8,8 @@
 -- ------------------------从1.0.5版本升级：------------------------
 ALTER TABLE `db_datasource`
 ADD COLUMN `group_name` varchar(50) NULL COMMENT '数据源分组名';
+ALTER TABLE `wiki_page`
+ADD COLUMN `editor_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '编辑框类型 1=HTML 2=Markdown';
 
 -- ------------------------全新的库：------------------------
 /*
