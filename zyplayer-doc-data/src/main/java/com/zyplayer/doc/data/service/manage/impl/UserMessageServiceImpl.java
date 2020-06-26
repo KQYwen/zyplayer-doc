@@ -37,8 +37,8 @@ public class UserMessageServiceImpl extends ServiceImpl<UserMessageMapper, UserM
 	
 	@Override
 	public void addWikiMessage(UserMessage userMessage) {
-		// 初始值
-		userMessage.setMsgStatus(0);
+		// 初始值，操作人的消息默认为已读
+		userMessage.setMsgStatus(1);
 		userMessage.setCreationTime(new Date());
 		// 操作人
 		userMessage.setAcceptUserId(userMessage.getOperatorUserId());
@@ -47,6 +47,8 @@ public class UserMessageServiceImpl extends ServiceImpl<UserMessageMapper, UserM
 		// 影响人
 		if (userMessage.getAffectUserId() != null && !Objects.equals(userMessage.getAffectUserId(), userMessage.getOperatorUserId())) {
 			userMessage.setId(null);
+			// 收影响人的消息为未读
+			userMessage.setMsgStatus(0);
 			userMessage.setAcceptUserId(userMessage.getAffectUserId());
 			this.setWikiMsgContentForAffect(userMessage);
 			this.save(userMessage);
@@ -61,23 +63,23 @@ public class UserMessageServiceImpl extends ServiceImpl<UserMessageMapper, UserM
 	 */
 	private void setWikiMsgContentForOperator(UserMessage userMessage) {
 		if (Objects.equals(UserMsgType.WIKI_PAGE_UPLOAD.getType(), userMessage.getMsgType())) {
-			userMessage.setMsgContent(String.format("您在‘%s’文档内上传了附件", userMessage.getDataDesc()));
+			userMessage.setMsgContent(String.format("您在‘%s’文档内上传了一个附件", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_AUTH.getType(), userMessage.getMsgType())) {
 			userMessage.setMsgContent(String.format("您修改了‘%s’文档内‘%s’的权限", userMessage.getDataDesc(), userMessage.getAffectUserName()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_COMMENT.getType(), userMessage.getMsgType())) {
-			userMessage.setMsgContent(String.format("您评论了‘%s’文档", userMessage.getDataDesc()));
+			userMessage.setMsgContent(String.format("您评论了‘%s’", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_COMMENT_DEL.getType(), userMessage.getMsgType())) {
 			userMessage.setMsgContent(String.format("您删除了‘%s’文档的评论", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_PARENT.getType(), userMessage.getMsgType())) {
 			userMessage.setMsgContent(String.format("您修改了‘%s’文档的父级", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_DELETE.getType(), userMessage.getMsgType())) {
-			userMessage.setMsgContent(String.format("您删除了‘%s’文档", userMessage.getDataDesc()));
+			userMessage.setMsgContent(String.format("您删除了‘%s’", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_CREATE.getType(), userMessage.getMsgType())) {
-			userMessage.setMsgContent(String.format("您创建了‘%s’文档", userMessage.getDataDesc()));
+			userMessage.setMsgContent(String.format("您创建了‘%s’", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_UPDATE.getType(), userMessage.getMsgType())) {
-			userMessage.setMsgContent(String.format("您修改了‘%s’文档", userMessage.getDataDesc()));
+			userMessage.setMsgContent(String.format("您修改了‘%s’", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_ZAN.getType(), userMessage.getMsgType())) {
-			userMessage.setMsgContent(String.format("您赞同了‘%s’文档", userMessage.getDataDesc()));
+			userMessage.setMsgContent(String.format("您赞同了‘%s’", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_FILE_DEL.getType(), userMessage.getMsgType())) {
 			userMessage.setMsgContent(String.format("您删除了‘%s’文档的一个附件", userMessage.getDataDesc()));
 		}

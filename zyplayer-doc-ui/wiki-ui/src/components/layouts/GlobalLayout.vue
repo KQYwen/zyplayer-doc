@@ -33,9 +33,42 @@
                 <el-header>
                     <!--<el-switch v-model="isCollapse" ></el-switch>-->
                     <i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse"></i>
+					<el-popover placement="bottom" width="600" trigger="click" v-model="userMessagePopVisible">
+						<el-badge :is-dot="haveNotReadUserMessage" slot="reference" style="line-height: 20px;margin-right: 20px;">
+							<i class="el-icon-bell head-icon" @click="" style="margin-right: 0;"></i>
+						</el-badge>
+						<div style="margin-bottom: 10px;">
+							<span style="font-size: 14px;font-weight: bold;">通知</span>
+							<el-link v-if="haveNotReadUserMessage" type="primary" icon="el-icon-check" style="float: right;" v-on:click="readAllUserMessage">本页标记已读</el-link>
+						</div>
+						<div class="header-user-message">
+							<el-table :data="userMessageList" border style="width: 100%; margin-bottom: 5px;" max-height="500" size="mini">
+								<el-table-column prop="operatorUserName" label="操作人" width="100px"></el-table-column>
+								<el-table-column prop="creationTime" label="操作时间" width="140px"></el-table-column>
+								<el-table-column label="内容">
+									<template slot-scope="scope">
+										{{scope.row.msgContent}}
+										<el-badge :is-dot="scope.row.msgStatus==0" slot="reference" style="line-height: 10px;padding-right: 5px;">
+											<el-link type="primary" v-on:click="showUserMessage(scope.row)">查看></el-link>
+										</el-badge>
+									</template>
+								</el-table-column>
+							</el-table>
+							<div class="page-info-box">
+								<el-pagination
+									@current-change="handleCurrentChange"
+									:page-size="userMsgParam.pageSize"
+									:current-page="userMsgParam.pageNum"
+									layout="prev, pager, next, jumper, total"
+									:total="userMsgTotalCount"
+								>
+								</el-pagination>
+							</div>
+						</div>
+					</el-popover>
                     <!--<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>-->
                     <el-dropdown @command="userSettingDropdown" trigger="click">
-                        <i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
+                        <i class="el-icon-setting head-icon"></i>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="console">控制台</el-dropdown-item>
                             <el-dropdown-item command="aboutDoc" divided>关于</el-dropdown-item>
@@ -179,12 +212,21 @@
                 wikiPageExpandedKeys: [],
                 // 升级信息
                 upgradeInfo: {},
+				userMessageList: [],
+				haveNotReadUserMessage: false,
+				userMessagePopVisible: false,
+				userMsgTotalCount: 0,
+				userMsgParam: {
+					pageNum: 1,
+					pageSize: 5,
+				},
             }
         },
         computed: {
         },
         mounted: function () {
             this.loadSpaceList();
+            this.loadUserMessageList();
             this.checkSystemUpgrade();
         },
         methods: {
@@ -235,8 +277,41 @@
 				pageApi.pageChangeParent(param).then(res => {
 					this.doGetPageList(null);
 				});
-            },
-            filterPageNode(value, data) {
+			},
+			loadUserMessageList() {
+				userApi.getUserMessageList(this.userMsgParam).then(res => {
+					this.userMessageList = res.data || [];
+					this.userMsgTotalCount = res.total || 0;
+					this.haveNotReadUserMessage = (this.userMessageList.filter(item => item.msgStatus == 0).length) > 0;
+				});
+			},
+			showUserMessage(row) {
+				if (row.msgStatus == 0) {
+					userApi.readUserMessage({ids: row.id}).then(() => {
+						this.loadUserMessageList();
+					});
+				}
+				if (row.msgType >= 2 && row.msgType <= 11) {
+					this.$router.push({path: '/page/show', query: {pageId: row.dataId}});
+					this.userMessagePopVisible = false;
+				}
+			},
+			readAllUserMessage() {
+				let msgIds = [];
+				this.userMessageList.filter(item => item.msgStatus == 0).forEach(item => {
+					msgIds.push(item.id);
+				});
+				if (msgIds.length <= 0) return;
+				userApi.readUserMessage({ids: msgIds.join(',')}).then(() => {
+					this.$message.success("标记成功");
+					this.loadUserMessageList();
+				});
+			},
+			handleCurrentChange(val) {
+				this.userMsgParam.pageNum = val;
+				this.loadUserMessageList();
+			},
+			filterPageNode(value, data) {
                 if (!value) return true;
                 return data.name.indexOf(value) !== -1;
             },
@@ -437,4 +512,6 @@
     .el-header {color: #333; line-height: 40px; text-align: right;height: 40px !important;}
     .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
     .icon-collapse:hover{color: #eee;}
+	.head-icon{margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;}
+	.header-user-message .page-info-box{text-align: right;margin-top: 10px;}
 </style>

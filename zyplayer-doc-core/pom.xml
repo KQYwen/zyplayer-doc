@@ -54,8 +54,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.baomidou</groupId>
-			<artifactId>mybatis-plus-core</artifactId>
-			<version>3.3.0</version>
+			<artifactId>mybatis-plus</artifactId>
+			<version>3.0.6</version>
 		</dependency>
 	</dependencies>
 </project>

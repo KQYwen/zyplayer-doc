@@ -42,7 +42,7 @@ zyplayer:
     # ------WIKI文档相关------
     wiki:
       # WIKI文档的文件上传后的存储目录，！！截图或文件还是很重要的，建议您还要定期备份此目录的文件呢！！
-      upload-path: e:/zyplayerDoc/wikiFiles
+      upload-path: d:/zyplayerDoc/wikiFiles
       # 是否检查目录有被系统定期清理的风险，强烈建议开启
       upload-path-check: true
     # ------swagger相关配置------

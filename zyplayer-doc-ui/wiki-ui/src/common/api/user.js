@@ -17,6 +17,15 @@ export default {
 	getUserBaseInfo: data => {
 		return request({url: '/zyplayer-doc-wiki/common/user/base', method: 'post', data: Qs.stringify(data)});
 	},
+	getUserMessageList: data => {
+		return request({url: '/user/message/list', method: 'post', data: Qs.stringify(data)});
+	},
+	readUserMessage: data => {
+		return request({url: '/user/message/read', method: 'post', data: Qs.stringify(data)});
+	},
+	deleteUserMessage: data => {
+		return request({url: '/user/message/delete', method: 'post', data: Qs.stringify(data)});
+	},
 };
 
 // userLogin: '/login',

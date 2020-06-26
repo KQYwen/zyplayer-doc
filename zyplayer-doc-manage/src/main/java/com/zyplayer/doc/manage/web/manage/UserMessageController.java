@@ -10,6 +10,7 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.service.manage.UserMessageService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,9 +46,11 @@ public class UserMessageController {
 		IPage<UserMessage> page = new Page<>(pageNum, pageSize);
 		QueryWrapper<UserMessage> wrapper = new QueryWrapper<>();
 		wrapper.eq("accept_user_id", currentUser.getUserId());
-		if (msgStatus != null && msgStatus >= 0) {
-			wrapper.eq("msg_status", msgStatus);
-		}
+		wrapper.orderByAsc("msg_status").orderByDesc("creation_time");
+//		if (msgStatus != null && msgStatus >= 0) {
+//			wrapper.eq("msg_status", msgStatus);
+//		}
+		wrapper.notIn("msg_status", 2);
 		userMessageService.page(page, wrapper);
 		return DocResponseJson.ok(page);
 	}
@@ -83,6 +86,9 @@ public class UserMessageController {
 	 * @param status 状态
 	 */
 	public void update(String ids, Integer status) {
+		if (StringUtils.isBlank(ids)) {
+			return;
+		}
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		QueryWrapper<UserMessage> wrapper = new QueryWrapper<>();
 		wrapper.in("id", Arrays.asList(ids.split(",")));
