@@ -52,5 +52,10 @@
 			<artifactId>pagehelper</artifactId>
 			<version>${pagehelper.version}</version>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-core</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+	</dependencies>
 </project>

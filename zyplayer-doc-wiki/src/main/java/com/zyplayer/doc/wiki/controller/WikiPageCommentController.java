@@ -6,9 +6,13 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageComment;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
+import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
+import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageCommentService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
@@ -47,6 +51,8 @@ public class WikiPageCommentController {
 	@Resource
 	WikiPageService wikiPageService;
 	@Resource
+	UserMessageService userMessageService;
+	@Resource
 	Mapper mapper;
 	
 	@PostMapping("/list")
@@ -76,9 +82,9 @@ public class WikiPageCommentController {
 	@PostMapping("/delete")
 	public ResponseJson<Object> delete(Long id) {
 		WikiPageComment pageCommentSel = wikiPageCommentService.getById(id);
+		WikiPage wikiPageSel = wikiPageService.getById(pageCommentSel.getPageId());
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		if (!Objects.equals(pageCommentSel.getCreateUserId(), currentUser.getUserId())) {
-			WikiPage wikiPageSel = wikiPageService.getById(pageCommentSel.getPageId());
 			if (!Objects.equals(currentUser.getUserId(), wikiPageSel.getCreateUserId())) {
 				return DocResponseJson.warn("只有评论人或页面创建人才有权限删除此评论！");
 			}
@@ -87,6 +93,11 @@ public class WikiPageCommentController {
 		pageComment.setId(id);
 		pageComment.setDelFlag(1);
 		wikiPageCommentService.updateById(pageComment);
+		// 给相关人发送消息
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_COMMENT_DEL);
+		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
+		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
+		userMessageService.addWikiMessage(userMessage);
 		return DocResponseJson.ok();
 	}
 	
@@ -128,6 +139,11 @@ public class WikiPageCommentController {
 			pageComment.setCreateUserName(currentUser.getUsername());
 			wikiPageCommentService.save(pageComment);
 		}
+		// 给相关人发送消息
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_COMMENT);
+		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
+		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
+		userMessageService.addWikiMessage(userMessage);
 		return DocResponseJson.ok(pageComment);
 	}
 }

@@ -2,8 +2,14 @@ package com.zyplayer.doc.data.service.manage.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
+import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
+import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -25,6 +31,8 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 	
 	@Resource
 	WikiPageMapper wikiPageMapper;
+	@Resource
+	UserMessageService userMessageService;
 	
 	@Override
 	public void changeParent(WikiPage wikiPage, Integer beforeSeq, Integer afterSeq) {
@@ -43,10 +51,27 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 			wikiPage.setSeqNo(lastSeq + 1);
 		}
 		this.updateById(wikiPage);
+		// 给相关人发送消息
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_PARENT);
+		userMessage.setAffectUserId(wikiPage.getCreateUserId());
+		userMessage.setAffectUserName(wikiPage.getCreateUserName());
+		userMessageService.addWikiMessage(userMessage);
 	}
 	
 	@Override
 	public void deletePage(WikiPage wikiPage) {
+		// 给相关人发送消息
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_DELETE);
+		userMessage.setAffectUserId(wikiPage.getCreateUserId());
+		userMessage.setAffectUserName(wikiPage.getCreateUserName());
+		userMessageService.addWikiMessage(userMessage);
+		// 递归删除
+		this.deletePageAndSon(wikiPage);
+	}
+	
+	private void deletePageAndSon(WikiPage wikiPage) {
 		wikiPage.setDelFlag(1);
 		this.updateById(wikiPage);
 		
@@ -60,7 +85,7 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 		// 递归删除子页面
 		for (WikiPage page : wikiPageList) {
 			wikiPage.setId(page.getId());
-			this.deletePage(wikiPage);
+			this.deletePageAndSon(wikiPage);
 		}
 	}
 }

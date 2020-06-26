@@ -3,6 +3,7 @@ package com.zyplayer.doc.core.json;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -12,7 +13,7 @@ import java.util.Date;
 
 /**
  * 文档返回数据格式
- * 
+ *
  * @author 暮光：城中城
  * @since 2018年8月21日
  */
@@ -124,6 +125,13 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 				this.pageNum = pageInfo.getPageNum();
 				this.pageSize = pageInfo.getPageSize();
 				this.totalPage = pageInfo.getPages();
+			} else if (data instanceof IPage) {
+				IPage<?> iPage = (IPage<?>) data;
+				this.data = iPage.getRecords();
+				this.total = iPage.getTotal();
+				this.pageNum = (int) iPage.getCurrent();
+				this.pageSize = (int) iPage.getSize();
+				this.totalPage = (int) iPage.getPages();
 			} else {
 				this.data = data;
 			}
@@ -132,7 +140,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 
 	/**
 	 * 提示语
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
 	 * @return
@@ -143,7 +151,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	
 	/**
 	 * 错误
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
 	 * @return
@@ -165,7 +173,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 
 	/**
 	 * 成功的返回方法
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
 	 * @return
@@ -176,7 +184,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 
 	/**
 	 * 成功的返回方法
-	 * 
+	 *
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
 	 * @return

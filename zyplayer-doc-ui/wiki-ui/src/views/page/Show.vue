@@ -1,12 +1,12 @@
 <template>
-	<div style="padding: 10px;" class="page-show-vue">
+	<div class="page-show-vue">
 		<el-row type="border-card">
 			<div class="wiki-title">
 				{{wikiPage.name}}
 			</div>
 			<div class="wiki-author">
 				<div>
-					创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}　　
+					<span class="create-user-time">创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}</span>
 					<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span>
 					<div style="float: right;">
 						<el-upload v-if="wikiPageAuth.canUploadFile==1"
@@ -171,7 +171,7 @@
 				commentTextInput: "",
 				commentList: [],
 				recommentInfo: {},
-				uploadFileUrl: process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/common/upload',
+				uploadFileUrl: process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/upload',
 				// 页面权限
 				pageAuthDialogVisible: false,
 				pageAuthUserList: [],
@@ -406,8 +406,8 @@
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					let param = {id: row.id, delFlag: 1};
-					pageApi.updatePageFile(param).then(() => {
+					let param = {id: row.id};
+					pageApi.deletePageFile(param).then(() => {
 						let pageFileList = [];
 						for (let i = 0; i < this.pageFileList.length; i++) {
 							if (this.pageFileList[i].id != row.id) {
@@ -434,12 +434,13 @@
 			},
 		}
 	}
-
 </script>
 <style>
+	.page-show-vue {width: 80%; margin: 0 auto; padding: 20px 0;}
 	.page-show-vue .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
 	.page-show-vue .icon-collapse:hover{color: #eee;}
-	.page-show-vue .wiki-title{font-size: 20px;}
+	.page-show-vue .wiki-title{font-size: 20px;text-align: center;font-weight: bold;}
+	.page-show-vue .create-user-time{margin-right: 20px;}
 	.page-show-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
 	.page-show-vue .wiki-content{font-size: 14px;}
 	.page-show-vue .wiki-content.w-e-text{overflow-y: auto;}

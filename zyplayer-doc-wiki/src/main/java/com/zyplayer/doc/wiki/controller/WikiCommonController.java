@@ -1,7 +1,5 @@
 package com.zyplayer.doc.wiki.controller;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
@@ -14,20 +12,18 @@ import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageFileMapper;
-import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.framework.consts.Const;
-import com.zyplayer.doc.wiki.framework.consts.SpaceType;
-import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -36,7 +32,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 文档控制器
@@ -48,9 +45,6 @@ import java.util.*;
 @RequestMapping("/zyplayer-doc-wiki/common")
 public class WikiCommonController {
 	private static Logger logger = LoggerFactory.getLogger(WikiCommonController.class);
-	
-	@Value("${zyplayer.doc.wiki.upload-path:}")
-	private String uploadPath;
 	
 	@Resource
 	WikiPageFileService wikiPageFileService;
@@ -75,67 +69,6 @@ public class WikiCommonController {
 		queryWrapper.select("id", "user_name");
 		List<UserInfo> userInfoList = userInfoService.list(queryWrapper);
 		return DocResponseJson.ok(userInfoList);
-	}
-	
-	@AuthMan
-	@PostMapping("/wangEditor/upload")
-	public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
-		this.upload(wikiPageFile, file);
-		Map<String, Object> resultMap = new HashMap<>();
-		resultMap.put("errno", "0");
-		resultMap.put("data", new String[]{wikiPageFile.getFileUrl()});
-		return resultMap;
-	}
-	
-	@AuthMan
-	@PostMapping("/upload")
-	public ResponseJson<Object> upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		Long pageId = wikiPageFile.getPageId();
-		if (pageId != null && pageId > 0) {
-			WikiPage wikiPageSel = wikiPageService.getById(pageId);
-			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-			// 私人空间
-			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				return DocResponseJson.warn("您没有该空间的文件上传权限！");
-			}
-			// 空间不是自己的，也没有权限
-			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_FILE_UPLOAD.getName(), DocAuthConst.WIKI + pageId);
-				if (!pageAuth) {
-					return DocResponseJson.warn("您没有修改该文章附件的权限！");
-				}
-			}
-		}
-		String fileName = file.getOriginalFilename();
-		String fileSuffix = "";
-		if (fileName != null && fileName.lastIndexOf(".") >= 0) {
-			fileSuffix = fileName.substring(fileName.lastIndexOf("."));
-		}
-		String path = uploadPath + "/" + DateTime.now().toString("yyyy/MM/dd") + "/";
-		File newFile = new File(path);
-		if (!newFile.exists() && !newFile.mkdirs()) {
-			return DocResponseJson.warn("创建文件夹失败");
-		}
-		String simpleUUID = RandomUtil.simpleUUID();
-		path += simpleUUID + fileSuffix;
-		newFile = new File(path);
-		try {
-			file.transferTo(newFile);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return DocResponseJson.warn("保存文件失败");
-		}
-		wikiPageFile.setUuid(simpleUUID);
-		wikiPageFile.setFileUrl(path);
-		wikiPageFile.setFileName(fileName);
-		wikiPageFile.setCreateTime(new Date());
-		wikiPageFile.setCreateUserId(currentUser.getUserId());
-		wikiPageFile.setCreateUserName(currentUser.getUsername());
-		wikiPageFile.setDelFlag(0);
-		wikiPageFileService.save(wikiPageFile);
-		wikiPageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + wikiPageFile.getUuid());
-		return DocResponseJson.ok(wikiPageFile);
 	}
 	
 	@GetMapping("/file")

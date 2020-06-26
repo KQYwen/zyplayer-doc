@@ -227,7 +227,7 @@
 			},
 			initEditor() {
 				this.editor = new WangEditor('#newPageContentDiv');
-				this.editor.customConfig.uploadImgServer = process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/common/wangEditor/upload';
+				this.editor.customConfig.uploadImgServer = process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload';
 				this.editor.customConfig.zIndex = 100;
 				this.editor.customConfig.uploadFileName = 'files';
 				this.editor.customConfig.uploadImgMaxLength = 1;

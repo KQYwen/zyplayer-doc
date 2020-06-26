@@ -1,14 +1,18 @@
 package com.zyplayer.doc.wiki.controller;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageZan;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
+import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
+import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiPageZanService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
@@ -40,6 +44,8 @@ public class WikiPageZanController {
 	WikiSpaceService wikiSpaceService;
 	@Resource
 	WikiPageService wikiPageService;
+	@Resource
+	UserMessageService userMessageService;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPageZan>> list(WikiPageZan wikiPageZan) {
@@ -78,6 +84,11 @@ public class WikiPageZanController {
 			return DocResponseJson.warn("您没有该空间的点赞权限！");
 		}
 		wikiPageZanService.zanPage(wikiPageZan);
+		// 给相关人发送消息
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_ZAN);
+		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
+		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
+		userMessageService.addWikiMessage(userMessage);
 		return DocResponseJson.ok();
 	}
 }

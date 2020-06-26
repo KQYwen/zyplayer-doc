@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -54,6 +55,8 @@ public class MybatisPlusConfig {
 		private String username;
 		@Value("${zyplayer.doc.manage.datasource.password}")
 		private String password;
+		@Resource
+		private PaginationInterceptor paginationInterceptor;
 		
 		@Bean(name = "manageDatasource")
 		public DataSource manageDatasource() throws Exception {
@@ -64,7 +67,7 @@ public class MybatisPlusConfig {
 		public MybatisSqlSessionFactoryBean manageSqlSessionFactory() throws Exception {
 			MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
 			sqlSessionFactoryBean.setDataSource(manageDatasource());
-			sqlSessionFactoryBean.setPlugins(new Interceptor[]{SQL_LOG_INTERCEPTOR, MYSQL_PAGE_HELPER});
+			sqlSessionFactoryBean.setPlugins(new Interceptor[]{SQL_LOG_INTERCEPTOR, MYSQL_PAGE_HELPER, paginationInterceptor});
 			
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 			sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/manage/*Mapper.xml"));

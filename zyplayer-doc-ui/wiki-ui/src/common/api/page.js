@@ -44,8 +44,8 @@ export default {
 	assignPageUserAuth: data => {
         return request({url: '/zyplayer-doc-wiki/page/auth/assign', method: 'post', data: Qs.stringify(data)});
     },
-	updatePageFile: data => {
-        return request({url: '/zyplayer-doc-wiki/page/file/update', method: 'post', data: Qs.stringify(data)});
+	deletePageFile: data => {
+        return request({url: '/zyplayer-doc-wiki/page/file/delete', method: 'post', data: Qs.stringify(data)});
     },
 	pageCommentList: data => {
         return request({url: '/zyplayer-doc-wiki/page/comment/list', method: 'post', data: Qs.stringify(data)});

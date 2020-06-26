@@ -9,9 +9,10 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.wiki.controller.vo.UserPageAuthVo;
-import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import com.zyplayer.doc.wiki.service.WikiPageAuthService;
 import org.apache.commons.collections.CollectionUtils;
@@ -52,6 +53,8 @@ public class WikiPageAuthController {
 	AuthInfoService authInfoService;
 	@Resource
 	WikiPageAuthService wikiPageAuthService;
+	@Resource
+	UserMessageService userMessageService;
 	
 	@PostMapping("/assign")
 	public ResponseJson<List<WikiPageZan>> assign(Long pageId, String authList) {
@@ -118,6 +121,12 @@ public class WikiPageAuthController {
 			}
 			// 保存权限，重新登录后可用，后期可以考虑在这里直接修改缓存里的用户权限
 			userAuthService.saveBatch(userAuthList);
+			// 给相关人发送消息
+			UserInfo userInfo = userInfoService.getById(authVo.getUserId());
+			UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_AUTH);
+			userMessage.setAffectUserId(userInfo.getId());
+			userMessage.setAffectUserName(userInfo.getUserName());
+			userMessageService.addWikiMessage(userMessage);
 		}
 		return DocResponseJson.ok();
 	}

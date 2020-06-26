@@ -29,7 +29,7 @@
                     </el-tree>
                 </div>
             </el-aside>
-            <el-container>
+            <el-container style="box-shadow: 0 0 8px rgba(0,0,0,.1);">
                 <el-header>
                     <!--<el-switch v-model="isCollapse" ></el-switch>-->
                     <i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse"></i>
