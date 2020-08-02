@@ -7,7 +7,7 @@
 -->
 <template>
 	<div class="mg-editor-box">
-		<div ref="mgEditor" class="mg-editor" @click.stop="editorClick($event)">
+		<div ref="mgEditor" class="mg-editor" contenteditable="true" @click.stop="editorClick($event)">
 			<template v-for="(item, index) in editorDom">
 				<div v-if="item.type=='text'" :class="item.cls" :index="index" @click.stop="domClick(item, $event)">
 					<template v-if="item.dom && item.dom.length > 0">
@@ -35,8 +35,8 @@
 			<span class="iconfont icon-link"></span>
 			<span class="iconfont icon-more"></span>
 		</div>
-		<textarea ref="userInput" @input="userInputDataChange()" v-model="userInputData" class="user-input" :style="userInputStyle"></textarea>
-		<div class="mg-editor-cursor" :style="editorCursorStyle"></div>
+<!--		<textarea ref="userInput" @input="userInputDataChange()" v-model="userInputData" class="user-input" :style="userInputStyle"></textarea>-->
+<!--		<div class="mg-editor-cursor" :style="editorCursorStyle"></div>-->
 	</div>
 </template>
 
@@ -60,6 +60,7 @@
 					startDomIndex: -1,
 					endDomIndex: -1,
 				},
+				compositionStart: false,
 				userInput: {},
 				userInputStyle: {
 					top: 0, left: 0, display: 'none'
@@ -82,14 +83,41 @@
 			this.userInput = this.$refs.userInput;
 			this.editorDom.push(new Dom('text', 'head head-h1'));
 			document.body.addEventListener('click', e => {
-				let endIndex = Math.min(this.editorDom.length, this.editorRange.endDomIndex);
-				for (let i = this.editorRange.startDomIndex; i < endIndex; i++) {
+				for (let i = 0; i < this.editorDom.length; i++) {
 					this.editorDom[i].clearRange();
 				}
-				this.hideToolbar();
+				this.editorToolbarStyle.display = 'none';
 			});
+			// 监听输入框的输入事件
+			this.editor.addEventListener('textInput', e => {
+				// if (this.compositionStart) return;
+				this.userInputData = e.data;
+				this.userInputDataChange();
+				console.log("textInput   " + e.data);
+				e.preventDefault();
+				e.stopPropagation();
+			});
+			this.editor.addEventListener('input', e => {
+				if (!e.data) return;
+				this.userInputData = e.data;
+				this.userInputDataChange();
+				console.log("input   " + e.data);
+				e.preventDefault();
+				e.stopPropagation();
+			});
+			this.editor.addEventListener('compositionstart', e => {
+				this.compositionStart = true;
+				console.log("compositionstart")
+			});
+			this.editor.addEventListener('compositionend', e => {
+				document.execCommand('delete', false, '');
+				this.compositionStart = false;
+				console.log("compositionend")
+			});
+			// this.stopPropagation("beforeinput input textInput change keydown keyup keypress");
+			// this.stopPropagation("keypress textInput");
 			// 监听输入框的特殊按键
-			this.userInput.addEventListener('keydown', e => {
+			this.editor.addEventListener('keydown', e => {
 				if (e.which == 13) {
 					e.preventDefault();
 					this.editDom = this.editDom.keyEnter(this.editorDom, this.editorRange, this.undoRedo);
@@ -125,17 +153,23 @@
 					let isOneDom = startIndex == endIndex;
 					if (startIndex >= 0) {
 						let startOffset = selectionRange.startOffset;
-						let previousSibling = toolbarCommon.getRealElem(selectionRange.startContainer).previousSibling;
-						for (; previousSibling;) {
-							startOffset += previousSibling.innerText.length;
-							previousSibling = previousSibling.previousSibling;
+						let startRealElem = toolbarCommon.getRealElem(selectionRange.startContainer);
+						if (!toolbarCommon.isRootBox(startRealElem.parentNode)) {
+							let previousSibling = startRealElem.previousSibling;
+							for (; previousSibling;) {
+								startOffset += previousSibling.innerText.length;
+								previousSibling = previousSibling.previousSibling;
+							}
 						}
 						let domTemp = this.editorDom[startIndex];
 						let endOffset = isOneDom ? selectionRange.endOffset : domTemp.text.length;
-						let endPreviousSibling = toolbarCommon.getRealElem(selectionRange.endContainer).previousSibling;
-						for (; endPreviousSibling;) {
-							endOffset += endPreviousSibling.innerText.length;
-							endPreviousSibling = endPreviousSibling.previousSibling;
+						let endRealElem = toolbarCommon.getRealElem(selectionRange.endContainer);
+						if (!toolbarCommon.isRootBox(endRealElem.parentNode)) {
+							let endPreviousSibling = endRealElem.previousSibling;
+							for (; endPreviousSibling;) {
+								endOffset += endPreviousSibling.innerText.length;
+								endPreviousSibling = endPreviousSibling.previousSibling;
+							}
 						}
 						domTemp.setOffset(startOffset, endOffset);
 					}
@@ -172,6 +206,14 @@
 					this.undoRedo.execute(2, this.editorDom.length - 1, lastDom, '');
 				}
 				setTimeout(() => event.target.lastChild.click(), 100);
+			},
+			stopPropagation(events) {
+				events.split(" ").forEach(event => {
+					this.editor.addEventListener(event, e => {
+						e.preventDefault();
+						e.stopPropagation();
+					}, true);
+				});
 			},
 			domClick(dom, event) {
 				setTimeout(() => this.domClickTimer(dom, event), 50);
@@ -223,7 +265,6 @@
 				// 如果没有选中内容，隐藏工具栏，输入框获取焦点
 				if (startOffset == endOffset) {
 					this.hideToolbar();
-					setTimeout(() => this.userInput.focus(), 50);
 				}
 			},
 			userInputDataChange() {
@@ -263,25 +304,25 @@
 				}
 			},
 			handleToolbarBold() {
-				this.handleToolbarCommon(dom => dom.addSelectionTextStyle('bold', 1));
+				for (let i = this.editorRange.startDomIndex; i < this.editorRange.endDomIndex; i++) {
+					this.editorDom[i].addSelectionTextStyle('bold', 1);
+				}
+				this.editorToolbarStyle.display = 'none';
+				window.getSelection().removeAllRanges();
 			},
 			handleToolbarStrikeThrough() {
-				this.handleToolbarCommon(dom => dom.addSelectionTextStyle('strikethrough', 1));
+				for (let i = this.editorRange.startDomIndex; i < this.editorRange.endDomIndex; i++) {
+					this.editorDom[i].addSelectionTextStyle('strikethrough', 1);
+				}
+				this.editorToolbarStyle.display = 'none';
+				window.getSelection().removeAllRanges();
 			},
 			handleToolbarHn(hn) {
-				this.handleToolbarCommon(dom => dom.addSelectionTextHead(hn));
-			},
-			handleToolbarCommon(callback) {
-				let undoDomBefore = [], undoDomAfter = [];
 				for (let i = this.editorRange.startDomIndex; i < this.editorRange.endDomIndex; i++) {
-					undoDomBefore.push(JSON.parse(JSON.stringify(this.editorDom[i])));
-					callback(this.editorDom[i]);
-					undoDomAfter.push(this.editorDom[i]);
+					this.editorDom[i].addSelectionTextHead(hn);
 				}
-				this.undoRedo.execute(1, this.editorRange.startDomIndex, undoDomBefore, undoDomAfter);
-				this.hideToolbar();
+				this.editorToolbarStyle.display = 'none';
 				window.getSelection().removeAllRanges();
-				setTimeout(() => this.userInput.focus(), 50);
 			},
 			hideToolbar() {
 				this.editorRange.startDomIndex = -1;

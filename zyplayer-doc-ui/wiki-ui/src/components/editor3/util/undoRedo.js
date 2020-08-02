@@ -52,7 +52,7 @@ UndoRedo.prototype = {
 		let undoIndex = undoInfo.index;
 		changeContent.forEach(item => {
 			this.undoObjDomToEditor(undoInfo, undoIndex, item);
-			undoIndex++;
+			undoIndex--;
 		});
 		this.undoRedoIndex = Math.max(this.undoRedoIndex - 1, -1);
 	},
@@ -62,18 +62,17 @@ UndoRedo.prototype = {
 			this.undoRedoIndex--;
 			return;
 		}
-		let redoInfo = this.undoRedoList[this.undoRedoIndex];
-		let actionText = (redoInfo.type == 1) ? redoInfo.after : redoInfo.before;
+		let undoInfo = this.undoRedoList[this.undoRedoIndex];
+		let actionText = (undoInfo.type == 1) ? undoInfo.after : undoInfo.before;
 		let changeContent = JSON.parse(actionText);
-		let redoIndex = redoInfo.index;
+		let undoIndex = undoInfo.index;
 		changeContent.forEach(item => {
-			this.redoObjDomToEditor(redoInfo, redoIndex, item);
-			redoIndex++;
+			this.redoObjDomToEditor(undoInfo, undoIndex, item);
+			undoIndex++;
 		});
 	},
 	redoObjDomToEditor(undoInfo, undoIndex, domObj) {
 		let dom = new Dom(domObj.type, domObj.cls, domObj.text, domObj.styleRange);
-		dom.computerStyleRangeToDom();
 		if (undoInfo.type == 1) {
 			// 1=修改 2=添加 3=删除
 			if (this.editorDom.length > undoIndex) {
@@ -95,7 +94,6 @@ UndoRedo.prototype = {
 	},
 	undoObjDomToEditor(undoInfo, undoIndex, domObj) {
 		let dom = new Dom(domObj.type, domObj.cls, domObj.text, domObj.styleRange);
-		dom.computerStyleRangeToDom();
 		if (undoInfo.type == 1) {
 			// 1=修改 2=添加 3=删除
 			if (this.editorDom.length > undoIndex) {

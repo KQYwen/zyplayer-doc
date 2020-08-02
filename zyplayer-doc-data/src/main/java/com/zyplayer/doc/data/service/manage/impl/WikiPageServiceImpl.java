@@ -52,10 +52,11 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 		}
 		this.updateById(wikiPage);
 		// 给相关人发送消息
+		WikiPage wikiPageSel = this.getById(wikiPage.getId());
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_PARENT);
-		userMessage.setAffectUserId(wikiPage.getCreateUserId());
-		userMessage.setAffectUserName(wikiPage.getCreateUserName());
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_PARENT);
+		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
+		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);
 	}
 	

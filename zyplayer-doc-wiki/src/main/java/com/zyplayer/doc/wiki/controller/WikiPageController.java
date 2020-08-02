@@ -161,8 +161,7 @@ public class WikiPageController {
 	@PostMapping("/changeParent")
 	public ResponseJson<Object> changeParent(WikiPage wikiPage, Integer beforeSeq, Integer afterSeq) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		Long id = wikiPage.getId();
-		WikiPage wikiPageSel = wikiPageService.getById(id);
+		WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
 		// 编辑权限判断
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		String canEdit = wikiPageAuthService.canEdit(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
@@ -175,7 +174,7 @@ public class WikiPageController {
 		wikiPageUp.setUpdateTime(new Date());
 		wikiPageUp.setUpdateUserId(currentUser.getUserId());
 		wikiPageUp.setUpdateUserName(currentUser.getUsername());
-		wikiPageService.changeParent(wikiPage, beforeSeq, afterSeq);
+		wikiPageService.changeParent(wikiPageUp, beforeSeq, afterSeq);
 		return DocResponseJson.ok();
 	}
 	

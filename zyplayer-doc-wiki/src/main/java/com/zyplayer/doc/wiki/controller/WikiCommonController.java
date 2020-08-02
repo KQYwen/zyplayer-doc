@@ -2,6 +2,8 @@ package com.zyplayer.doc.wiki.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -32,7 +34,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -67,8 +68,10 @@ public class WikiCommonController {
 		queryWrapper.like("user_name", search).or().like("user_no", search)
 				.or().like("email", search);
 		queryWrapper.select("id", "user_name");
-		List<UserInfo> userInfoList = userInfoService.list(queryWrapper);
-		return DocResponseJson.ok(userInfoList);
+		// 搜索最多返回20条
+		IPage<UserInfo> page = new Page<>(1, 20, false);
+		userInfoService.page(page, queryWrapper);
+		return DocResponseJson.ok(page);
 	}
 	
 	@GetMapping("/file")

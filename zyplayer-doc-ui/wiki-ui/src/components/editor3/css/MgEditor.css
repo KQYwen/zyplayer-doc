@@ -1,0 +1,223 @@
+
+.mg-editor-box {
+	overflow: auto;
+}
+.mg-editor-box .user-input {
+	width: 1px;
+	height: 1px;
+	font-size: 1px;
+	background: transparent;
+	opacity: 0;
+
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: none;
+	z-index: 1;
+	-moz-appearance: none;
+	appearance: none;
+	border: none;
+	resize: none;
+	outline: none;
+	overflow: hidden;
+	padding: 0 1px;
+	margin: 0 -1px;
+	contain: strict;
+	-ms-user-select: text;
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	user-select: text;
+	white-space: pre !important;
+}
+
+.mg-editor-box .mg-editor-cursor {
+	display: block;
+	top: 42px;
+	left: 202px;
+	width: 7px;
+	height: 14px;
+	color: #F8F8F0;
+	opacity: 0.2;
+	z-index: 4;
+	position: absolute;
+	box-sizing: border-box;
+	border-left: 2px solid;
+	animation-duration: 1000ms;
+
+	animation-timing-function: step-end;
+	animation-name: blink-ace-animate;
+	animation-iteration-count: infinite;
+
+	transform: translatez(0);
+}
+
+@keyframes blink-ace-animate {
+	from, to {opacity: 1;}
+	60% {opacity: 0;}
+}
+
+@keyframes blink-ace-animate-smooth {
+	from, to {opacity: 1;}
+	45% {opacity: 1;}
+	60% {opacity: 0;}
+	85% {opacity: 0;}
+}
+
+
+.mg-editor {
+	padding: 10px;
+	height: 100%;
+	width: 100%;
+	font-size: 16px;
+	box-sizing: border-box;
+	cursor: text;
+	background: #272822;
+	color: #fff;
+}
+
+.mg-editor:focus {
+	outline: none;
+}
+
+.mg-editor:empty::before {
+	content: attr(placeholder);
+	font-size: 14px;
+	color: #ccc;
+	line-height: 20px;
+	padding-top: 10px;
+}
+
+.mg-editor-toolbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: none;
+	z-index: 1;
+	padding: 5px 6px;
+	background-color: #fff;
+	border-radius: 4px;
+	border: 1px solid #dee0e3;
+	user-select: none;
+	box-shadow: 0 6px 24px 0 rgba(31, 35, 41, .1);
+}
+
+.mg-editor-toolbar .iconfont {
+	padding: 5px;
+	font-size: 24px;
+	cursor: pointer;
+}
+
+
+.mg-editor .list-code {
+	font-size: 14px !important;
+	line-height: 1.68 !important
+}
+
+.mg-editor .list-code code {
+	border: 1px solid #dee0e3;
+	display: block;
+	background-color: #f5f6f7;
+	line-height: 1.5;
+	padding: 6px 8px 3px 45px;
+	font-size: 14px;
+	word-break: break-word;
+	margin: 5px 0;
+}
+
+.mg-editor .list-code code .list-code-span {
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+	line-height: 1.5;
+}
+
+.mg-editor .list-code code:before {
+	content: attr(start);
+	display: inline-block;
+	font-size: 14px;
+	text-align: right;
+	direction: rtl;
+	-o-text-overflow: ellipsis;
+	text-overflow: ellipsis;
+	overflow: visible;
+	white-space: nowrap;
+	width: 0;
+	margin-left: -11px;
+	padding-right: 11px;
+	font-weight: 400;
+	background-color: transparent;
+	line-height: 1.5;
+	color: #8f959e;
+	vertical-align: bottom;
+}
+
+.mg-editor .list-code code + code {
+	border-top: none;
+	margin-top: -9px;
+}
+
+.mg-editor .ace-editor .list-code code:before {
+	left: 4px;
+}
+
+/*Hn样式-S-*/
+/*我很懒，样式都是抄的*/
+.mg-editor .head-h1, .mg-editor .head-h2, .mg-editor .head-h3, .mg-editor .head-h4, .mg-editor .head-h5, .mg-editor .head-h6, .mg-editor .head-h7, .mg-editor .head-h8, .mg-editor .head-h9 {
+	font-weight: 600;
+	letter-spacing: .02em;
+	line-height: 1.65
+}
+
+.mg-editor .head-h1 {
+	font-size: 26px;
+	margin-bottom: 10px
+}
+
+.mg-editor .head-h1 .collapsable-section-handle {
+	font-size: 26px
+}
+
+.mg-editor .head-h2 {
+	font-size: 22px;
+	margin-bottom: 8px
+}
+
+.mg-editor .head-h2 .collapsable-section-handle {
+	font-size: 22px
+}
+
+.mg-editor .head-h3 {
+	font-size: 20px;
+	margin-bottom: 8px
+}
+
+.mg-editor .head-h3 .collapsable-section-handle {
+	font-size: 20px
+}
+
+.mg-editor .head-h4 {
+	font-size: 18px;
+	margin-bottom: 8px
+}
+
+.mg-editor .head-h4 .collapsable-section-handle {
+	font-size: 18px
+}
+
+.mg-editor .head-h5,.mg-editor .head-h6,.mg-editor .head-h7,.mg-editor .head-h8,.mg-editor .head-h9 {
+	font-size: 16px;
+	margin-bottom: 6px
+}
+
+.mg-editor .head-h5 .collapsable-section-handle,.mg-editor .head-h6 .collapsable-section-handle,.mg-editor .head-h7 .collapsable-section-handle,.mg-editor .head-h8 .collapsable-section-handle,.mg-editor .head-h9 .collapsable-section-handle {
+	font-size: 16px
+}
+
+/*Hn样式-E-*/
+
+.mg-editor .bold {
+	font-weight: bold;
+}
+
+.mg-editor .strikethrough {
+	text-decoration: line-through;
+}

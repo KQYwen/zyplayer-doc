@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * es抽象类
+ *
  * @author 暮光：城中城
  * @since 2019-07-07
  */
@@ -101,6 +102,7 @@ public abstract class EsAbstractService<T> {
 	
 	/**
 	 * 多条件 模糊查询，查询前100条
+	 *
 	 * @param condition 查询条件
 	 */
 	public List<T> getDataByCondition(List<EsQueryColumn> condition) {
@@ -109,9 +111,10 @@ public abstract class EsAbstractService<T> {
 	
 	/**
 	 * 多条件 模糊查询
-	 * @param condition 查询条件
+	 *
+	 * @param condition  查询条件
 	 * @param startIndex 开始行
-	 * @param pageSize 每页数量
+	 * @param pageSize   每页数量
 	 */
 	public EsPage<T> getDataByCondition(List<EsQueryColumn> condition, String[] fields, Integer startIndex, Integer pageSize) {
 		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -147,11 +150,13 @@ public abstract class EsAbstractService<T> {
 		});
 		return this.getDataByQuery(boolQueryBuilder, fields, startIndex, pageSize);
 	}
+	
 	/**
 	 * 多条件 模糊查询
+	 *
 	 * @param queryBuilders 查询条件
-	 * @param startIndex 开始行
-	 * @param pageSize 每页数量
+	 * @param startIndex    开始行
+	 * @param pageSize      每页数量
 	 */
 	public EsPage<T> getDataByQuery(QueryBuilder queryBuilders, String[] fields, Integer startIndex, Integer pageSize) {
 		// 设置高亮标签
@@ -208,5 +213,5 @@ public abstract class EsAbstractService<T> {
 		esPage.setData(tableList);
 		return esPage;
 	}
-
+	
 }

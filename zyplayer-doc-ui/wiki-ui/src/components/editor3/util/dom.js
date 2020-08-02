@@ -14,7 +14,7 @@ function Dom(type = 'text', cls = '', text = '', styleRange = []) {
 	// 一个范围的样式，例：{start: 1, end: 2, class: 'xx xxx'}
 	this.styleRange = [];
 	styleRange.forEach(item => {
-		this.styleRange.push(new StyleRange(item.start, item.end, item.cls));
+		this.styleRange.push(new StyleRange(item.start, item.end, this.styleRange.cls));
 	});
 }
 
