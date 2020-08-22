@@ -1,11 +1,6 @@
 package com.zyplayer.doc.db.controller;
 
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ZipUtil;
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.write.metadata.WriteSheet;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
@@ -31,6 +26,7 @@ import com.zyplayer.doc.db.framework.db.dto.*;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
+import com.zyplayer.doc.db.framework.utils.PoiUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -43,8 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -280,37 +274,19 @@ public class DatabaseDocController {
 		DatabaseExportVo exportVo = new DatabaseExportVo();
 		exportVo.setColumnList(columnList);
 		exportVo.setTableList(tableList);
-		String content = JSON.toJSONString(exportVo);
-		content = "var docDbDatabase = " + content;
-		if (Objects.equals(exportType, 1)) {
-			response.setContentType("application/octet-stream");
-			response.addHeader("Content-Disposition", "attachment;filename=database.js");
-			response.setCharacterEncoding("utf-8");
-			// 将文件输入流写入response的输出流中
-			try {
-				IoUtil.write(response.getOutputStream(), "utf-8", true, content);
-			} catch (Exception e) {
-				e.printStackTrace();
+		try {
+			if (Objects.equals(exportType, 1)) {
+				PoiUtil.exportByText(exportVo, response);
+			} else if (Objects.equals(exportType, 2)) {
+				PoiUtil.exportByXlsx(exportVo, response);
+			} else if (Objects.equals(exportType, 3)) {
+				PoiUtil.exportByDocx(exportVo, response);
+			} else {
+				return DocDbResponseJson.error("导出失败：请先选择导出类型");
 			}
-		} else {
-			try {
-				response.setContentType("application/vnd.ms-excel");
-				response.setCharacterEncoding("utf-8");
-				String fileName = URLEncoder.encode("数据库表导出", "UTF-8");
-				response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-				ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream()).build();
-				WriteSheet writeSheet = EasyExcel.writerSheet(0, "表信息").head(TableInfoVo.class).build();
-				excelWriter.write(tableList, writeSheet);
-				int index = 1;
-				for (Map.Entry<String, List<TableColumnDescDto>> entry : columnList.entrySet()) {
-					writeSheet = EasyExcel.writerSheet(index++, entry.getKey()).head(TableColumnDescDto.class).build();
-					excelWriter.write(entry.getValue(), writeSheet);
-				}
-				excelWriter.finish();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return DocDbResponseJson.error("导出失败：" + e.getMessage());
-			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return DocDbResponseJson.error("导出失败：" + e.getMessage());
 		}
 		return DocDbResponseJson.ok();
 	}

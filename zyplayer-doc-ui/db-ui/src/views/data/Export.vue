@@ -14,6 +14,7 @@
                 <el-radio-group v-model="exportType">
                     <el-radio :label="1">HTML格式</el-radio>
                     <el-radio :label="2">Excel格式</el-radio>
+                    <el-radio :label="3">Word格式</el-radio>
                 </el-radio-group>
                 <el-button v-on:click="exportChoiceTable" type="primary" style="margin: 0 10px 0 20px;">导出选中的表</el-button>
                 <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=117&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
