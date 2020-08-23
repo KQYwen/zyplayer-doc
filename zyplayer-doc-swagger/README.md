@@ -7,31 +7,12 @@ zyplayer-doc-swagger是swagger的一个前端实现，使用简单、解析速�
 
 欢迎多多Star！右上角↗
 
-demo代码地址：
-[zyplayer-doc-swagger-demo](https://gitee.com/zyplayer/zyplayer-doc-swagger-demo)
-
-已上传至中央仓库，使用方法：
-
-1、添加依赖
-```
-<!-- https://mvnrepository.com/artifact/com.zyplayer/zyplayer-doc-swagger -->
-<dependency>
-    <groupId>com.zyplayer</groupId>
-    <artifactId>zyplayer-doc-swagger</artifactId>
-    <version>1.0.6</version>
-</dependency>
-```
-2、启动后访问：[http://localhost:8080/document.html](http://localhost:8080/document.html)
-
 #### 服务器端的存储 功能：
 实现MgStorageService并申明为@Service之后网页上才能使用服务器端的存储能力，同时需要在@EnableSwagger2的地方添加@EnableSwaggerMgUi注解，才能开启存储的接口
 
 开放存储能力的好处：
 所有网页的配置、调试值都可以存储到服务器的数据库中，便于团队所有人的调试，一人配置，所有人受益
 如果不开启的话，数据是存放在浏览器的localStorage中，每个人、每个浏览器都得配置一次才能使用
-
-开启@EnableSwaggerMgUi注解坏处：
-暴露了一个请求任意地址的接口，比如任意内部接口，所以不建议在线上项目开启此注解，单独的本地的文档管理项目才开启，不会对外暴露此接口，切记！！！！
 
 还有线上项目切记关闭swagger的接口扫描，不然别人就能拿到服务器的所有接口了，专门的对外文档还是可以，但还是尽量关闭，使用本项目的文档导出功能给第三方！
 
@@ -45,8 +26,6 @@ demo代码地址：
 例：笔者的公司后端人较少，一个需求需要10个接口，需求分析完后首先就把接口、参数、返回值定义好，然后一个个的去实现。
 也许需要10天才能写完，但前端两天就写好了，急需数据看效果，这时就让他们自己去设置模拟值，加上参数自己测试好。
 而不是一味的催后台，把各种锅丢给后端，然后玩自己的去了，浪费各环节等待时间。
-
-#### ↑↑以上个性化功能在demo中都有写到，欢迎体验↑↑：
 
 如果需要看多个项目的文档，不再需要对让被访问的项目支持跨域访问！因为已集成服务器端代理请求，想请求什么都行！把在线调试当postman来用都行！（虽然功能差得远，但基础的用是没问题的，够用就行，不断完善中）
 

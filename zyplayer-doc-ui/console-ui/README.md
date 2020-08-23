@@ -4,7 +4,7 @@
 
 1、命令行要进入这个文件夹才能执行命令：
 
-zyplayer-doc/zyplayer-doc-ui/manage-ui
+zyplayer-doc/zyplayer-doc-ui/console-ui
 
 2、增加host，否则run不起来：
 
@@ -20,7 +20,7 @@ zyplayer-doc-ui/manage-ui/src/common/config/apimix.js
 
 2、这里可以配置启动后访问的地址，建议不改
 
-zyplayer-doc-ui/manage-ui/webpack.config.js
+zyplayer-doc-ui/console-ui/webpack.config.js
 
 ## 环境要求
 

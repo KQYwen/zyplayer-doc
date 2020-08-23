@@ -42,7 +42,7 @@ zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、�
 
 #### 运行方式
 
-1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.5.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.5.sql)
+1. 创建数据库：zyplayer_doc_manage，执行脚本：[zyplayer_doc_manage.1.0.6.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/zyplayer_doc_manage.1.0.6.sql)
 
 2. 修改zyplayer-doc-manage项目的application.yml配置文件里面的数据库账号密码
 
