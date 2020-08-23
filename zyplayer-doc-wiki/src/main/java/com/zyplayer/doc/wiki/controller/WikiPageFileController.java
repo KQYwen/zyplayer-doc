@@ -2,6 +2,7 @@ package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.RandomUtil;
+import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -102,15 +103,20 @@ public class WikiPageFileController {
 	
 	@PostMapping("/wangEditor/upload")
 	public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
-		this.upload(wikiPageFile, file);
 		Map<String, Object> resultMap = new HashMap<>();
-		resultMap.put("errno", "0");
-		resultMap.put("data", new String[]{wikiPageFile.getFileUrl()});
+		DocResponseJson docResponseJson = this.uploadFile(wikiPageFile, file);
+		if (!docResponseJson.isOk()) {
+			resultMap.put("errno", "1");
+			resultMap.put("err", docResponseJson.getErrMsg());
+		} else {
+			resultMap.put("errno", "0");
+			resultMap.put("data", new String[]{wikiPageFile.getFileUrl()});
+		}
 		return resultMap;
 	}
 	
 	@PostMapping("/upload")
-	public ResponseJson<Object> upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+	public ResponseJson upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		Long pageId = wikiPageFile.getPageId();
 		if (pageId == null || pageId <= 0) {
@@ -123,6 +129,26 @@ public class WikiPageFileController {
 		if (canUploadFile != null) {
 			return DocResponseJson.warn(canUploadFile);
 		}
+		DocResponseJson docResponseJson = this.uploadFile(wikiPageFile, file);
+		if (!docResponseJson.isOk()) {
+			return docResponseJson;
+		}
+		// 给相关人发送消息
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_UPLOAD);
+		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
+		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
+		userMessageService.addWikiMessage(userMessage);
+		return DocResponseJson.ok(wikiPageFile);
+	}
+	
+	/**
+	 * 单纯的文件上传方法
+	 * @param wikiPageFile
+	 * @param file
+	 * @return
+	 */
+	private DocResponseJson uploadFile(WikiPageFile wikiPageFile, MultipartFile file) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		String fileName = file.getOriginalFilename();
 		String fileSuffix = "";
 		if (fileName != null && fileName.lastIndexOf(".") >= 0) {
@@ -151,12 +177,7 @@ public class WikiPageFileController {
 		wikiPageFile.setDelFlag(0);
 		wikiPageFileService.save(wikiPageFile);
 		wikiPageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + wikiPageFile.getUuid());
-		// 给相关人发送消息
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_UPLOAD);
-		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
-		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
-		userMessageService.addWikiMessage(userMessage);
-		return DocResponseJson.ok(wikiPageFile);
+		return DocResponseJson.ok();
 	}
 }
 

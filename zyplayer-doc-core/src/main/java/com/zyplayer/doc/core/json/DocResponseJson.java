@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 文档返回数据格式
@@ -212,6 +213,10 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public boolean isOk() {
+		return Objects.equals(this.errCode, 200);
 	}
 	
 	@Override
