@@ -50,6 +50,12 @@ zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、�
 
 更多详细的使用部署文档：http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb
 
+虽然在GitHub上也有账号，虽然本项目也不是很好，但还是内在自发的只在码云上活跃，每个人的一次活跃、一次评论、一次PR、一次Issue、一次鼓励的捐赠，都能聚集起来聚沙成塔，营造一个每个人都希望看到的一个开源文化和氛围，引用码云推文的一段话：
+> 不再习惯性地把国内开源生态的落后归咎于开源文化和氛围，我们应意识到每人都是开源生态中的一员，我们拥有实际行动的力量，良好的开源文化和氛围需要大家的共同努力。
+
+> 不再把开源当作「别人的事」、「大佬们的事」，尽己所能地参与建设，哪怕是一个 Issue、一个 PR，健康的开源生态就是由这一个个反馈、一次次协作构建起来的。
+
+
 #### 界面展示
 ![主页面](https://images.gitee.com/uploads/images/2020/0516/125840_d6284954_596905.png "主页面.png")
 ![数据库文档](https://images.gitee.com/uploads/images/2020/0516/130017_254f9559_596905.png "数据库文档.png")
