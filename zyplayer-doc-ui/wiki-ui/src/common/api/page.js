@@ -20,6 +20,12 @@ export default {
 	pageDelete: data => {
         return request({url: '/zyplayer-doc-wiki/page/delete', method: 'post', data: Qs.stringify(data)});
     },
+	pageHistoryList: data => {
+        return request({url: '/zyplayer-doc-wiki/page/history/list', method: 'post', data: Qs.stringify(data)});
+    },
+	pageHistoryDetail: data => {
+        return request({url: '/zyplayer-doc-wiki/page/history/detail', method: 'post', data: Qs.stringify(data)});
+    },
 	pageNews: data => {
         return request({url: '/zyplayer-doc-wiki/page/news', method: 'post', data: Qs.stringify(data)});
     },

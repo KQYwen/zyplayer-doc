@@ -1,4 +1,4 @@
-package com.zyplayer.doc.wiki.service;
+package com.zyplayer.doc.wiki.service.common;
 
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;

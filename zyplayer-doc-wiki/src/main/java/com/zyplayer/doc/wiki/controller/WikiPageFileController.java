@@ -2,7 +2,6 @@ package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.RandomUtil;
-import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -18,7 +17,7 @@ import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
-import com.zyplayer.doc.wiki.service.WikiPageAuthService;
+import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

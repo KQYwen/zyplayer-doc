@@ -14,7 +14,7 @@ import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.wiki.controller.vo.UserPageAuthVo;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
-import com.zyplayer.doc.wiki.service.WikiPageAuthService;
+import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -68,15 +68,16 @@ public class WikiPageCommentController {
 		wrapper.eq("del_flag", 0);
 		wrapper.eq("page_id", pageComment.getPageId());
 		wrapper.eq(pageComment.getParentId() != null, "parent_id", pageComment.getParentId());
-		List<WikiPageComment> authList = wikiPageCommentService.list(wrapper);
-		Map<Long, List<WikiPageComment>> listMap = authList.stream().filter(val -> val.getParentId() != null)
-				.collect(Collectors.groupingBy(WikiPageComment::getParentId));
-		List<WikiPageCommentVo> commentList = authList.stream().filter(val -> val.getParentId() == null)
-				.map(val -> mapper.map(val, WikiPageCommentVo.class)).collect(Collectors.toList());
-		for (WikiPageCommentVo commentVo : commentList) {
-			commentVo.setCommentList(listMap.get(commentVo.getId()));
-		}
-		return DocResponseJson.ok(commentList);
+		List<WikiPageComment> pageCommentList = wikiPageCommentService.list(wrapper);
+		// 取消二级评论，全展示在一级
+//		Map<Long, List<WikiPageComment>> listMap = pageCommentList.stream().filter(val -> val.getParentId() != null)
+//				.collect(Collectors.groupingBy(WikiPageComment::getParentId));
+//		List<WikiPageCommentVo> commentList = pageCommentList.stream().filter(val -> val.getParentId() == null)
+//				.map(val -> mapper.map(val, WikiPageCommentVo.class)).collect(Collectors.toList());
+//		for (WikiPageCommentVo commentVo : commentList) {
+//			commentVo.setCommentList(listMap.get(commentVo.getId()));
+//		}
+		return DocResponseJson.ok(pageCommentList);
 	}
 	
 	@PostMapping("/delete")

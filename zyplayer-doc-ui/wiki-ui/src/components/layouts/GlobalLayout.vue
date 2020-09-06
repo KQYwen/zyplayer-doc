@@ -59,7 +59,7 @@
 									@current-change="handleCurrentChange"
 									:page-size="userMsgParam.pageSize"
 									:current-page="userMsgParam.pageNum"
-									layout="prev, pager, next, jumper, total"
+									layout="prev, pager, next, total"
 									:total="userMsgTotalCount"
 								>
 								</el-pagination>

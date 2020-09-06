@@ -45,6 +45,8 @@ zyplayer:
       upload-path: d:/zyplayerDoc/wikiFiles
       # 是否检查目录有被系统定期清理的风险，强烈建议开启
       upload-path-check: true
+      # git本地仓库地址，用于管理WIKI的历史版本
+      git-file-path: d:/zyplayerDoc/wikiGitFiles
     # ------swagger相关配置------
     swagger:
       proxy-request:

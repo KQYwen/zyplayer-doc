@@ -25,7 +25,8 @@ import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
-import com.zyplayer.doc.wiki.service.WikiPageAuthService;
+import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
+import com.zyplayer.doc.wiki.service.git.GitService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
@@ -72,6 +73,8 @@ public class WikiPageController {
 	WikiPageAuthService wikiPageAuthService;
 	@Resource
 	UserMessageService userMessageService;
+	@Resource
+	GitService gitService;
 	@Resource
 	Mapper mapper;
 	@Autowired(required = false)
@@ -278,6 +281,8 @@ public class WikiPageController {
 		} else {
 			logger.warn("未开启elasticsearch服务，建议开启");
 		}
+		// 提交历史版本记录
+		gitService.commitAndAddHistory(wikiPage.getId(), content);
 		return DocResponseJson.ok(wikiPage);
 	}
 	
