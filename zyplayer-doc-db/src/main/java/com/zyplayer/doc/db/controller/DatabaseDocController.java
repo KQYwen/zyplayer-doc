@@ -250,7 +250,7 @@ public class DatabaseDocController {
 		return DocDbResponseJson.ok();
 	}
 	
-	@GetMapping(value = "/exportDatabase")
+	@PostMapping(value = "/exportDatabase")
 	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames, Integer exportType) {
 		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
 		if (StringUtils.isBlank(tableNames)) {

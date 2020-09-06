@@ -25,6 +25,9 @@
                 <el-table-column prop="tableComment" label="表注释"></el-table-column>
             </el-table>
         </el-card>
+		<form method="post" ref="downloadForm" :action="downloadFormParam.url" target="_blank">
+			<input type="hidden" :name="key" :value="val" v-for="(val,key) in downloadFormParam.param">
+		</form>
     </div>
 </template>
 
@@ -47,6 +50,10 @@
                 databaseList: [],
                 tableList: [],
                 selectTables: [],
+				downloadFormParam: {
+					url: 'zyplayer-doc-db/doc-db/exportDatabase',
+					param: {}
+				},
             }
         },
         mounted: function () {
@@ -66,17 +73,25 @@
 					app.$message.info("请选择需要导出的表");
 					return;
 				}
-				var tableNames = "";
-				for (var i = 0; i < this.selectTables.length; i++) {
+				let tableNames = "";
+				for (let i = 0; i < this.selectTables.length; i++) {
 					if (tableNames !== "") {
 						tableNames += ",";
 					}
 					tableNames += this.selectTables[i].tableName;
 				}
-				window.open("zyplayer-doc-db/doc-db/exportDatabase?sourceId=" + this.choiceDatasourceId
-					+ "&exportType=" + this.exportType
-					+ "&dbName=" + this.choiceDatabase
-					+ "&tableNames=" + tableNames);
+				// window.open("zyplayer-doc-db/doc-db/exportDatabase?sourceId=" + this.choiceDatasourceId
+				// 	+ "&exportType=" + this.exportType
+				// 	+ "&dbName=" + this.choiceDatabase
+				// 	+ "&tableNames=" + tableNames);
+				// 改为post方式提交下载
+				this.downloadFormParam.param = {
+					sourceId: this.choiceDatasourceId,
+					exportType: this.exportType,
+					dbName: this.choiceDatabase,
+					tableNames: tableNames,
+				};
+				setTimeout(() => this.$refs.downloadForm.submit(), 0);
             },
             loadGetTableList() {
                 datasourceApi.tableList({sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase}).then(json => {
