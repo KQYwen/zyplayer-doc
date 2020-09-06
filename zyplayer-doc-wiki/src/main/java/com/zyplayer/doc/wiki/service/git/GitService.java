@@ -1,14 +1,15 @@
 package com.zyplayer.doc.wiki.service.git;
 
 import cn.hutool.core.io.FileUtil;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageHistory;
 import com.zyplayer.doc.data.service.manage.WikiPageHistoryService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.Repository;
@@ -20,10 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 
@@ -45,8 +44,15 @@ public class GitService {
 	
 	/**
 	 * 提交和写历史记录
+	 *
+	 * @param pageId  页面ID
+	 * @param content 页面内容
 	 */
 	public void commitAndAddHistory(Long pageId, String content) {
+		// 未配置git仓库地址，不存历史
+		if (StringUtils.isBlank(gitFilePath)) {
+			return;
+		}
 		String commitId = this.writeAndCommit(pageId, content);
 		// 保存历史记录
 		if (commitId != null) {
@@ -64,6 +70,10 @@ public class GitService {
 	
 	/**
 	 * 把内容写入文件并提交git
+	 *
+	 * @param pageId  页面ID
+	 * @param content 页面内容
+	 * @return 版本ID
 	 */
 	private synchronized String writeAndCommit(Long pageId, String content) {
 		try {
@@ -102,7 +112,17 @@ public class GitService {
 		return null;
 	}
 	
+	/**
+	 * 获取页面的历史版本内容
+	 *
+	 * @param objId  版本ID
+	 * @param pageId 页面ID
+	 * @return 页面内容
+	 */
 	public String getPageHistory(String objId, Long pageId) {
+		if (StringUtils.isBlank(gitFilePath)) {
+			throw new ConfirmException("未配置WIKI历史版本的git目录");
+		}
 		try {
 			Git git = Git.open(new File(this.getGitPath()));
 			Repository repository = git.getRepository();
@@ -121,7 +141,6 @@ public class GitService {
 	private String getGitPath() {
 		return gitFilePath + "/.git";
 	}
-	
 	
 	private String getGitPageFile(Long pageId) {
 		return pageId + ".txt";
