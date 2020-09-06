@@ -150,22 +150,18 @@
         <!--关于弹窗-->
         <el-dialog title="关于zyplayer-doc-wiki" :visible.sync="aboutDialogVisible" width="600px">
             <el-form>
-                <el-form-item label="项目地址：">
+                <el-form-item label="开源地址：">
                     <a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>
                 </el-form-item>
                 <el-form-item label="开发人员：">
                     <a target="_blank" href="http://zyplayer.com">暮光：城中城</a>
                 </el-form-item>
                 <template v-if="upgradeInfo.lastVersion">
-                    <el-form-item label="当前版本：">{{upgradeInfo.nowVersion}}</el-form-item>
-                    <el-form-item label="最新版本：">{{upgradeInfo.lastVersion}}</el-form-item>
-                    <el-form-item label="升级地址：">
-                        <a target="_blank" :href="upgradeInfo.upgradeUrl">{{upgradeInfo.upgradeUrl}}</a>
-                    </el-form-item>
+                    <el-form-item label="当前版本：">{{upgradeInfo.nowVersion}}、最新版本：{{upgradeInfo.lastVersion}}，<a target="_blank" :href="upgradeInfo.upgradeUrl">去升级</a></el-form-item>
                     <el-form-item label="升级内容：">{{upgradeInfo.upgradeContent}}</el-form-item>
                 </template>
                 <el-form-item label="">
-                    欢迎加群讨论，QQ群号：466363173，欢迎提交需求，欢迎使用和加入开发！
+					zyplayer-doc是一款开源的在线文档工具，现有WIKI文档、数据库文档、swagger文档、dubbo文档、ElasticSearch文档等，不止文档。期待与你一起来迭代完善，欢迎加群讨论，QQ群号：466363173
                 </el-form-item>
             </el-form>
         </el-dialog>

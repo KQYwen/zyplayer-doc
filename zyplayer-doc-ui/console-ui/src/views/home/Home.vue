@@ -5,7 +5,7 @@
             <div style="padding: 20px;">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
-                        <span>吾家产品线</span>
+                        <span>所有产品</span>
                     </div>
                     <div class="product-list">
                         <div class="item" v-on:click="jumpToDocPage('doc-swagger')">

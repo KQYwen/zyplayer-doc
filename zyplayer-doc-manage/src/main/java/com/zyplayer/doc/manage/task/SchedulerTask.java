@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Objects;
@@ -21,6 +22,12 @@ public class SchedulerTask {
 	private String nowVersion;
 	@Value("${zyplayer.doc.manage.upgradePropertiesUrl:''}")
 	private String upgradePropertiesUrl;
+	
+	@PostConstruct
+	private void init() {
+		// 初始完成去加载一次
+		this.upgradeTask();
+	}
 	
 //	@Scheduled(cron = "0 0/2 * * * ? ")
 	@Scheduled(cron = "0 0 1 * * ?")
