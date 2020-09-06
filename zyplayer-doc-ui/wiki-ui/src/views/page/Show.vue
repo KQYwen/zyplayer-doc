@@ -389,13 +389,16 @@
 				// 缓存一下，但如果历史页面多了而且很大就占内存，也可以每次去拉取，先这样吧
 				if (history.content) {
 					history.loading = 2;
-					this.pageHistoryDetail = history.content || '内容为空';
+					this.pageHistoryDetail = history.content;
 				} else {
 					history.loading = 1;
 					pageApi.pageHistoryDetail({id: history.id}).then(json => {
 						history.loading = 2;
-						this.pageHistoryDetail = json.data || '内容为空';
-						history.content = json.data || '内容为空';
+						history.content = json.data || '--';
+						if (this.wikiPage.editorType === 2) {
+							history.content = markdownIt.render(history.content);
+						}
+						this.pageHistoryDetail = history.content;
 					});
 				}
 			},
