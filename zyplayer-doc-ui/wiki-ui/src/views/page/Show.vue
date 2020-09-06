@@ -136,7 +136,7 @@
 						</div>
 					</el-tab-pane>
 					<el-tab-pane label="修改历史" name="history">
-						<div class="action-tab-box">
+						<div class="action-tab-box" v-infinite-scroll="getPageHistoryByScroll">
 							<div v-if="pageHistoryList.length <= 0" class="action-box-empty">暂无修改历史记录</div>
 							<el-timeline v-else>
 								<el-timeline-item v-for="history in pageHistoryList">
@@ -238,6 +238,7 @@
 				pageHistoryDetail: '',
 				pageHistoryChoice: {},
 				pageHistoryList: [],
+				pageHistoryPageNum: 1,
 			};
 		},
 		beforeRouteUpdate(to, from, next) {
@@ -371,13 +372,27 @@
 				this.actionTabActiveName = 'history';
 				this.clearHistory();
 			},
-			getPageHistory(pageId) {
-				this.pageHistoryList = [];
-				let param = {pageId: pageId, pageNum: 1};
+			getPageHistoryByScroll() {
+				if (this.pageHistoryPageNum <= 0) {
+					return;
+				}
+				this.pageHistoryPageNum++;
+				this.getPageHistory(this.wikiPage.id, this.pageHistoryPageNum);
+			},
+			getPageHistory(pageId, pageNum) {
+				if (pageNum == 1) {
+					this.pageHistoryList = [];
+					this.pageHistoryPageNum = 1;
+				}
+				let param = {pageId: pageId, pageNum: pageNum};
 				pageApi.pageHistoryList(param).then(json => {
 					let pageHistoryList = json.data || [];
-					pageHistoryList.forEach(item => item.loading = 0);
-					this.pageHistoryList = pageHistoryList;
+					if (pageHistoryList.length <= 0) {
+						this.pageHistoryPageNum = 0;
+					} else {
+						pageHistoryList.forEach(item => item.loading = 0);
+						this.pageHistoryList = this.pageHistoryList.concat(pageHistoryList);
+					}
 				});
 			},
 			historyClick(history) {
@@ -440,7 +455,7 @@
 					this.$emit('changeExpandedKeys', pageId);
 				});
 				this.loadCommentList(pageId);
-				this.getPageHistory(pageId);
+				this.getPageHistory(pageId, 1);
 			},
 			loadCommentList(pageId) {
 				this.cancelCommentUser();
@@ -596,7 +611,7 @@
 		height: 55px;line-height: 25px;cursor: pointer;vertical-align: middle;
 	}
 	.page-show-vue .history-loading-status{
-		margin-left: 5px;color: #888;
+		margin-left: 5px;color: #67c23a;
 	}
 	.page-show-vue .el-timeline{
 		padding-inline-start: 0;

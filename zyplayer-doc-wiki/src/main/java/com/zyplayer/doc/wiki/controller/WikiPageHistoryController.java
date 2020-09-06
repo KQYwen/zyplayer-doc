@@ -56,7 +56,8 @@ public class WikiPageHistoryController {
 		UpdateWrapper<WikiPageHistory> wrapper = new UpdateWrapper<>();
 		wrapper.eq("page_id", pageId);
 		wrapper.eq("del_flag", 0);
-		IPage<WikiPageHistory> page = new Page<>(pageNum, 20, false);
+		wrapper.orderByDesc("id");
+		IPage<WikiPageHistory> page = new Page<>(pageNum, 30, false);
 		wikiPageHistoryService.page(page, wrapper);
 		return DocResponseJson.ok(page);
 	}
