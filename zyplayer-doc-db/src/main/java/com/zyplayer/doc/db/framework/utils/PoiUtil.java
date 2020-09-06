@@ -1,5 +1,6 @@
 package com.zyplayer.doc.db.framework.utils;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.io.IoUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
@@ -78,7 +79,7 @@ public class PoiUtil {
 	 * @param response
 	 * @throws Exception
 	 */
-	public static void exportByDocx(DatabaseExportVo exportVo, HttpServletResponse response) throws Exception {
+	public static void exportByDocx(String dbName, DatabaseExportVo exportVo, HttpServletResponse response) throws Exception {
 		List<TableColumnVo.TableInfoVo> tableList = exportVo.getTableList();
 		Map<String, List<TableColumnDescDto>> columnMap = exportVo.getColumnList();
 		XWPFDocument document = new XWPFDocument();
@@ -88,6 +89,17 @@ public class PoiUtil {
 		titleParagraphRun.setText("库表信息");
 		titleParagraphRun.setColor("000000");
 		titleParagraphRun.setFontSize(20);
+		// 写入表信息
+		PoiUtil.createEmptyLine(document);
+		document.createParagraph().createRun().setText("数据库名：" + dbName);
+		document.createParagraph().createRun().setText("导出时间：" + DateTime.now().toString());
+		document.createParagraph().createRun().setText("导出说明：本文档使用zyplayer-doc生成并导出");
+		List<List<String>> baseDataList = new LinkedList<>();
+		baseDataList.add(Arrays.asList("表名", "说明"));
+		for (TableColumnVo.TableInfoVo dto : tableList) {
+			baseDataList.add(Arrays.asList(dto.getTableName(), dto.getDescription()));
+		}
+		PoiUtil.createTable(document, baseDataList);
 		// 所有表信息写入
 		for (int i = 0; i < tableList.size(); i++) {
 			TableColumnVo.TableInfoVo tableInfoVo = tableList.get(i);

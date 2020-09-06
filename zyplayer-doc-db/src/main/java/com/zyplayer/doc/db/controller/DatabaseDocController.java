@@ -280,7 +280,7 @@ public class DatabaseDocController {
 			} else if (Objects.equals(exportType, 2)) {
 				PoiUtil.exportByXlsx(exportVo, response);
 			} else if (Objects.equals(exportType, 3)) {
-				PoiUtil.exportByDocx(exportVo, response);
+				PoiUtil.exportByDocx(dbName, exportVo, response);
 			} else {
 				return DocDbResponseJson.error("导出失败：请先选择导出类型");
 			}
