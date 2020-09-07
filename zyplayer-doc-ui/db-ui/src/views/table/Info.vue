@@ -72,7 +72,7 @@
                             <div v-if="scope.row.inEdit == 1">
                                 <el-input v-model="scope.row.newDesc" placeholder="输入字段注释" @keyup.enter="saveColumnDescription(scope.row)" v-on:blur="saveColumnDescription(scope.row)"></el-input>
                             </div>
-                            <div v-else class="description" v-on:click="descBoxClick(scope.row)">{{scope.row.description||'　'}}</div>
+                            <div v-else class="description" v-on:click="descBoxClick(scope.row)">{{scope.row.description}}</div>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -209,7 +209,7 @@
     .table-info-vue .el-dialog__body{padding: 0 20px 10px;}
     .table-info-vue .el-form-item{margin-bottom: 5px;}
     .table-info-vue .edit-table-desc{cursor: pointer; color: #409EFF;}
-    .table-info-vue .description{cursor: pointer;}
+    .table-info-vue .description{cursor: pointer;min-height: 23px;}
     .table-info-vue .el-table td, .table-info-vue .el-table th{padding: 5px 0;}
     .table-info-vue .status-info-row{padding: 8px 0;}
     .table-info-vue .status-info-row .label{width: 80px;display: inline-block;text-align: right;color: #606266;}
