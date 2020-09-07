@@ -140,12 +140,13 @@
 							<div v-if="pageHistoryList.length <= 0" class="action-box-empty">暂无修改历史记录</div>
 							<el-timeline v-else>
 								<el-timeline-item v-for="history in pageHistoryList">
-									<el-tag :type="pageHistoryChoice.id == history.id ? 'success':'info'" class="history-item" @click="historyClick(history)">
+									<el-tag :type="pageHistoryChoice.id == history.id ? history.loading==3?'danger':'success':'info'" class="history-item" @click="historyClick(history)">
 										<div>{{history.createUserName}}</div>
 										<div>{{history.createTime}}</div>
 									</el-tag>
 									<i class="el-icon-loading history-loading-status" v-show="history.loading==1"></i>
 									<i class="el-icon-circle-check history-loading-status" v-show="history.loading==2"></i>
+									<i class="el-icon-circle-close history-loading-status" v-show="history.loading==3"></i>
 								</el-timeline-item>
 							</el-timeline>
 <!--							<div v-for="i in 100">{{i}}</div>-->
@@ -414,6 +415,8 @@
 							history.content = markdownIt.render(history.content);
 						}
 						this.pageHistoryDetail = history.content;
+					}).catch(() => {
+						history.loading = 3;
 					});
 				}
 			},
@@ -612,6 +615,9 @@
 	}
 	.page-show-vue .history-loading-status{
 		margin-left: 5px;color: #67c23a;
+	}
+	.page-show-vue .history-loading-status.el-icon-circle-close{
+		color: #f56c6c;
 	}
 	.page-show-vue .el-timeline{
 		padding-inline-start: 0;

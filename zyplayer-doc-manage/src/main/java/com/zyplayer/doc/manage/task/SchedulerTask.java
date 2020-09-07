@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.Objects;
 import java.util.Properties;
@@ -18,9 +17,9 @@ import java.util.Properties;
 @Component
 public class SchedulerTask {
 	
-	@Value("${zyplayer.doc.manage.version:''}")
+	@Value("${zyplayer.doc.manage.version:}")
 	private String nowVersion;
-	@Value("${zyplayer.doc.manage.upgradePropertiesUrl:''}")
+	@Value("${zyplayer.doc.manage.upgradePropertiesUrl:}")
 	private String upgradePropertiesUrl;
 	
 	@PostConstruct

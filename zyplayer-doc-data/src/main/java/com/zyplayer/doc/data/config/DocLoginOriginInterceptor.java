@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class DocLoginOriginInterceptor implements HandlerInterceptor {
 	
-	@Value("${zyplayer.doc.manage.originDomainRegex:''}")
+	@Value("${zyplayer.doc.manage.originDomainRegex:}")
 	private String originDomainRegex;
 	
 	@Override

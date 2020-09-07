@@ -24,11 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ElasticSearchUtil {
 	private static Logger logger = LoggerFactory.getLogger(ElasticSearchUtil.class);
 	
-	@Value(value = "${zyplayer.doc.manage.elasticsearch.hostPort:''}")
+	@Value(value = "${zyplayer.doc.manage.elasticsearch.hostPort:}")
 	private String hostAndPort;
-	@Value(value = "${zyplayer.doc.manage.elasticsearch.scheme:''}")
+	@Value(value = "${zyplayer.doc.manage.elasticsearch.scheme:}")
 	private String esScheme;
-	@Value("${zyplayer.doc.manage.elasticsearch.open:''}")
+	@Value("${zyplayer.doc.manage.elasticsearch.open:}")
 	private String elasticsearchOpen;
 	
 	private static final Object createLock = new Object();

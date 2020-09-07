@@ -46,7 +46,15 @@ zyplayer:
       # 是否检查目录有被系统定期清理的风险，强烈建议开启
       upload-path-check: true
       # git本地仓库地址，用于管理WIKI的历史版本
-      git-file-path: d:/zyplayerDoc/wikiGitFiles
+      git-local-path: d:/zyplayerDoc/wikiGitFiles
+      # git远程仓库地址，可选配置项，如果存在则会每次修改后push到此仓库，必须先创建远程仓库，项目初始化时会去拉取
+      # 如果没有配置此项，则只会在维护一个本地的git仓库，使用简单
+      # 例：https://gitee.com/zyplayer/zyplayer-doc-wiki-files.git
+      git-remote-url:
+      # git远程仓库登录账号
+      git-remote-username:
+      # git远程仓库登录密码
+      git-remote-password:
     # ------swagger相关配置------
     swagger:
       proxy-request:

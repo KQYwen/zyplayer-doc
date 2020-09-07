@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
@@ -281,8 +282,12 @@ public class WikiPageController {
 		} else {
 			logger.warn("未开启elasticsearch服务，建议开启");
 		}
-		// 提交历史版本记录
-		gitService.commitAndAddHistory(wikiPage.getId(), content);
+		try {
+			// 提交历史版本记录
+			gitService.commitAndAddHistory(wikiPage.getId(), content);
+		} catch (ConfirmException e) {
+			return DocResponseJson.warn(e.getMessage());
+		}
 		return DocResponseJson.ok(wikiPage);
 	}
 	
