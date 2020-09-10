@@ -1,16 +1,19 @@
-
 --
 -- ！！重要说明！！
 -- 1、本sql文件分为：从1.0.6版本升级 和 全新的库，即增量和全量的区分，请选择性执行
 -- 2、建议数据库版本：5.7.25
 --
-
--- ------------------------从1.0.6版本升级：------------------------
+-- ==导出注意==
+-- 1. datetime(0) 低版本不支持此语法，改为datetime
+-- 2. utf8mb4 低版本不支持此字符集，改为utf8
+-- 3. 加字段后记得排查是否有insert语句，需要同步修改
+--
+-- ------------------------从1.0.6版本升级------------------------
 ALTER TABLE `wiki_page_history`
 DROP COLUMN `content`,
 ADD COLUMN `git_commit_id` varchar(50) NULL COMMENT 'git提交记录ID';
 
--- ------------------------全新的库：------------------------
+-- ------------------------全新的库------------------------
 /*
  Navicat Premium Data Transfer
 
@@ -26,7 +29,7 @@ ADD COLUMN `git_commit_id` varchar(50) NULL COMMENT 'git提交记录ID';
 
 */
 
-SET NAMES utf8mb4;
+SET NAMES utf8;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
@@ -39,7 +42,7 @@ CREATE TABLE `auth_info`  (
   `auth_desc` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '权限说明',
   `can_edit` tinyint(4) NULL DEFAULT 1 COMMENT '是否可编辑 0=否 1=是',
   `create_uid` bigint(20) NULL DEFAULT NULL COMMENT '创建人用户ID',
-  `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `auth_type` tinyint(4) NOT NULL DEFAULT 0 COMMENT '权限类型 0=隐藏权限 1=可使用',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '权限信息表' ROW_FORMAT = Compact;
@@ -69,18 +72,18 @@ INSERT INTO `auth_info` VALUES (17, 'DB_DESC_EDIT_', '表字段注释修改权',
 DROP TABLE IF EXISTS `db_datasource`;
 CREATE TABLE `db_datasource`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
-  `driver_class_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '数据源驱动类',
-  `source_url` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '数据源地址',
-  `source_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '数据源用户名',
-  `source_password` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '数据源密码',
+  `driver_class_name` varchar(50) NULL DEFAULT NULL COMMENT '数据源驱动类',
+  `source_url` varchar(512) NULL DEFAULT NULL COMMENT '数据源地址',
+  `source_name` varchar(50) NULL DEFAULT NULL COMMENT '数据源用户名',
+  `source_password` varchar(50) NULL DEFAULT NULL COMMENT '数据源密码',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '数据源名称',
+  `name` varchar(50) NULL DEFAULT NULL COMMENT '数据源名称',
   `source_group` varchar(50) DEFAULT NULL COMMENT '数据源分组名',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of db_datasource
@@ -92,15 +95,15 @@ CREATE TABLE `db_datasource`  (
 DROP TABLE IF EXISTS `db_favorite`;
 CREATE TABLE `db_favorite`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收藏标题',
-  `content` varchar(10000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收藏内容',
+  `name` varchar(50) NULL DEFAULT NULL COMMENT '收藏标题',
+  `content` varchar(10000) NULL DEFAULT NULL COMMENT '收藏内容',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   `datasource_id` bigint(20) NULL DEFAULT NULL COMMENT '数据源ID',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of db_favorite
@@ -112,14 +115,14 @@ CREATE TABLE `db_favorite`  (
 DROP TABLE IF EXISTS `db_history`;
 CREATE TABLE `db_history`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
-  `content` varchar(10000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'sql内容',
+  `content` varchar(10000) NULL DEFAULT NULL COMMENT 'sql内容',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   `datasource_id` bigint(20) NULL DEFAULT NULL COMMENT '数据源ID',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 135 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 135 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of db_history
@@ -131,15 +134,15 @@ CREATE TABLE `db_history`  (
 DROP TABLE IF EXISTS `es_datasource`;
 CREATE TABLE `es_datasource`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '数据源名称',
-  `host_port` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '地址和端口',
-  `scheme` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'scheme，http或其他',
+  `name` varchar(50) NULL DEFAULT NULL COMMENT '数据源名称',
+  `host_port` varchar(512) NULL DEFAULT NULL COMMENT '地址和端口',
+  `scheme` varchar(512) NULL DEFAULT NULL COMMENT 'scheme，http或其他',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of es_datasource
@@ -156,8 +159,8 @@ CREATE TABLE `user_auth`  (
   `create_uid` bigint(20) NULL DEFAULT NULL COMMENT '创建用户ID',
   `update_uid` bigint(20) NULL DEFAULT NULL COMMENT '更新用户ID',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '是否删除 0=未删除 1=已删除',
-  `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `auth_custom_suffix` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '自定义权限结尾',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 73 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户权限表' ROW_FORMAT = Compact;
@@ -190,9 +193,9 @@ CREATE TABLE `user_info`  (
   `email` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '邮箱',
   `avatar` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '头像',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '是否删除 0=未删除 1=已删除 2=已停用',
-  `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `create_uid` bigint(20) NULL DEFAULT NULL COMMENT '创建人用户ID',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `phone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '手机号',
   `sex` tinyint(4) NOT NULL DEFAULT 0 COMMENT '性别 0=女 1=男',
   PRIMARY KEY (`id`) USING BTREE,
@@ -211,34 +214,34 @@ DROP TABLE IF EXISTS `wiki_page`;
 CREATE TABLE `wiki_page`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `space_id` bigint(20) NULL DEFAULT NULL COMMENT '空间ID',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '名字',
+  `name` varchar(50) NULL DEFAULT NULL COMMENT '名字',
   `parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '父ID',
   `node_type` tinyint(4) NULL DEFAULT 0 COMMENT '节点类型 0=有子节点 1=终节点',
   `zan_num` int(11) NOT NULL DEFAULT 0 COMMENT '赞的数量',
   `edit_type` tinyint(4) NOT NULL DEFAULT 0 COMMENT '编辑类型 0=可编辑 1=不允许编辑',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_user_id` bigint(20) NULL DEFAULT NULL COMMENT '修改人ID',
-  `update_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改人名字',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+  `update_user_name` varchar(20) NULL DEFAULT NULL COMMENT '修改人名字',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   `view_num` int(11) NOT NULL DEFAULT 0 COMMENT '阅读数',
   `seq_no` int(11) NOT NULL DEFAULT 0 COMMENT '顺序',
   `editor_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '编辑框类型 1=HTML 2=Markdown',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of wiki_page
 -- ----------------------------
-INSERT INTO `wiki_page` VALUES (1, 1, '关于zyplayer-doc工具', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 14:01:41', 1, '暮光：城中城', '2019-07-16 21:00:00', 0, 42, 1);
-INSERT INTO `wiki_page` VALUES (2, 1, '开发规划', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 14:14:02', 1, '暮光：城中城', '2019-06-14 13:30:22', 0, 122, 4);
-INSERT INTO `wiki_page` VALUES (3, 1, '升级日志', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 14:16:20', 1, '暮光：城中城', '2019-06-14 16:49:30', 0, 29, 5);
-INSERT INTO `wiki_page` VALUES (4, 1, '贡献人员列表', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 15:16:15', 1, '暮光：城中城', '2019-06-14 13:20:43', 0, 13, 7);
-INSERT INTO `wiki_page` VALUES (5, 1, 'zyplayer-doc-swagger', 0, 0, 1, 0, 1, '暮光：城中城', '2019-03-09 15:33:14', NULL, NULL, NULL, 0, 20, 9);
-INSERT INTO `wiki_page` VALUES (6, 1, '如何使用', 5, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 15:33:33', 1, '暮光：城中城', '2019-03-09 15:33:46', 0, 3, 14);
-INSERT INTO `wiki_page` VALUES (7, 2, '所有格式测试', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-12 12:21:26', NULL, NULL, NULL, 0, 13, 13);
+INSERT INTO `wiki_page` VALUES (1, 1, '关于zyplayer-doc工具', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 14:01:41', 1, '暮光：城中城', '2019-07-16 21:00:00', 0, 42, 1, 1);
+INSERT INTO `wiki_page` VALUES (2, 1, '开发规划', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 14:14:02', 1, '暮光：城中城', '2019-06-14 13:30:22', 0, 122, 4, 1);
+INSERT INTO `wiki_page` VALUES (3, 1, '升级日志', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 14:16:20', 1, '暮光：城中城', '2019-06-14 16:49:30', 0, 29, 5, 1);
+INSERT INTO `wiki_page` VALUES (4, 1, '贡献人员列表', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 15:16:15', 1, '暮光：城中城', '2019-06-14 13:20:43', 0, 13, 7, 1);
+INSERT INTO `wiki_page` VALUES (5, 1, 'zyplayer-doc-swagger', 0, 0, 1, 0, 1, '暮光：城中城', '2019-03-09 15:33:14', NULL, NULL, NULL, 0, 20, 9, 1);
+INSERT INTO `wiki_page` VALUES (6, 1, '如何使用', 5, 0, 0, 0, 1, '暮光：城中城', '2019-03-09 15:33:33', 1, '暮光：城中城', '2019-03-09 15:33:46', 0, 3, 14, 1);
+INSERT INTO `wiki_page` VALUES (7, 2, '所有格式测试', 0, 0, 0, 0, 1, '暮光：城中城', '2019-03-12 12:21:26', NULL, NULL, NULL, 0, 13, 13, 1);
 
 -- ----------------------------
 -- Table structure for wiki_page_comment
@@ -248,14 +251,14 @@ CREATE TABLE `wiki_page_comment`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
   `parent_id` bigint(20) NULL DEFAULT NULL COMMENT '父评论ID',
-  `content` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '评论内容',
+  `content` varchar(512) NULL DEFAULT NULL COMMENT '评论内容',
   `zan_num` int(11) NOT NULL DEFAULT 0 COMMENT '赞的数量',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of wiki_page_comment
@@ -268,17 +271,17 @@ DROP TABLE IF EXISTS `wiki_page_content`;
 CREATE TABLE `wiki_page_content`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
-  `content` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '内容',
+  `content` mediumtext NULL COMMENT '内容',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_user_id` bigint(20) NULL DEFAULT NULL COMMENT '修改人ID',
-  `update_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改人名字',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
-  `preview` varchar(16000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '预览内容',
+  `update_user_name` varchar(20) NULL DEFAULT NULL COMMENT '修改人名字',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
+  `preview` varchar(16000) NULL DEFAULT NULL COMMENT '预览内容',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_page_id`(`page_id`) USING BTREE COMMENT '页面ID'
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of wiki_page_content
@@ -299,20 +302,20 @@ DROP TABLE IF EXISTS `wiki_page_file`;
 CREATE TABLE `wiki_page_file`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
-  `file_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件名',
+  `file_name` varchar(50) NULL DEFAULT NULL COMMENT '文件名',
   `file_url` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件URL',
-  `uuid` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件UUID',
+  `uuid` varchar(40) NULL DEFAULT NULL COMMENT '文件UUID',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_user_id` bigint(20) NULL DEFAULT NULL COMMENT '修改人ID',
-  `update_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改人名字',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+  `update_user_name` varchar(20) NULL DEFAULT NULL COMMENT '修改人名字',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   `download_num` int(11) NOT NULL DEFAULT 0 COMMENT '下载次数',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_uuid`(`uuid`) USING BTREE COMMENT '文件ID'
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of wiki_page_file
@@ -326,13 +329,13 @@ CREATE TABLE `wiki_page_history`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT 0 COMMENT '删除标记 0=正常 1=已删除',
   `git_commit_id` varchar(50) NULL COMMENT 'git提交记录ID',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_page_id`(`page_id`) USING BTREE COMMENT '页面ID索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for wiki_page_zan
@@ -343,11 +346,11 @@ CREATE TABLE `wiki_page_zan`  (
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
   `comment_id` bigint(20) NULL DEFAULT NULL COMMENT '评论ID',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for wiki_space
@@ -355,19 +358,19 @@ CREATE TABLE `wiki_page_zan`  (
 DROP TABLE IF EXISTS `wiki_space`;
 CREATE TABLE `wiki_space`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '空间名',
+  `name` varchar(50) NULL DEFAULT NULL COMMENT '空间名',
   `type` tinyint(4) NULL DEFAULT 1 COMMENT '空间类型 1=公司 2=个人 3=私人',
-  `space_explain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `space_explain` varchar(255) NULL DEFAULT NULL COMMENT '描述',
   `edit_type` tinyint(4) NOT NULL DEFAULT 0 COMMENT '编辑类型 0=可编辑 1=不允许编辑',
   `tree_lazy_load` tinyint(4) NOT NULL DEFAULT 0 COMMENT '目录延迟加载 0=否 1=是',
   `open_doc` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否是开放文档 0=否 1=是',
-  `uuid` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '唯一UUID',
+  `uuid` varchar(40) NULL DEFAULT NULL COMMENT '唯一UUID',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
-  `create_user_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人名字',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user_name` varchar(20) NULL DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT 0 COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of wiki_space
@@ -382,9 +385,9 @@ DROP TABLE IF EXISTS `zyplayer_storage`;
 CREATE TABLE `zyplayer_storage`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `doc_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数名字',
-  `doc_value` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '参数值',
-  `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `doc_value` mediumtext NULL COMMENT '参数值',
+  `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `key`(`doc_key`) USING BTREE COMMENT 'key唯一索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储网页上相关的数据' ROW_FORMAT = Compact;
@@ -406,7 +409,7 @@ CREATE TABLE `db_transfer_task` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 DROP TABLE IF EXISTS `user_message`;
 CREATE TABLE `user_message`  (
@@ -422,7 +425,7 @@ CREATE TABLE `user_message`  (
   `affect_user_id` bigint(20) NULL DEFAULT NULL COMMENT '影响人用户ID',
   `affect_user_name` varchar(20) NULL DEFAULT NULL COMMENT '影响人用户名',
   `accept_user_id` bigint(20) NULL DEFAULT NULL COMMENT '接收人用户ID',
-  `creation_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户消息表' ROW_FORMAT = Compact;
 
