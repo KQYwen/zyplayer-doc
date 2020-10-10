@@ -575,6 +575,8 @@
 	}
 </script>
 <style>
+	/*覆盖样式*/
+	.el-main{overflow: hidden;}
 	.page-show-vue {height: 100%;}
 	.page-show-vue .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
 	.page-show-vue .icon-collapse:hover{color: #eee;}

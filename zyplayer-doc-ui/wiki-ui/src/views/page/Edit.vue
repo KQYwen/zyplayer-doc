@@ -1,6 +1,6 @@
 <template>
-	<div style="padding: 10px;" class="page-edit-vue">
-		<el-row type="border-card">
+	<div style="height: 100%;" class="page-edit-vue">
+		<el-row type="border-card" style="height: 100%;overflow: auto;padding: 20px;box-sizing: border-box;">
 			<el-row :gutter="20">
 				<el-col :span="16">
 					<template v-if="pageId">
@@ -29,7 +29,9 @@
 				</el-col>
 			</el-row>
 			<el-input v-model="wikiPageEdit.pageTitle" placeholder="请输入标题" class="page-title-input"></el-input>
-			<mavon-editor v-show="wikiPageEdit.editorType===2" v-model="markdownContent" @save="createWikiSave(0)" :toolbars="toolbars" placeholder="请录入文档内容" class="page-content-editor"/>
+			<mavon-editor v-show="wikiPageEdit.editorType===2" ref="mavonEditor" v-model="markdownContent" :toolbars="toolbars"
+						  @save="createWikiSave(0)" @imgAdd="addMarkdownImage"
+						  placeholder="请录入文档内容" class="page-content-editor"/>
 			<div v-show="wikiPageEdit.editorType===1" id="newPageContentDiv" class="page-content-editor"></div>
 		</el-row>
 	</div>
@@ -40,6 +42,7 @@
 	import pageApi from '../../common/api/page'
 	import {mavonEditor, markdownIt} from 'mavon-editor'
 	import 'mavon-editor/dist/css/index.css'
+	import axios from 'axios'
 
 	export default {
 		props: ['spaceId'],
@@ -91,7 +94,8 @@
 					/* 2.2.1 */
 					subfield: true, // 单双栏模式
 					preview: true, // 预览
-				}
+				},
+				fileUploadUrl: process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload',
 			};
 		},
 		components: {
@@ -224,6 +228,27 @@
 					this.loadParentPageDetail(this.parentId);
 					this.cleanPage();
 				}
+			},
+			addMarkdownImage(pos, file) {
+				let formData = new FormData();
+				formData.append('files', file);
+				axios({
+					url: this.fileUploadUrl,
+					method: 'post',
+					data: formData,
+					headers: {'Content-Type': 'multipart/form-data'},
+					timeout: 10000,
+					withCredentials: true
+				}).then(res => {
+					let urlArr = res.data.data || [];
+					if (urlArr.length > 0) {
+						this.$refs.mavonEditor.$img2Url(pos, urlArr[0]);
+					} else {
+						this.$message.warning("上传失败，返回数据为空");
+					}
+				}).catch(e => {
+					this.$message.warning("上传失败：" + e.message);
+				});
 			},
 			initEditor() {
 				this.editor = new WangEditor('#newPageContentDiv');
