@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 文档控制器
@@ -86,6 +87,9 @@ public class WikiPageZanController {
 		wikiPageZanService.zanPage(wikiPageZan);
 		// 给相关人发送消息
 		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_ZAN);
+		if (!Objects.equals(wikiPageZan.getYn(), 1)) {
+			userMessage.setMsgType(UserMsgType.WIKI_PAGE_ZAN_CANCEL.getType());
+		}
 		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
 		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);

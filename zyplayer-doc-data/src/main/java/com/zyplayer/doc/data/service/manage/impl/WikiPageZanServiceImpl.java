@@ -50,7 +50,7 @@ public class WikiPageZanServiceImpl extends ServiceImpl<WikiPageZanMapper, WikiP
 			wikiPageZan.setCreateUserName(currentUser.getUsername());
 			this.save(wikiPageZan);
 		}
-		int numAdd = wikiPageZan.getYn() == 1 ? 1 : -1;
+		int numAdd = Objects.equals(wikiPageZan.getYn(), 1) ? 1 : -1;
 		wikiPageMapper.updateZanNum(wikiPageZan.getPageId(), numAdd);
 	}
 }

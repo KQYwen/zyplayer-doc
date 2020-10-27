@@ -196,6 +196,7 @@ public class WikiPageController {
 		WikiPage wikiPage = new WikiPage();
 		wikiPage.setId(pageId);
 		wikiPage.setDelFlag(1);
+		wikiPage.setName(wikiPageSel.getName());
 		wikiPage.setUpdateTime(new Date());
 		wikiPage.setUpdateUserId(currentUser.getUserId());
 		wikiPage.setUpdateUserName(currentUser.getUsername());
@@ -253,6 +254,12 @@ public class WikiPageController {
 			// 空间不是自己的
 			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有权限新增该空间的文章！");
+			}
+			if (wikiPage.getParentId() != null && wikiPage.getParentId() > 0) {
+				WikiPage wikiPageParent = wikiPageService.getById(wikiPage.getParentId());
+				if (Objects.equals(wikiPage.getSpaceId(), wikiPageParent.getSpaceId())) {
+					return DocResponseJson.warn("当前空间和父页面的空间不一致，请重新选择父页面！");
+				}
 			}
 			Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getParentId());
 			lastSeq = Optional.ofNullable(lastSeq).orElse(0);

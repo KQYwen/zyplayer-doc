@@ -82,6 +82,8 @@ public class UserMessageServiceImpl extends ServiceImpl<UserMessageMapper, UserM
 			userMessage.setMsgContent(String.format("您赞同了‘%s’", userMessage.getDataDesc()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_FILE_DEL.getType(), userMessage.getMsgType())) {
 			userMessage.setMsgContent(String.format("您删除了‘%s’文档的一个附件", userMessage.getDataDesc()));
+		} else if (Objects.equals(UserMsgType.WIKI_PAGE_ZAN_CANCEL.getType(), userMessage.getMsgType())) {
+			userMessage.setMsgContent(String.format("您取消了对‘%s’文档的赞同", userMessage.getDataDesc()));
 		}
 	}
 	
@@ -109,6 +111,8 @@ public class UserMessageServiceImpl extends ServiceImpl<UserMessageMapper, UserM
 			userMessage.setMsgContent(String.format("您的‘%s’文档收到了‘%s’的赞同", userMessage.getDataDesc(), userMessage.getOperatorUserName()));
 		} else if (Objects.equals(UserMsgType.WIKI_PAGE_FILE_DEL.getType(), userMessage.getMsgType())) {
 			userMessage.setMsgContent(String.format("您的‘%s’文档被‘%s’删除了一个附件", userMessage.getDataDesc(), userMessage.getOperatorUserName()));
+		} else if (Objects.equals(UserMsgType.WIKI_PAGE_ZAN_CANCEL.getType(), userMessage.getMsgType())) {
+			userMessage.setMsgContent(String.format("‘%s’取消了对文档‘%s’的赞同", userMessage.getOperatorUserName(), userMessage.getDataDesc()));
 		}
 	}
 }
