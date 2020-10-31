@@ -64,7 +64,7 @@ zyplayer:
     dubbo:
       # 优先使用zookeeper，未配置时找nacos的配置
       zookeeper:
-#        url: 127.0.0.1:2181
+        url: 127.0.0.1:2181
         # 服务参数那些信息的服务地址，dubbo7.0新特性
 #        metadata-url: 127.0.0.1:2181
       nacos:

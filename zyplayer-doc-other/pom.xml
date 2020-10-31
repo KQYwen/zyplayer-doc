@@ -14,6 +14,7 @@
 
     <modules>
         <module>zyplayer-doc-test</module>
+        <module>zyplayer-doc-annotation</module>
     </modules>
 
 

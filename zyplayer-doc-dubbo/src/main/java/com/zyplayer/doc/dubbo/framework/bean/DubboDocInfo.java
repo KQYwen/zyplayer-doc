@@ -24,6 +24,7 @@ public class DubboDocInfo {
 		private String paramDesc;
 		private Object paramValue;
 		private Integer required;
+		private List<DubboDocParam> params;
 		
 		public String getParamName() {
 			return paramName;
@@ -63,6 +64,14 @@ public class DubboDocInfo {
 		
 		public void setRequired(Integer required) {
 			this.required = required;
+		}
+		
+		public List<DubboDocParam> getParams() {
+			return params;
+		}
+		
+		public void setParams(List<DubboDocParam> params) {
+			this.params = params;
 		}
 	}
 	
