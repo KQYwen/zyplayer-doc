@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.zyplayer</groupId>
+    <artifactId>zyplayer-doc-dubbo-libs</artifactId>
+    <version>1.0.6</version>
+    <packaging>jar</packaging>
+    <name>zyplayer-doc-dubbo-libs</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <!--所有业务包放这里，打包之后在文档页面上传此jar-->
+        <!--
+            尝试过很多方式：
+            比如在dubbo文档项目内，这样每次依赖的jar升级都需要重新发版
+            比如自动下载远程仓库或读取本地仓库的jar来获取类，这样如果jar包里依赖了另外的jar则不可行了，需要解析整个maven依赖树，复杂度高
+            当前找到的最合适的方式就是一个模块依赖所有需要的jar，然后打包后传上去，这样所有的依赖都在此包里了，也不需要重新发版
+            如果你有更好的建议欢迎提出来探讨，非常乐意接受更加方便的建议！
+        -->
+<!--        <dependency>-->
+<!--            <groupId>com.zyplayer</groupId>-->
+<!--            <artifactId>dubbo-api</artifactId>-->
+<!--            <version>1.1</version>-->
+<!--        </dependency>-->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- 在default生命周期的 validate阶段就执行resources插件的copy-resources目标 -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 指定resources插件处理资源文件到哪个目录下 -->
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <!-- 也可以用这样的方式<outputDirectory>target/classes</outputDirectory> -->
+                            <!-- 待处理的资源定义 -->
+                            <resources>
+                                <resource>
+                                    <!-- 指定resources插件处理哪个目录下的资源文件 -->
+                                    <directory>src/main/resources</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                            <resource>META-INF/spring.handlers</resource>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                            <resource>META-INF/spring.schemas</resource>
+                        </transformer>
+                    </transformers>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -9,8 +9,7 @@ const service = axios.create({
 });
 // 增加不需要验证结果的标记
 const noValidate = {
-	"/zyplayer-doc-db/executor/execute": true,
-	"/zyplayer-doc-db/datasource/test": true,
+	"/zyplayer-doc-dubbo/doc-dubbo/request": true,
 };
 
 service.interceptors.request.use(
@@ -32,17 +31,18 @@ service.interceptors.response.use(
 	response => {
 		if (!!response.message) {
 			vue.$message.error('请求错误：' + response.message);
-		}else {
+		} else {
 			if (!response.config.needValidateResult || response.data.errCode == 200) {
 				return response.data;
 			} else if (response.data.errCode == 400) {
 				vue.$message.error('请先登录');
-				var href = encodeURIComponent(window.location.href);
+				let href = encodeURIComponent(window.location.href);
 				window.location = process.env.VUE_APP_BASE_API + "#/user/login?redirect=" + href;
 			} else if (response.data.errCode == 402) {
 				vue.$router.push("/common/noAuth");
 			} else if (response.data.errCode !== 200) {
 				vue.$message.error(response.data.errMsg || "未知错误");
+				return Promise.reject(response.data.errMsg || "未知错误");
 			}
 		}
 		return Promise.reject('请求错误');

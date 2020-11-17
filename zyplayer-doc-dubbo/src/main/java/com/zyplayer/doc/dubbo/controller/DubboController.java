@@ -1,44 +1,32 @@
 package com.zyplayer.doc.dubbo.controller;
 
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.dubbo.controller.param.DubboRequestParam;
 import com.zyplayer.doc.dubbo.controller.vo.DubboInfoVo;
-import com.zyplayer.doc.dubbo.controller.vo.NacosServiceInfoVo;
-import com.zyplayer.doc.dubbo.controller.vo.NacosServiceListVo;
 import com.zyplayer.doc.dubbo.framework.bean.DubboDocInfo;
 import com.zyplayer.doc.dubbo.framework.bean.DubboInfo;
-import com.zyplayer.doc.dubbo.framework.bean.NacosDubboInfo;
 import com.zyplayer.doc.dubbo.framework.bean.ReferenceConfigHolder;
+import com.zyplayer.doc.dubbo.framework.constant.DubboDocConst;
 import com.zyplayer.doc.dubbo.framework.constant.StorageKeys;
+import com.zyplayer.doc.dubbo.framework.service.ClassLoadService;
 import com.zyplayer.doc.dubbo.framework.service.MgDubboStorageService;
+import com.zyplayer.doc.dubbo.framework.service.NacosDocService;
+import com.zyplayer.doc.dubbo.framework.service.ZookeeperDocService;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.dubbo.common.Constants;
-import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.utils.UrlUtils;
-import org.apache.dubbo.metadata.definition.model.FullServiceDefinition;
-import org.apache.dubbo.metadata.definition.model.MethodDefinition;
-import org.apache.dubbo.metadata.identifier.MetadataIdentifier;
 import org.apache.dubbo.rpc.service.GenericService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.net.URLDecoder;
+import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,53 +44,17 @@ import java.util.stream.Collectors;
 public class DubboController {
 	private static Logger logger = LoggerFactory.getLogger(DubboController.class);
 	
-	private final static String DEFAULT_ROOT = "dubbo";
-	private final static String METADATA_NODE_NAME = "service.data";
-	private String root;
+	@Value("${zyplayer.doc.dubbo.doc-lib-path}")
+	private String zyplayerDocDubboLibPath;
 	
-	@Value("${zyplayer.doc.dubbo.zookeeper.url:}")
-	private String serviceZookeeperUrl;
-	@Value("${zyplayer.doc.dubbo.zookeeper.metadata-url:}")
-	private String metadataZookeeperUrl;
-	@Value("${zyplayer.doc.dubbo.nacos.url:}")
-	private String nacosUrl;
-//	@Value("${zyplayer.doc.dubbo.nacos.service:}")
-//	private String nacosService;
 	@Resource
 	private MgDubboStorageService mgDubboStorageService;
-	
-	private CuratorFramework serverClient;
-	private CuratorFramework metadataClient;
-	
-	private void initServerClient() {
-		if (serverClient == null && StringUtils.isNotBlank(serviceZookeeperUrl)) {
-			synchronized (DEFAULT_ROOT) {
-				if (serverClient == null) {
-					RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-					serverClient = CuratorFrameworkFactory.newClient(serviceZookeeperUrl, retryPolicy);
-					serverClient.start();
-				}
-			}
-		}
-	}
-	
-	private void initMetadataClient() {
-		if (metadataClient == null && StringUtils.isNotBlank(metadataZookeeperUrl)) {
-			synchronized (DEFAULT_ROOT) {
-				if (metadataClient == null) {
-					URL url = UrlUtils.parseURL(metadataZookeeperUrl, Collections.emptyMap());
-					String group = url.getParameter(Constants.GROUP_KEY, DEFAULT_ROOT);
-					if (!group.startsWith(Constants.PATH_SEPARATOR)) {
-						group = Constants.PATH_SEPARATOR + group;
-					}
-					this.root = group;
-					RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-					metadataClient = CuratorFrameworkFactory.newClient(metadataZookeeperUrl, retryPolicy);
-					metadataClient.start();
-				}
-			}
-		}
-	}
+	@Resource
+	private ZookeeperDocService zookeeperDocService;
+	@Resource
+	private NacosDocService nacosDocService;
+	@Resource
+	ClassLoadService classLoadService;
 	
 	/**
 	 * 重新获取所有的服务列表
@@ -111,17 +63,17 @@ public class DubboController {
 	 * @since 2019年2月10日
 	 **/
 	@PostMapping(value = "/reloadService")
-	public DocResponseJson loadService() throws Exception {
+	public DocResponseJson loadService() {
 		List<DubboInfo> providerList;
 		try {
-			if (StringUtils.isBlank(serviceZookeeperUrl)) {
-				if (StringUtils.isBlank(nacosUrl)) {// || StringUtils.isBlank(nacosService)) {
+			if (!zookeeperDocService.isEnable()) {
+				if (!nacosDocService.isEnable()) {
 					return DocResponseJson.warn("zyplayer.doc.dubbo.zookeeper.url、zyplayer.doc.dubbo.nacos.url 参数均未配置");
 				}
 				logger.info("zookeeper参数未配置，使用nacos配置");
-				providerList = this.getDubboInfoByNacos();
+				providerList = nacosDocService.getDubboInfoByNacos();
 			} else {
-				providerList = this.getDubboInfoByZookeeper();
+				providerList = zookeeperDocService.getDubboInfoByZookeeper();
 			}
 			mgDubboStorageService.put(StorageKeys.DUBBO_SERVICE_LIST, JSON.toJSONString(providerList));
 		} catch (Exception e) {
@@ -143,6 +95,8 @@ public class DubboController {
 		dubboNodeInfo.setIp(param.getIp());
 		dubboNodeInfo.setPort(param.getPort());
 		dubboNodeInfo.setInterfaceX(param.getService());
+		dubboNodeInfo.setVersion(param.getVersion());
+		dubboNodeInfo.setGroup(param.getGroup());
 		String paramTypeStr = Optional.ofNullable(param.getParamTypes()).orElse("");
 		String paramsStr = Optional.ofNullable(param.getParams()).orElse("");
 		List<String> typeList = JSON.parseArray(paramTypeStr, String.class);
@@ -155,7 +109,7 @@ public class DubboController {
 			try {
 				if (typeStr.endsWith("[]")) {
 					String type = typeStr.substring(0, typeStr.length() - 2);
-					Class<?> aClass = Class.forName(type);
+					Class<?> aClass = classLoadService.loadClass(type);
 					List<?> objects = JSON.parseArray(paramStr, aClass);
 					queryTypeList.add(typeStr);
 					queryParamList.add(objects);
@@ -164,13 +118,13 @@ public class DubboController {
 					Matcher matcher = pattern.matcher(typeStr);
 					if (matcher.find()) {
 						String group = matcher.group(1);
-						Class<?> aClass = Class.forName(group);
+						Class<?> aClass = classLoadService.loadClass(group);
 						List<?> objects = JSON.parseArray(paramStr, aClass);
 						queryParamList.add(objects);
 						queryTypeList.add("java.util.List");
 					}
 				} else {
-					Class<?> aClass = Class.forName(typeStr);
+					Class<?> aClass = classLoadService.loadClass(typeStr);
 					Object object = JSON.parseObject(paramStr, aClass);
 					queryParamList.add(object);
 					queryTypeList.add(typeStr);
@@ -182,13 +136,16 @@ public class DubboController {
 				queryTypeList.add(typeStr);
 			}
 		}
-		GenericService bean = ReferenceConfigHolder.getBean(dubboNodeInfo);
 		try {
+			GenericService bean = ReferenceConfigHolder.getBean(dubboNodeInfo);
+			if (bean == null) {
+				return DocResponseJson.warn("操作失败，获取dubbo服务失败");
+			}
 			Object result = bean.$invoke(param.getMethod(), queryTypeList.toArray(new String[]{}), queryParamList.toArray());
 			return DocResponseJson.ok(result);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return DocResponseJson.warn("请求失败：" + e.getMessage());
+			return DocResponseJson.warn("操作失败，" + e.getMessage());
 		}
 	}
 	
@@ -224,9 +181,9 @@ public class DubboController {
 	 **/
 	@PostMapping(value = "/findDocInfo")
 	public DocResponseJson findDocInfo(DubboRequestParam param) {
-		DubboDocInfo definition = this.getDefinitionByJar(param);
+		DubboDocInfo definition = zookeeperDocService.getDefinitionByJar(param);
 		if (definition == null) {
-			definition = this.getDefinitionByMetadata(param);
+			definition = zookeeperDocService.getDefinitionByMetadata(param);
 		}
 		if (definition == null) {
 			return DocResponseJson.warn("未找到指定类，请引入相关包或开启metadata，类名：" + param.getService());
@@ -298,173 +255,36 @@ public class DubboController {
 	}
 	
 	/**
-	 * 通过nacos方式获取所有服务
+	 * 上传文档jar
 	 *
 	 * @author 暮光：城中城
-	 * @since 2019年2月10日
+	 * @since 2020年10月08日
 	 **/
-	private List<DubboInfo> getDubboInfoByNacos() {
-		List<DubboInfo> providerList = new LinkedList<>();
-		// 获取所有的服务列表
-		String serviceListStr = HttpUtil.get(nacosUrl + "/v1/ns/catalog/services?withInstances=false&pageNo=1&pageSize=100000");
-		NacosServiceInfoVo nacosServiceInfoVo = JSON.parseObject(serviceListStr, NacosServiceInfoVo.class);
-		if (nacosServiceInfoVo == null || nacosServiceInfoVo.getServiceList().isEmpty()) {
-			return providerList;
+	@PostMapping(value = "/uploadDocJar")
+	public DocResponseJson uploadDocJar(@RequestParam("file") MultipartFile file) {
+		File newFileDir = new File(zyplayerDocDubboLibPath);
+		if (!newFileDir.exists() && !newFileDir.mkdirs()) {
+			return DocResponseJson.warn("创建文件夹失败");
 		}
-		for (NacosServiceListVo service : nacosServiceInfoVo.getServiceList()) {
-			String serviceName = service.getName();
-			String resultStr = HttpUtil.get(nacosUrl + "/v1/ns/instance/list?serviceName=" + serviceName);
-			NacosDubboInfo dubboInstance = JSON.parseObject(resultStr, NacosDubboInfo.class);
-			List<NacosDubboInfo.HostsBean> hosts = dubboInstance.getHosts();
-			DubboInfo dubboInfo = new DubboInfo();
-			List<DubboInfo.DubboNodeInfo> nodeList = new LinkedList<>();
-			for (NacosDubboInfo.HostsBean host : hosts) {
-				DubboInfo.DubboNodeInfo dubboNodeInfo = new DubboInfo.DubboNodeInfo();
-				dubboNodeInfo.setIp(host.getIp());
-				dubboNodeInfo.setPort(host.getPort());
-				dubboNodeInfo.setInterfaceX(host.getMetadata().getInterfaceX());
-				dubboNodeInfo.setMethods(host.getMetadata().getMethods().split(","));
-				dubboNodeInfo.setApplication(host.getMetadata().getApplication());
-				nodeList.add(dubboNodeInfo);
-			}
-			if (serviceName.contains(":")) {
-				serviceName = serviceName.substring(serviceName.indexOf(":") + 1);
-			}
-			dubboInfo.setInterfaceX(serviceName);
-			dubboInfo.setNodeList(nodeList);
-			providerList.add(dubboInfo);
+		String fileSuffix = null;
+		String fileName = file.getOriginalFilename();
+		if (fileName != null) {
+			fileSuffix = fileName.substring(fileName.lastIndexOf("."));
 		}
-		return providerList;
-	}
-	
-	/**
-	 * 通过Zookeeper方式获取所有服务
-	 *
-	 * @author 暮光：城中城
-	 * @since 2019年2月10日
-	 **/
-	private List<DubboInfo> getDubboInfoByZookeeper() throws Exception {
-		this.initServerClient();
-		List<String> dubboList = serverClient.getChildren().forPath("/dubbo");
-		if (dubboList == null || dubboList.isEmpty()) {
-			return Collections.emptyList();
+		if (!Objects.equals(".jar", fileSuffix)) {
+			return DocResponseJson.warn("仅支持jar后缀的文件格式上传");
 		}
-		List<DubboInfo> providerList = new LinkedList<>();
-		for (String dubboStr : dubboList) {
-			String path = "/dubbo/" + dubboStr + "/providers";
-			if (serverClient.checkExists().forPath(path) == null) {
-				continue;
-			}
-			List<String> providers = serverClient.getChildren().forPath(path);
-			List<DubboInfo.DubboNodeInfo> nodeList = providers.stream().map(val -> {
-				String tempStr = val;
-				try {
-					tempStr = URLDecoder.decode(val, "utf-8");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				// IP和端口
-				String ipPort = tempStr.substring(tempStr.indexOf("://") + 3);
-				ipPort = ipPort.substring(0, ipPort.indexOf("/"));
-				String[] ipPortArr = ipPort.split(":");
-				// 参数
-				Map<String, String> paramMap = new HashMap<>();
-				String params = tempStr.substring(tempStr.indexOf("?"));
-				String[] paramsArr = params.split("&");
-				for (String param : paramsArr) {
-					String[] split = param.split("=");
-					paramMap.put(split[0], split[1]);
-				}
-				DubboInfo.DubboNodeInfo dubboNodeInfo = new DubboInfo.DubboNodeInfo();
-				dubboNodeInfo.setIp(ipPortArr[0]);
-				dubboNodeInfo.setPort(NumberUtils.toInt(ipPortArr[1]));
-				dubboNodeInfo.setInterfaceX(paramMap.get("interface"));
-				dubboNodeInfo.setMethods(paramMap.get("methods").split(","));
-				dubboNodeInfo.setApplication(paramMap.get("application"));
-				return dubboNodeInfo;
-			}).collect(Collectors.toList());
-			DubboInfo dubboInfo = new DubboInfo();
-			dubboInfo.setInterfaceX(dubboStr);
-			dubboInfo.setNodeList(nodeList);
-			providerList.add(dubboInfo);
-		}
-		return providerList;
-	}
-	
-	private DubboDocInfo getDefinitionByMetadata(DubboRequestParam param) {
 		try {
-			this.initMetadataClient();
-			String path = getNodePath(param.getService(), null, null, param.getApplication());
-			if (metadataClient.checkExists().forPath(path) == null) {
-				return null;
-			}
-			String resultType = null;
-			String metadata = new String(metadataClient.getData().forPath(path));
-			FullServiceDefinition definition = JSON.parseObject(metadata, FullServiceDefinition.class);
-			List<DubboDocInfo.DubboDocParam> paramList = new LinkedList<>();
-			for (MethodDefinition method : definition.getMethods()) {
-				if (Objects.equals(method.getName(), param.getMethod())) {
-					String[] parameterTypes = method.getParameterTypes();
-					resultType = method.getReturnType();
-					for (int i = 0; i < parameterTypes.length; i++) {
-						DubboDocInfo.DubboDocParam docParam = new DubboDocInfo.DubboDocParam();
-						docParam.setParamType(parameterTypes[i]);
-						docParam.setParamName("arg" + i);
-						paramList.add(docParam);
-					}
-				}
-			}
-			DubboDocInfo dubboDocInfo = new DubboDocInfo();
-			dubboDocInfo.setParams(paramList);
-			dubboDocInfo.setResultType(resultType);
-			return dubboDocInfo;
+			classLoadService.closeClassLoad(() -> {
+				File docJarFile = new File(zyplayerDocDubboLibPath + "/" + DubboDocConst.DUBBO_DOC_LIB_NAME);
+				file.transferTo(docJarFile);
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
+			return DocResponseJson.warn("保存文件失败：" + e.getMessage());
 		}
-		return null;
+		return DocResponseJson.ok();
 	}
-	
-	private DubboDocInfo getDefinitionByJar(DubboRequestParam param) {
-		String resultType = null;
-		List<DubboDocInfo.DubboDocParam> paramList = new LinkedList<>();
-		try {
-			Class clazz = Class.forName(param.getService());
-			Method[] methods = clazz.getMethods();
-			for (Method method : methods) {
-				String methodName = method.getName();
-				if (methodName.equals(param.getMethod())) {
-					resultType = method.getGenericReturnType().getTypeName();
-					Type[] parameterTypes = method.getGenericParameterTypes();
-					Parameter[] parameters = method.getParameters();
-					for (int i = 0; i < parameterTypes.length; i++) {
-						DubboDocInfo.DubboDocParam docParam = new DubboDocInfo.DubboDocParam();
-						docParam.setParamName(parameters[i].getName());
-						docParam.setParamType(parameterTypes[i].getTypeName());
-						paramList.add(docParam);
-					}
-				}
-			}
-		} catch (Exception e) {
-			return null;
-		}
-		DubboDocInfo dubboDocInfo = new DubboDocInfo();
-		dubboDocInfo.setParams(paramList);
-		dubboDocInfo.setResultType(resultType);
-		return dubboDocInfo;
-	}
-	
-	String toRootDir() {
-		if (root.equals(Constants.PATH_SEPARATOR)) {
-			return root;
-		}
-		return root + Constants.PATH_SEPARATOR;
-	}
-	
-	String getNodePath(String serviceInterface, String version, String group, String application) {
-		MetadataIdentifier metadataIdentifier = new MetadataIdentifier(serviceInterface, version, group, Constants.PROVIDER_SIDE, application);
-		return toRootDir() + metadataIdentifier.getUniqueKey(MetadataIdentifier.KeyTypeEnum.PATH) + Constants.PATH_SEPARATOR + METADATA_NODE_NAME;
-	}
-	
 	
 }
 

@@ -1,14 +1,19 @@
 package com.zyplayer.doc.dubbo.framework.service;
 
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.annotation.DocMethod;
 import com.zyplayer.doc.annotation.DocParam;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.dubbo.framework.bean.DubboResponseInfo;
 import com.zyplayer.doc.dubbo.framework.bean.InterfaceType;
 import com.zyplayer.doc.dubbo.framework.constant.BaseType;
+import com.zyplayer.doc.dubbo.framework.constant.DubboDocConst;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.lang.reflect.*;
 import java.net.JarURLConnection;
@@ -18,39 +23,111 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+/**
+ * 类加载服务
+ *
+ * @author 暮光：城中城
+ * @since 2020年11月08日
+ */
+@Service
 public class ClassLoadService {
 	private static Logger logger = LoggerFactory.getLogger(ClassLoadService.class);
 	
+	@Value("${zyplayer.doc.dubbo.doc-lib-path}")
+	private String zyplayerDocDubboLibPath;
+	
+	private URLClassLoader docClassLoader;
+	
+	/**
+	 * 获取文档jar类加载器
+	 *
+	 * @author 暮光：城中城
+	 * @since 2020年11月08日
+	 */
+	private URLClassLoader getDocClassLoader() throws Exception {
+		if (docClassLoader != null) {
+			return docClassLoader;
+		}
+		if (!FileUtil.isFile(zyplayerDocDubboLibPath + "/" + DubboDocConst.DUBBO_DOC_LIB_NAME)) {
+			throw new ConfirmException("请先上传文档JAR");
+		}
+		synchronized (ClassLoadService.class) {
+			// file:D:/maven/repository/com/zyplayer/dubbo-api/1.0/dubbo-api-1.0.jar
+			URL fileUrl = new URL("file:/" + zyplayerDocDubboLibPath + "/" + DubboDocConst.DUBBO_DOC_LIB_NAME);
+			docClassLoader = new URLClassLoader(new URL[]{fileUrl}, Thread.currentThread().getContextClassLoader());
+		}
+		return docClassLoader;
+	}
+	
+	/**
+	 * 关闭类加载器，callback中可对文件进行覆盖上传
+	 *
+	 * @author 暮光：城中城
+	 * @since 2020年11月08日
+	 */
+	public void closeClassLoad(ClassLoaderCallback callback) throws Exception {
+		synchronized (ClassLoadService.class) {
+			try {
+				if (docClassLoader != null) {
+					docClassLoader.close();
+				}
+			} catch (Exception e) {
+				logger.error("关闭类加载器失败", e);
+			}
+			docClassLoader = null;
+			if (callback != null) {
+				// callback方式，防止刚close，马上又被别人new出来了
+				callback.callback();
+			}
+		}
+	}
+	
+	/**
+	 * 加载类
+	 *
+	 * @author 暮光：城中城
+	 * @since 2020年11月08日
+	 */
+	public Class<?> loadClass(String serverName) throws Exception {
+		try {
+			return this.getDocClassLoader().loadClass(serverName);
+		} catch (Exception e) {
+			// 失败之后先关闭再去加载一次
+			this.closeClassLoad(null);
+			return this.getDocClassLoader().loadClass(serverName);
+		}
+	}
+
 //	public static void main(String[] args) throws Exception {
 //		String serviceName = "com.zyplayer.dubbo.service.AnnotateService";
 //		String jarGroup = "com.zyplayer";
 //		String jarArtifact = "dubbo-api";
 //		String jarVersion = "1.0";
 //		String basePath = "file:D:/maven/repository";
-////		String basePath = "http://nexus.dmall.com:8081/nexus/content/groups/public";
+////		String basePath = "http://nexus.zyplayer.com:8081/nexus/content/groups/public";
+//		new ClassLoadService().loadServerMethod(serviceName, basePath, jarGroup, jarArtifact, jarVersion);
+//	}
+
+//	public static void main(String[] args) throws Exception {
+//		String serviceName = "com.zyplayer.data.service.dubbo.DataIndicatorsService";
+//		String jarGroup = "com.zyplayer.data";
+//		String jarArtifact = "data-api-client";
+//		String jarVersion = "1.0.9.SNAPSHOTS";
+//		String basePath = "http://nexus.zyplayer.com:8081/nexus/content/groups/public";
 //		new ClassLoadService().loadServerMethod(serviceName, basePath, jarGroup, jarArtifact, jarVersion);
 //	}
 	
-	public static void main(String[] args) throws Exception {
-		String serviceName = "com.dmall.data.service.dubbo.DataIndicatorsService";
-		String jarGroup = "com.dmall.data";
-		String jarArtifact = "data-api-client";
-		String jarVersion = "1.0.9.SNAPSHOTS";
-		String basePath = "http://nexus.dmall.com:8081/nexus/content/groups/public";
-		new ClassLoadService().loadServerMethod(serviceName, basePath, jarGroup, jarArtifact, jarVersion);
-	}
-	
-	public void loadServerMethod(String serverName, String basePath, String jarGroup, String jarArtifact, String jarVersion) throws Exception {
+	public void loadServerMethod(String serverName) throws Exception {
 		// jar:file:D:/maven/repository/com/zyplayer/dubbo-api/1.0/dubbo-api-1.0.jar!/
-		String jarPath = jarGroup.replaceAll("\\.", "/") + "/" + jarArtifact + "/" + jarVersion + "/" + jarArtifact + "-" + jarVersion + ".jar";
-		URL jarUrl = new URL("jar:" + basePath + "/" + jarPath + "!/");
+		String docJarFileUrl = "file:/" + zyplayerDocDubboLibPath + "/" + DubboDocConst.DUBBO_DOC_LIB_NAME;
+		URL jarUrl = new URL("jar:" + docJarFileUrl + "!/");
 		JarFile jar = ((JarURLConnection) jarUrl.openConnection()).getJarFile();
 		JarEntry jarEntry = jar.getJarEntry(serverName.replaceAll("\\.", "/") + ".class");
 		if (jarEntry == null) {
 			logger.info("未找到类");
 			return;
 		}
-		URL fileUrl = new URL(basePath + "/" + jarPath);
+		URL fileUrl = new URL(docJarFileUrl);
 		URLClassLoader classLoader = new URLClassLoader(new URL[]{fileUrl}, Thread.currentThread().getContextClassLoader());
 		Class<?> clazz = classLoader.loadClass(serverName);
 		Method[] methods = clazz.getMethods();
@@ -220,8 +297,8 @@ public class ClassLoadService {
 		List<DubboResponseInfo> paramList = new LinkedList<>();
 		Field[] fieldArr = clazz.getDeclaredFields();
 		for (Field field : fieldArr) {
-			field.setAccessible(true);
 			try {
+				field.setAccessible(true);
 				paramList.add(this.getInfoByField(classLoader, field, recursion));
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -20,6 +20,8 @@ public class DubboInfo {
 		private String interfaceX;
 		private String[] methods;
 		private String application;
+		private String version;
+		private String group;
 		
 		public Integer getPort() {
 			return port;
@@ -59,6 +61,22 @@ public class DubboInfo {
 		
 		public void setApplication(String application) {
 			this.application = application;
+		}
+		
+		public String getVersion() {
+			return version;
+		}
+		
+		public void setVersion(String version) {
+			this.version = version;
+		}
+		
+		public String getGroup() {
+			return group;
+		}
+		
+		public void setGroup(String group) {
+			this.group = group;
 		}
 	}
 	

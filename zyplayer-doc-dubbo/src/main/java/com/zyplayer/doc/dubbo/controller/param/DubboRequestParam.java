@@ -12,6 +12,8 @@ public class DubboRequestParam {
 	private String method;
 	private String ip;
 	private Integer port;
+	private String version;
+	private String group;
 	private String paramTypes;
 	private String params;
 	
@@ -69,5 +71,21 @@ public class DubboRequestParam {
 	
 	public void setApplication(String application) {
 		this.application = application;
+	}
+	
+	public String getVersion() {
+		return version;
+	}
+	
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	
+	public String getGroup() {
+		return group;
+	}
+	
+	public void setGroup(String group) {
+		this.group = group;
 	}
 }

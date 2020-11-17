@@ -62,6 +62,8 @@ zyplayer:
         white-domain: .+
     # ------dubbo相关配置------
     dubbo:
+      # 存放dubbo文档jar上传后存放的目录
+      doc-lib-path: D:/zyplayerDoc/dubbo
       # 优先使用zookeeper，未配置时找nacos的配置
       zookeeper:
         url: 127.0.0.1:2181

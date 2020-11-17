@@ -2,6 +2,7 @@ import Home from './views/home/Home.vue'
 
 import UserLogin from './views/user/Login.vue'
 import UserMyInfo from './views/user/MyInfo.vue'
+import DubboDocView from './views/doc/DubboDocView.vue'
 import UserRouterView from './views/user/RouterView.vue'
 
 import PageTableView from './components/layouts/PageTableView'
@@ -22,10 +23,11 @@ let routes = [
     }, {
         path: '/',
         name: 'Tab标签页',
-        component: PageTableView,
-        children: [
-			{path: '/user/myInfo', name: '我的信息',component: UserMyInfo},
-        ]
+		component: PageTableView,
+		children: [
+			{path: '/doc/dubboDocView', name: '文档信息', component: DubboDocView},
+			{path: '/user/myInfo', name: '我的信息', component: UserMyInfo},
+		]
     }, {
         path: '/user',
         name: '用户管理',

@@ -3,3 +3,4 @@
 *.iml
 tmlog*.lck
 tmlog*.log
+dependency-reduced-pom.xml
