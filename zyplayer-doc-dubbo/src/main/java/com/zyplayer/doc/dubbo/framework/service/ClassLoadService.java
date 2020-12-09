@@ -53,8 +53,10 @@ public class ClassLoadService {
 		}
 		synchronized (ClassLoadService.class) {
 			// file:D:/maven/repository/com/zyplayer/dubbo-api/1.0/dubbo-api-1.0.jar
-			URL fileUrl = new URL("file:/" + zyplayerDocDubboLibPath + "/" + DubboDocConst.DUBBO_DOC_LIB_NAME);
-			docClassLoader = new URLClassLoader(new URL[]{fileUrl}, Thread.currentThread().getContextClassLoader());
+			if (docClassLoader == null) {
+				URL fileUrl = new URL("file:/" + zyplayerDocDubboLibPath + "/" + DubboDocConst.DUBBO_DOC_LIB_NAME);
+				docClassLoader = new URLClassLoader(new URL[]{fileUrl}, Thread.currentThread().getContextClassLoader());
+			}
 		}
 		return docClassLoader;
 	}
@@ -77,6 +79,7 @@ public class ClassLoadService {
 			docClassLoader = null;
 			if (callback != null) {
 				// callback方式，防止刚close，马上又被别人new出来了
+				// callback主要是删除文件，如果文件被加载了应该删除和创建不了（我没测，理论上会是这样）
 				callback.callback();
 			}
 		}

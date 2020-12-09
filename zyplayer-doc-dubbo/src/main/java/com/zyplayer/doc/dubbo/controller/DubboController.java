@@ -15,6 +15,7 @@ import com.zyplayer.doc.dubbo.framework.service.MgDubboStorageService;
 import com.zyplayer.doc.dubbo.framework.service.NacosDocService;
 import com.zyplayer.doc.dubbo.framework.service.ZookeeperDocService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.rpc.service.GenericService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,13 +159,15 @@ public class DubboController {
 	@PostMapping(value = "/getDocList")
 	public DocResponseJson getDocList() {
 		String dubboServiceList = mgDubboStorageService.get(StorageKeys.DUBBO_SERVICE_LIST);
-		String dubboServiceDoc = mgDubboStorageService.get(StorageKeys.DUBBO_SERVICE_DOC);
 		if (StringUtils.isBlank(dubboServiceList)) {
 			return DocResponseJson.ok();
 		}
 		DubboInfoVo dubboInfoVo = new DubboInfoVo();
 		List<DubboInfo> providerList = JSON.parseArray(dubboServiceList, DubboInfo.class);
 		dubboInfoVo.setServerList(providerList);
+		// TODO 感觉不该在这里返回，应该每次点击的时候去包里面重新找一次文档
+		//  但是这样的话只存了一个大的json，容易出现覆盖问题，看来还得分接口方法一条一条记录的存，才能针对方法来修改
+		String dubboServiceDoc = mgDubboStorageService.get(StorageKeys.DUBBO_SERVICE_DOC);
 		if (StringUtils.isNotBlank(dubboServiceDoc)) {
 			List<DubboDocInfo> docInfoList = JSON.parseArray(dubboServiceDoc, DubboDocInfo.class);
 			Map<String, DubboDocInfo> docInfoMap = docInfoList.stream().collect(Collectors.toMap(DubboDocInfo::getFunction, val -> val));
@@ -199,15 +202,26 @@ public class DubboController {
 		if (dubboDocInfo == null) {
 			dubboDocInfo = new DubboDocInfo();
 			dubboDocInfo.setParams(definition.getParams());
-			dubboDocInfo.setFunction(function);
-			dubboDocInfo.setVersion(1);
 			dubboDocInfo.setResultType(definition.getResultType());
 			dubboDocInfo.setService(param.getService());
 			dubboDocInfo.setMethod(param.getMethod());
+			dubboDocInfo.setFunction(function);
+			dubboDocInfo.setVersion(1);
 			docInfoMap.put(function, dubboDocInfo);
-			List<DubboDocInfo> docInfoList = new ArrayList<>(docInfoMap.values());
-			mgDubboStorageService.put(StorageKeys.DUBBO_SERVICE_DOC, JSON.toJSONString(docInfoList));
+		} else {
+			// 根据参数顺序，把之前写的参数说明放到新的上面去
+			if (CollectionUtils.isNotEmpty(definition.getParams()) && CollectionUtils.isNotEmpty(dubboDocInfo.getParams())) {
+				for (int i = 0; i < definition.getParams().size() && i < dubboDocInfo.getParams().size(); i++) {
+					DubboDocInfo.DubboDocParam dubboDocNew = definition.getParams().get(i);
+					DubboDocInfo.DubboDocParam dubboDocOld = dubboDocInfo.getParams().get(i);
+					dubboDocNew.setParamDesc(StringUtils.defaultIfBlank(dubboDocOld.getParamDesc(), dubboDocNew.getParamDesc()));
+				}
+			}
+			dubboDocInfo.setParams(definition.getParams());
+			dubboDocInfo.setResultType(definition.getResultType());
 		}
+		List<DubboDocInfo> docInfoList = new ArrayList<>(docInfoMap.values());
+		mgDubboStorageService.put(StorageKeys.DUBBO_SERVICE_DOC, JSON.toJSONString(docInfoList));
 		return DocResponseJson.ok(dubboDocInfo);
 	}
 	
@@ -277,6 +291,9 @@ public class DubboController {
 		try {
 			classLoadService.closeClassLoad(() -> {
 				File docJarFile = new File(zyplayerDocDubboLibPath + "/" + DubboDocConst.DUBBO_DOC_LIB_NAME);
+				if (docJarFile.exists()) {
+					docJarFile.delete();
+				}
 				file.transferTo(docJarFile);
 			});
 		} catch (Exception e) {
