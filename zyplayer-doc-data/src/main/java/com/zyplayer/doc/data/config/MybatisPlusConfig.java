@@ -60,7 +60,7 @@ public class MybatisPlusConfig {
 		
 		@Bean(name = "manageDatasource")
 		public DataSource manageDatasource() throws Exception {
-			return DruidDataSourceUtil.createDataSource(driverClassName, url, username, password);
+			return DruidDataSourceUtil.createDataSource(driverClassName, url, username, password, false);
 		}
 		
 		@Bean(name = "manageSqlSessionFactory")

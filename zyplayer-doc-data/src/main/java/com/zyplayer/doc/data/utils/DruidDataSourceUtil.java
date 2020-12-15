@@ -10,7 +10,7 @@ public class DruidDataSourceUtil {
 	
 	private static AtomicLong nameId = new AtomicLong(0);
 	
-	public static DruidDataSource createDataSource(String driverClassName, String url, String username, String password) throws Exception {
+	public static DruidDataSource createDataSource(String driverClassName, String url, String username, String password, boolean breakAfterAcquireFailure) throws Exception {
 		// 数据源配置
 		DruidDataSource dataSource = new DruidDataSource();
 		dataSource.setDriverClassName(driverClassName);
@@ -30,7 +30,7 @@ public class DruidDataSourceUtil {
 		// 重试3次，失败退出，源码里是errorCount > connectionErrorRetryAttempts，所以写成2就是3次、、、
 		// CreateConnectionThread 源码在这个类里面
 		dataSource.setConnectionErrorRetryAttempts(2);
-		dataSource.setBreakAfterAcquireFailure(false);// 连接出错后不退出，等待下个定时周期重试
+		dataSource.setBreakAfterAcquireFailure(breakAfterAcquireFailure);// false：连接出错后不退出，等待下个定时周期重试，true：失败不再重试
 		dataSource.setTimeBetweenConnectErrorMillis(180000);// 连接出错后重试时间间隔3分钟
 		dataSource.setName("zyplayer-doc-db-" + nameId.incrementAndGet());
 		if (url.contains("oracle")) {

@@ -11,12 +11,10 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import java.io.IOException;
-
 public class DatasourceUtil {
 	private static SqlLogInterceptor sqlLogInterceptor = new SqlLogInterceptor();
 	
-	public static DatabaseFactoryBean createDatabaseFactoryBean(DbDatasource dbDatasource) throws Exception {
+	public static DatabaseFactoryBean createDatabaseFactoryBean(DbDatasource dbDatasource, boolean breakAfterAcquireFailure) throws Exception {
 		Resource[] resources = null;
 		// 描述连接信息的对象
 		DatabaseFactoryBean databaseFactoryBean = new DatabaseFactoryBean();
@@ -62,7 +60,7 @@ public class DatasourceUtil {
 			return null;
 		}
 		// 数据源配置
-		DruidDataSource dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword());
+		DruidDataSource dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword(), breakAfterAcquireFailure);
 		// 创建sqlSessionTemplate
 		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
 		sqlSessionFactoryBean.setDataSource(dataSource);

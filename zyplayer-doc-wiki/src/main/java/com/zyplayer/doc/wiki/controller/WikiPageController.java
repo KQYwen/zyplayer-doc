@@ -257,7 +257,7 @@ public class WikiPageController {
 			}
 			if (wikiPage.getParentId() != null && wikiPage.getParentId() > 0) {
 				WikiPage wikiPageParent = wikiPageService.getById(wikiPage.getParentId());
-				if (Objects.equals(wikiPage.getSpaceId(), wikiPageParent.getSpaceId())) {
+				if (!Objects.equals(wikiPage.getSpaceId(), wikiPageParent.getSpaceId())) {
 					return DocResponseJson.warn("当前空间和父页面的空间不一致，请重新选择父页面！");
 				}
 			}

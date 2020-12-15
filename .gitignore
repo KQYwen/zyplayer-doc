@@ -1,6 +1,70 @@
-# Created by .ignore support plugin (hsz.mobi)
-.idea
-*.iml
+
 tmlog*.lck
-tmlog*.log
 dependency-reduced-pom.xml
+
+######################################################################
+# Build Tools
+
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+######################################################################
+# IDE
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/*
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+######################################################################
+# Others
+*.log
+*.xml.versionsBackup
+
+!*/build/*.java
+!*/build/*.html
+!*/build/*.xml
+
+### VS Code ###
+.vscode/
+
+# rebel
+rebel.xml
+
+### gradle构建 ###
+*.gradle
+
+### office ###
+# 忽略office文件打开临时文件 #
+[~$]*.*
+tmlog.lck
+zyplayer-doc-es/src/test/
+zyplayer-doc-manage/tmlog.lck
+zyplayer-doc-other/src/
+zyplayer-doc-other/zyplayer-doc-annotation/src/main/resources/
+zyplayer-doc-other/zyplayer-doc-annotation/src/test/
+zyplayer-doc-other/zyplayer-doc-dubbo-libs/dependency-reduced-pom.xml
+zyplayer-doc-other/zyplayer-doc-dubbo-libs/src/
+zyplayer-doc-other/zyplayer-doc-test/src/main/java/com/zyplayer/doc/test/db/
+zyplayer-doc-other/zyplayer-doc-test/src/test/

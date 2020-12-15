@@ -104,13 +104,15 @@ public class DatabaseRegistrationBean {
 	 */
 	private synchronized DatabaseFactoryBean createFactoryById(Long sourceId) {
 		DatabaseFactoryBean factoryBean = databaseFactoryBeanMap.get(sourceId);
-		if (factoryBean != null) return factoryBean;
+		if (factoryBean != null) {
+			return factoryBean;
+		}
 		DbDatasource dbDatasource = dbDatasourceService.getById(sourceId);
 		if (dbDatasource == null) {
 			throw new ConfirmException("未找到指定数据源配置信息");
 		}
 		try {
-			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource);
+			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource, false);
 			if (databaseFactoryBean == null) {
 				throw new ConfirmException("获取数据源失败");
 			}

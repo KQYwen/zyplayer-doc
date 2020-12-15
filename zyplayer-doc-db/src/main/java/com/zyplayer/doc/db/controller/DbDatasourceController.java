@@ -58,7 +58,7 @@ public class DbDatasourceController {
 					dbDatasource.setSourcePassword(dbDatasourceSel.getSourcePassword());
 				}
 			}
-			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource);
+			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource, true);
 			if (databaseFactoryBean == null) {
 				return DocDbResponseJson.warn("获取数据源失败，请检查配置是否正确");
 			}
