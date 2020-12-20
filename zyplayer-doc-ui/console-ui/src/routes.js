@@ -1,52 +1,43 @@
-import Home from './views/home/Home.vue'
-
-import UserLogin from './views/user/Login.vue'
-import UserMyInfo from './views/user/MyInfo.vue'
-import UserRouterView from './views/user/RouterView.vue'
-
-import ConsoleRoleList from './views/console/RoleList.vue'
-import ConsoleUserList from './views/console/UserList.vue'
-import ConsoleAuthList from './views/console/AuthList.vue'
-import ConsoleRouterView from './views/console/RouterView.vue'
-
-import CommonNoAuth from './views/common/NoAuth.vue'
+import PageTableView from './components/layouts/PageTableView'
 
 let routes = [
-    {
-        path: '/home',
-        component: Home,
-        name: '主页',
-        meta: {
-            requireAuth: true,
-        }
-    }, {
-        path: '/user',
-        name: '用户管理',
-        component: UserRouterView,
-        children: [
-            {path: 'login', name: '系统登录',component: UserLogin, meta: {fullscreen: true}},
-            {path: 'myInfo', name: '我的信息',component: UserMyInfo},
-        ]
-    }, {
-        path: '/console',
-        name: '系统管理',
-        component: ConsoleRouterView,
-        children: [
-            {path: 'userList', name: '用户管理',component: ConsoleUserList},
-            {path: 'roleList', name: '权限管理',component: ConsoleRoleList},
-            {path: 'authList', name: '角色列表',component: ConsoleAuthList},
-        ]
-    }, {
-        path: '/common',
-        name: '',
-        component: UserRouterView,
-        children: [
-            {path: 'noAuth', name: '没有权限',component: CommonNoAuth},
-        ]
-    }, {
-        path: '/',
-        redirect: '/home'
-    }
+	{path: '/', redirect: '/home'},
+	{
+		path: '/user/login',
+		name: '系统登录',
+		component: () => import('@/views/user/Login.vue'),
+		meta: {fullscreen: true}
+	}, {
+		path: '/',
+		name: '页面管理',
+		component: PageTableView,
+		children: [
+			{path: '/home', name: '控制台', component: () => import('@/views/home/Home')},
+		]
+	}, {
+		path: '/user',
+		name: '用户管理',
+		component: PageTableView,
+		children: [
+			{path: 'myInfo', name: '我的信息', component: () => import('@/views/user/MyInfo.vue')},
+		]
+	}, {
+		path: '/console',
+		name: '系统管理',
+		component: PageTableView,
+		children: [
+			{path: 'userList', name: '用户管理', component: () => import('@/views/console/UserList.vue')},
+			{path: 'roleList', name: '权限管理', component: () => import('@/views/console/AuthList.vue')},
+			{path: 'authList', name: '角色列表', component: () => import('@/views/console/RoleList.vue')},
+		]
+	}, {
+		path: '/common',
+		name: '',
+		component: PageTableView,
+		children: [
+			{path: 'noAuth', name: '没有权限', component: () => import('@/views/common/NoAuth.vue')},
+		]
+	},
 ];
 
 export default routes;

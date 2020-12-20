@@ -77,7 +77,6 @@
 </template>
 
 <script>
-    var app;
 
     export default {
         data() {
@@ -100,7 +99,6 @@
             };
         },
         mounted: function () {
-            app = this;
         },
         methods: {
             handleSizeChange(val) {

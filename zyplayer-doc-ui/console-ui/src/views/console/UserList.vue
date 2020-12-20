@@ -124,9 +124,7 @@
 </template>
 
 <script>
-    import toast from '../../common/lib/common/toast'
-    var app;
-
+	import consoleApi from '../../common/api/console'
     export default {
         data() {
             return {
@@ -150,7 +148,6 @@
             };
         },
         mounted: function () {
-            app = this;
             this.getUserList();
         },
         methods: {
@@ -163,34 +160,34 @@
                 this.getUserList();
             },
             editUserAuthFun(row) {
-                app.allUserAuth = [];
-                app.editUserAuth = [];
+                this.allUserAuth = [];
+                this.editUserAuth = [];
                 var param = {userIds: row.id};
-                this.common.post(this.apilist1.userAuthList, param, function (json) {
-                    app.editUserAuth = [];
-                    app.allUserAuth = json.data;
-                    app.editUserAuthDialogVisible = true;
-                    app.editUserForm = JSON.parse(JSON.stringify(row));
-                    for (var i = 0; i < app.allUserAuth.length; i++) {
-                        if (app.allUserAuth[i].checked == 1) {
-                            app.editUserAuth.push(app.allUserAuth[i].id);
-                        }
-                    }
-                });
+				consoleApi.userAuthList(param).then(json => {
+					this.editUserAuth = [];
+					this.allUserAuth = json.data;
+					this.editUserAuthDialogVisible = true;
+					this.editUserForm = JSON.parse(JSON.stringify(row));
+					for (var i = 0; i < this.allUserAuth.length; i++) {
+						if (this.allUserAuth[i].checked == 1) {
+							this.editUserAuth.push(this.allUserAuth[i].id);
+						}
+					}
+				});
             },
             editUserAuthSave() {
                 var param = {
                     userIds: this.editUserForm.id,
                     authIds: this.editUserAuth.join(","),
                 };
-                this.common.post(this.apilist1.updateUserAuth, param, function (json) {
-                    toast.success("保存成功！");
-                    app.editUserAuthDialogVisible = false;
+				consoleApi.updateUserAuth(param).then(json => {
+					this.$message.success("保存成功！");
+					this.editUserAuthDialogVisible = false;
                 });
             },
             editUserInfo(row) {
-                app.editUserDialogVisible = true;
-                app.editUserForm = JSON.parse(JSON.stringify(row));
+                this.editUserDialogVisible = true;
+                this.editUserForm = JSON.parse(JSON.stringify(row));
             },
             addUserInfo() {
                 this.editUserDialogVisible = true;
@@ -203,11 +200,10 @@
                     type: 'warning'
                 }).then(() => {
                     this.editUserForm = JSON.parse(JSON.stringify(row));
-                    this.common.post(this.apilist1.resetPassword, this.editUserForm, function (json) {
-                        app.$confirm("重置成功！新的密码为：" + json.data).then(()=> {
-                            done();
-                        }).catch(()=> {});
-                    });
+					consoleApi.resetPassword(this.editUserForm).then(json => {
+						app.$confirm("重置成功！新的密码为：" + json.data).then(()=> {
+						}).catch(()=> {});
+					});
                 }).catch(()=>{});
             },
             deleteUser(row) {
@@ -216,28 +212,28 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.editUserForm = JSON.parse(JSON.stringify(row));
-                    this.common.post(this.apilist1.deleteUserInfo, this.editUserForm, function (json) {
-                        toast.success("删除成功！");
-                        app.getUserList();
-                    });
+					this.editUserForm = JSON.parse(JSON.stringify(row));
+					consoleApi.deleteUserInfo(this.editUserForm).then(json => {
+						this.$message.success("删除成功！");
+						this.getUserList();
+					});
                 }).catch(()=>{});
             },
             updateEditUser() {
-                this.common.post(this.apilist1.updateUserInfo, this.editUserForm, function (json) {
-                    toast.success("保存成功！");
-                    app.editUserDialogVisible = false;
-                    app.getUserList();
-                });
+				consoleApi.updateUserInfo(this.editUserForm).then(json => {
+					this.$message.success("保存成功！");
+					this.editUserDialogVisible = false;
+					this.getUserList();
+				});
             },
             getUserList() {
                 this.searchLoading = true;
-                this.common.post(this.apilist1.getUserInfoList, this.searchParam, function (json) {
-                    // 让加载动画停留一会
-                    setTimeout(()=>{app.searchLoading = false;}, 500);
-                    app.totalCount = json.total;
-                    app.searchResultList = json.data;
-                });
+				consoleApi.getUserInfoList(this.searchParam).then(json => {
+					// 让加载动画停留一会
+					setTimeout(()=>{this.searchLoading = false;}, 500);
+					this.totalCount = json.total;
+					this.searchResultList = json.data;
+				});
             },
         }
     }
