@@ -79,7 +79,7 @@ public class DubboController {
 			mgDubboStorageService.put(StorageKeys.DUBBO_SERVICE_LIST, JSON.toJSONString(providerList));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return DocResponseJson.warn("获取服务列表失败");
+			return DocResponseJson.warn("获取服务列表失败：" + e.getMessage());
 		}
 		return DocResponseJson.ok();
 	}

@@ -19,6 +19,10 @@ public class ReferenceConfigHolder {
 		String url = "dubbo://" + dubboNodeInfo.getIp() + ":" + dubboNodeInfo.getPort();
 		String referenceKey = url + "_" + StringUtils.defaultIfBlank(dubboNodeInfo.getVersion(), "0") + "_" + StringUtils.defaultIfBlank(dubboNodeInfo.getGroup(), "0");
 		ReferenceConfig referenceConfig = referenceConfigMap.get(referenceKey);
+		if (referenceConfig != null && referenceConfig.get() == null) {
+			referenceConfig.destroy();
+			referenceConfig = null;
+		}
 		if (referenceConfig == null) {
 			synchronized (ReferenceConfigHolder.class) {
 				ApplicationConfig application = new ApplicationConfig();
