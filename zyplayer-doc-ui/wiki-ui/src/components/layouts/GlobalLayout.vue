@@ -35,7 +35,7 @@
                     <i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse"></i>
 					<el-popover placement="bottom" width="600" trigger="click" v-model="userMessagePopVisible">
 						<el-badge :is-dot="haveNotReadUserMessage" slot="reference" style="line-height: 20px;margin-right: 20px;">
-							<i class="el-icon-bell head-icon" @click="" style="margin-right: 0;"></i>
+							<i class="el-icon-bell head-icon" @click="loadUserMessageList" style="margin-right: 0;"></i>
 						</el-badge>
 						<div style="margin-bottom: 10px;">
 							<span style="font-size: 14px;font-weight: bold;">通知</span>
@@ -213,6 +213,7 @@
 				userMessagePopVisible: false,
 				userMsgTotalCount: 0,
 				userMsgParam: {
+					sysType: 2,
 					pageNum: 1,
 					pageSize: 20,
 				},
@@ -287,7 +288,7 @@
 						this.loadUserMessageList();
 					});
 				}
-				if (row.msgType >= 2 && row.msgType <= 11) {
+				if (row.msgType >= 2 && row.msgType <= 12) {
 					this.$router.push({path: '/page/show', query: {pageId: row.dataId}});
 					this.userMessagePopVisible = false;
 				}

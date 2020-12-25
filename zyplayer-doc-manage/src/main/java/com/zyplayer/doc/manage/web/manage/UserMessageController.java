@@ -37,15 +37,17 @@ public class UserMessageController {
 	 *
 	 * @param pageNum   当前页
 	 * @param pageSize  每页条数
+	 * @param sysType 系统类型
 	 * @param msgStatus 消息状态
 	 * @return 数据列表
 	 */
 	@PostMapping("/list")
-	public ResponseJson<Object> list(Long pageNum, Long pageSize, Integer msgStatus) {
+	public ResponseJson<Object> list(Long pageNum, Long pageSize, Integer sysType, Integer msgStatus) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		IPage<UserMessage> page = new Page<>(pageNum, pageSize);
 		QueryWrapper<UserMessage> wrapper = new QueryWrapper<>();
 		wrapper.eq("accept_user_id", currentUser.getUserId());
+		wrapper.eq(sysType != null, "sys_type", sysType);
 		wrapper.orderByAsc("msg_status").orderByDesc("creation_time");
 //		if (msgStatus != null && msgStatus >= 0) {
 //			wrapper.eq("msg_status", msgStatus);

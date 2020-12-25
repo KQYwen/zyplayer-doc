@@ -3,7 +3,6 @@ import OpenLayout from './components/layouts/ShareLayout'
 
 let routes = [
 	{path: '/', redirect: '/home'},
-	{path: '/user/login', name: 'WIKI-系统登录', component: () => import('@/views/user/Login')},
 	{path: '/page/search', name: 'WIKI-全局搜索', component: () => import('@/views/page/Search')},
 	{path: '/common/noAuth', name: 'WIKI-没有权限', component: () => import('@/views/common/NoAuth')},
 	{path: '/page/editorTest', name: '编辑内容', component: () => import('@/views/page/EditorTest')},

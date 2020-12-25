@@ -44,7 +44,7 @@ public class AuthAspect {
 				HttpServletRequest request = ThreadLocalUtil.getHttpServletRequest();
 				StringBuffer requestURL = request.getRequestURL();
 				String requestURLStr = URLEncoder.encode(requestURL.toString(), "utf-8");
-				return new ModelAndView("redirect:#/user/login?redirect=" + requestURLStr);
+				return new ModelAndView("redirect:./#/user/login?redirect=" + requestURLStr);
 			} else if (returnType.isAssignableFrom(Map.class)) {
 				return Maps.newHashMap();
 			}

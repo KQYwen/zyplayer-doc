@@ -6,6 +6,7 @@ public enum UserMsgType {
 	SIMPLE(1), WIKI_PAGE_CREATE(2), WIKI_PAGE_DELETE(3), WIKI_PAGE_UPDATE(4), WIKI_PAGE_AUTH(5),
 	WIKI_PAGE_COMMENT(6), WIKI_PAGE_COMMENT_DEL(7), WIKI_PAGE_UPLOAD(8), WIKI_PAGE_PARENT(9), WIKI_PAGE_ZAN(10), WIKI_PAGE_FILE_DEL(11),
 	WIKI_PAGE_ZAN_CANCEL(12),
+	// ！！增加类型的时候需要在zyplayer-doc-ui/wiki-ui/src/components/layouts/GlobalLayout.vue showUserMessage()方法添加类型支持
 	;
 	
 	UserMsgType(int type) {
