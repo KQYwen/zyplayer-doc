@@ -1,14 +1,14 @@
 <template>
 	<div id="app">
 		<template v-if="fullscreen">
-			<router-view></router-view>
+			<router-view @loginSuccess="getSelfUserInfo"></router-view>
 		</template>
 		<el-container v-else>
 			<el-aside>
 				<div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
 					<el-menu default-active="1-4-1" :router="true" class="el-menu-vertical" @open="handleOpen" @close="handleClose" :collapse="isCollapse">
 						<el-menu-item index="/"><i class="el-icon-s-home"></i>控制台</el-menu-item>
-						<el-submenu index="1">
+						<el-submenu index="1" v-if="userAuth.userManage">
 							<template slot="title">
 								<i class="el-icon-s-platform"></i>
 								<span slot="title">系统管理</span>
@@ -72,6 +72,9 @@
 				isCollapse: false,
 				aboutDialogVisible: false,
 				userSelfInfo: {},
+				userAuth: {
+					userManage: false
+				},
 				// 升级信息
 				upgradeInfo: {},
 			}
@@ -114,8 +117,10 @@
 				});
 			},
 			getSelfUserInfo() {
-				consoleApi.getSelfUserInfo().then(json => {
-					this.userSelfInfo = json.data;
+				consoleApi.selfInfoWithAuth().then(json => {
+					let infoVo = json.data || {};
+					this.userSelfInfo = infoVo.userInfo || {};
+					this.userAuth = infoVo.userAuth || {};
 				}).catch(e => {
 					console.log("获取用户信息失败", e);
 				});

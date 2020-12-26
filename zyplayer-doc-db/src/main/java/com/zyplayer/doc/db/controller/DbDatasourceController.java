@@ -6,6 +6,7 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.DbDatasourceService;
 import com.zyplayer.doc.db.framework.configuration.DatasourceUtil;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
@@ -27,7 +28,7 @@ import java.util.*;
  * @since 2019年6月29日
  */
 @RestController
-@AuthMan("DB_DATASOURCE_MANAGE")
+@AuthMan(DocAuthConst.DB_DATASOURCE_MANAGE)
 @RequestMapping("/zyplayer-doc-db/datasource")
 public class DbDatasourceController {
 

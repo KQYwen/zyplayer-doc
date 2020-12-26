@@ -1,27 +1,27 @@
 package com.zyplayer.doc.manage.web.manage;
 
 import cn.hutool.core.util.RandomUtil;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
-import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
 import com.zyplayer.doc.manage.web.manage.param.UserListParam;
 import com.zyplayer.doc.manage.web.manage.vo.AuthInfoVo;
+import com.zyplayer.doc.manage.web.manage.vo.UserInfoAuthVo;
+import com.zyplayer.doc.manage.web.manage.vo.UserAuthVo;
 import org.apache.commons.lang.StringUtils;
 import org.dozer.Mapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,10 +50,25 @@ public class UserInfoController {
 	public ResponseJson<Object> selfInfo() {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		UserInfo userInfo = userInfoService.getById(currentUser.getUserId());
+		userInfo.setPassword(null);
 		return DocResponseJson.ok(userInfo);
 	}
 	
-	@AuthMan("USER_MANAGE")
+	@AuthMan
+	@PostMapping("/selfInfoWithAuth")
+	public ResponseJson<UserInfoAuthVo> selfInfoWithAuth() {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		UserInfo userInfo = userInfoService.getById(currentUser.getUserId());
+		userInfo.setPassword(null);
+		UserAuthVo sysAuthInfoVo = new UserAuthVo();
+		sysAuthInfoVo.setUserManage(DocUserUtil.haveAuth(DocAuthConst.USER_MANAGE));
+		UserInfoAuthVo selfInfoVo = new UserInfoAuthVo();
+		selfInfoVo.setUserInfo(userInfo);
+		selfInfoVo.setUserAuth(sysAuthInfoVo);
+		return DocResponseJson.ok(selfInfoVo);
+	}
+	
+	@AuthMan(DocAuthConst.USER_MANAGE)
 	@PostMapping("/list")
 	public ResponseJson<Object> list(UserListParam param) {
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
@@ -74,7 +89,7 @@ public class UserInfoController {
 		return DocResponseJson.ok(pageInfo);
 	}
 	
-	@AuthMan("USER_MANAGE")
+	@AuthMan(DocAuthConst.USER_MANAGE)
 	@PostMapping("/update")
 	public ResponseJson<Object> update(UserInfo userInfo) {
 		if (StringUtils.isBlank(userInfo.getUserNo())) {
@@ -112,7 +127,7 @@ public class UserInfoController {
 		return DocResponseJson.ok();
 	}
 	
-	@AuthMan("USER_MANAGE")
+	@AuthMan(DocAuthConst.USER_MANAGE)
 	@PostMapping("/resetPassword")
 	public ResponseJson<Object> resetPassword(UserInfo userInfo) {
 		String password = RandomUtil.randomNumbers(6);
@@ -127,7 +142,7 @@ public class UserInfoController {
 		return DocResponseJson.ok(password);
 	}
 	
-	@AuthMan("USER_MANAGE")
+	@AuthMan(DocAuthConst.USER_MANAGE)
 	@PostMapping("/delete")
 	public ResponseJson<Object> delete(Long id) {
 		UserInfo userInfo = new UserInfo();
@@ -138,7 +153,7 @@ public class UserInfoController {
 		return DocResponseJson.ok();
 	}
 	
-	@AuthMan("AUTH_ASSIGN")
+	@AuthMan(DocAuthConst.AUTH_ASSIGN)
 	@PostMapping("/auth/list")
 	public ResponseJson<Object> authList(String userIds) {
 		// 所有权限
@@ -161,7 +176,7 @@ public class UserInfoController {
 		return DocResponseJson.ok(authInfoVoList);
 	}
 	
-	@AuthMan("AUTH_ASSIGN")
+	@AuthMan(DocAuthConst.AUTH_ASSIGN)
 	@PostMapping("/auth/update")
 	public ResponseJson<Object> updateAuth(String userIds, String authIds) {
 		List<Long> userIdsList = Arrays.stream(userIds.split(",")).map(Long::valueOf).collect(Collectors.toList());

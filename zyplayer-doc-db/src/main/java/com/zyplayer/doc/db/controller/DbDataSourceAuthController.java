@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * @since 2019年8月18日
  */
 @RestController
-@AuthMan("DB_DATASOURCE_MANAGE")
+@AuthMan(DocAuthConst.DB_DATASOURCE_MANAGE)
 @RequestMapping("/zyplayer-doc-db/auth")
 public class DbDataSourceAuthController {
 	private static Logger logger = LoggerFactory.getLogger(DbDataSourceAuthController.class);

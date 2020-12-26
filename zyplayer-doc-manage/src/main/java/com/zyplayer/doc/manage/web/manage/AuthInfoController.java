@@ -6,6 +6,7 @@ import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth/info")
-@AuthMan("AUTH_MANAGE")
+@AuthMan(DocAuthConst.AUTH_MANAGE)
 public class AuthInfoController {
 
 	@Autowired

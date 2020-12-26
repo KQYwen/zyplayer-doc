@@ -49,6 +49,7 @@
 					if (!valid) return;
 					this.loginLoading = true;
 					consoleApi.userLogin(this.loginParam).then(() => {
+						this.$emit('loginSuccess');
 						this.loginLoading = false;
 						if (!!this.redirect) {
 							location.href = decodeURIComponent(this.redirect);

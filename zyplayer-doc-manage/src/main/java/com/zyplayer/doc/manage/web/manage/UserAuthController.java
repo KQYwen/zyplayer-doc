@@ -8,6 +8,7 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user/auth")
-@AuthMan("AUTH_ASSIGN")
+@AuthMan(DocAuthConst.AUTH_ASSIGN)
 public class UserAuthController {
 
 	@Autowired

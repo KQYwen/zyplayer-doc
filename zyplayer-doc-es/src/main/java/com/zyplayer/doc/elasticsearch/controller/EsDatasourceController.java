@@ -7,6 +7,7 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.EsDatasource;
+import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.EsDatasourceService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +40,7 @@ public class EsDatasourceController {
 		return DocResponseJson.ok(datasourceList);
 	}
 	
-	@AuthMan("ES_DATASOURCE_MANAGE")
+	@AuthMan(DocAuthConst.ES_DATASOURCE_MANAGE)
 	@PostMapping(value = "/update")
 	public ResponseJson update(EsDatasource esDatasource) {
 		if (StringUtils.isBlank(esDatasource.getName())) {
