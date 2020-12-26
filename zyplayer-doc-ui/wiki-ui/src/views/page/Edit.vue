@@ -32,7 +32,7 @@
 			<mavon-editor v-show="wikiPageEdit.editorType===2" ref="mavonEditor" v-model="markdownContent" :toolbars="toolbars"
 						  @save="createWikiSave(0)" @imgAdd="addMarkdownImage"
 						  placeholder="请录入文档内容" class="page-content-editor"/>
-			<div v-show="wikiPageEdit.editorType===1" id="newPageContentDiv" class="page-content-editor"></div>
+			<div v-show="wikiPageEdit.editorType===1" id="newPageContentDiv" class="page-content-editor" style="height: calc(100vh - 250px);"></div>
 		</el-row>
 	</div>
 </template>
@@ -275,7 +275,7 @@
 	.page-edit-vue .upload-page-file .el-upload-list{display: none;}
 	.page-edit-vue .is-link{color: #1e88e5;cursor: pointer;}
 	/*编辑框高度*/
-	.page-edit-vue #newPageContentDiv .w-e-text-container{height: 600px !important;}
+	.page-edit-vue #newPageContentDiv .w-e-text-container{height: 100% !important;}
 	/*评论*/
 	.page-edit-vue .comment-box .head{
 		float: left;background-color: #ccc;border-radius: 50%;margin-right: 10px;
