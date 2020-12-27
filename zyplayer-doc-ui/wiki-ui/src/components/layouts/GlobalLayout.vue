@@ -33,9 +33,10 @@
                 <el-header>
                     <!--<el-switch v-model="isCollapse" ></el-switch>-->
                     <i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse"></i>
+					<span class="header-right-user-name">{{userSelfInfo.userName}}</span>
 					<el-popover placement="bottom" width="600" trigger="click" v-model="userMessagePopVisible">
-						<el-badge :is-dot="haveNotReadUserMessage" slot="reference" style="line-height: 20px;margin-right: 20px;">
-							<i class="el-icon-bell head-icon" @click="loadUserMessageList" style="margin-right: 0;"></i>
+						<el-badge :is-dot="haveNotReadUserMessage" slot="reference" style="line-height: 20px;margin: 0 15px;">
+							<i class="el-icon-bell head-icon" @click="loadUserMessageIfPopVisible" style="margin-right: 0;"></i>
 						</el-badge>
 						<div style="margin-bottom: 10px;">
 							<span style="font-size: 14px;font-weight: bold;">通知</span>
@@ -206,6 +207,7 @@
                 wikiPageList:[],
                 wikiPage: {},
                 wikiPageExpandedKeys: [],
+				userSelfInfo: {},
                 // 升级信息
                 upgradeInfo: {},
 				userMessageList: [],
@@ -224,6 +226,7 @@
         mounted: function () {
             this.loadSpaceList();
             this.loadUserMessageList();
+			this.getSelfUserInfo();
             this.checkSystemUpgrade();
         },
         methods: {
@@ -274,6 +277,11 @@
 				pageApi.pageChangeParent(param).then(res => {
 					this.doGetPageList(null);
 				});
+			},
+			loadUserMessageIfPopVisible() {
+				if (!this.userMessagePopVisible) {
+					this.loadUserMessageList();
+				}
 			},
 			loadUserMessageList() {
 				userApi.getUserMessageList(this.userMsgParam).then(res => {
@@ -427,6 +435,11 @@
 					location.reload();
 				});
             },
+			getSelfUserInfo() {
+				userApi.getSelfUserInfo().then(json=>{
+					this.userSelfInfo = json.data;
+				});
+			},
 			getSpaceInfo(spaceId) {
 				for (let i = 0; i < this.spaceList.length; i++) {
 					if (this.spaceList[i].id == spaceId) {
@@ -506,6 +519,7 @@
 	.el-header {
 		background-color: #1D4E89 !important;
 	}
+	.header-right-user-name{color: #fff;padding-right: 5px;}
     .el-header {color: #333; line-height: 40px; text-align: right;height: 40px !important;}
     .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
     .icon-collapse:hover{color: #eee;}

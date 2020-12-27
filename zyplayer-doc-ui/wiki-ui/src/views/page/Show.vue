@@ -6,8 +6,8 @@
 					<div class="wiki-title">{{wikiPage.name}}</div>
 					<div class="wiki-author">
 						<div>
-							<span class="create-user-time">创建：{{wikiPage.createUserName}}　{{wikiPage.createTime}}</span>
-							<span v-show="wikiPage.updateUserName">修改：{{wikiPage.updateUserName}}　{{wikiPage.updateTime}}</span>
+							<span v-if="wikiPage.updateUserName">{{wikiPage.updateUserName}}　于　{{wikiPage.updateTime}}　修改</span>
+							<span v-else class="create-user-time">{{wikiPage.createUserName}}　于　{{wikiPage.createTime}}　创建</span>
 							<div style="float: right;">
 								<el-button type="text" icon="el-icon-chat-line-round" @click="showCommentWiki" style="margin-right: 10px;">评论</el-button>
 								<el-upload v-if="wikiPageAuth.canUploadFile==1"
@@ -41,6 +41,9 @@
 								</template>
 							</el-table-column>
 							<el-table-column prop="createUserName" label="创建人"></el-table-column>
+							<el-table-column label="文件大小">
+								<template slot-scope="scope">{{computeFileSize(scope.row.fileSize)}}</template>
+							</el-table-column>
 							<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
 							<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
 							<el-table-column label="操作" width="100px" v-if="wikiPageAuth.canUploadFile==1">
@@ -425,6 +428,28 @@
 				this.pageHistoryDetail = '';
 				this.pageHistoryChoice = {};
 				this.pageHistoryList.forEach(item => item.loading = 0);
+			},
+			computeFileSize(fileSize) {
+				if (!fileSize) {
+					return '-';
+				}
+				let size = "";
+				if (fileSize < 0.1 * 1024) {
+					size = fileSize.toFixed(2) + "B"
+				} else if (fileSize < 0.1 * 1024 * 1024) {
+					size = (fileSize / 1024).toFixed(2) + "KB"
+				} else if (fileSize < 0.1 * 1024 * 1024 * 1024) {
+					size = (fileSize / (1024 * 1024)).toFixed(2) + "MB"
+				} else {
+					size = (fileSize / (1024 * 1024 * 1024)).toFixed(2) + "GB"
+				}
+				let sizeStr = size + "";
+				let index = sizeStr.indexOf(".");
+				let dou = sizeStr.substr(index + 1, 2);
+				if (dou == "00") {
+					return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
+				}
+				return size;
 			},
 			loadPageDetail(pageId) {
 				this.clearHistory();

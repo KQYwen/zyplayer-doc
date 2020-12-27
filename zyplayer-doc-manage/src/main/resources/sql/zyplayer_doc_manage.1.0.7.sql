@@ -13,6 +13,9 @@ ALTER TABLE `wiki_page_history`
 DROP COLUMN `content`,
 ADD COLUMN `git_commit_id` varchar(50) NULL COMMENT 'git提交记录ID';
 
+ALTER TABLE `wiki_page_file`
+ADD COLUMN `file_size` bigint NULL COMMENT '文件大小';
+
 -- ------------------------全新的库------------------------
 /*
  Navicat Premium Data Transfer

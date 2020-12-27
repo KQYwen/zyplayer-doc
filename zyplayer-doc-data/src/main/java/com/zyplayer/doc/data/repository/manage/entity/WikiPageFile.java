@@ -84,6 +84,11 @@ public class WikiPageFile implements Serializable {
      */
     private Integer downloadNum;
 
+    /**
+     * 文件大小
+     */
+    private Long fileSize;
+
     public Long getId() {
         return id;
     }
@@ -193,5 +198,13 @@ public class WikiPageFile implements Serializable {
     
     public void setDownloadNum(Integer downloadNum) {
         this.downloadNum = downloadNum;
+    }
+    
+    public Long getFileSize() {
+        return fileSize;
+    }
+    
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
     }
 }

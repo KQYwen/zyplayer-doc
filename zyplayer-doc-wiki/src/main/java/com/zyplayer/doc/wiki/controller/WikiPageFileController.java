@@ -167,6 +167,7 @@ public class WikiPageFileController {
 			e.printStackTrace();
 			return DocResponseJson.warn("保存文件失败");
 		}
+		wikiPageFile.setFileSize(file.getSize());
 		wikiPageFile.setUuid(simpleUUID);
 		wikiPageFile.setFileUrl(path);
 		wikiPageFile.setFileName(fileName);
