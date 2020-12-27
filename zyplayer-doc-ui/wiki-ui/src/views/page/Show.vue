@@ -53,7 +53,7 @@
 							</el-table-column>
 						</el-table>
 					</div>
-					<div class="wiki-content w-e-text">
+					<div class="wiki-content w-e-text" ref="pageContent">
 						<div v-html="pageHistoryDetail" v-if="!!pageHistoryDetail"></div>
 						<div v-html="pageContent.content" v-else></div>
 					</div>
@@ -197,6 +197,7 @@
                 <el-button type="primary" v-on:click="saveUserPageAuth">保存配置</el-button>
             </div>
 		</el-dialog>
+		<el-image-viewer v-if="showImagePreview" :url-list="showImagePreviewList" :on-close="closeImagePreview" :initial-index="previewInitialIndex"/>
 	</div>
 </template>
 
@@ -205,6 +206,7 @@
 	import pageApi from '../../common/api/page'
 	import userApi from '../../common/api/user'
 	import {mavonEditor, markdownIt} from 'mavon-editor'
+	import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
 
 	var page = {
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
@@ -212,6 +214,7 @@
 	};
 	export default {
 		props: ['spaceInfo'],
+		components: {'el-image-viewer': ElImageViewer},
 		data() {
 			return {
 				// 页面展示相关
@@ -243,6 +246,10 @@
 				pageHistoryChoice: {},
 				pageHistoryList: [],
 				pageHistoryPageNum: 1,
+				// 大图预览
+				previewInitialIndex: 0,
+				showImagePreview: false,
+				showImagePreviewList: [],
 			};
 		},
 		beforeRouteUpdate(to, from, next) {
@@ -481,9 +488,24 @@
 					this.$emit('switchSpace', this.wikiPage.spaceId);
 					// 调用父方法展开目录树
 					this.$emit('changeExpandedKeys', pageId);
+					setTimeout(() => this.previewPageImage(), 1000);
 				});
 				this.loadCommentList(pageId);
 				this.getPageHistory(pageId, 1);
+			},
+			closeImagePreview() {
+				this.showImagePreview = false;
+			},
+			previewPageImage() {
+				this.showImagePreviewList = [];
+				const imgSelector = this.$refs.pageContent.querySelectorAll('img');
+				imgSelector.forEach((item, index) => {
+					this.showImagePreviewList.push(item.src);
+					item.onclick = () => {
+						this.showImagePreview = true;
+						this.previewInitialIndex = index;
+					}
+				});
 			},
 			loadCommentList(pageId) {
 				this.cancelCommentUser();
@@ -608,10 +630,10 @@
 	.page-show-vue .wiki-title{font-size: 20px;text-align: center;font-weight: bold;}
 	.page-show-vue .create-user-time{margin-right: 20px;}
 	.page-show-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
-	.page-show-vue .wiki-content{font-size: 14px;}
+	.page-show-vue .wiki-content{font-size: 14px;padding: 6px;}
+	.page-show-vue .wiki-content img{cursor: pointer;max-width: 100%;}
+	.page-show-vue .wiki-content img:hover{box-shadow: 0 2px 6px 0 rgba(0,0,0,.3);}
 	.page-show-vue .wiki-content.w-e-text{overflow-y: auto;}
-	.page-show-vue .wiki-content.w-e-text img{cursor: auto;}
-	.page-show-vue .wiki-content.w-e-text img:hover{box-shadow: unset;}
 
 	.page-show-vue .upload-page-file .el-upload-list{display: none;}
 	.page-show-vue .is-link{color: #1e88e5;cursor: pointer;}
