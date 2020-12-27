@@ -197,7 +197,9 @@
                 <el-button type="primary" v-on:click="saveUserPageAuth">保存配置</el-button>
             </div>
 		</el-dialog>
-		<el-image-viewer v-if="showImagePreview" :url-list="showImagePreviewList" :on-close="closeImagePreview" :initial-index="previewInitialIndex"/>
+		<div ref="imagePreview">
+			<el-image-viewer v-if="showImagePreview" :url-list="showImagePreviewList" :on-close="closeImagePreview" :initial-index="previewInitialIndex"/>
+		</div>
 	</div>
 </template>
 
@@ -488,7 +490,7 @@
 					this.$emit('switchSpace', this.wikiPage.spaceId);
 					// 调用父方法展开目录树
 					this.$emit('changeExpandedKeys', pageId);
-					setTimeout(() => this.previewPageImage(), 1000);
+					setTimeout(() => this.previewPageImage(), 500);
 				});
 				this.loadCommentList(pageId);
 				this.getPageHistory(pageId, 1);
@@ -497,13 +499,24 @@
 				this.showImagePreview = false;
 			},
 			previewPageImage() {
-				this.showImagePreviewList = [];
+				const imgArr = [];
 				const imgSelector = this.$refs.pageContent.querySelectorAll('img');
 				imgSelector.forEach((item, index) => {
-					this.showImagePreviewList.push(item.src);
+					imgArr.push(item.src);
 					item.onclick = () => {
-						this.showImagePreview = true;
 						this.previewInitialIndex = index;
+						this.showImagePreviewList = imgArr;
+						this.showImagePreview = true;
+						setTimeout(() => this.initImageViewerMask(), 0);
+					}
+				});
+			},
+			initImageViewerMask() {
+				// 图片预览遮罩点击隐藏预览框
+				let imageViewerMask = this.$refs.imagePreview.querySelectorAll('.el-image-viewer__mask');
+				imageViewerMask.forEach(item => {
+					item.onclick = () => {
+						this.showImagePreview = false;
 					}
 				});
 			},
