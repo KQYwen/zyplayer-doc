@@ -53,7 +53,7 @@
 							</el-table-column>
 						</el-table>
 					</div>
-					<div ref="pageContent">
+					<div ref="pageContent" class="wiki-page-content">
 						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2"></div>
 						<div v-html="pageShowDetail" class="wiki-html-content" v-else></div>
 					</div>
@@ -422,6 +422,7 @@
 					history.loading = 2;
 					this.pageHistoryDetail = history.content;
 					this.pageShowDetail = history.content;
+					setTimeout(() => this.previewPageImage(), 500);
 				} else {
 					history.loading = 1;
 					pageApi.pageHistoryDetail({id: history.id}).then(json => {
@@ -432,6 +433,7 @@
 						}
 						this.pageHistoryDetail = history.content;
 						this.pageShowDetail = history.content;
+						setTimeout(() => this.previewPageImage(), 500);
 					}).catch(() => {
 						history.loading = 3;
 					});
@@ -650,9 +652,9 @@
 	.page-show-vue .wiki-title{font-size: 20px;text-align: center;font-weight: bold;}
 	.page-show-vue .create-user-time{margin-right: 20px;}
 	.page-show-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
-	.page-show-vue .wiki-html-content{font-size: 14px;padding: 6px;overflow-y: auto;}
-	.page-show-vue .wiki-html-content img{cursor: pointer;max-width: 100%;}
-	.page-show-vue .wiki-html-content img:hover{box-shadow: 0 2px 6px 0 rgba(0,0,0,.3);}
+	.page-show-vue .wiki-page-content img{cursor: pointer;max-width: 100%;}
+	.page-show-vue .wiki-page-content img:hover{box-shadow: 0 2px 6px 0 rgba(0,0,0,.3);}
+	.page-show-vue .wiki-page-content .wiki-html-content{font-size: 14px;padding: 6px;overflow-y: auto;}
 
 	.page-show-vue .upload-page-file .el-upload-list{display: none;}
 	.page-show-vue .is-link{color: #1e88e5;cursor: pointer;}
