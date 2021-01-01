@@ -53,24 +53,24 @@
 							</el-table-column>
 						</el-table>
 					</div>
-					<div class="wiki-content w-e-text" ref="pageContent">
-						<div v-html="pageHistoryDetail" v-if="!!pageHistoryDetail"></div>
-						<div v-html="pageContent.content" v-else></div>
+					<div ref="pageContent">
+						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2"></div>
+						<div v-html="pageShowDetail" class="wiki-html-content" v-else></div>
 					</div>
 					<div style="margin-top: 40px; font-size: 14px;">
-				<span style="vertical-align: top;" class="is-link">
-					<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle;"> 赞</span>
-					<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle;transform: rotateX(180deg);"> 踩</span>
-				</span>
+						<span style="vertical-align: top;" class="is-link">
+							<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle;"> 赞</span>
+							<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle;transform: rotateX(180deg);"> 踩</span>
+						</span>
 						<span style="margin-left: 10px;vertical-align: top;">
-					<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
-					<span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0"><span class="is-link" v-on:click="showZanPageUser">{{wikiPage.zanNum}}人</span>赞了它</span>
-					<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
-					<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1"><span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它</span>
-				</span>
+							<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
+							<span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0"><span class="is-link" v-on:click="showZanPageUser">{{wikiPage.zanNum}}人</span>赞了它</span>
+							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
+							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1"><span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它</span>
+						</span>
 						<span style="margin-left: 10px;">
-					<i class="el-icon-view" style="font-size: 16px;color: #666;"></i> {{wikiPage.viewNum}}次阅读
-				</span>
+							<i class="el-icon-view" style="font-size: 16px;color: #666;"></i> {{wikiPage.viewNum}}次阅读
+						</span>
 					</div>
 				</div>
 <!--				<div v-show="commentList.length > 0" class="comment-box" style="margin-top: 20px;">-->
@@ -209,6 +209,8 @@
 	import userApi from '../../common/api/user'
 	import {mavonEditor, markdownIt} from 'mavon-editor'
 	import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
+	import 'mavon-editor/dist/markdown/github-markdown.min.css'
+	import 'mavon-editor/dist/css/index.css'
 
 	var page = {
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
@@ -245,6 +247,7 @@
 				actionTabVisible: false,
 				actionTabActiveName: 'comment',
 				pageHistoryDetail: '',
+				pageShowDetail: '',
 				pageHistoryChoice: {},
 				pageHistoryList: [],
 				pageHistoryPageNum: 1,
@@ -418,6 +421,7 @@
 				if (history.content) {
 					history.loading = 2;
 					this.pageHistoryDetail = history.content;
+					this.pageShowDetail = history.content;
 				} else {
 					history.loading = 1;
 					pageApi.pageHistoryDetail({id: history.id}).then(json => {
@@ -427,6 +431,7 @@
 							history.content = markdownIt.render(history.content);
 						}
 						this.pageHistoryDetail = history.content;
+						this.pageShowDetail = history.content;
 					}).catch(() => {
 						history.loading = 3;
 					});
@@ -437,6 +442,7 @@
 				this.pageHistoryDetail = '';
 				this.pageHistoryChoice = {};
 				this.pageHistoryList.forEach(item => item.loading = 0);
+				this.pageShowDetail = this.pageContent.content;
 			},
 			computeFileSize(fileSize) {
 				if (!fileSize) {
@@ -480,6 +486,7 @@
 					if (this.wikiPage.editorType === 2) {
 						this.pageContent.content = markdownIt.render(this.pageContent.content);
 					}
+					this.pageShowDetail = this.pageContent.content;
 					// 修改标题
 					document.title = wikiPage.name || 'WIKI-内容展示';
 					// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
@@ -643,10 +650,9 @@
 	.page-show-vue .wiki-title{font-size: 20px;text-align: center;font-weight: bold;}
 	.page-show-vue .create-user-time{margin-right: 20px;}
 	.page-show-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
-	.page-show-vue .wiki-content{font-size: 14px;padding: 6px;}
-	.page-show-vue .wiki-content img{cursor: pointer;max-width: 100%;}
-	.page-show-vue .wiki-content img:hover{box-shadow: 0 2px 6px 0 rgba(0,0,0,.3);}
-	.page-show-vue .wiki-content.w-e-text{overflow-y: auto;}
+	.page-show-vue .wiki-html-content{font-size: 14px;padding: 6px;overflow-y: auto;}
+	.page-show-vue .wiki-html-content img{cursor: pointer;max-width: 100%;}
+	.page-show-vue .wiki-html-content img:hover{box-shadow: 0 2px 6px 0 rgba(0,0,0,.3);}
 
 	.page-show-vue .upload-page-file .el-upload-list{display: none;}
 	.page-show-vue .is-link{color: #1e88e5;cursor: pointer;}
@@ -706,27 +712,27 @@
 		display: inline-block;
 	}
 	/**展示内容的样式*/
-	.wiki-content table {
+	.wiki-html-content table {
 		border-top: 1px solid #ccc; border-left: 1px solid #ccc;
 	}
-	.wiki-content table td, .wiki-content table th {
+	.wiki-html-content table td, .wiki-html-content table th {
 		border-bottom: 1px solid #ccc; border-right: 1px solid #ccc; padding: 3px 5px;
 	}
-	.wiki-content table th {
+	.wiki-html-content table th {
 		border-bottom: 2px solid #ccc; text-align: center;
 	}
-	.wiki-content blockquote {
+	.wiki-html-content blockquote {
 		display: block; border-left: 8px solid #d0e5f2; padding: 5px 10px; margin: 10px 0;
 		line-height: 1.4; font-size: 100%; background-color: #f1f1f1;
 	}
-	.wiki-content code {
+	.wiki-html-content code {
 		display: inline-block; *display: inline; *zoom: 1;
 		background-color: #f1f1f1; border-radius: 3px; padding: 3px 5px; margin: 0 3px;
 	}
-	.wiki-content pre code {
+	.wiki-html-content pre code {
 		display: block;
 	}
-	.wiki-content ul, ol {
+	.wiki-html-content ul, ol {
 		margin: 10px 0 10px 20px;
 	}
 </style>

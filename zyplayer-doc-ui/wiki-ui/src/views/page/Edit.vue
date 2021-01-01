@@ -30,6 +30,7 @@
 			</el-row>
 			<el-input v-model="wikiPageEdit.pageTitle" placeholder="请输入标题" class="page-title-input"></el-input>
 			<mavon-editor v-show="wikiPageEdit.editorType===2" ref="mavonEditor" v-model="markdownContent" :toolbars="toolbars"
+						  :externalLink="false"
 						  @save="createWikiSave(0)" @imgAdd="addMarkdownImage"
 						  placeholder="请录入文档内容" class="page-content-editor"/>
 			<div v-show="wikiPageEdit.editorType===1" id="newPageContentDiv" class="page-content-editor" style="height: calc(100vh - 250px);"></div>
@@ -41,6 +42,7 @@
 	import WangEditor from 'wangeditor'
 	import pageApi from '../../common/api/page'
 	import {mavonEditor, markdownIt} from 'mavon-editor'
+	import 'mavon-editor/dist/markdown/github-markdown.min.css'
 	import 'mavon-editor/dist/css/index.css'
 	import axios from 'axios'
 
