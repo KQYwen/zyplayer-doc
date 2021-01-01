@@ -316,6 +316,7 @@ CREATE TABLE `wiki_page_file`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   `download_num` int(11) NOT NULL DEFAULT 0 COMMENT '下载次数',
+  `file_size` bigint NULL COMMENT '文件大小',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_uuid`(`uuid`) USING BTREE COMMENT '文件ID'
 ) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
