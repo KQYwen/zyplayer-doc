@@ -20,16 +20,18 @@
                     <el-input v-model="searchKeywords" @input="searchByKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
                         <el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywordsNewPage"></el-button>
                     </el-input>
-                    <el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
-                             @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop"
-                             ref="wikiPageTree" :filter-node-method="filterPageNode" highlight-current
-                             :expand-on-click-node="false" :default-expanded-keys="wikiPageExpandedKeys"
-                             node-key="id"
-                             style="background-color: #fafafa;">
-                    </el-tree>
+					<div style="overflow: auto; padding-bottom: 30px;">
+						<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
+								 @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop"
+								 ref="wikiPageTree" :filter-node-method="filterPageNode" highlight-current
+								 :expand-on-click-node="false" :default-expanded-keys="wikiPageExpandedKeys"
+								 node-key="id"
+								 style="background-color: #fafafa;">
+						</el-tree>
+					</div>
                 </div>
             </el-aside>
-            <el-container style="box-shadow: 0 0 8px rgba(0,0,0,.1);">
+            <el-container style="border-left: 1px solid #dcdfe6;">
                 <el-header>
                     <!--<el-switch v-model="isCollapse" ></el-switch>-->
                     <i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse"></i>
