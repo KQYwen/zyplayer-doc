@@ -114,7 +114,7 @@ public class PoiUtil {
 			run.setFontSize(18);
 			List<List<String>> dataList = new LinkedList<>();
 			List<TableColumnDescDto> tableColumnDescDtos = columnMap.get(tableInfoVo.getTableName());
-			dataList.add(Arrays.asList("字段名", "是否自增", "类型", "NULL", "长度", "主键", "注释"));
+			dataList.add(Arrays.asList("字段名", "是否自增", "类型", "空值", "长度", "主键", "注释"));
 			// 写入表格
 			for (TableColumnDescDto dto : tableColumnDescDtos) {
 				dataList.add(Arrays.asList(dto.getName(), dto.getIsidenity(), dto.getType(),

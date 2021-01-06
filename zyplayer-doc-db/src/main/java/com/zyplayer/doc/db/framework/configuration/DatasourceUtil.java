@@ -30,6 +30,16 @@ public class DatasourceUtil {
 			}
 			databaseFactoryBean.setDatabaseProduct(DatabaseFactoryBean.DatabaseProduct.MYSQL);
 			resources = resolver.getResources("classpath:com/zyplayer/doc/db/framework/db/mapper/mysql/*.xml");
+		} else if (dbUrl.contains("postgresql")) {
+			// jdbc:mysql://192.168.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true
+			String[] urlParamArr = dbUrl.split("\\?");
+			String[] urlDbNameArr = urlParamArr[0].split("/");
+			if (urlDbNameArr.length >= 2) {
+				databaseFactoryBean.setDbName(urlDbNameArr[urlDbNameArr.length - 1]);
+				//databaseFactoryBean.setHost(urlDbNameArr[urlDbNameArr.length - 2]);
+			}
+			databaseFactoryBean.setDatabaseProduct(DatabaseFactoryBean.DatabaseProduct.POSTGRESQL);
+			resources = resolver.getResources("classpath:com/zyplayer/doc/db/framework/db/mapper/postgresql/*.xml");
 		} else if (dbUrl.contains("sqlserver")) {
 			// jdbc:jtds:sqlserver://192.168.0.1:33434;socketTimeout=60;DatabaseName=user_info;
 			String[] urlParamArr = dbUrl.split(";");

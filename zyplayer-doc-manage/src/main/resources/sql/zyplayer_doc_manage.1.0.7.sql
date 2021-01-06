@@ -84,7 +84,7 @@ CREATE TABLE `db_datasource`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   `name` varchar(50) NULL DEFAULT NULL COMMENT '数据源名称',
-  `source_group` varchar(50) DEFAULT NULL COMMENT '数据源分组名',
+  `group_name` varchar(50) DEFAULT NULL COMMENT '数据源分组名',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 

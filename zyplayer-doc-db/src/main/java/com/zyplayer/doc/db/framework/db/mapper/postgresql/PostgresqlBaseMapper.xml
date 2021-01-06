@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper">
+
+    <resultMap id="TableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto">
+        <result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="ISIDENITY" property="isidenity" jdbcType="VARCHAR"/>
+        <result column="TYPE" property="type" jdbcType="VARCHAR"/>
+        <result column="NULLABLE" property="nullable" jdbcType="VARCHAR"/>
+        <result column="LENGTH" property="length" jdbcType="VARCHAR"/>
+        <result column="ISPRAMARY" property="ispramary" jdbcType="VARCHAR"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="QueryTableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto">
+        <result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR"/>
+        <result column="COLUMN_NAME" property="columnName" jdbcType="VARCHAR"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getDatabaseList" resultType="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto">
+			SELECT distinct  table_schema   as dbName
+		FROM information_schema.tables   ORDER BY 1
+	</select>
+
+    <select id="getTableStatus" resultType="com.zyplayer.doc.db.controller.vo.TableStatusVo">
+		SELECT relname as name, reltuples as rows
+		FROM pg_class r JOIN pg_namespace n
+		ON (relnamespace = n.oid)
+		WHERE relkind = 'r' AND n.nspname = #{dbName} and   relname = #{tableName}
+	</select>
+
+    <select id="getTableList" resultType="com.zyplayer.doc.db.framework.db.dto.TableInfoDto">
+		select relname as tableName,cast(obj_description(relfilenode,'pg_class') as varchar) as tableComment from pg_class c
+		where relname in (select tablename from pg_tables where schemaname=#{dbName} and position('_2' in tablename)=0)
+		order by 1
+ 	</select>
+
+    <select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
+	   SELECT table_name as TABLE_NAME,a.COLUMN_NAME as  NAME,b.DESCRIPTION as  DESCRIPTION,udt_name as  TYPE,case when  is_nullable ='YES' then '允许' else '不允许' end  as  NULLABLE ,  case when  character_maximum_length>0 then character_maximum_length else  numeric_precision end  LENGTH
+		FROM information_schema.columns a
+		left join (SELECT a.attname as COLUMN_NAME,col_description(a.attrelid,a.attnum) as DESCRIPTION
+		FROM pg_class as c,pg_attribute as a, pg_namespace as n
+		where    a.attrelid = c.oid and a.attnum>0
+		and c.relnamespace = n.oid AND n.nspname = #{dbName}  and c.relname = #{tableName})  b  on a.COLUMN_NAME= b.COLUMN_NAME
+		WHERE table_schema=#{dbName} and table_name=#{tableName}
+		ORDER BY ordinal_position
+	</select>
+
+    <select id="getTableColumnDescList" resultMap="TableColumnDescDtoMap">
+		SELECT
+		col_description (A .attrelid, A .attnum) AS COMMENT,
+		format_type (A .atttypid, A .atttypmod) AS TYPE,
+		A .attname AS NAME,
+		A .attnotnull AS NOTNULL
+		FROM
+			pg_class AS C,
+			pg_attribute AS A
+		WHERE
+			C .relname =#{tableName}
+		AND A .attrelid = C .oid
+		AND A .attnum > 0
+	</select>
+
+    <select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
+		SELECT
+		col_description (A .attrelid, A .attnum) AS COMMENT,
+		format_type (A .atttypid, A .atttypmod) AS TYPE,
+		A .attname AS NAME,
+		A .attnotnull AS NOTNULL
+		FROM
+			pg_class AS C,
+			pg_attribute AS A
+		WHERE
+			C .relnamelike #{searchText}
+		AND A .attrelid = C .oid
+		AND A .attnum > 0
+	</select>
+
+    <select id="getTableDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableDescDto">
+        select t.relname as tableName ,description as description
+        from pg_description d,pg_class c,pg_stat_all_tables t
+        where d.objoid=c.oid and objsubid=0 and t.relname=c.relname and t.schemaname=#{dbName}
+        <if test="tableName != null">
+            and t.relname=#{tableName}
+        </if>
+    </select>
+
+</mapper>
+

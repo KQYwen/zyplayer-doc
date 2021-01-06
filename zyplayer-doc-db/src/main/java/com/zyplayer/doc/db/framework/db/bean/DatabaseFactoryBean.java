@@ -43,7 +43,7 @@ public class DatabaseFactoryBean {
 	}
 	
 	public static enum DatabaseProduct {
-		MYSQL, SQLSERVER, ORACLE
+		MYSQL, SQLSERVER, ORACLE, POSTGRESQL
 	}
 
 	public DruidDataSource getDataSource() {

@@ -61,9 +61,7 @@
                     </el-table-column>
                     <el-table-column prop="type" label="类型" width="150"></el-table-column>
                     <el-table-column prop="length" label="长度" width="80"></el-table-column>
-                    <el-table-column label="NULL" width="60">
-                        <template slot-scope="scope">{{scope.row.nullable ? '允许' : '不允许'}}</template>
-                    </el-table-column>
+                    <el-table-column prop="nullable" label="空值" width="60"></el-table-column>
                     <el-table-column label="主键" width="50">
                         <template slot-scope="scope">{{scope.row.ispramary ? '是' : '否'}}</template>
                     </el-table-column>

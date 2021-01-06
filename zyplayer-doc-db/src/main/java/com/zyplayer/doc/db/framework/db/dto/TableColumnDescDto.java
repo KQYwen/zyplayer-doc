@@ -21,7 +21,7 @@ public class TableColumnDescDto {
 	private String type;
 	
 	@ColumnWidth(10)
-	@ExcelProperty("NULL")
+	@ExcelProperty("空值")
 	private String nullable;
 	
 	@ColumnWidth(10)
