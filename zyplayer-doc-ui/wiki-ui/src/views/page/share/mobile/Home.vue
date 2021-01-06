@@ -1,39 +1,10 @@
 <template>
 	<div style="padding: 10px;" class="page-share-home-vue">
-		<div style="max-width: 800px;margin: 0 auto;">
-			<div v-if="spacePageNews.length <= 0" class="empty-news">暂无数据</div>
-			<div v-else class="line-box" v-for="item in spacePageNews">
-				<div class="line-title">
-					<span class="text-link">{{item.createUserName}}</span> 发布于 <span class="text-link">{{item.spaceName}}</span>
-				</div>
-				<div class="page-preview-box">
-					<div class="page-preview-title" v-on:click="showPageDetail(item)" v-html="item.pageTitle"></div>
-					<div class="page-preview-content" v-html="item.previewContent"></div>
-					<div>
-						<span><img src="../../../assets/img/zan.png" class="zan-img"> {{item.zanNum}}　</span>
-						<span><i class="el-icon-view view-img"></i> {{item.viewNum}}　</span>
-						<span>{{item.updateTime||item.createTime}}</span>
-					</div>
-				</div>
-			</div>
-			<div class="page-info-box">
-				<el-pagination
-					@size-change="handleSizeChange"
-					@current-change="handleCurrentChange"
-					:page-sizes="[20, 50, 100]"
-					:page-size="20"
-					:current-page="searchParam.pageNum"
-					layout="prev, pager, next, jumper, sizes, total"
-					:total="totalCount"
-				>
-				</el-pagination>
-			</div>
-		</div>
 	</div>
 </template>
 
 <script>
-	import pageApi from '../../../common/api/page'
+	import pageApi from '../../../../common/api/page'
 
 	export default {
 		data() {
