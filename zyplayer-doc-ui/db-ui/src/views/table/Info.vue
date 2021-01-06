@@ -61,7 +61,7 @@
                     </el-table-column>
                     <el-table-column prop="type" label="类型" width="150"></el-table-column>
                     <el-table-column prop="length" label="长度" width="80"></el-table-column>
-                    <el-table-column prop="nullable" label="空值" width="60"></el-table-column>
+                    <el-table-column prop="nullable" label="空值" width="80"></el-table-column>
                     <el-table-column label="主键" width="50">
                         <template slot-scope="scope">{{scope.row.ispramary ? '是' : '否'}}</template>
                     </el-table-column>
@@ -77,7 +77,11 @@
             </div>
         </el-card>
         <!--增加数据源弹窗-->
-        <el-dialog title="DDL" :visible.sync="tableDDLInfoDialogVisible" :footer="null" width="760px">
+        <el-dialog :visible.sync="tableDDLInfoDialogVisible" :footer="null" width="760px">
+			<div slot="title">
+				<span style="margin-right: 15px;">DDL</span>
+				<el-button size="small" icon="el-icon-document-copy" v-clipboard:copy="tableDDLInfo" v-clipboard:success="onCopySuccess" v-clipboard:error="onCopyError">复制</el-button>
+			</div>
             <div v-highlight>
                 <pre><code v-html="tableDDLInfo"></code></pre>
             </div>
@@ -140,17 +144,33 @@
                     this.tableStatusInfo = json.data || {};
                 });
             },
+			onCopySuccess(e) {
+				this.$message.success("内容已复制到剪切板！");
+			},
+			onCopyError(e) {
+				this.$message.error("抱歉，复制失败！");
+			},
             showCreateTableDdl() {
                 this.tableDDLInfo = '';
-                this.tableDDLInfoDialogVisible = true;
                 let param = {
                     sourceId: this.vueQueryParam.sourceId,
                     dbName: this.vueQueryParam.dbName,
                     tableName: this.vueQueryParam.tableName,
                 };
-                datasourceApi.queryTableDdl(param).then(res => {
-                    this.tableDDLInfo = res.data || '获取失败';
-                });
+				let loading = this.$loading({
+					lock: true,
+					text: '加载中...',
+					spinner: 'el-icon-loading',
+					background: 'rgba(0, 0, 0, 0.7)'
+				});
+				this.tableDDLInfoDialogVisible = false;
+				datasourceApi.queryTableDdl(param).then(res => {
+					loading.close();
+					this.tableDDLInfo = res.data || '获取失败';
+					setTimeout(() => this.tableDDLInfoDialogVisible = true, 0);
+				}).catch(() => {
+					loading.close();
+				});
             },
             descBoxClick(row) {
                 // row.newDesc = row.description;

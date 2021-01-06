@@ -38,6 +38,7 @@
                         <el-option label="com.mysql.jdbc.Driver" value="com.mysql.jdbc.Driver"></el-option>
                         <el-option label="net.sourceforge.jtds.jdbc.Driver" value="net.sourceforge.jtds.jdbc.Driver"></el-option>
                         <el-option label="oracle.jdbc.driver.OracleDriver" value="oracle.jdbc.driver.OracleDriver"></el-option>
+                        <el-option label="org.postgresql.Driver" value="org.postgresql.Driver"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="数据源URL：">
@@ -237,6 +238,8 @@
                     this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:33434;DatabaseName=user_info;socketTimeout=60;";
                 } else if (this.newDatasource.driverClassName == 'oracle.jdbc.driver.OracleDriver') {
                     this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
+                } else if (this.newDatasource.driverClassName == 'org.postgresql.Driver') {
+                    this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
                 }
             },
             getDatasourceList() {
