@@ -55,8 +55,10 @@
 		},
 		methods: {
 			filterPageNode(value, data) {
-				if (!value) return true;
-				return data.name.indexOf(value) !== -1;
+				if (!value || !data.name) return true;
+				// issues:I2CG72 忽略大小写
+				let name = data.name.toLowerCase();
+				return name.indexOf(value.toLowerCase()) !== -1;
 			},
 			handleNodeClick(data) {
 				if (this.nowPageId == data.id) {

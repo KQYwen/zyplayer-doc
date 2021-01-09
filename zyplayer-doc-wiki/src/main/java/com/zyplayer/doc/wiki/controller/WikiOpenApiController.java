@@ -90,13 +90,13 @@ public class WikiOpenApiController {
 						preview = preview.substring(0, 200);
 					}
 					if (keywords != null) {
-						preview = preview.replace(keywords, "<span style=\"color:red\">" + keywords + "</span>");
+						preview = StringUtils.replaceIgnoreCase(preview, keywords, "<span style=\"color:red\">" + keywords + "</span>");
 					}
 				}
 				val.setPreviewContent(preview);
 				String pageTitle = val.getPageTitle();
 				if (pageTitle != null && keywords != null) {
-					pageTitle = pageTitle.replace(keywords, "<span style=\"color:red\">" + keywords + "</span>");
+					pageTitle = StringUtils.replaceIgnoreCase(pageTitle, keywords, "<span style=\"color:red\">" + keywords + "</span>");
 				}
 				val.setPageTitle(pageTitle);
 			});
