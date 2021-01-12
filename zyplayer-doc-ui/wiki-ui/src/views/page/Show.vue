@@ -55,7 +55,7 @@
 					</div>
 					<div ref="pageContent" class="wiki-page-content">
 						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2"></div>
-						<div v-html="pageShowDetail" class="wiki-html-content" v-else></div>
+						<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
 					</div>
 					<div style="margin-top: 40px; font-size: 14px;">
 						<span style="vertical-align: top;" class="is-link">
@@ -644,6 +644,7 @@
 	}
 </script>
 <style>
+	@import "../../common/lib/wangEditor.css";
 	/*覆盖样式*/
 	.el-main{overflow: hidden;}
 	.page-show-vue {height: 100%;}
@@ -654,7 +655,6 @@
 	.page-show-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
 	.page-show-vue .wiki-page-content img{cursor: pointer;max-width: 100%;}
 	.page-show-vue .wiki-page-content img:hover{box-shadow: 0 2px 6px 0 rgba(0,0,0,.3);}
-	.page-show-vue .wiki-page-content .wiki-html-content{font-size: 14px;padding: 6px;overflow-y: auto;}
 
 	.page-show-vue .upload-page-file .el-upload-list{display: none;}
 	.page-show-vue .is-link{color: #1e88e5;cursor: pointer;}
@@ -712,30 +712,6 @@
 	}
 	.page-show-vue .comment-card:hover .comment-user-name .el-icon-delete{
 		display: inline-block;
-	}
-	/**展示内容的样式*/
-	.wiki-html-content table {
-		border-top: 1px solid #ccc; border-left: 1px solid #ccc;
-	}
-	.wiki-html-content table td, .wiki-html-content table th {
-		border-bottom: 1px solid #ccc; border-right: 1px solid #ccc; padding: 3px 5px;
-	}
-	.wiki-html-content table th {
-		border-bottom: 2px solid #ccc; text-align: center;
-	}
-	.wiki-html-content blockquote {
-		display: block; border-left: 8px solid #d0e5f2; padding: 5px 10px; margin: 10px 0;
-		line-height: 1.4; font-size: 100%; background-color: #f1f1f1;
-	}
-	.wiki-html-content code {
-		display: inline-block; *display: inline; *zoom: 1;
-		background-color: #f1f1f1; border-radius: 3px; padding: 3px 5px; margin: 0 3px;
-	}
-	.wiki-html-content pre code {
-		display: block;
-	}
-	.wiki-html-content ul, ol {
-		margin: 10px 0 10px 20px;
 	}
 </style>
 

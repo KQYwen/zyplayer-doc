@@ -23,7 +23,7 @@
 				</div>
 				<div ref="pageContent" class="wiki-page-content">
 					<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2"></div>
-					<div v-html="pageShowDetail" class="wiki-html-content" v-else></div>
+					<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
 				</div>
 			</div>
 		</el-row>
@@ -137,12 +137,13 @@
 </script>
 
 <style>
+	@import "../../../../common/lib/wangEditor.css";
+
 	.page-share-view-vue .wiki-title{font-size: 20px;text-align: center;}
 	.page-share-view-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
 
 	.page-share-view-vue .wiki-page-content img{cursor: pointer;max-width: 100%;}
 	.page-share-view-vue .wiki-page-content img:hover{box-shadow: 0 2px 6px 0 rgba(0,0,0,.3);}
-	.page-share-view-vue .wiki-page-content .wiki-html-content{font-size: 14px;padding: 6px;overflow-y: auto;}
 
 	.page-share-view-vue .upload-page-file .el-upload-list{display: none;}
 	.page-share-view-vue .is-link{color: #1e88e5;cursor: pointer;}
