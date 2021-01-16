@@ -76,7 +76,7 @@ public class DbSqlExecutorController {
 			}
 			sqlItem = sqlItem.trim();
 			try {
-				ExecuteType executeType = (!manageAuth && select) ? ExecuteType.SELECT : ExecuteType.ALL;
+				ExecuteType executeType = (manageAuth || update) ? ExecuteType.ALL : ExecuteType.SELECT;
 				ExecuteParam executeParam = new ExecuteParam();
 				executeParam.setDatasourceId(sourceId);
 				executeParam.setExecuteId(executeId);
