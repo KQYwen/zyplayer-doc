@@ -27,23 +27,29 @@
                             <el-menu-item index="/data/transferData"><i class="el-icon-document-copy"></i>数据互导工具</el-menu-item>
                         </el-submenu>
                     </el-menu>
-                    <div style="overflow: auto;padding-bottom: 30px;">
-                        <el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
-                                 ref="databaseTree" highlight-current empty-text=""
-                                 :default-expanded-keys="databaseExpandedKeys"
-                                 node-key="id" @node-expand="handleNodeExpand"
-                                 class="database-list-tree">
-                            <span slot-scope="{node, data}">
-                                <span v-if="data.needLoad"><i class="el-icon-loading"></i></span>
-                                <span v-else>
-                                    {{node.label}}
-                                    <el-tooltip v-if="!!data.comment" effect="dark" :content="data.comment" placement="top-start" :open-delay="600">
-                                        <span style="color: #aaa;">-{{data.comment}}</span>
-                                    </el-tooltip>
-                                </span>
-                            </span>
-                        </el-tree>
-                    </div>
+					<el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
+							 ref="databaseTree" highlight-current empty-text=""
+							 :default-expanded-keys="databaseExpandedKeys"
+							 node-key="id" @node-expand="handleNodeExpand"
+							 class="database-list-tree" style="overflow-x: auto;">
+						<div slot-scope="{node, data}">
+							<span v-if="data.needLoad"><i class="el-icon-loading"></i></span>
+							<span v-else>
+								{{node.label}}
+								<el-tooltip v-if="!!data.comment" effect="dark" :content="data.comment" placement="top-start" :open-delay="600">
+									<span style="color: #aaa;">-{{data.comment}}</span>
+								</el-tooltip>
+								<el-dropdown v-if="data.type == 1" @command="databaseActionDropdown">
+									<i class="el-icon-more" @click.stop=""></i>
+									<el-dropdown-menu slot="dropdown">
+										<el-dropdown-item icon="el-icon-refresh" :command="{command: 'refresh', node: node}">刷新</el-dropdown-item>
+<!--										<el-dropdown-item icon="el-icon-upload2" :command="{command: 'upload', node: node}">导入</el-dropdown-item>-->
+<!--										<el-dropdown-item icon="el-icon-download" :command="{command: 'download', node: node}">导出</el-dropdown-item>-->
+									</el-dropdown-menu>
+								</el-dropdown>
+							</span>
+						</div>
+					</el-tree>
                 </div>
             </el-aside>
             <el-container>
@@ -194,6 +200,17 @@
                     }
                 }
             },
+			databaseActionDropdown(param) {
+				if (param.command == 'refresh') {
+					param.node.loading = true;
+					param.node.data.children = [];
+					this.loadGetTableList(param.node.data, () => {
+						setTimeout(() => param.node.loading = false, 500);
+					});
+				} else {
+					this.$message.warning("暂未支持的选项");
+				}
+			},
             loadGetTableList(node, callback) {
                 datasourceApi.tableList({sourceId: this.choiceDatasourceId, dbName: node.dbName}).then(json => {
                     let pathIndex = [];
@@ -294,4 +311,8 @@
     .el-menu-vertical{border-right: 0;background: #fafafa;}
     .el-menu-vertical .el-menu{background: #fafafa;}
     .el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}
+
+	.el-tree-node__content{}
+	.el-tree-node__content .el-icon-more{margin-left: 5px;color: #606266;font-size: 12px; display: none;padding: 2px 5px;}
+	.el-tree-node__content:hover .el-icon-more{display: inline-block;}
 </style>
