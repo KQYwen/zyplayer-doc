@@ -11,7 +11,12 @@ public class DatabaseExportVo {
 	private Map<String, List<TableColumnDescDto>> columnList;
 
 	private List<TableInfoVo> tableList;
-
+	
+	public DatabaseExportVo(Map<String, List<TableColumnDescDto>> columnList, List<TableInfoVo> tableList) {
+		this.columnList = columnList;
+		this.tableList = tableList;
+	}
+	
 	public Map<String, List<TableColumnDescDto>> getColumnList() {
 		return columnList;
 	}

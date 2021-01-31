@@ -11,13 +11,7 @@
                 <el-select v-model="choiceDatabase" @change="databaseChangeEvents" filterable placeholder="请选择数据库" style="margin: 0 10px;">
                     <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>
                 </el-select>
-                <el-radio-group v-model="exportType">
-                    <el-radio :label="1">HTML格式</el-radio>
-                    <el-radio :label="2">Excel格式</el-radio>
-                    <el-radio :label="3">Word格式</el-radio>
-                    <el-radio :label="4">表结构</el-radio>
-                </el-radio-group>
-                <el-button v-on:click="exportChoiceTable" type="primary" style="margin: 0 10px 0 20px;">导出选中的表</el-button>
+                <el-button v-on:click="showExportTypeChoice" type="primary" style="margin: 0 10px 0 20px;">导出选中的表</el-button>
                 <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=117&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
             </div>
             <el-table :data="tableList" stripe border @selection-change="handleSelectionChange" style="width: 100%; margin-bottom: 5px;">
@@ -29,13 +23,40 @@
 		<form method="post" ref="downloadForm" :action="downloadFormParam.url" target="_blank">
 			<input type="hidden" :name="key" :value="val" v-for="(val,key) in downloadFormParam.param">
 		</form>
+		<!--导出选项弹窗-->
+		<el-dialog :visible.sync="exportTypeChoiceVisible" width="500px">
+			<span slot="title">库表导出选项</span>
+			<el-form label-width="120px">
+				<el-form-item label="导出类型：">
+					<el-radio-group v-model="exportType" @change="exportTypeChange">
+						<el-radio :label="1">表结构文档</el-radio>
+						<el-radio :label="2">建表语句SQL</el-radio>
+					</el-radio-group>
+				</el-form-item>
+				<el-form-item label="导出格式：" v-if="exportType == 1">
+					<el-radio-group v-model="exportFormat">
+						<el-radio :label="1">HTML格式</el-radio>
+						<el-radio :label="2">Excel格式</el-radio>
+						<el-radio :label="3">Word格式</el-radio>
+					</el-radio-group>
+				</el-form-item>
+				<el-form-item label="导出格式：" v-else-if="exportType == 2">
+					<el-radio-group v-model="exportFormat">
+						<el-radio :label="1">SQL格式</el-radio>
+					</el-radio-group>
+				</el-form-item>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="exportTypeChoiceVisible = false">取 消</el-button>
+				<el-button type="primary" @click="doExport">确 定</el-button>
+			</span>
+		</el-dialog>
     </div>
 </template>
 
 <script>
     import datasourceApi from '../../common/api/datasource'
 
-    var app;
     export default {
         data() {
             return {
@@ -46,6 +67,8 @@
                 choiceDatabase: "",
                 choiceTable: "",
                 exportType: 1,
+                exportFormat: 1,
+				exportTypeChoiceVisible: false,
                 // 页面展示相关
                 nowDatasourceShow: {},
                 databaseList: [],
@@ -58,20 +81,26 @@
             }
         },
         mounted: function () {
-            app = this;
             this.loadDatasourceList();
         },
         methods: {
             datasourceChangeEvents() {
-                app.nowDatasourceShow = this.choiceDatasourceId;
-                app.loadDatabaseList(this.choiceDatasourceId);
+				this.nowDatasourceShow = this.choiceDatasourceId;
+				this.loadDatabaseList(this.choiceDatasourceId);
             },
             databaseChangeEvents() {
-                app.loadGetTableList();
+				this.loadGetTableList();
             },
-            exportChoiceTable() {
-				if (this.selectTables.length <= 0) {
-					app.$message.info("请选择需要导出的表");
+			exportTypeChange() {
+				this.exportFormat = '';
+            },
+			doExport() {
+				if (!this.exportType) {
+					this.$message.info("请选择导出类型");
+					return;
+				}
+				if (!this.exportFormat) {
+					this.$message.info("请选择导出格式");
 					return;
 				}
 				let tableNames = "";
@@ -89,10 +118,18 @@
 				this.downloadFormParam.param = {
 					sourceId: this.choiceDatasourceId,
 					exportType: this.exportType,
+					exportFormat: this.exportFormat,
 					dbName: this.choiceDatabase,
 					tableNames: tableNames,
 				};
 				setTimeout(() => this.$refs.downloadForm.submit(), 0);
+            },
+            showExportTypeChoice() {
+				if (this.selectTables.length <= 0) {
+					this.$message.info("请选择需要导出的表");
+					return;
+				}
+            	this.exportTypeChoiceVisible = true;
             },
             loadGetTableList() {
                 datasourceApi.tableList({sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase}).then(json => {

@@ -32,6 +32,36 @@ import java.util.Map;
 public class PoiUtil {
 	
 	/**
+	 * 导出为ddl
+	 *
+	 * @param ddlSqlMap
+	 * @param response
+	 * @throws Exception
+	 */
+	public static void exportByDdl(Map<String, String> ddlSqlMap, String dbName, String dbType, HttpServletResponse response) throws Exception {
+		String fileName = URLEncoder.encode("建表语句导出", "UTF-8");
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".sql");
+		response.setCharacterEncoding("utf-8");
+		// 将文件输入流写入response的输出流中
+		StringBuilder ddlSqlSb = new StringBuilder("/*\n" +
+				" zyplayer-doc-db 数据库建表语句导出\n" +
+				"\n" +
+				" 数据库       : " + dbName + "\n" +
+				" 数据库类型   : " + dbType + "\n" +
+				" 导出时间     : " + DateTime.now().toString() + "\n" +
+				"*/\n\n");
+		for (Map.Entry<String, String> entry : ddlSqlMap.entrySet()) {
+			ddlSqlSb.append("-- ----------------------------\n")
+					.append("-- 表结构：" + entry.getKey() + "\n")
+					.append("-- ----------------------------\n")
+					.append("DROP TABLE IF EXISTS `" + entry.getKey() + "`;\n")
+					.append(entry.getValue()).append(";\n\n");
+		}
+		IoUtil.write(response.getOutputStream(), "utf-8", true, ddlSqlSb.toString());
+	}
+	
+	/**
 	 * 导出为Text
 	 *
 	 * @param exportVo

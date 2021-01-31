@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 文档控制器
@@ -251,44 +252,67 @@ public class DatabaseDocController {
 	}
 	
 	@PostMapping(value = "/exportDatabase")
-	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames, Integer exportType) {
+	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames, Integer exportType, Integer exportFormat) {
 		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
 		if (StringUtils.isBlank(tableNames)) {
 			return DocDbResponseJson.warn("请选择需要导出的表");
 		}
+		List<String> tableNameList = Stream.of(tableNames.split(",")).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+		if (Objects.equals(exportType, 1)) {
+			return this.exportForTableDoc(response, sourceId, dbName, tableNameList, exportFormat);
+		} else if (Objects.equals(exportType, 2)) {
+			return this.exportForTableDdl(response, sourceId, dbName, tableNameList, exportFormat);
+		}
+		return DocDbResponseJson.ok();
+	}
+	
+	private DocDbResponseJson exportForTableDdl(HttpServletResponse response, Long sourceId, String dbName, List<String> tableNameList, Integer exportFormat) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
+		DatabaseProduct databaseProduct = databaseFactoryBean.getDatabaseProduct();
+		Map<String, String> ddlSqlMap = new HashMap<>();
+		for (String tableName : tableNameList) {
+			Map<String, String> dataMap = baseMapper.getTableDdl(dbName, tableName);
+			// 不同数据源类型获取方式不一致
+			if (Objects.equals(DatabaseProduct.MYSQL, databaseProduct)) {
+				ddlSqlMap.put(tableName, dataMap.get("Create Table"));
+			}
+		}
+		try {
+			PoiUtil.exportByDdl(ddlSqlMap, dbName, databaseProduct.name(), response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return DocDbResponseJson.error("导出失败：" + e.getMessage());
+		}
+		return DocDbResponseJson.ok();
+	}
+	
+	private DocDbResponseJson exportForTableDoc(HttpServletResponse response, Long sourceId, String dbName, List<String> tableNameList, Integer exportFormat) {
 		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
 		if (databaseFactoryBean == null) {
 			return DocDbResponseJson.warn("未找到对应的数据库连接");
 		}
 		List<TableInfoVo> tableList = new LinkedList<>();
 		Map<String, List<TableColumnDescDto>> columnList = new HashMap<>();
-		String[] tableNameArr = tableNames.split(",");
-		for (String tableName : tableNameArr) {
-			if (StringUtils.isBlank(tableName)) {
-				continue;
-			}
+		for (String tableName : tableNameList) {
 			TableColumnVo tableColumnVo = this.getTableColumnVo(databaseFactoryBean, dbName, tableName);
 			columnList.put(tableName, tableColumnVo.getColumnList());
 			tableList.add(tableColumnVo.getTableInfo());
 		}
-		DatabaseExportVo exportVo = new DatabaseExportVo();
-		exportVo.setColumnList(columnList);
-		exportVo.setTableList(tableList);
 		try {
-			if (Objects.equals(exportType, 1)) {
+			DatabaseExportVo exportVo = new DatabaseExportVo(columnList, tableList);
+			if (Objects.equals(exportFormat, 1)) {
 				PoiUtil.exportByText(exportVo, response);
-			} else if (Objects.equals(exportType, 2)) {
+			} else if (Objects.equals(exportFormat, 2)) {
 				PoiUtil.exportByXlsx(exportVo, response);
-			} else if (Objects.equals(exportType, 3)) {
+			} else if (Objects.equals(exportFormat, 3)) {
 				PoiUtil.exportByDocx(dbName, exportVo, response);
-			} else {
-				return DocDbResponseJson.error("导出失败：请先选择导出类型");
 			}
+			return DocDbResponseJson.error("导出失败：请先选择导出类型");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return DocDbResponseJson.error("导出失败：" + e.getMessage());
 		}
-		return DocDbResponseJson.ok();
 	}
 	
 	private TableColumnVo getTableColumnVo(DatabaseFactoryBean databaseFactoryBean, String dbName, String tableName) {

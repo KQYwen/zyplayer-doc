@@ -70,7 +70,12 @@ public class DatasourceUtil {
 			return null;
 		}
 		// 数据源配置
-		DruidDataSource dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword(), breakAfterAcquireFailure);
+		DruidDataSource dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword(), false);
+		if (breakAfterAcquireFailure) {
+			dataSource.close();
+			// 先关闭会自动关闭的数据源，再创建一个会重连的
+			dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword(), true);
+		}
 		// 创建sqlSessionTemplate
 		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
 		sqlSessionFactoryBean.setDataSource(dataSource);
