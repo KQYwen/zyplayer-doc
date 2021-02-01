@@ -1,6 +1,5 @@
 package com.zyplayer.doc.db.controller;
 
-import cn.hutool.core.util.ZipUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
@@ -23,22 +22,18 @@ import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean.DatabaseProduct;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.db.dto.*;
-import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
-import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.framework.utils.PoiUtil;
-import org.apache.commons.collections.CollectionUtils;
+import com.zyplayer.doc.db.service.DbBaseFactory;
+import com.zyplayer.doc.db.service.DbBaseService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,6 +55,8 @@ public class DatabaseDocController {
 	DbDatasourceService dbDatasourceService;
 	@Resource
 	UserAuthService userAuthService;
+	@Resource
+	DbBaseFactory dbBaseFactory;
 	
 	@PostMapping(value = "/getDataSourceList")
 	public ResponseJson getDataSourceList() {
@@ -103,46 +100,8 @@ public class DatabaseDocController {
 		if (resultObj != null) {
 			return DocDbResponseJson.ok(resultObj);
 		}
-		BaseMapper baseMapper = this.getBaseMapper(sourceId);
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
-		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
-		Map<String, List<TableInfoDto>> dbTableMap = new HashMap<>();
-		Map<String, List<TableColumnDescDto>> tableColumnsMap = new HashMap<>();
-		
-		Map<String, List<TableInfoDto>> tableMapList = new HashMap<>();
-		// MYSQL可以一次性查询所有库表
-		if (databaseFactoryBean.getDatabaseProduct() == DatabaseProduct.MYSQL) {
-			List<TableInfoDto> dbTableList = baseMapper.getTableList(null);
-			tableMapList = dbTableList.stream().collect(Collectors.groupingBy(TableInfoDto::getDbName));
-		}
-		for (DatabaseInfoDto infoDto : dbNameDtoList) {
-			List<TableInfoDto> tableInfoDtoList = tableMapList.get(infoDto.getDbName());
-			// SQLSERVER必须要库才能查
-			if (databaseFactoryBean.getDatabaseProduct() == DatabaseProduct.SQLSERVER) {
-				tableInfoDtoList = baseMapper.getTableList(infoDto.getDbName());
-			}
-			if (CollectionUtils.isEmpty(tableInfoDtoList)) {
-				continue;
-			}
-			dbTableMap.put(infoDto.getDbName(), tableInfoDtoList);
-			// 小于10个库，查所有库，否则只查询当前链接的库，防止库表太多，数据量太大
-			// 如果觉得没必要就自己改吧！
-			Map<String, List<TableColumnDescDto>> columnDescDtoMap = new HashMap<>();
-			if (dbNameDtoList.size() <= 10 || Objects.equals(databaseFactoryBean.getDbName(), infoDto.getDbName())) {
-				List<TableColumnDescDto> columnDescDto = baseMapper.getTableColumnList(infoDto.getDbName(), null);
-				columnDescDtoMap = columnDescDto.stream().collect(Collectors.groupingBy(TableColumnDescDto::getTableName));
-			}
-			for (TableInfoDto tableInfoDto : tableInfoDtoList) {
-				List<TableColumnDescDto> descDtoList = columnDescDtoMap.get(tableInfoDto.getTableName());
-				if (CollectionUtils.isNotEmpty(descDtoList)) {
-					tableColumnsMap.put(tableInfoDto.getTableName(), descDtoList);
-				}
-			}
-		}
-		Map<String, Object> dbResultMap = new HashMap<>();
-		dbResultMap.put("db", dbNameDtoList);
-		dbResultMap.put("table", dbTableMap);
-		dbResultMap.put("column", tableColumnsMap);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		Map<String, Object> dbResultMap = dbBaseService.getEditorData(sourceId);
 		// 缓存10分钟，如果10分钟内库里面增删改了表或字段，则提示不出来
 		CacheUtil.put(cacheKey, dbResultMap, 6000);
 		return DocDbResponseJson.ok(dbResultMap);
@@ -150,110 +109,81 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getTableDdl")
 	public ResponseJson getTableDdl(Long sourceId, String dbName, String tableName) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		Map<String, String> dataMap = baseMapper.getTableDdl(dbName, tableName);
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
-		// 不同数据源类型获取方式不一致
-		if (Objects.equals(DatabaseProduct.MYSQL, databaseFactoryBean.getDatabaseProduct())) {
-			return DocDbResponseJson.ok(dataMap.get("Create Table"));
-		}
-		return DocDbResponseJson.ok("暂未支持的数据库类型");
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		String tableDdl = dbBaseService.getTableDdl(sourceId, dbName, tableName);
+		return DocDbResponseJson.ok(tableDdl);
 	}
 	
 	@PostMapping(value = "/getDatabaseList")
 	public ResponseJson getDatabaseList(Long sourceId) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
-		return DocDbResponseJson.ok(dbNameDtoList);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		List<DatabaseInfoDto> databaseList = dbBaseService.getDatabaseList(sourceId);
+		return DocDbResponseJson.ok(databaseList);
 	}
 	
 	@PostMapping(value = "/getTableStatus")
 	public ResponseJson getTableStatus(Long sourceId, String dbName, String tableName) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		TableStatusVo tableStatusVo = baseMapper.getTableStatus(dbName, tableName);
-		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
-		tableStatusVo.setDbType(factoryBean.getDatabaseProduct().name().toLowerCase());
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		TableStatusVo tableStatusVo = dbBaseService.getTableStatus(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableStatusVo);
 	}
 	
 	@PostMapping(value = "/getTableList")
 	public ResponseJson getTableList(Long sourceId, String dbName) {
-		BaseMapper baseMapper = this.getBaseMapper(sourceId);
-		List<TableInfoDto> dbTableList = baseMapper.getTableList(dbName);
-		return DocDbResponseJson.ok(dbTableList);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		List<TableInfoDto> tableList = dbBaseService.getTableList(sourceId, dbName);
+		return DocDbResponseJson.ok(tableList);
 	}
 	
 	@PostMapping(value = "/getTableColumnList")
 	public ResponseJson getTableColumnList(Long sourceId, String dbName, String tableName) {
-		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
-		if (databaseFactoryBean == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
-		TableColumnVo tableColumnVo = this.getTableColumnVo(databaseFactoryBean, dbName, tableName);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		TableColumnVo tableColumnVo = dbBaseService.getTableColumnList(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableColumnVo);
 	}
 	
 	@PostMapping(value = "/getTableColumnDescList")
 	public ResponseJson getTableColumnDescList(Long sourceId, String tableName) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		List<TableColumnDescDto> columnDescDto = baseMapper.getTableColumnDescList(tableName);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		List<TableColumnDescDto> columnDescDto = dbBaseService.getTableColumnDescList(sourceId, tableName);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
 	
 	@PostMapping(value = "/getTableAndColumnBySearch")
 	public ResponseJson getTableAndColumnBySearch(Long sourceId, String dbName, String searchText) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		if (StringUtils.isBlank(searchText)) {
 			return DocDbResponseJson.ok();
 		}
-		searchText = "%" + searchText + "%";
-		List<QueryTableColumnDescDto> columnDescDto = baseMapper.getTableAndColumnBySearch(dbName, searchText);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		List<QueryTableColumnDescDto> columnDescDto = dbBaseService.getTableAndColumnBySearch(sourceId, dbName, searchText);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
 	
 	@PostMapping(value = "/getTableDescList")
 	public ResponseJson getTableDescList(Long sourceId, String dbName, String tableName) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		List<TableDescDto> columnDescDto = baseMapper.getTableDescList(dbName, tableName);
-		return DocDbResponseJson.ok(columnDescDto);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		List<TableDescDto> tableDescList = dbBaseService.getTableDescList(sourceId, dbName, tableName);
+		return DocDbResponseJson.ok(tableDescList);
 	}
 	
 	@PostMapping(value = "/updateTableDesc")
 	public ResponseJson updateTableDesc(Long sourceId, String dbName, String tableName, String newDesc) {
 		this.judgeAuth(sourceId, DbAuthType.DESC_EDIT.getName(), "没有修改该表注释的权限");
-		BaseMapper baseMapper = this.getBaseMapper(sourceId);
-		baseMapper.updateTableDesc(dbName, tableName, newDesc);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		dbBaseService.updateTableDesc(sourceId, dbName, tableName, newDesc);
 		return DocDbResponseJson.ok();
 	}
 	
 	@PostMapping(value = "/updateTableColumnDesc")
 	public ResponseJson updateTableColumnDesc(Long sourceId, String dbName, String tableName, String columnName, String newDesc) {
 		this.judgeAuth(sourceId, DbAuthType.DESC_EDIT.getName(), "没有修改该表字段注释的权限");
-		BaseMapper baseMapper = this.getBaseMapper(sourceId);
-		ColumnInfoDto columnInfo = null;
-		// mysql要同时修改类型默认值等，所以先查出来
-		MysqlMapper mysqlMapper = databaseRegistrationBean.getBaseMapper(sourceId, MysqlMapper.class);
-		if (mysqlMapper != null) {
-			columnInfo = mysqlMapper.getColumnInfo(dbName, tableName, columnName);
-			String isNullable = Optional.ofNullable(columnInfo.getIsNullable()).orElse("");
-			columnInfo.setIsNullable("yes".equalsIgnoreCase(isNullable) ? "null" : "not null");
-			String columnDefault = columnInfo.getColumnDefault();
-			if (StringUtils.isNotBlank(columnDefault)) {
-				columnInfo.setColumnDefault("DEFAULT " + columnDefault);
-			} else {
-				columnInfo.setColumnDefault("");
-			}
-			String extra = columnInfo.getExtra();
-			columnInfo.setExtra(StringUtils.isBlank(extra) ? "" : extra);
-		}
-		baseMapper.updateTableColumnDesc(dbName, tableName, columnName, newDesc, columnInfo);
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		dbBaseService.updateTableColumnDesc(sourceId, dbName, tableName, columnName, newDesc);
 		return DocDbResponseJson.ok();
 	}
 	
 	@PostMapping(value = "/exportDatabase")
 	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames, Integer exportType, Integer exportFormat) {
-		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
 		if (StringUtils.isBlank(tableNames)) {
 			return DocDbResponseJson.warn("请选择需要导出的表");
 		}
@@ -267,18 +197,15 @@ public class DatabaseDocController {
 	}
 	
 	private DocDbResponseJson exportForTableDdl(HttpServletResponse response, Long sourceId, String dbName, List<String> tableNameList, Integer exportFormat) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
-		DatabaseProduct databaseProduct = databaseFactoryBean.getDatabaseProduct();
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
 		Map<String, String> ddlSqlMap = new HashMap<>();
 		for (String tableName : tableNameList) {
-			Map<String, String> dataMap = baseMapper.getTableDdl(dbName, tableName);
-			// 不同数据源类型获取方式不一致
-			if (Objects.equals(DatabaseProduct.MYSQL, databaseProduct)) {
-				ddlSqlMap.put(tableName, dataMap.get("Create Table"));
-			}
+			String tableDdl = dbBaseService.getTableDdl(sourceId, dbName, tableName);
+			ddlSqlMap.put(tableName, tableDdl);
 		}
 		try {
+			DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
+			DatabaseProduct databaseProduct = databaseFactoryBean.getDatabaseProduct();
 			PoiUtil.exportByDdl(ddlSqlMap, dbName, databaseProduct.name(), response);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -288,14 +215,12 @@ public class DatabaseDocController {
 	}
 	
 	private DocDbResponseJson exportForTableDoc(HttpServletResponse response, Long sourceId, String dbName, List<String> tableNameList, Integer exportFormat) {
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
-		if (databaseFactoryBean == null) {
-			return DocDbResponseJson.warn("未找到对应的数据库连接");
-		}
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		// 数据组装
 		List<TableInfoVo> tableList = new LinkedList<>();
 		Map<String, List<TableColumnDescDto>> columnList = new HashMap<>();
 		for (String tableName : tableNameList) {
-			TableColumnVo tableColumnVo = this.getTableColumnVo(databaseFactoryBean, dbName, tableName);
+			TableColumnVo tableColumnVo = dbBaseService.getTableColumnList(sourceId, dbName, tableName);
 			columnList.put(tableName, tableColumnVo.getColumnList());
 			tableList.add(tableColumnVo.getTableInfo());
 		}
@@ -315,39 +240,6 @@ public class DatabaseDocController {
 		}
 	}
 	
-	private TableColumnVo getTableColumnVo(DatabaseFactoryBean databaseFactoryBean, String dbName, String tableName) {
-		SqlSessionTemplate sessionTemplate = databaseFactoryBean.getSqlSessionTemplate();
-		BaseMapper baseMapper = sessionTemplate.getMapper(BaseMapper.class);
-		List<TableColumnDescDto> columnDescDto = baseMapper.getTableColumnList(dbName, tableName);
-		// SQLSERVER要单独查字段注释
-		if (databaseFactoryBean.getDatabaseProduct() == DatabaseProduct.SQLSERVER) {
-			List<TableColumnDescDto> columnDescList = baseMapper.getTableColumnDescList(tableName);
-			Map<String, TableColumnDescDto> columnMap = columnDescDto.stream().collect(Collectors.toMap(TableColumnDescDto::getName, val -> val));
-			// 字段注释
-			for (TableColumnDescDto descDto : columnDescList) {
-				TableColumnDescDto tempDesc = columnMap.get(descDto.getName());
-				if (tempDesc != null) {
-					tempDesc.setDescription(descDto.getDescription());
-				}
-			}
-		}
-		TableColumnVo tableColumnVo = new TableColumnVo();
-		tableColumnVo.setColumnList(columnDescDto);
-		// 表注释
-		TableInfoVo tableInfoVo = new TableInfoVo();
-		List<TableDescDto> tableDescList = baseMapper.getTableDescList(dbName, tableName);
-		String description = null;
-		if (tableDescList.size() > 0) {
-			TableDescDto descDto = tableDescList.get(0);
-			description = descDto.getDescription();
-		}
-		description = Optional.ofNullable(description).orElse("");
-		tableInfoVo.setDescription(description);
-		tableInfoVo.setTableName(tableName);
-		tableColumnVo.setTableInfo(tableInfoVo);
-		return tableColumnVo;
-	}
-	
 	/**
 	 * 权限判断
 	 *
@@ -358,36 +250,6 @@ public class DatabaseDocController {
 				&& !DocUserUtil.haveCustomAuth(authName, DocAuthConst.DB + sourceId)) {
 			throw new ConfirmException(noAuthInfo);
 		}
-	}
-	
-	/**
-	 * 获取BaseMapper
-	 *
-	 * @author 暮光：城中城
-	 */
-	private BaseMapper getBaseMapper(Long sourceId) {
-		BaseMapper baseMapper = databaseRegistrationBean.getBaseMapperById(sourceId);
-		if (baseMapper == null) {
-			throw new ConfirmException("未找到对应的数据库连接");
-		}
-		return baseMapper;
-	}
-	
-	/**
-	 * 判断查看权和获取BaseMapper
-	 *
-	 * @author 暮光：城中城
-	 */
-	private BaseMapper getViewAuthBaseMapper(Long sourceId) {
-		this.judgeAuth(sourceId, DbAuthType.VIEW.getName(), "没有查看该库表信息的权限");
-		return this.getBaseMapper(sourceId);
-	}
-	
-	public static void main(String[] args) {
-		//File zipFile = ZipUtil.zip("d:/aaa");
-		File zipFile = new File("d:/111.zip");
-		ZipUtil.zip(zipFile, true, new File("d:/111.txt"),
-				new File("d:/222.txt"), new File("d:/aaa"));
 	}
 }
 

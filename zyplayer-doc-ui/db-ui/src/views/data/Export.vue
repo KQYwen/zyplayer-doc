@@ -92,7 +92,7 @@
 				this.loadGetTableList();
             },
 			exportTypeChange() {
-				this.exportFormat = '';
+				this.exportFormat = 1;
             },
 			doExport() {
 				if (!this.exportType) {
@@ -123,6 +123,7 @@
 					tableNames: tableNames,
 				};
 				setTimeout(() => this.$refs.downloadForm.submit(), 0);
+				this.exportTypeChoiceVisible = false;
             },
             showExportTypeChoice() {
 				if (this.selectTables.length <= 0) {
