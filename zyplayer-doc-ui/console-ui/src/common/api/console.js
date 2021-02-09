@@ -20,6 +20,9 @@ export default {
     getUserInfoList: data => {
         return request({url: '/user/info/list', method: 'post', data: Qs.stringify(data)});
     },
+	searchUserInfoList: data => {
+        return request({url: '/user/info/search', method: 'post', data: Qs.stringify(data)});
+    },
     updateUserInfo: data => {
         return request({url: '/user/info/update', method: 'post', data: Qs.stringify(data)});
     },
@@ -34,5 +37,23 @@ export default {
     },
     resetPassword: data => {
         return request({url: '/user/info/resetPassword', method: 'post', data: Qs.stringify(data)});
+    },
+    userGroupList: data => {
+        return request({url: '/user/group/list', method: 'post', data: Qs.stringify(data)});
+    },
+    updateUserGroup: data => {
+        return request({url: '/user/group/update', method: 'post', data: Qs.stringify(data)});
+    },
+	deleteUserGroup: data => {
+        return request({url: '/user/group/delete', method: 'post', data: Qs.stringify(data)});
+    },
+	updateUserGroupRelation: data => {
+        return request({url: '/user/group/relation/update', method: 'post', data: Qs.stringify(data)});
+    },
+	removeUserGroupRelation: data => {
+        return request({url: '/user/group/relation/remove', method: 'post', data: Qs.stringify(data)});
+    },
+	userGroupRelationList: data => {
+        return request({url: '/user/group/relation/list', method: 'post', data: Qs.stringify(data)});
     },
 };

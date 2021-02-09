@@ -5,7 +5,7 @@
 		</template>
 		<el-container v-else>
 			<el-aside>
-				<div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
+				<div class="menu-box">
 					<el-menu default-active="1-4-1" :router="true" class="el-menu-vertical" @open="handleOpen" @close="handleClose" :collapse="isCollapse">
 						<el-menu-item index="/"><i class="el-icon-s-home"></i>控制台</el-menu-item>
 						<el-submenu index="1" v-if="userAuth.userManage">
@@ -13,9 +13,14 @@
 								<i class="el-icon-s-platform"></i>
 								<span slot="title">系统管理</span>
 							</template>
-							<el-menu-item index="/console/userList"><i class="el-icon-user-solid"></i>用户管理</el-menu-item>
-							<!--                            <el-menu-item index="/console/roleList"><i class="el-icon-s-custom"></i>角色管理</el-menu-item>-->
-							<!--                            <el-menu-item index="/console/authList"><i class="el-icon-s-claim"></i>权限列表</el-menu-item>-->
+							<el-menu-item index="/console/userList">
+								<people theme="filled" size="16" fill="#909399"></people>
+								<span>用户管理</span>
+							</el-menu-item>
+							<el-menu-item index="/console/userGroupList">
+								<peoples theme="filled" size="16" fill="#909399"></peoples>
+								<span>分组管理</span>
+							</el-menu-item>
 						</el-submenu>
 					</el-menu>
 				</div>
@@ -65,6 +70,7 @@
 
 <script>
 	import consoleApi from './common/api/console'
+	import {Peoples, People} from '@icon-park/vue';
 
 	export default {
 		data() {
@@ -78,6 +84,10 @@
 				// 升级信息
 				upgradeInfo: {},
 			}
+		},
+		components: {
+			"peoples": Peoples,
+			"people": People,
 		},
 		computed: {
 			fullscreen () {
@@ -158,4 +168,7 @@
 	.el-menu-vertical{border-right: 0;background: #fafafa;}
 	.el-menu-vertical .el-menu{background: #fafafa;}
 	.el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}
+
+	.menu-box{padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;}
+	.menu-box .i-icon{line-height: 1;margin-right: 5px;}
 </style>

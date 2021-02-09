@@ -15,6 +15,7 @@ public class WikiPageContentVo {
 	private Integer canEdit;
 	private Integer canDelete;
 	private Integer canUploadFile;
+	private Integer canDeleteFile;
 	private Integer canConfigAuth;
 	
 	public WikiPage getWikiPage() {
@@ -87,5 +88,13 @@ public class WikiPageContentVo {
 	
 	public void setCanUploadFile(Integer canUploadFile) {
 		this.canUploadFile = canUploadFile;
+	}
+	
+	public Integer getCanDeleteFile() {
+		return canDeleteFile;
+	}
+	
+	public void setCanDeleteFile(Integer canDeleteFile) {
+		this.canDeleteFile = canDeleteFile;
 	}
 }

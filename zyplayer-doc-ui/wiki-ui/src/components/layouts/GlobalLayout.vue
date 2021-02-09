@@ -84,72 +84,13 @@
 					<router-view @loadPageList="loadPageList"
 								 @changeExpandedKeys="changeWikiPageExpandedKeys"
 								 @switchSpace="switchSpacePage"
+								 @loadSpace="loadSpaceList"
 								 :spaceId="choiceSpace"
 								 :spaceInfo="getSpaceInfo(choiceSpace)">
 					</router-view>
 				</el-main>
 			</el-container>
         </el-container>
-        <!--新建空间弹窗-->
-        <el-dialog title="创建空间" :visible.sync="newSpaceDialogVisible" width="600px" :close-on-click-modal="false">
-            <el-form label-width="100px" :model="newSpaceForm" :rules="newSpaceFormRules" ref="newSpaceForm">
-                <el-form-item label="空间名：" prop="name">
-                    <el-input v-model="newSpaceForm.name"></el-input>
-                </el-form-item>
-                <el-form-item label="空间描述：" prop="spaceExplain">
-                    <el-input v-model="newSpaceForm.spaceExplain"></el-input>
-                </el-form-item>
-                <el-form-item label="空间开放：">
-                    <el-switch v-model="newSpaceForm.openDoc" inactive-text="需要登录" :inactive-value="0" active-text="开放访问" :active-value="1"></el-switch>
-                </el-form-item>
-                <el-form-item label="目录加载：">
-                    <el-switch v-model="newSpaceForm.treeLazyLoad" inactive-text="预先加载" :inactive-value="0" active-text="延迟加载" :active-value="1"></el-switch>
-                </el-form-item>
-                <el-form-item label="空间类型：">
-                    <el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%;">
-                        <el-option :key="1" label="公共空间" :value="1">
-                            <span style="float: left">公共空间</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px;">属于公共，登录用户可访问、编辑</span>
-                        </el-option>
-                        <el-option :key="2" label="个人空间" :value="2">
-                            <span style="float: left">个人空间</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px;">属于个人，所有登录用户可访问</span>
-                        </el-option>
-                        <el-option :key="3" label="隐私空间" :value="3">
-                            <span style="float: left">隐私空间</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px;">属于个人，仅创建者可访问</span>
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" v-if="newSpaceForm.id > 0" @click="onNewSpaceSubmit('newSpaceForm')">保存修改</el-button>
-                    <el-button type="primary" v-else @click="onNewSpaceSubmit('newSpaceForm')">立即创建</el-button>
-                    <el-button @click="onNewSpaceCancel">取消</el-button>
-                </el-form-item>
-            </el-form>
-        </el-dialog>
-        <!--管理空间弹窗-->
-        <el-dialog title="管理空间" :visible.sync="manageSpaceDialogVisible" :close-on-click-modal="false" width="80%">
-            <el-table :data="spaceList" border style="width: 100%; margin-bottom: 5px;" max-height="500">
-                <el-table-column prop="id" label="ID" width="60"></el-table-column>
-                <el-table-column prop="name" label="名字"></el-table-column>
-                <el-table-column prop="spaceExplain" label="说明"></el-table-column>
-                <el-table-column label="开放地址">
-                    <template slot-scope="scope">
-						<el-button type="text" @click="showOpenSpace(scope.row.uuid)" v-if="scope.row.openDoc == 1">{{scope.row.name}}</el-button>
-                        <span v-else>暂未开放</span>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="createUserName" label="创建人"></el-table-column>
-                <el-table-column prop="createTime" label="创建时间"></el-table-column>
-                <el-table-column label="操作">
-                    <template slot-scope="scope">
-                        <el-button size="small" type="primary" v-on:click="editSpaceInfo(scope.row)">编辑</el-button>
-                        <el-button size="small" type="danger" v-on:click="deleteSpaceInfo(scope.row)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-dialog>
         <!--关于弹窗-->
         <el-dialog title="关于zyplayer-doc-wiki" :visible.sync="aboutDialogVisible" width="600px">
             <el-form>
@@ -168,12 +109,14 @@
                 </el-form-item>
             </el-form>
         </el-dialog>
+		<create-space ref="createSpace" @success="loadSpaceList"></create-space>
     </div>
 </template>
 
 <script>
     import userApi from '../../common/api/user'
     import pageApi from '../../common/api/page'
+	import CreateSpace from '../space/CreateSpace'
 
     export default {
         data() {
@@ -191,15 +134,6 @@
                 spaceList:[],
                 choiceSpace: "",
                 nowSpaceShow: {},
-                newSpaceDialogVisible: false,
-                manageSpaceDialogVisible: false,
-                newSpaceForm: {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1},
-                newSpaceFormRules: {
-                    name: [
-                        {required: true, message: '请输入空间名', trigger: 'blur'},
-                        {min: 2, max: 25, message: '长度在 2 到 25 个字符', trigger: 'blur'}
-                    ],
-                },
 				nowPageId: '',
 				// 依据目录树存储的map全局对象
                 treePathDataMap: new Map(),
@@ -223,6 +157,9 @@
 				},
             }
         },
+		components: {
+			"create-space": CreateSpace,
+		},
         computed: {
         },
         mounted: function () {
@@ -324,37 +261,13 @@
 				let name = data.name.toLowerCase();
 				return name.indexOf(value.toLowerCase()) !== -1;
             },
-			showOpenSpace(space) {
-				let routeUrl = this.$router.resolve({path: '/page/share/home', query: {space: space}});
-				window.open(routeUrl.href, '_blank');
-            },
-            editSpaceInfo(row) {
-				this.newSpaceForm = {
-                    id: row.id, name: row.name, spaceExplain: row.spaceExplain,
-                    treeLazyLoad: row.treeLazyLoad, openDoc: row.openDoc, type: row.type
-                };
-				this.newSpaceDialogVisible = true;
-            },
-            deleteSpaceInfo(row) {
-				this.$confirm('确定要删除此空间及下面的所有文档吗？', '提示', {
-					confirmButtonText: '确定',
-					cancelButtonText: '取消',
-					type: 'warning'
-				}).then(() => {
-					let param = {id: row.id, delFlag: 1};
-					pageApi.updateSpace(param).then(() => {
-						this.loadSpaceList();
-					});
-				});
-            },
             spaceChangeEvents(data) {
                 if (data == 0) {
 					// 新建空间
-					this.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
-					this.newSpaceDialogVisible = true;
+					this.$refs.createSpace.show();
                 } else if (data == -1) {
                     // 管理空间
-					this.manageSpaceDialogVisible = true;
+					this.$router.push({path: '/space/manage'});
                 } else {
 					this.choiceSpace = data;
                     for (let i = 0; i < this.spaceList.length; i++) {
@@ -368,26 +281,27 @@
 					this.$router.push({path: '/home', query: {spaceId: data}});
                 }
             },
-            loadSpaceList() {
+			loadSpaceList(spaceId) {
 				pageApi.spaceList({}).then(json => {
 					this.spaceList = json.data || [];
 					let spaceOptions = [];
-                    for (let i = 0; i < this.spaceList.length; i++) {
-                        spaceOptions.push({
-                            label: this.spaceList[i].name, value: this.spaceList[i].id
-                        });
-                    }
+					this.spaceList.forEach(item => spaceOptions.push({label: item.name, value: item.id}));
 					this.spaceOptions = spaceOptions;
-                    if (this.spaceList.length > 0) {
-						let spaceId = this.spaceList[0].id;
-                        this.nowSpaceShow = this.spaceList[0];
-                        this.choiceSpace = spaceId;
+					if (this.spaceList.length > 0) {
+						let nowSpaceId = spaceId;
+						let nowSpaceShow = this.spaceList.find(item => item.id == spaceId);
+						if (!nowSpaceShow) {
+							nowSpaceShow = this.spaceList[0];
+							nowSpaceId = nowSpaceShow.id;
+						}
+						this.nowSpaceShow = nowSpaceShow;
+						this.choiceSpace = nowSpaceId;
 						this.nowPageId = '';
                         this.doGetPageList(null);
                         // TODO 在首页时跳转
                         try {
                             if (this.$router.app._route.path == "/home") {
-                                this.$router.push({path: '/home', query: {spaceId: spaceId}});
+                                this.$router.push({path: '/home', query: {spaceId: nowSpaceId}});
                             }
                         } catch (e) {
                             console.log(e);
@@ -452,38 +366,6 @@
 				}
 				return {};
 			},
-            onNewSpaceSubmit(formName) {
-                this.$refs[formName].validate((valid) => {
-                    if (valid) {
-						let param = {
-                            id: this.newSpaceForm.id,
-                            name: this.newSpaceForm.name,
-                            type: this.newSpaceForm.type,
-                            openDoc: this.newSpaceForm.openDoc,
-                            spaceExplain: this.newSpaceForm.spaceExplain,
-                            treeLazyLoad: this.newSpaceForm.treeLazyLoad,
-                        };
-						pageApi.updateSpace(param).then(json => {
-							if (param.id > 0) {
-								this.loadSpaceList();
-							} else {
-                                this.spaceList.push(json.data);
-                                this.spaceOptions.push({
-                                    label: json.data.name, value: json.data.id
-                                });
-                                this.nowSpaceShow = json.data;
-                                this.choiceSpace = json.data.id;
-                                this.doGetPageList(null);
-                            }
-                            this.newSpaceForm = {id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1};
-                            this.newSpaceDialogVisible = false;
-                        });
-                    }
-                });
-            },
-            onNewSpaceCancel() {
-                this.newSpaceDialogVisible = false;
-            },
             checkSystemUpgrade() {
 				userApi.systemUpgradeInfo({}).then(json => {
                     if (!!json.data) {

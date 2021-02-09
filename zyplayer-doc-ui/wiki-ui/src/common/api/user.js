@@ -17,6 +17,9 @@ export default {
 	getUserBaseInfo: data => {
 		return request({url: '/zyplayer-doc-wiki/common/user/base', method: 'post', data: Qs.stringify(data)});
 	},
+	userGroupList: data => {
+		return request({url: '/user/group/list', method: 'post', data: Qs.stringify(data)});
+	},
 	getUserMessageList: data => {
 		return request({url: '/user/message/list', method: 'post', data: Qs.stringify(data)});
 	},

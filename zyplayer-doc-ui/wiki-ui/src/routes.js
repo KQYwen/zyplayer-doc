@@ -15,6 +15,7 @@ let routes = [
 			{path: '/user/myInfo', name: 'WIKI-我的信息', component: () => import('@/views/user/MyInfo')},
 			{path: '/page/show', name: 'WIKI-内容展示', component: () => import('@/views/page/Show')},
 			{path: '/page/edit', name: 'WIKI-编辑内容', component: () => import('@/views/page/Edit')},
+			{path: '/space/manage', name: 'WIKI-空间管理', component: () => import('@/views/space/Manage')},
 		]
 	},
 	{

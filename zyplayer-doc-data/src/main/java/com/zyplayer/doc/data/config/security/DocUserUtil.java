@@ -1,6 +1,9 @@
 package com.zyplayer.doc.data.config.security;
 
+import com.zyplayer.doc.data.utils.CachePrefix;
 import com.zyplayer.doc.data.utils.CacheUtil;
+
+import java.util.Set;
 
 /**
  * 用户工具类
@@ -54,6 +57,21 @@ public class DocUserUtil {
 	public static void setCurrentUser(String accessToken, DocUserDetails docUser) {
 		DOC_USER_DETAILS.set(docUser);
 		CacheUtil.put(accessToken, docUser);
+		CacheUtil.put(CachePrefix.LOGIN_USER_ID_TOKEN + docUser.getUserId(), accessToken);
+	}
+	
+	/**
+	 * 设置当前用户权限
+	 */
+	public static void setUserAuth(Long userId, Set<String> userAuthSet) {
+		String userToken = CacheUtil.get(CachePrefix.LOGIN_USER_ID_TOKEN + userId);
+		if (userToken != null) {
+			DocUserDetails docUser = CacheUtil.get(userToken);
+			if (docUser != null) {
+				docUser.setAuthorities(userAuthSet);
+				CacheUtil.put(userToken, docUser);
+			}
+		}
 	}
 	
 	/**

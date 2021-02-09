@@ -5,8 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
-import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
-import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
@@ -18,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Set;
 
 @RestController
 public class LoginController {
@@ -44,19 +42,7 @@ public class LoginController {
 		if (!Objects.equals(userInfo.getPassword(), pwdMd5)) {
 			return DocResponseJson.warn("密码错误");
 		}
-		QueryWrapper<UserAuth> authWrapper = new QueryWrapper<>();
-		authWrapper.eq("user_id", userInfo.getId()).eq("del_flag", "0");
-		List<UserAuth> userAuthList = userAuthService.list(authWrapper);
-		Set<String> userAuthSet = Collections.emptySet();
-		if (userAuthList != null && userAuthList.size() > 0) {
-			List<Long> authIdList = userAuthList.stream().map(UserAuth::getAuthId).collect(Collectors.toList());
-			Collection<AuthInfo> authInfoList = authInfoService.listByIds(authIdList);
-			Map<Long, String> authNameMap = authInfoList.stream().collect(Collectors.toMap(AuthInfo::getId, AuthInfo::getAuthName));
-			userAuthSet = userAuthList.stream().map(val -> {
-				String authName = Optional.ofNullable(authNameMap.get(val.getAuthId())).orElse("");
-				return authName + Optional.ofNullable(val.getAuthCustomSuffix()).orElse("");
-			}).collect(Collectors.toSet());
-		}
+		Set<String> userAuthSet = userAuthService.getUserAuthSet(userInfo.getId());
 		String accessToken = RandomUtil.simpleUUID();
 		DocUserDetails userDetails = new DocUserDetails(userInfo.getId(), userInfo.getUserName(), userInfo.getPassword(), true, userAuthSet);
 		DocUserUtil.setCurrentUser(accessToken, userDetails);

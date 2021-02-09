@@ -38,6 +38,21 @@ export default {
 	pageUnlock: data => {
         return request({url: '/zyplayer-doc-wiki/page/unlock', method: 'post', data: Qs.stringify(data)});
     },
+	spaceFavoriteUpdate: data => {
+        return request({url: '/zyplayer-doc-wiki/space/favorite/update', method: 'post', data: Qs.stringify(data)});
+    },
+	spaceAuthAssign: data => {
+        return request({url: '/zyplayer-doc-wiki/space/auth/assign', method: 'post', data: Qs.stringify(data)});
+    },
+	spaceAuthList: data => {
+        return request({url: '/zyplayer-doc-wiki/space/auth/list', method: 'post', data: Qs.stringify(data)});
+    },
+	spaceSettingList: data => {
+        return request({url: '/zyplayer-doc-wiki/space/setting/list', method: 'post', data: Qs.stringify(data)});
+    },
+	spaceSettingUpdate: data => {
+        return request({url: '/zyplayer-doc-wiki/space/setting/update', method: 'post', data: Qs.stringify(data)});
+    },
 	spaceList: data => {
         return request({url: '/zyplayer-doc-wiki/space/list', method: 'post', data: Qs.stringify(data)});
     },

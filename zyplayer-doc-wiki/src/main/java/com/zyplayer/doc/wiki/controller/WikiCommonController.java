@@ -65,8 +65,8 @@ public class WikiCommonController {
 			return DocResponseJson.ok();
 		}
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
-		queryWrapper.like("user_name", search).or().like("user_no", search)
-				.or().like("email", search);
+		queryWrapper.and(con -> con.and(conSub -> conSub.like("user_name", search).or().like("user_no", search)
+				.or().like("email", search)).and(conSub -> conSub.eq("del_flag", 0)));
 		queryWrapper.select("id", "user_name");
 		// 搜索最多返回20条
 		IPage<UserInfo> page = new Page<>(1, 20, false);

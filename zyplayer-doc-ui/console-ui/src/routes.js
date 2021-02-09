@@ -29,6 +29,7 @@ let routes = [
 			{path: 'userList', name: '用户管理', component: () => import('@/views/console/UserList.vue')},
 			{path: 'roleList', name: '权限管理', component: () => import('@/views/console/AuthList.vue')},
 			{path: 'authList', name: '角色列表', component: () => import('@/views/console/RoleList.vue')},
+			{path: 'userGroupList', name: '分组管理', component: () => import('@/views/console/UserGroupList.vue')},
 		]
 	}, {
 		path: '/common',

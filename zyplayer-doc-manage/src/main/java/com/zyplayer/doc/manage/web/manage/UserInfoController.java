@@ -2,6 +2,8 @@ package com.zyplayer.doc.manage.web.manage;
 
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.zyplayer.doc.core.annotation.AuthMan;
@@ -18,8 +20,8 @@ import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
 import com.zyplayer.doc.manage.web.manage.param.UserListParam;
 import com.zyplayer.doc.manage.web.manage.vo.AuthInfoVo;
-import com.zyplayer.doc.manage.web.manage.vo.UserInfoAuthVo;
 import com.zyplayer.doc.manage.web.manage.vo.UserAuthVo;
+import com.zyplayer.doc.manage.web.manage.vo.UserInfoAuthVo;
 import org.apache.commons.lang.StringUtils;
 import org.dozer.Mapper;
 import org.springframework.util.DigestUtils;
@@ -68,8 +70,24 @@ public class UserInfoController {
 		return DocResponseJson.ok(selfInfoVo);
 	}
 	
+	@PostMapping("/search")
 	@AuthMan(DocAuthConst.USER_MANAGE)
+	public ResponseJson<Object> search(String search) {
+		if (StringUtils.isBlank(search)) {
+			return DocResponseJson.ok();
+		}
+		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+		queryWrapper.and(con -> con.and(conSub -> conSub.like("user_name", search).or().like("user_no", search)
+				.or().like("email", search)).and(conSub -> conSub.eq("del_flag", 0)));
+		queryWrapper.select("id", "user_name");
+		// 搜索最多返回20条
+		IPage<UserInfo> page = new Page<>(1, 20, false);
+		userInfoService.page(page, queryWrapper);
+		return DocResponseJson.ok(page);
+	}
+	
 	@PostMapping("/list")
+	@AuthMan(DocAuthConst.USER_MANAGE)
 	public ResponseJson<Object> list(UserListParam param) {
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
 		if (StringUtils.isNotBlank(param.getKeyword())) {

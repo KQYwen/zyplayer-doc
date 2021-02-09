@@ -46,7 +46,7 @@
 							</el-table-column>
 							<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
 							<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
-							<el-table-column label="操作" width="100px" v-if="wikiPageAuth.canUploadFile==1">
+							<el-table-column label="操作" width="100px" v-if="wikiPageAuth.canDeleteFile==1">
 								<template slot-scope="scope">
 									<el-button size="small" v-on:click="deletePageFile(scope.row)">删除</el-button>
 								</template>
@@ -168,7 +168,7 @@
 		<!--人员权限弹窗-->
 		<el-dialog title="页面权限" :visible.sync="pageAuthDialogVisible" width="900px">
 			<el-row>
-				<el-select v-model="pageAuthNewUser" filterable remote reserve-keyword
+				<el-select v-model="pageAuthNewUser" filterable remote reserve-keyword autoComplete="new-password"
 						placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList"
 					   :loading="pageAuthUserLoading" style="width: 750px;margin-right: 10px;">
 					<el-option v-for="item in searchUserList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
@@ -272,12 +272,9 @@
 				});
 			},
 			getSearchUserList(query) {
-				if (query == '') {
-					return;
-				}
+				if (query == '') return;
 				this.pageAuthUserLoading = true;
-				var param = {search: query};
-				userApi.getUserBaseInfo(param).then(json => {
+				userApi.getUserBaseInfo({search: query}).then(json => {
 					this.searchUserList = json.data || [];
 					this.pageAuthUserLoading = false;
 				});
@@ -306,6 +303,10 @@
 					this.$message.warning("请先选择用户");
                     return;
                 }
+				if (!!this.searchUserList.find(item => item.userId == this.pageAuthNewUser)) {
+					this.pageAuthNewUser = "";
+					return;
+				}
 				var userName = "";
 				for (var i = 0; i < this.searchUserList.length; i++) {
 					if (this.pageAuthNewUser == this.searchUserList[i].id) {
@@ -483,6 +484,7 @@
 						canEdit: result.canEdit,
 						canDelete: result.canDelete,
 						canUploadFile: result.canUploadFile,
+						canDeleteFile: result.canDeleteFile,
 						canConfigAuth: result.canConfigAuth,
 					};
 					if (this.wikiPage.editorType === 2) {

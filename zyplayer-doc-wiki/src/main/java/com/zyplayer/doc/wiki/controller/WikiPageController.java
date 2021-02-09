@@ -146,9 +146,11 @@ public class WikiPageController {
 		String canEdit = wikiPageAuthService.canEdit(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
 		String canDelete = wikiPageAuthService.canDelete(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
 		String canUploadFile = wikiPageAuthService.canUploadFile(wikiSpaceSel, wikiPageSel.getId(), currentUser.getUserId());
+		String canDeleteFile = wikiPageAuthService.canDeleteFile(wikiSpaceSel, wikiPageSel.getId(), currentUser.getUserId());
 		String canConfigAuth = wikiPageAuthService.canConfigAuth(wikiSpaceSel, wikiPageSel.getId(), currentUser.getUserId());
 		vo.setCanEdit((canEdit == null) ? 1 : 0);
 		vo.setCanDelete((canDelete == null) ? 1 : 0);
+		vo.setCanDeleteFile((canDeleteFile == null) ? 1 : 0);
 		vo.setCanUploadFile((canUploadFile == null) ? 1 : 0);
 		vo.setCanConfigAuth((canConfigAuth == null) ? 1 : 0);
 		// 高并发下会有覆盖问题，但不重要~

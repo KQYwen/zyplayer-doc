@@ -83,9 +83,9 @@ public class WikiPageFileController {
 		WikiPage wikiPageSel = wikiPageService.getById(pageFileSel.getPageId());
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
 		// 权限判断
-		String canUploadFile = wikiPageAuthService.canUploadFile(wikiSpaceSel, pageFileSel.getPageId(), currentUser.getUserId());
-		if (canUploadFile != null) {
-			return DocResponseJson.warn(canUploadFile);
+		String canDeleteFile = wikiPageAuthService.canDeleteFile(wikiSpaceSel, pageFileSel.getPageId(), currentUser.getUserId());
+		if (canDeleteFile != null) {
+			return DocResponseJson.warn(canDeleteFile);
 		}
 		wikiPageFile.setDelFlag(1);
 		wikiPageFile.setUpdateUserId(currentUser.getUserId());

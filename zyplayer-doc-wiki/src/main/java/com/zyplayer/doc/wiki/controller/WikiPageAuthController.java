@@ -8,6 +8,7 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
+import com.zyplayer.doc.data.repository.manage.mapper.UserGroupAuthMapper;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
@@ -55,18 +56,14 @@ public class WikiPageAuthController {
 	WikiPageAuthService wikiPageAuthService;
 	@Resource
 	UserMessageService userMessageService;
+	@Resource
+	UserGroupAuthMapper userGroupAuthMapper;
 	
 	@PostMapping("/assign")
 	public ResponseJson<List<WikiPageZan>> assign(Long pageId, String authList) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-//		if (SpaceType.isPrivate(wikiSpaceSel.getType())) {
-//			return DocResponseJson.warn("私人空间不可以编辑权限");
-//		}
-//		if (SpaceType.isPublic(wikiSpaceSel.getType())) {
-//			return DocResponseJson.warn("公共空间不需要编辑权限");
-//		}
 		String canConfigAuth = wikiPageAuthService.canConfigAuth(wikiSpaceSel, pageId, currentUser.getUserId());
 		if (canConfigAuth != null) {
 			return DocResponseJson.warn(canConfigAuth);
@@ -127,6 +124,9 @@ public class WikiPageAuthController {
 			userMessage.setAffectUserId(userInfo.getId());
 			userMessage.setAffectUserName(userInfo.getUserName());
 			userMessageService.addWikiMessage(userMessage);
+			// 刷新用户权限
+			Set<String> userAuthSet = userAuthService.getUserAuthSet(authVo.getUserId());
+			DocUserUtil.setUserAuth(authVo.getUserId(), userAuthSet);
 		}
 		return DocResponseJson.ok();
 	}
@@ -136,10 +136,9 @@ public class WikiPageAuthController {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-		if (!Objects.equals(currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-			if (!DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_AUTH_MANAGE.getName(), DocAuthConst.WIKI + pageId)) {
-				return DocResponseJson.warn("您没有权限管理该页面的权限");
-			}
+		String canConfigAuth = wikiPageAuthService.canConfigAuth(wikiSpaceSel, pageId, currentUser.getUserId());
+		if (canConfigAuth != null) {
+			return DocResponseJson.warn(canConfigAuth);
 		}
 		QueryWrapper<UserAuth> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("auth_custom_suffix", DocAuthConst.WIKI + pageId);
