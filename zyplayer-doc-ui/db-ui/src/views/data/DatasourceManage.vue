@@ -191,11 +191,13 @@
             },
             addDatasource() {
                 this.datasourceDialogVisible = true;
+				this.testDatasourceErrLoading = false;
                 this.newDatasource = {name: "", driverClassName: "", sourceUrl: "", sourceName: "", sourcePassword: "", groupName: ""};
             },
             editDatasource(row) {
                 this.newDatasource = JSON.parse(JSON.stringify(row));
                 this.datasourceDialogVisible = true;
+				this.testDatasourceErrLoading = false;
             },
             deleteDatasource(row) {
                 this.$confirm('确定要删除此数据源吗？', '提示', {
@@ -220,16 +222,20 @@
                 });
             },
             testDatasource() {
-                this.testDatasourceErrLoading = true;
-                datasourceApi.queryTestDatasource(this.newDatasource).then(res => {
-                    this.testDatasourceErrLoading = false;
-                    if (res.errCode == 200) {
-                        this.$message.success("连接成功！");
-                    } else {
-                        this.testDatasourceErrVisible = true;
-                        this.testDatasourceErrInfo = res.errMsg || '';
-                    }
-                });
+				this.testDatasourceErrLoading = true;
+				datasourceApi.queryTestDatasource(this.newDatasource).then(res => {
+					this.testDatasourceErrLoading = false;
+					if (res.errCode == 200) {
+						this.$message.success("连接成功！");
+					} else {
+						this.testDatasourceErrVisible = true;
+						this.testDatasourceErrInfo = res.errMsg || '';
+					}
+				}).catch(err => {
+					this.testDatasourceErrLoading = false;
+					this.testDatasourceErrVisible = true;
+					this.testDatasourceErrInfo = err.message || '请求出错';
+				});
             },
             driverClassNameChange() {
                 if (this.newDatasource.driverClassName == 'com.mysql.jdbc.Driver') {
