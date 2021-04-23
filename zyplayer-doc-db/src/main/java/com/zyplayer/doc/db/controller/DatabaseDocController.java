@@ -16,6 +16,7 @@ import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo.TableInfoVo;
+import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.controller.vo.TableStatusVo;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
@@ -110,8 +111,8 @@ public class DatabaseDocController {
 	@PostMapping(value = "/getTableDdl")
 	public ResponseJson getTableDdl(Long sourceId, String dbName, String tableName) {
 		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
-		String tableDdl = dbBaseService.getTableDdl(sourceId, dbName, tableName);
-		return DocDbResponseJson.ok(tableDdl);
+		TableDdlVo tableDdlVo = dbBaseService.getTableDdl(sourceId, dbName, tableName);
+		return DocDbResponseJson.ok(tableDdlVo);
 	}
 	
 	@PostMapping(value = "/getDatabaseList")
@@ -200,8 +201,8 @@ public class DatabaseDocController {
 		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
 		Map<String, String> ddlSqlMap = new HashMap<>();
 		for (String tableName : tableNameList) {
-			String tableDdl = dbBaseService.getTableDdl(sourceId, dbName, tableName);
-			ddlSqlMap.put(tableName, tableDdl);
+			TableDdlVo tableDdlVo = dbBaseService.getTableDdl(sourceId, dbName, tableName);
+			ddlSqlMap.put(tableName, tableDdlVo.getTableDDLByType());
 		}
 		try {
 			DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);

@@ -4,6 +4,7 @@ import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
+import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.controller.vo.TableStatusVo;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
@@ -66,7 +67,7 @@ public abstract class DbBaseService {
 	 * @author 暮光：城中城
 	 * @since 2018年8月8日
 	 */
-	public String getTableDdl(Long sourceId, String dbName, String tableName) {
+	public TableDdlVo getTableDdl(Long sourceId, String dbName, String tableName) {
 		// 需要各数据服务自己实现，各数据库产品的实现都不一样
 		throw new ConfirmException("暂未支持的数据库类型");
 	}

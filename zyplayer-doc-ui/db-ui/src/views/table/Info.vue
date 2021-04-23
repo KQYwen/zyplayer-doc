@@ -80,11 +80,30 @@
         <el-dialog :visible.sync="tableDDLInfoDialogVisible" :footer="null" width="760px">
 			<div slot="title">
 				<span style="margin-right: 15px;">DDL</span>
-				<el-button size="small" icon="el-icon-document-copy" v-clipboard:copy="tableDDLInfo" v-clipboard:success="onCopySuccess" v-clipboard:error="onCopyError">复制</el-button>
+				<el-button size="small" icon="el-icon-document-copy" v-clipboard:copy="tableDDLInfo[tableDDLInfoTab]" v-clipboard:success="onCopySuccess" v-clipboard:error="onCopyError">复制</el-button>
 			</div>
-            <div v-highlight>
-                <pre><code v-html="tableDDLInfo"></code></pre>
-            </div>
+			<el-tabs v-model="tableDDLInfoTab">
+				<el-tab-pane label="mysql" name="mysql" v-if="!!tableDDLInfo.mysql">
+					<div v-highlight>
+						<pre><code v-html="tableDDLInfo.mysql"></code></pre>
+					</div>
+				</el-tab-pane>
+				<el-tab-pane label="sqlserver" name="sqlserver" v-if="!!tableDDLInfo.sqlserver">
+					<div v-highlight>
+						<pre><code v-html="tableDDLInfo.sqlserver"></code></pre>
+					</div>
+				</el-tab-pane>
+				<el-tab-pane label="oracle" name="oracle" v-if="!!tableDDLInfo.oracle">
+					<div v-highlight>
+						<pre><code v-html="tableDDLInfo.oracle"></code></pre>
+					</div>
+				</el-tab-pane>
+				<el-tab-pane label="postgresql" name="postgresql" v-if="!!tableDDLInfo.postgresql">
+					<div v-highlight>
+						<pre><code v-html="tableDDLInfo.postgresql"></code></pre>
+					</div>
+				</el-tab-pane>
+			</el-tabs>
         </el-dialog>
     </div>
 </template>
@@ -101,6 +120,7 @@
                 columnList: [],
                 tableInfo: {},
                 nowExecutorId: 1,
+				tableDDLInfoTab: '',
                 tableDDLInfo: '',
                 tableDDLInfoDialogVisible: false,
             };
@@ -163,10 +183,12 @@
 					spinner: 'el-icon-loading',
 					background: 'rgba(0, 0, 0, 0.7)'
 				});
+				this.tableDDLInfoTab = '';
 				this.tableDDLInfoDialogVisible = false;
 				datasourceApi.queryTableDdl(param).then(res => {
 					loading.close();
-					this.tableDDLInfo = res.data || '获取失败';
+					this.tableDDLInfo = res.data || {};
+					this.tableDDLInfoTab = this.tableDDLInfo.current;
 					setTimeout(() => this.tableDDLInfoDialogVisible = true, 0);
 				}).catch(() => {
 					loading.close();
