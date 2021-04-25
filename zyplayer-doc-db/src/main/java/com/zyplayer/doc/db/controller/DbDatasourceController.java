@@ -1,11 +1,14 @@
 package com.zyplayer.doc.db.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
+import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.DbDatasourceService;
 import com.zyplayer.doc.db.framework.configuration.DatasourceUtil;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 数据源控制器
@@ -38,14 +42,27 @@ public class DbDatasourceController {
 	DbDatasourceService dbDatasourceService;
 
 	@PostMapping(value = "/list")
-	public ResponseJson list() {
+	public ResponseJson list(Integer pageNum, Integer pageSize, String name, String groupName) {
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
 		wrapper.eq("yn", 1);
-		List<DbDatasource> datasourceList = dbDatasourceService.list(wrapper);
-		for (DbDatasource dbDatasource : datasourceList) {
+		wrapper.eq(StringUtils.isNotBlank(groupName), "group_name", groupName);
+		wrapper.like(StringUtils.isNotBlank(name), "name", "%" + name + "%");
+		IPage<DbDatasource> page = new Page<>(pageNum, pageSize, pageNum == 1);
+		dbDatasourceService.page(page, wrapper);
+		for (DbDatasource dbDatasource : page.getRecords()) {
 			dbDatasource.setSourcePassword("***");
 		}
-		return DocDbResponseJson.ok(datasourceList);
+		return DocDbResponseJson.ok(page);
+	}
+
+	@PostMapping(value = "/groups")
+	public ResponseJson groups() {
+		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
+		wrapper.eq("yn", 1);
+		wrapper.select("group_name");
+		List<DbDatasource> datasourceList = dbDatasourceService.list(wrapper);
+		Set<String> groupNameSet = datasourceList.stream().map(DbDatasource::getGroupName).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+		return DocDbResponseJson.ok(groupNameSet);
 	}
 
 	@PostMapping(value = "/test")

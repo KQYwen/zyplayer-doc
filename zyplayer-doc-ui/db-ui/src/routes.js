@@ -8,6 +8,8 @@ import PageTableView from './components/layouts/PageTableView'
 
 import TableInfo from './views/table/Info.vue'
 import TableDatabase from './views/table/Database.vue'
+import TableProcedure from './views/table/Procedure.vue'
+import TableProcedureEdit from './views/table/ProcedureEdit.vue'
 
 import DataDatasourceManage from './views/data/DatasourceManage.vue'
 import DataExport from './views/data/Export.vue'
@@ -35,6 +37,8 @@ let routes = [
         children: [
             {path: '/table/info', name: '表信息',component: TableInfo},
             {path: '/table/database', name: '库信息',component: TableDatabase},
+            {path: '/procedure/list', name: '存储过程',component: TableProcedure},
+            {path: '/procedure/edit', name: '编辑存储过程',component: TableProcedureEdit},
             {path: '/data/datasourceManage', name: '数据源管理',component: DataDatasourceManage},
             {path: '/data/export', name: '数据库导出',component: DataExport},
             {path: '/data/executor', name: 'SQL执行器',component: DataExecutor},

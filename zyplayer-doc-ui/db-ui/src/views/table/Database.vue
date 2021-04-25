@@ -2,18 +2,18 @@
     <div class="table-database-vue">
         <el-card style="margin: 10px;" shadow="never">
             <div slot="header" class="clearfix">库信息</div>
-            <el-form label-width="100px">
-                <el-form-item label="数据源：">{{vueQueryParam.host}}</el-form-item>
-                <el-form-item label="数据库：">{{vueQueryParam.dbName}}</el-form-item>
-            </el-form>
-            <el-form :inline="true" label-width="100px">
-                <el-form-item label="关键字：">
-                    <el-input v-model="keyword" placeholder="输入字段名或注释搜索相关的表或字段信息" style="width: 500px;"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button class="search-submit" type="primary" icon="el-icon-search" @click="searchSubmit">模糊搜索</el-button>
-                </el-form-item>
-            </el-form>
+			<el-row style="margin-bottom: 20px;">
+				<el-col :span="12"><span class="label">数据源：</span>{{vueQueryParam.host}}</el-col>
+				<el-col :span="12"><span class="label">数据库：</span>{{vueQueryParam.dbName}}</el-col>
+			</el-row>
+			<el-row>
+				<el-col :span="24">
+					<span class="label">关键字：</span>
+					<el-input v-model="keyword" placeholder="输入字段名或注释搜索库中相关的表或字段信息" style="width: 350px;margin-right: 10px;"></el-input>
+					<el-button class="search-submit" type="primary" icon="el-icon-search" @click="searchSubmit">模糊搜索</el-button>
+					<el-button icon="el-icon-coin" @click="funcManage">函数管理</el-button>
+				</el-col>
+			</el-row>
         </el-card>
         <div style="padding: 10px;" v-loading="columnListLoading">
             <el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
@@ -65,10 +65,14 @@
                     this.columnListLoading = false;
                 });
             },
+            funcManage() {
+				this.$router.push({path: '/procedure/list', query: this.vueQueryParam});
+            },
         }
     }
 </script>
 <style>
     .table-database-vue .el-table td, .table-database-vue .el-table th{padding: 5px 0;}
+    .table-database-vue .label{width: 140px; text-align: right;}
 </style>
 

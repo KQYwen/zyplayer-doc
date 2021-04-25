@@ -1,14 +1,22 @@
 package com.zyplayer.doc.db.service;
 
+import cn.hutool.core.util.RandomUtil;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.dto.ColumnInfoDto;
+import com.zyplayer.doc.db.framework.db.dto.ProcedureDto;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
+import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
+import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
+import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -48,5 +56,74 @@ public class MysqlServiceImpl extends DbBaseService {
 		String extra = columnInfo.getExtra();
 		columnInfo.setExtra(StringUtils.isBlank(extra) ? "" : extra);
 		baseMapper.updateTableColumnDesc(dbName, tableName, columnName, newDesc, columnInfo);
+	}
+	
+	@Override
+	public ProcedureDto getProcedureDetail(Long sourceId, String dbName, String typeName, String procName) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+		ProcedureDto procedureDetail = baseMapper.getProcedureDetail(dbName, typeName, procName);
+		if (procedureDetail == null) {
+			// 新建的时候
+			ProcedureDto procedureDetailNew = new ProcedureDto();
+			if (Objects.equals(typeName, "FUNCTION")) {
+				procedureDetailNew.setBody("CREATE DEFINER = CURRENT_USER " + typeName + " `" + procName + "`() RETURNS integer\n" +
+						"BEGIN\n" +
+						"\t#Routine body goes here...\n" +
+						"\tRETURN 0;\n" +
+						"END;");
+			} else {
+				procedureDetailNew.setBody("CREATE DEFINER = CURRENT_USER " + typeName + " `" + procName + "`()\n" +
+						"BEGIN\n" +
+						"\t#Routine body goes here...\n" +
+						"END;");
+			}
+			procedureDetailNew.setDb(dbName);
+			procedureDetailNew.setDefiner("CURRENT_USER");
+			procedureDetailNew.setType(typeName);
+			return procedureDetailNew;
+		}
+		// 组装好SQL
+		String type = procedureDetail.getType();
+		String name = procedureDetail.getName();
+		String paramList = StringUtils.defaultIfBlank(procedureDetail.getParamList(), "");
+		String[] definerArr = procedureDetail.getDefiner().split("@");
+		String createStr = String.format("CREATE DEFINER=`%s`@`%s` %s `%s`(%s)", definerArr[0], definerArr[1], type, name, paramList);
+		if (Objects.equals(procedureDetail.getType(), "FUNCTION")) {
+			createStr += " RETURNS " + procedureDetail.getReturns();
+		}
+		procedureDetail.setBody(createStr + "\r\n" + procedureDetail.getBody());
+		return procedureDetail;
+	}
+	
+	@Override
+	public ExecuteResult saveProcedure(Long sourceId, String dbName, String typeName, String procName, String procSql) {
+		String firstLine = procSql.split("\n")[0];
+		// 看函数名是否被修改了，修改会导致函数名的不确定，有认知上的成本，明确的先删再建吧
+		if (!firstLine.contains(" `" + procName + "`(") && !firstLine.contains(" " + procName + "(")) {
+			return ExecuteResult.error("在编辑页面不允许修改函数名，如需新建或修改，请到列表页删除后再新建函数", procSql);
+		}
+		ProcedureDto procedureDetail = this.getProcedureDetail(sourceId, dbName, typeName, procName);
+		// 按MySQL的来是先删除再创建，如果其他数据库不是这个逻辑，需要重写本方法实现自己的逻辑
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+		baseMapper.deleteProcedure(dbName, typeName, procName);
+		// 执行创建SQL
+		ExecuteParam executeParam = new ExecuteParam();
+		executeParam.setDatasourceId(sourceId);
+		executeParam.setExecuteId(RandomUtil.randomUUID());
+		executeParam.setExecuteType(ExecuteType.ALL);
+		executeParam.setSql(procSql);
+		executeParam.setMaxRows(1000);
+		try {
+			return sqlExecutor.execute(executeParam);
+		} catch (Exception e) {
+			try {
+				// 尝试恢复函数
+				executeParam.setSql(procedureDetail.getBody());
+				sqlExecutor.execute(executeParam);
+			} catch (Exception e1) {
+				return ExecuteResult.error("执行和恢复函数均失败，请先备份您的SQL，以防丢失", procSql);
+			}
+			return ExecuteResult.error(e.getMessage(), procSql);
+		}
 	}
 }

@@ -42,6 +42,7 @@
 								<el-dropdown v-if="data.type == 1" @command="databaseActionDropdown">
 									<i class="el-icon-more" @click.stop=""></i>
 									<el-dropdown-menu slot="dropdown">
+										<el-dropdown-item icon="el-icon-coin" :command="{command: 'procedure', node: node}">函数管理</el-dropdown-item>
 										<el-dropdown-item icon="el-icon-refresh" :command="{command: 'refresh', node: node}">刷新</el-dropdown-item>
 <!--										<el-dropdown-item icon="el-icon-upload2" :command="{command: 'upload', node: node}">导入</el-dropdown-item>-->
 <!--										<el-dropdown-item icon="el-icon-download" :command="{command: 'download', node: node}">导出</el-dropdown-item>-->
@@ -166,6 +167,8 @@
 					}
 				}
 				this.datasourceOptions = datasourceOptions;
+				this.choiceDatasourceId = '';
+				this.databaseList = [];
             },
             datasourceChangeEvents() {
 				this.nowDatasourceShow = this.choiceDatasourceId;
@@ -207,6 +210,10 @@
 					this.loadGetTableList(param.node.data, () => {
 						setTimeout(() => param.node.loading = false, 500);
 					});
+				} else if (param.command == 'procedure') {
+					let nodeData = param.node.data;
+					let procedureParam = {sourceId: this.choiceDatasourceId,dbName: nodeData.dbName, host: nodeData.host};
+					this.$router.push({path: '/procedure/list', query: procedureParam});
 				} else {
 					this.$message.warning("暂未支持的选项");
 				}

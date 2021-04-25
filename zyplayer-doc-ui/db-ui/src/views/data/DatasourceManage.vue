@@ -1,26 +1,43 @@
 <template>
     <div style="padding: 0 10px;">
-        <el-card>
-            <div slot="header" class="clearfix">
-                <span>数据源管理</span>
-                <el-button style="float: right;margin-left: 5px;" :loading="loadDataListLoading" v-on:click="getDatasourceList" plain icon="el-icon-refresh" size="small">刷新</el-button>
-                <el-button style="float: right;" v-on:click="addDatasource" type="primary" icon="el-icon-circle-plus-outline" size="small">新增</el-button>
-            </div>
-            <el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
-                <el-table-column prop="name" label="名字" width="200"></el-table-column>
-                <el-table-column prop="groupName" label="分组" width="100"></el-table-column>
-                <el-table-column prop="driverClassName" label="驱动类" width="200"></el-table-column>
-                <el-table-column prop="sourceUrl" label="数据源URL"></el-table-column>
-                <el-table-column prop="sourceName" label="账号" width="200"></el-table-column>
-                <el-table-column label="操作" width="220">
-                    <template slot-scope="scope">
-                        <el-button v-on:click="editDatasource(scope.row)" type="primary" size="mini">修改</el-button>
-                        <el-button v-on:click="editDbAuth(scope.row)" type="success" size="mini">权限</el-button>
-                        <el-button v-on:click="deleteDatasource(scope.row)" type="danger" size="mini">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-card>
+		<el-form :inline="true">
+			<el-form-item label="名字">
+				<el-input v-model="searchParam.name" placeholder="名字"></el-input>
+			</el-form-item>
+			<el-form-item label="分组">
+				<el-select v-model="searchParam.groupName" placeholder="分组">
+					<el-option value="">全部</el-option>
+					<el-option :value="item" v-for="item in datasourceGroupList"></el-option>
+				</el-select>
+			</el-form-item>
+			<el-form-item>
+				<el-button type="primary" :loading="loadDataListLoading" @click="getDatasourceList" icon="el-icon-search">查询</el-button>
+				<el-button @click="addDatasource" icon="el-icon-circle-plus-outline">新增</el-button>
+			</el-form-item>
+		</el-form>
+		<el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
+			<el-table-column prop="name" label="名字"></el-table-column>
+			<el-table-column prop="groupName" label="分组"></el-table-column>
+			<el-table-column prop="driverClassName" label="驱动类"></el-table-column>
+			<el-table-column prop="sourceName" label="账号"></el-table-column>
+			<el-table-column label="操作" width="220">
+				<template slot-scope="scope">
+					<el-button v-on:click="editDatasource(scope.row)" type="primary" size="mini">修改</el-button>
+					<el-button v-on:click="editDbAuth(scope.row)" type="success" size="mini">权限</el-button>
+					<el-button v-on:click="deleteDatasource(scope.row)" type="danger" size="mini">删除</el-button>
+				</template>
+			</el-table-column>
+		</el-table>
+		<el-pagination
+				style="margin-top: 10px;"
+				@size-change="handlePageSizeChange"
+				@current-change="handleCurrentChange"
+				:current-page="currentPage"
+				:page-sizes="[10, 30, 50]"
+				:page-size="pageSize"
+				layout="total, sizes, prev, pager, next, jumper"
+				:total="tableTotalCount">
+		</el-pagination>
         <!--增加数据源弹窗-->
         <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="760px">
             <el-form label-width="120px">
@@ -110,8 +127,15 @@
         data() {
             return {
                 loadDataListLoading: false,
-                datasourceDialogVisible: false,
-                datasourceList: [],
+				datasourceDialogVisible: false,
+				datasourceList: [],
+				searchParam: {
+					name: '',
+					groupName: ''
+				},
+				pageSize: 30,
+				currentPage: 1,
+				tableTotalCount: 0,
                 newDatasource: {},
                 urlPlaceholder: "数据源URL",
 
@@ -130,6 +154,7 @@
         },
         mounted: function () {
             this.getDatasourceList();
+            this.getDatasourceGroupList();
         },
         methods: {
             editDbAuth(row) {
@@ -248,17 +273,31 @@
                     this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
                 }
             },
+			handleCurrentChange(to) {
+				this.currentPage = to;
+				this.getDatasourceList();
+			},
+			handlePageSizeChange(to) {
+				this.pageSize = to;
+				this.getDatasourceList();
+			},
             getDatasourceList() {
                 this.loadDataListLoading = true;
-				datasourceApi.manageDatasourceList({}).then(json => {
+				let param = {...this.searchParam, pageNum: this.currentPage, pageSize: this.pageSize};
+				datasourceApi.manageDatasourceList(param).then(json => {
+					if (this.currentPage == 1) {
+						this.tableTotalCount = json.total || 0;
+					}
 					this.datasourceList = json.data || [];
-					let datasourceGroupList = [];
-					this.datasourceList.filter(item => !!item.groupName).forEach(item => datasourceGroupList.push(item.groupName));
-					this.datasourceGroupList = Array.from(new Set(datasourceGroupList));
 					setTimeout(() => {
 						this.loadDataListLoading = false;
-                    }, 800);
-                });
+					}, 800);
+				});
+            },
+            getDatasourceGroupList() {
+				datasourceApi.manageDatasourceGroupList({}).then(json => {
+					this.datasourceGroupList = json.data || [];
+				});
             },
         }
     }

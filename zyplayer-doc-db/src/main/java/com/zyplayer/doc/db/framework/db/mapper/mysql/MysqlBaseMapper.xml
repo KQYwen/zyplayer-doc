@@ -99,4 +99,29 @@
 		comment #{newDesc}
 	</insert>
 
+	<select id="getProcedureCount" resultType="java.lang.Long">
+		select count(1) from mysql.proc
+		<include refid="ProcedureListCondition"/>
+	</select>
+
+	<select id="getProcedureList" resultType="com.zyplayer.doc.db.framework.db.dto.ProcedureDto">
+		select `db`, `name`, `type`, `definer`, `created` from mysql.proc
+		<include refid="ProcedureListCondition"/>
+		limit #{param.pageSize} offset #{param.offset}
+	</select>
+
+	<select id="getProcedureDetail" resultType="com.zyplayer.doc.db.framework.db.dto.ProcedureDto">
+		select `db`, `name`, `type`, `definer`, `created`, `body`, `param_list` as paramList, `returns` from mysql.proc where db=#{dbName} and `type`=#{typeName} and name=#{procName}
+	</select>
+
+	<delete id="deleteProcedure">
+		 DROP ${typeName} IF EXISTS `${dbName}`.`${procName}`
+	</delete>
+
+	<sql id="ProcedureListCondition">
+		 where db=#{param.dbName}
+		 <if test="param.name != null and param.name != ''">and `name` like #{param.name}</if>
+		 <if test="param.type != null and param.type != ''">and `type` = #{param.type}</if>
+	</sql>
+
 </mapper>

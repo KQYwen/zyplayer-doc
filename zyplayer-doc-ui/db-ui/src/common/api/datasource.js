@@ -38,6 +38,9 @@ export default {
     manageDatasourceList: data => {
         return request({url: '/zyplayer-doc-db/datasource/list', method: 'post', data: Qs.stringify(data)});
     },
+    manageDatasourceGroupList: data => {
+        return request({url: '/zyplayer-doc-db/datasource/groups', method: 'post', data: Qs.stringify(data)});
+    },
     manageUpdateDatasource: data => {
         return request({url: '/zyplayer-doc-db/datasource/update', method: 'post', data: Qs.stringify(data)});
     },
@@ -79,6 +82,18 @@ export default {
     },
     dbUserAuthList: data => {
         return request({url: '/zyplayer-doc-db/auth/list', method: 'post', data: Qs.stringify(data)});
+    },
+	procedureList: data => {
+        return request({url: '/zyplayer-doc-db/procedure/list', method: 'post', data: Qs.stringify(data)});
+    },
+	deleteProcedure: data => {
+        return request({url: '/zyplayer-doc-db/procedure/delete', method: 'post', data: Qs.stringify(data)});
+    },
+	procedureDetail: data => {
+        return request({url: '/zyplayer-doc-db/procedure/detail', method: 'post', data: Qs.stringify(data)});
+    },
+	saveProcedure: data => {
+        return request({url: '/zyplayer-doc-db/procedure/save', method: 'post', data: Qs.stringify(data)});
     },
     systemUpgradeInfo: data => {
         return request({url: '/system/info/upgrade', method: 'post', data: Qs.stringify(data)});

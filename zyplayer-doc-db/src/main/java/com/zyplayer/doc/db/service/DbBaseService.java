@@ -1,8 +1,10 @@
 package com.zyplayer.doc.db.service;
 
+import cn.hutool.core.util.RandomUtil;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.db.controller.param.ProcedureListParam;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.controller.vo.TableStatusVo;
@@ -10,8 +12,11 @@ import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.db.dto.*;
-import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
+import com.zyplayer.doc.db.framework.db.mapper.base.*;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -25,6 +30,8 @@ import java.util.stream.Collectors;
  */
 public abstract class DbBaseService {
 	
+	@Resource
+	SqlExecutor sqlExecutor;
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
 	
@@ -56,6 +63,7 @@ public abstract class DbBaseService {
 	
 	/**
 	 * 获取当前是什么数据源服务
+	 *
 	 * @return 服务类型
 	 */
 	abstract DatabaseFactoryBean.DatabaseProduct getDatabaseProduct();
@@ -215,7 +223,7 @@ public abstract class DbBaseService {
 	 * 获取编辑器所需的所有信息，用于自动补全
 	 * 此接口会返回所有库表结构，介意的话请自己手动屏蔽调此接口
 	 *
-	 * @param sourceId    sourceId
+	 * @param sourceId sourceId
 	 * @author 暮光：城中城
 	 * @since 2019年9月1日
 	 */
@@ -261,5 +269,70 @@ public abstract class DbBaseService {
 		dbResultMap.put("table", dbTableMap);
 		dbResultMap.put("column", tableColumnsMap);
 		return dbResultMap;
+	}
+	
+	/**
+	 * 获取存储过程列表
+	 *
+	 * @param procedureParam 参数
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 */
+	public Long getProcedureCount(ProcedureListParam procedureParam) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(procedureParam.getSourceId());
+		return baseMapper.getProcedureCount(procedureParam);
+	}
+	
+	/**
+	 * 获取存储过程列表
+	 *
+	 * @param procedureParam 参数
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 */
+	public List<ProcedureDto> getProcedureList(ProcedureListParam procedureParam) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(procedureParam.getSourceId());
+		// MySQL是加%，其他数据库不一样的话需要改到各自的实现里面去
+		if (StringUtils.isNotBlank(procedureParam.getName())) {
+			procedureParam.setName("%" + procedureParam.getName() + "%");
+		}
+		return baseMapper.getProcedureList(procedureParam);
+	}
+	
+	/**
+	 * 获取存储过程详情
+	 *
+	 * @param dbName 数据库名
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 */
+	public ProcedureDto getProcedureDetail(Long sourceId, String dbName, String typeName, String procName) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+		return baseMapper.getProcedureDetail(dbName, typeName, procName);
+	}
+	
+	/**
+	 * 删除存储过程
+	 *
+	 * @param dbName 数据库名
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 */
+	public void deleteProcedure(Long sourceId, String dbName, String typeName, String procName) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+		baseMapper.deleteProcedure(dbName, typeName, procName);
+	}
+	
+	/**
+	 * 保存存储过程
+	 *
+	 * @param procSql 存储过程SQL
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 * @return
+	 */
+	public ExecuteResult saveProcedure(Long sourceId, String dbName, String typeName, String procName, String procSql) {
+		// 需要各数据服务自己实现，各数据库产品的实现都不一样
+		throw new ConfirmException("暂未支持的数据库类型");
 	}
 }

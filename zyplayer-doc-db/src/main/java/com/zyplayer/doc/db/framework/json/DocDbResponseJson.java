@@ -3,6 +3,8 @@ package com.zyplayer.doc.db.framework.json;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.github.pagehelper.PageInfo;
 import com.zyplayer.doc.core.json.ResponseJson;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -27,6 +29,8 @@ public class DocDbResponseJson implements ResponseJson {
 	private String errMsg;
 	@ApiModelProperty(value = "返回数据")
 	private Object data;
+	@ApiModelProperty(value = "总数")
+	private Long total;
 
 	public DocDbResponseJson() {
 		this.errCode = 200;
@@ -76,7 +80,19 @@ public class DocDbResponseJson implements ResponseJson {
 	}
 
 	public void setData(Object data) {
-		this.data = data;
+		if (null != data) {
+			if (data instanceof PageInfo) {
+				PageInfo<?> pageInfo = (PageInfo<?>) data;
+				this.data = pageInfo.getList();
+				this.total = pageInfo.getTotal();
+			} else if (data instanceof IPage) {
+				IPage<?> iPage = (IPage<?>) data;
+				this.data = iPage.getRecords();
+				this.total = iPage.getTotal();
+			} else {
+				this.data = data;
+			}
+		}
 	}
 
 	/**
@@ -145,5 +161,13 @@ public class DocDbResponseJson implements ResponseJson {
 	@Override
 	public String toString() {
 		return "DefaultResponseJson [errCode=" + errCode + ", errMsg=" + errMsg + ", data=" + data + "]";
+	}
+	
+	public Long getTotal() {
+		return total;
+	}
+	
+	public void setTotal(Long total) {
+		this.total = total;
 	}
 }
