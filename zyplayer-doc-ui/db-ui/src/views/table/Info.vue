@@ -55,11 +55,11 @@
             </div>
             <div style="padding: 10px;" v-loading="columnListLoading">
                 <el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
-                    <el-table-column prop="name" label="字段名" width="200"></el-table-column>
+                    <el-table-column prop="name" label="字段名" width="220"></el-table-column>
                     <el-table-column label="自增" width="50">
                         <template slot-scope="scope">{{scope.row.isidentity ? '是' : '否'}}</template>
                     </el-table-column>
-                    <el-table-column prop="type" label="类型" width="150"></el-table-column>
+                    <el-table-column prop="type" label="类型" width="180"></el-table-column>
                     <el-table-column prop="length" label="长度" width="80"></el-table-column>
                     <el-table-column prop="nullable" label="空值" width="80"></el-table-column>
                     <el-table-column label="主键" width="50">

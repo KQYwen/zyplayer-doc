@@ -66,13 +66,13 @@ public class MysqlServiceImpl extends DbBaseService {
 			// 新建的时候
 			ProcedureDto procedureDetailNew = new ProcedureDto();
 			if (Objects.equals(typeName, "FUNCTION")) {
-				procedureDetailNew.setBody("CREATE DEFINER = CURRENT_USER " + typeName + " `" + procName + "`() RETURNS integer\n" +
+				procedureDetailNew.setBody("CREATE DEFINER = CURRENT_USER " + typeName + " `" + dbName + "`.`" + procName + "`() RETURNS integer\n" +
 						"BEGIN\n" +
 						"\t#Routine body goes here...\n" +
 						"\tRETURN 0;\n" +
 						"END;");
 			} else {
-				procedureDetailNew.setBody("CREATE DEFINER = CURRENT_USER " + typeName + " `" + procName + "`()\n" +
+				procedureDetailNew.setBody("CREATE DEFINER = CURRENT_USER " + typeName + " `" + dbName + "`.`" + procName + "`()\n" +
 						"BEGIN\n" +
 						"\t#Routine body goes here...\n" +
 						"END;");
@@ -85,9 +85,10 @@ public class MysqlServiceImpl extends DbBaseService {
 		// 组装好SQL
 		String type = procedureDetail.getType();
 		String name = procedureDetail.getName();
+		String db = procedureDetail.getDb();
 		String paramList = StringUtils.defaultIfBlank(procedureDetail.getParamList(), "");
 		String[] definerArr = procedureDetail.getDefiner().split("@");
-		String createStr = String.format("CREATE DEFINER=`%s`@`%s` %s `%s`(%s)", definerArr[0], definerArr[1], type, name, paramList);
+		String createStr = String.format("CREATE DEFINER=`%s`@`%s` %s `%s`.`%s`(%s)", definerArr[0], definerArr[1], type, db, name, paramList);
 		if (Objects.equals(procedureDetail.getType(), "FUNCTION")) {
 			createStr += " RETURNS " + procedureDetail.getReturns();
 		}
@@ -99,7 +100,7 @@ public class MysqlServiceImpl extends DbBaseService {
 	public ExecuteResult saveProcedure(Long sourceId, String dbName, String typeName, String procName, String procSql) {
 		String firstLine = procSql.split("\n")[0];
 		// 看函数名是否被修改了，修改会导致函数名的不确定，有认知上的成本，明确的先删再建吧
-		if (!firstLine.contains(" `" + procName + "`(") && !firstLine.contains(" " + procName + "(")) {
+		if (!firstLine.contains("`" + procName + "`(") && !firstLine.contains(" " + procName + "(") && !firstLine.contains("." + procName + "(")) {
 			return ExecuteResult.error("在编辑页面不允许修改函数名，如需新建或修改，请到列表页删除后再新建函数", procSql);
 		}
 		ProcedureDto procedureDetail = this.getProcedureDetail(sourceId, dbName, typeName, procName);
@@ -121,7 +122,7 @@ public class MysqlServiceImpl extends DbBaseService {
 				executeParam.setSql(procedureDetail.getBody());
 				sqlExecutor.execute(executeParam);
 			} catch (Exception e1) {
-				return ExecuteResult.error("执行和恢复函数均失败，请先备份您的SQL，以防丢失", procSql);
+				return ExecuteResult.error("执行和恢复函数均失败，请先备份您的SQL，以防丢失\n" + e.getMessage(), procSql);
 			}
 			return ExecuteResult.error(e.getMessage(), procSql);
 		}

@@ -128,6 +128,8 @@
 					}
 					this.procedureList = json.data || [];
 					this.procedureListLoading = false;
+				}).catch(() => {
+					this.procedureListLoading = false;
 				});
 			},
 			doEditProc(item) {

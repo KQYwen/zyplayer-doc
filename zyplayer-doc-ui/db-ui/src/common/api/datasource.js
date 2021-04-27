@@ -95,6 +95,12 @@ export default {
 	saveProcedure: data => {
         return request({url: '/zyplayer-doc-db/procedure/save', method: 'post', data: Qs.stringify(data)});
     },
+	procedureLogList: data => {
+		return request({url: '/zyplayer-doc-db/procedure/log/list', method: 'post', data: Qs.stringify(data)});
+	},
+	procedureLogDetail: data => {
+		return request({url: '/zyplayer-doc-db/procedure/log/detail', method: 'post', data: Qs.stringify(data)});
+	},
     systemUpgradeInfo: data => {
         return request({url: '/system/info/upgrade', method: 'post', data: Qs.stringify(data)});
     },

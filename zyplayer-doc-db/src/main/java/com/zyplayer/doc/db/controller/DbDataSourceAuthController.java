@@ -91,6 +91,11 @@ public class DbDataSourceAuthController {
 				UserAuth userAuth = this.createUserAuth(sourceId, currentUser.getUserId(), authVo.getUserId(), authId);
 				userAuthList.add(userAuth);
 			}
+			if (Objects.equals(authVo.getProcEditAuth(), 1)) {
+				Long authId = authInfoMap.get(DbAuthType.PROC_EDIT.getName());
+				UserAuth userAuth = this.createUserAuth(sourceId, currentUser.getUserId(), authVo.getUserId(), authId);
+				userAuthList.add(userAuth);
+			}
 			if (userAuthList.size() <= 0) {
 				continue;
 			}
@@ -121,7 +126,6 @@ public class DbDataSourceAuthController {
 		userAuthGroup.forEach((key, value) -> {
 			Set<String> authNameSet = value.stream().map(auth -> authInfoMap.get(auth.getAuthId())).collect(Collectors.toSet());
 			UserDbAuthVo authVo = new UserDbAuthVo();
-			authVo.setExecuteAuth(0);
 			if (this.haveAuth(authNameSet, DbAuthType.UPDATE) == 1) {
 				authVo.setExecuteAuth(3);
 			} else if (this.haveAuth(authNameSet, DbAuthType.SELECT) == 1) {
@@ -130,6 +134,7 @@ public class DbDataSourceAuthController {
 				authVo.setExecuteAuth(1);
 			}
 			authVo.setDescEditAuth(this.haveAuth(authNameSet, DbAuthType.DESC_EDIT));
+			authVo.setProcEditAuth(this.haveAuth(authNameSet, DbAuthType.PROC_EDIT));
 			authVo.setUserId(key);
 			authVo.setUserName(userInfoMap.get(key));
 			authVoList.add(authVo);

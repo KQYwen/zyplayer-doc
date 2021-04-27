@@ -15,6 +15,7 @@ import com.zyplayer.doc.db.framework.configuration.DatasourceUtil;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,8 +60,13 @@ public class DbDatasourceController {
 	public ResponseJson groups() {
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
 		wrapper.eq("yn", 1);
+		wrapper.isNotNull("group_name");
 		wrapper.select("group_name");
+		wrapper.groupBy("group_name");
 		List<DbDatasource> datasourceList = dbDatasourceService.list(wrapper);
+		if (CollectionUtils.isEmpty(datasourceList)) {
+			return DocDbResponseJson.ok();
+		}
 		Set<String> groupNameSet = datasourceList.stream().map(DbDatasource::getGroupName).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
 		return DocDbResponseJson.ok(groupNameSet);
 	}

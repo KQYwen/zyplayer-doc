@@ -5,6 +5,7 @@ public class UserDbAuthVo {
 	private Long userId;
 	private Integer executeAuth;
 	private Integer descEditAuth;
+	private Integer procEditAuth;
 	
 	public String getUserName() {
 		return userName;
@@ -36,5 +37,13 @@ public class UserDbAuthVo {
 	
 	public void setDescEditAuth(Integer descEditAuth) {
 		this.descEditAuth = descEditAuth;
+	}
+	
+	public Integer getProcEditAuth() {
+		return procEditAuth;
+	}
+	
+	public void setProcEditAuth(Integer procEditAuth) {
+		this.procEditAuth = procEditAuth;
 	}
 }

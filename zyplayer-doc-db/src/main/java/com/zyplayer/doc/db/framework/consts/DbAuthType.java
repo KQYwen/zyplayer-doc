@@ -5,7 +5,8 @@ public enum DbAuthType {
 	VIEW(1, "DB_VIEW_"),
 	SELECT(2, "DB_SELECT_"),
 	UPDATE(3, "DB_UPDATE_"),
-	DESC_EDIT(3, "DB_DESC_EDIT_"),
+	DESC_EDIT(4, "DB_DESC_EDIT_"),
+	PROC_EDIT(5, "DB_PROC_EDIT_"),
 	;
 	private Integer type;
 	private String name;

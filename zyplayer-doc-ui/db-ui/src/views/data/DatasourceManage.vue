@@ -83,7 +83,7 @@
                 <span style="margin-left: 10px;color: #999;font-size: 12px;"><i class="el-icon-info"></i> 添加、删除或编辑之后记得点击保存哦~</span>
             </span>
             <el-row>
-                <el-select v-model="dbSourceAuthNewUser" filterable remote reserve-keyword
+                <el-select v-model="dbSourceAuthNewUser" filterable remote reserve-keyword autoComplete="new-password"
                            placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList"
                            :loading="dbSourceAuthUserLoading" style="width: 750px;margin-right: 10px;">
                     <el-option v-for="item in searchUserList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
@@ -94,11 +94,14 @@
                 <el-table-column prop="userName" label="用户" width="150"></el-table-column>
                 <el-table-column label="权限">
                     <template slot-scope="scope">
-                        <el-radio v-model="scope.row.executeAuth" :label="0">无权限</el-radio>
-                        <el-radio v-model="scope.row.executeAuth" :label="1">库表查看权</el-radio>
-                        <el-radio v-model="scope.row.executeAuth" :label="2">数据查询权</el-radio>
-                        <el-radio v-model="scope.row.executeAuth" :label="3">所有权限</el-radio>
+						<el-select v-model="scope.row.executeAuth" placeholder="选择权限" style="width: 150px;margin-right: 10px;">
+							<el-option value="">无权限</el-option>
+							<el-option :value="1" label="库表查看权"></el-option>
+							<el-option :value="2" label="数据查询权"></el-option>
+							<el-option :value="3" label="所有权限"></el-option>
+						</el-select>
                         <el-checkbox :true-label="1" :false-label="0" v-model="scope.row.descEditAuth">表字段注释修改权</el-checkbox>
+                        <el-checkbox :true-label="1" :false-label="0" v-model="scope.row.procEditAuth">函数修改权</el-checkbox>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" width="80">
@@ -201,8 +204,9 @@
                 this.dbSourceAuthUserList.push({
                     userName: userName,
                     userId: this.dbSourceAuthNewUser,
-                    executeAuth: 0,
+                    executeAuth: '',
                     descEditAuth: 0,
+					procEditAuth: 0,
                 });
                 this.dbSourceAuthNewUser = "";
             },
@@ -292,6 +296,8 @@
 					setTimeout(() => {
 						this.loadDataListLoading = false;
 					}, 800);
+				}).catch(() => {
+					this.loadDataListLoading = false;
 				});
             },
             getDatasourceGroupList() {

@@ -1,10 +1,20 @@
 package com.zyplayer.doc.db.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
+import com.zyplayer.doc.data.repository.manage.entity.DbProcLog;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.data.service.manage.DbProcLogService;
 import com.zyplayer.doc.db.controller.param.ProcedureListParam;
+import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.dto.ProcedureDto;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
@@ -18,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,6 +45,8 @@ public class DbProcedureController {
 	
 	@Resource
 	DbBaseFactory dbBaseFactory;
+	@Resource
+	DbProcLogService dbProcLogService;
 	
 	/**
 	 * 存储过程列表
@@ -43,18 +56,19 @@ public class DbProcedureController {
 	 */
 	@PostMapping(value = "/list")
 	public ResponseJson list(ProcedureListParam procedureParam) {
-		boolean manageAuth = DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE);
-		if (!manageAuth) {
-			return DocDbResponseJson.warn("没有该数据源的管理权限");
+		try {
+			DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(procedureParam.getSourceId());
+			procedureParam.setOffset((procedureParam.getPageNum() - 1) * procedureParam.getPageSize());
+			List<ProcedureDto> procedureDtoList = dbBaseService.getProcedureList(procedureParam);
+			DocDbResponseJson responseJson = DocDbResponseJson.ok(procedureDtoList);
+			if (procedureParam.getPageNum() == 1) {
+				responseJson.setTotal(dbBaseService.getProcedureCount(procedureParam));
+			}
+			return responseJson;
+		} catch (Exception e) {
+			// 一般是数据库的帐号没权限查存储过程
+			return DocDbResponseJson.error(e.getMessage());
 		}
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(procedureParam.getSourceId());
-		procedureParam.setOffset((procedureParam.getPageNum() - 1) * procedureParam.getPageSize());
-		List<ProcedureDto> procedureDtoList = dbBaseService.getProcedureList(procedureParam);
-		DocDbResponseJson responseJson = DocDbResponseJson.ok(procedureDtoList);
-		if (procedureParam.getPageNum() == 1) {
-			responseJson.setTotal(dbBaseService.getProcedureCount(procedureParam));
-		}
-		return responseJson;
 	}
 	
 	/**
@@ -68,13 +82,14 @@ public class DbProcedureController {
 	 */
 	@PostMapping(value = "/detail")
 	public ResponseJson detail(Long sourceId, String dbName, String typeName, String procName) {
-		boolean manageAuth = DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE);
-		if (!manageAuth) {
-			return DocDbResponseJson.warn("没有该数据源的管理权限");
-		}
 		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
-		ProcedureDto procedureDto = dbBaseService.getProcedureDetail(sourceId, dbName, typeName, procName);
-		return DocDbResponseJson.ok(procedureDto);
+		try {
+			ProcedureDto procedureDto = dbBaseService.getProcedureDetail(sourceId, dbName, typeName, procName);
+			return DocDbResponseJson.ok(procedureDto);
+		} catch (Exception e) {
+			// 一般是数据库的帐号没权限查存储过程
+			return DocDbResponseJson.error(e.getMessage());
+		}
 	}
 	
 	/**
@@ -88,13 +103,19 @@ public class DbProcedureController {
 	 */
 	@PostMapping(value = "/delete")
 	public ResponseJson delete(Long sourceId, String dbName, String typeName, String procName) {
-		boolean manageAuth = DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE);
-		if (!manageAuth) {
-			return DocDbResponseJson.warn("没有该数据源的管理权限");
+		this.judgeAuth(sourceId, DbAuthType.PROC_EDIT.getName(), "没有修改该库函数的权限");
+		DbProcLog dbProcLog = this.createDbProcLog(sourceId, dbName, typeName, procName, "删除函数操作");
+		try {
+			DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+			dbBaseService.deleteProcedure(sourceId, dbName, typeName, procName);
+			return DocDbResponseJson.ok();
+		} catch (Exception e) {
+			dbProcLog.setStatus(2);
+			// 一般是数据库的帐号没权限查存储过程
+			return DocDbResponseJson.error(e.getMessage());
+		} finally {
+			dbProcLogService.save(dbProcLog);
 		}
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
-		dbBaseService.deleteProcedure(sourceId, dbName, typeName, procName);
-		return DocDbResponseJson.ok();
 	}
 	
 	/**
@@ -109,14 +130,93 @@ public class DbProcedureController {
 	 */
 	@PostMapping(value = "/save")
 	public ResponseJson save(Long sourceId, String dbName, String typeName, String procName, String procSql) {
-		boolean manageAuth = DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE);
-		if (!manageAuth) {
-			return DocDbResponseJson.warn("没有该数据源的管理权限");
+		this.judgeAuth(sourceId, DbAuthType.PROC_EDIT.getName(), "没有修改该库函数的权限");
+		DbProcLog dbProcLog = this.createDbProcLog(sourceId, dbName, typeName, procName, procSql);
+		try {
+			DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+			ExecuteResult executeResult = dbBaseService.saveProcedure(sourceId, dbName, typeName, procName, procSql);
+			if (StringUtils.isNotBlank(executeResult.getErrMsg())) {
+				dbProcLog.setStatus(2);
+			}
+			return DocDbResponseJson.ok(executeResult);
+		} catch (Exception e) {
+			dbProcLog.setStatus(2);
+			// 一般是数据库的帐号没权限查存储过程
+			return DocDbResponseJson.error(e.getMessage());
+		} finally {
+			dbProcLogService.save(dbProcLog);
 		}
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
-		ExecuteResult executeResult = dbBaseService.saveProcedure(sourceId, dbName, typeName, procName, procSql);
-		return DocDbResponseJson.ok(executeResult);
 	}
 	
+	/**
+	 * 存储过程修改日志列表
+	 *
+	 * @param sourceId 数据源ID
+	 * @param dbName   数据库名
+	 * @param typeName 类型名
+	 * @param procName 函数名
+	 * @return 列表
+	 */
+	@PostMapping(value = "/log/list")
+	public ResponseJson logList(Integer pageNum, Integer pageSize, Long sourceId, String dbName, String typeName, String procName) {
+		QueryWrapper<DbProcLog> wrapper = new QueryWrapper<>();
+		wrapper.eq("datasource_id", sourceId);
+		wrapper.eq("proc_db", dbName);
+		wrapper.eq("proc_name", procName);
+		wrapper.eq("proc_type", typeName);
+		wrapper.orderByDesc("id");
+		wrapper.select("id", "proc_body", "create_user_name", "create_time", "status");
+		IPage<DbProcLog> page = new Page<>(pageNum, pageSize, pageNum == 1);
+		dbProcLogService.page(page, wrapper);
+		return DocDbResponseJson.ok(page);
+	}
+	
+	/**
+	 * 存储过程修改日志详情
+	 *
+	 * @param logId 日志ID
+	 * @return 详情
+	 */
+	@PostMapping(value = "/log/detail")
+	public ResponseJson logDetail(Long logId) {
+		DbProcLog dbProcLog = dbProcLogService.getById(logId);
+		return DocDbResponseJson.ok(dbProcLog);
+	}
+	
+	/**
+	 * 权限判断
+	 *
+	 * @author 暮光：城中城
+	 */
+	private void judgeAuth(Long sourceId, String authName, String noAuthInfo) {
+		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
+				&& !DocUserUtil.haveCustomAuth(authName, DocAuthConst.DB + sourceId)) {
+			throw new ConfirmException(noAuthInfo);
+		}
+	}
+	
+	/**
+	 * 创建日志对象
+	 * @param sourceId
+	 * @param dbName
+	 * @param typeName
+	 * @param procName
+	 * @param procSql
+	 * @return
+	 */
+	public DbProcLog createDbProcLog(Long sourceId, String dbName, String typeName, String procName, String procSql) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		DbProcLog dbProcLog = new DbProcLog();
+		dbProcLog.setDatasourceId(sourceId);
+		dbProcLog.setCreateTime(new Date());
+		dbProcLog.setCreateUserId(currentUser.getUserId());
+		dbProcLog.setCreateUserName(currentUser.getUsername());
+		dbProcLog.setProcDb(dbName);
+		dbProcLog.setProcName(procName);
+		dbProcLog.setProcType(typeName);
+		dbProcLog.setProcBody(procSql);
+		dbProcLog.setStatus(1);
+		return dbProcLog;
+	}
 }
 

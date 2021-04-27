@@ -13,15 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CodeGenerator {
-
+	
 	public static void main(String[] args) {
-
+		
 		final String moduleName = "manage";
 //		final String[] tableName = { "zyplayer_storage", "auth_info", "user_auth", "user_info", "db_datasource" };
 //		final String[] tableName = { "wiki_space", "wiki_page", "wiki_page_content", "wiki_page_file", "wiki_page_comment", "wiki_page_zan" };
 //		final String[] tableName = { "db_datasource", "es_datasource", "db_favorite" };
-		final String[] tableName = { "wiki_space_favorite", "user_setting" };
-
+		final String[] tableName = {"db_proc_log"};
+		
 		// 代码生成器
 		AutoGenerator mpg = new AutoGenerator();
 		// 全局配置
@@ -35,7 +35,7 @@ public class CodeGenerator {
 		gc.setServiceName("%sService");
 		gc.setControllerName("Generator%sController");
 		mpg.setGlobalConfig(gc);
-
+		
 		// 数据源配置
 		DataSourceConfig dsc = new DataSourceConfig();
 		dsc.setUrl("jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&useSSL=false&characterEncoding=utf8");
@@ -44,7 +44,7 @@ public class CodeGenerator {
 		dsc.setUsername("root");
 		dsc.setPassword("root");
 		mpg.setDataSource(dsc);
-
+		
 		// 包配置
 		final PackageConfig pc = new PackageConfig();
 		pc.setModuleName(null);
@@ -55,7 +55,7 @@ public class CodeGenerator {
 		pc.setService("service.manage");
 		pc.setServiceImpl("service.manage.impl");
 		mpg.setPackageInfo(pc);
-
+		
 		// 自定义配置
 		InjectionConfig cfg = new InjectionConfig() {
 			@Override
@@ -73,7 +73,7 @@ public class CodeGenerator {
 		cfg.setFileOutConfigList(focList);
 		mpg.setCfg(cfg);
 		mpg.setTemplate(new TemplateConfig().setXml(null));
-
+		
 		// 策略配置
 		StrategyConfig strategy = new StrategyConfig();
 		strategy.setNaming(NamingStrategy.underline_to_camel);
@@ -90,5 +90,5 @@ public class CodeGenerator {
 		mpg.setTemplateEngine(new FreemarkerTemplateEngine());
 		mpg.execute();
 	}
-
+	
 }

@@ -55,6 +55,7 @@ INSERT INTO `auth_info` VALUES (14, 'DB_VIEW_', '数据源查看权', 0, 1, '201
 INSERT INTO `auth_info` VALUES (15, 'DB_SELECT_', '数据源查询权', 0, 1, '2019-08-18 23:25:17', 0);
 INSERT INTO `auth_info` VALUES (16, 'DB_UPDATE_', '数据源增删改查权', 0, 1, '2019-08-18 23:25:17', 0);
 INSERT INTO `auth_info` VALUES (17, 'DB_DESC_EDIT_', '表字段注释修改权', 0, 1, '2019-08-18 23:25:17', 0);
+INSERT INTO `auth_info` VALUES (18, 'DB_PROC_EDIT_', '存储过程修改权', 0, 1, '2021-04-24 23:25:17', 0);
 
 -- ----------------------------
 -- Table structure for db_datasource
@@ -467,7 +468,7 @@ CREATE TABLE `wiki_space_favorite` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户空间收藏记录表';
 
-DROP TABLE IF EXISTS `wiki_space_favorite`;
+DROP TABLE IF EXISTS `user_setting`;
 CREATE TABLE `user_setting` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `user_id` bigint(20) DEFAULT NULL COMMENT '用户ID',
@@ -477,6 +478,21 @@ CREATE TABLE `user_setting` (
   `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户设置表';
+
+DROP TABLE IF EXISTS `db_proc_log`;
+CREATE TABLE `db_proc_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `datasource_id` bigint(20) DEFAULT NULL COMMENT '数据源ID',
+  `proc_db` varchar(100) DEFAULT NULL COMMENT '所属数据库',
+  `proc_name` varchar(100) DEFAULT NULL COMMENT '名字',
+  `proc_type` varchar(50) DEFAULT NULL COMMENT '类型',
+  `proc_body` longblob DEFAULT NULL COMMENT '函数创建SQL',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '保存状态 1=成功 2=失败',
+  `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='数据库函数修改日志';
 
 
 SET FOREIGN_KEY_CHECKS = 1;

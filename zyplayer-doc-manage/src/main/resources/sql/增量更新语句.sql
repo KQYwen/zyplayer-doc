@@ -58,4 +58,22 @@ CREATE TABLE `user_setting` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户设置表';
 
+CREATE TABLE `db_proc_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `datasource_id` bigint(20) DEFAULT NULL COMMENT '数据源ID',
+  `proc_db` varchar(100) DEFAULT NULL COMMENT '所属数据库',
+  `proc_name` varchar(100) DEFAULT NULL COMMENT '名字',
+  `proc_type` varchar(50) DEFAULT NULL COMMENT '类型',
+  `proc_body` longblob DEFAULT NULL COMMENT '函数创建SQL',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '保存状态 1=成功 2=失败',
+  `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='数据库函数修改日志';
+
+INSERT INTO `auth_info`(auth_name, auth_desc, can_edit, create_uid, creation_time, auth_type)
+VALUES ('DB_PROC_EDIT_', '存储过程修改权', 0, 1, '2021-04-24 23:25:17', 0);
+
+
 

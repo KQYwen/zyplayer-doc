@@ -12,7 +12,8 @@
 		<el-card style="margin: 10px;" shadow="never" v-loading="procedureInfoLoading">
 			<div slot="header" class="clearfix">
 				<span style="margin-right: 20px;">编辑函数</span>
-				<el-button type="" @click="saveProcedure" icon="el-icon-document-checked" size="mini">保存</el-button>
+				<el-button type="primary" @click="saveProcedure" icon="el-icon-document-checked" size="mini">保存</el-button>
+				<el-button type="" @click="showProcedureLog" icon="el-icon-document" size="mini">修改日志</el-button>
 <!--				<el-button type="" @click="" icon="el-icon-video-play" size="mini">运行</el-button>-->
 <!--				<el-button type="" @click="" icon="el-icon-video-pause" size="mini">停止</el-button>-->
 			</div>
@@ -23,6 +24,36 @@
 			<div style="width: 700px;max-height: 500px;overflow: auto;">
 				<pre>{{saveProcedureErrInfo}}</pre>
 			</div>
+		</el-dialog>
+		<!--函数修改日志弹窗-->
+		<el-dialog title="函数修改日志" :visible.sync="procLogVisible" :footer="null">
+			<el-table :data="procLogList" stripe border style="width: 100%;" height="400">
+				<el-table-column prop="id" label="ID" width="100"></el-table-column>
+				<el-table-column prop="createUserName" label="修改人"></el-table-column>
+				<el-table-column prop="createTime" label="修改时间"></el-table-column>
+				<el-table-column prop="status" label="状态">
+					<template slot-scope="scope">
+						<el-tag type="success" v-if="scope.row.status==1">保存成功</el-tag>
+						<el-tag type="danger" v-else-if="scope.row.status==2">保存失败</el-tag>
+						<el-tag type="danger" v-else>-</el-tag>
+					</template>
+				</el-table-column>
+				<el-table-column prop="action" label="操作" width="130">
+					<template slot-scope="scope">
+						<el-button type="" @click="reEditProc(scope.row.id)">重新编辑</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+			<el-pagination
+					style="margin-top: 10px;"
+					@size-change="handlePageSizeChange"
+					@current-change="handleCurrentChange"
+					:current-page="currentPage"
+					:page-sizes="[10, 30, 50]"
+					:page-size="pageSize"
+					layout="total, sizes, prev, pager, next, jumper"
+					:total="tableTotalCount">
+			</el-pagination>
 		</el-dialog>
 	</div>
 </template>
@@ -44,6 +75,12 @@
 				sqlExecutorEditor: {},
 				saveProcedureErrInfo: '',
 				saveProcedureErrVisible: false,
+				// 日志列表
+				procLogVisible: false,
+				procLogList: [],
+				pageSize: 30,
+				currentPage: 1,
+				tableTotalCount: 0,
 			};
 		},
 		mounted: function () {
@@ -74,12 +111,43 @@
 				let newName = {key: this.$route.fullPath, val: '编辑函数-' + this.vueQueryParam.procName};
 				this.$store.commit('global/addTableName', newName);
 			},
+			handleCurrentChange(to) {
+				this.currentPage = to;
+				this.searchProcedureLogList();
+			},
+			handlePageSizeChange(to) {
+				this.pageSize = to;
+				this.searchProcedureLogList();
+			},
+			showProcedureLog() {
+				this.currentPage = 1;
+				this.procLogVisible = true;
+				this.searchProcedureLogList();
+			},
+			searchProcedureLogList() {
+				let param = {...this.vueQueryParam, ...this.searchParam, pageNum: this.currentPage, pageSize: this.pageSize};
+				datasourceApi.procedureLogList(param).then(json => {
+					if (this.currentPage == 1) {
+						this.tableTotalCount = json.total || 0;
+					}
+					this.procLogList = json.data || [];
+				});
+			},
+			reEditProc(id) {
+				datasourceApi.procedureLogDetail({logId: id}).then(json => {
+					let procedureLog = json.data || {};
+					this.sqlExecutorEditor.setValue(procedureLog.procBody, 1);
+					this.procLogVisible = false;
+				});
+			},
 			searchProcedureDetail() {
 				this.procedureInfoLoading = true;
 				datasourceApi.procedureDetail(this.vueQueryParam).then(json => {
 					this.procedureInfo = json.data || {};
 					this.procedureInfoLoading = false;
 					this.sqlExecutorEditor.setValue(this.procedureInfo.body, 1);
+				}).catch(() => {
+					this.procedureInfoLoading = false;
 				});
 			},
 			saveProcedure() {
@@ -94,6 +162,8 @@
 					} else {
 						this.$message.success("保存成功！");
 					}
+				}).catch(() => {
+					this.procedureInfoLoading = false;
 				});
 			},
 			doDeleteProc(item) {
