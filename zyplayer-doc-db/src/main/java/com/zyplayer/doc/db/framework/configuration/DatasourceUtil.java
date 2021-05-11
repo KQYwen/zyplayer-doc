@@ -30,6 +30,15 @@ public class DatasourceUtil {
 			}
 			databaseFactoryBean.setDatabaseProduct(DatabaseFactoryBean.DatabaseProduct.MYSQL);
 			resources = resolver.getResources("classpath:com/zyplayer/doc/db/framework/db/mapper/mysql/*.xml");
+		} else if (dbUrl.contains("hive")) {
+			// jdbc:hive2://127.0.0.1:21050/ads_data;auth=noSasl
+			String[] urlParamArr = dbUrl.split(";");
+			String[] urlDbNameArr = urlParamArr[0].split("/");
+			if (urlDbNameArr.length >= 2) {
+				databaseFactoryBean.setDbName(urlDbNameArr[urlDbNameArr.length - 1]);
+			}
+			databaseFactoryBean.setDatabaseProduct(DatabaseFactoryBean.DatabaseProduct.HIVE);
+			resources = resolver.getResources("classpath:com/zyplayer/doc/db/framework/db/mapper/hive/*.xml");
 		} else if (dbUrl.contains("postgresql")) {
 			// jdbc:mysql://192.168.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true
 			String[] urlParamArr = dbUrl.split("\\?");

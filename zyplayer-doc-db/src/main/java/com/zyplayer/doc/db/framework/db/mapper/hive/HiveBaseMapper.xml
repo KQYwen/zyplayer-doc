@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper">
+
+	<resultMap id="TableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto" >
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="col_name" property="name" jdbcType="VARCHAR" />
+		<result column="data_type" property="type" jdbcType="VARCHAR" />
+		<result column="comment" property="description" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="QueryTableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto" >
+		<result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
+		<result column="COLUMN_NAME" property="columnName" jdbcType="VARCHAR" />
+		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="TableStatusDtoMap" type="com.zyplayer.doc.db.controller.vo.TableStatusVo">
+		<result column="Name" property="name"/>
+		<result column="Engine" property="engine"/>
+		<result column="Version" property="version"/>
+		<result column="Row_format" property="rowFormat"/>
+		<result column="Rows" property="rows"/>
+		<result column="Avg_row_length" property="avgRowLength"/>
+		<result column="Data_length" property="dataLength"/>
+		<result column="Max_data_length" property="maxDataLength"/>
+		<result column="Index_length" property="indexLength"/>
+		<result column="Data_free" property="dataFree"/>
+		<result column="Auto_increment" property="autoIncrement"/>
+		<result column="Create_time" property="createTime"/>
+		<result column="Update_time" property="updateTime"/>
+		<result column="Check_time" property="checkTime"/>
+		<result column="Collation" property="collation"/>
+		<result column="Checksum" property="checksum"/>
+		<result column="Create_options" property="createOptions"/>
+		<result column="Comment" property="comment"/>
+	</resultMap>
+
+	<resultMap id="DatabasesDtoMap" type="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto" >
+		<result column="name" property="dbName" jdbcType="VARCHAR" />
+		<result column="database_name" property="dbName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="getDatabaseList" resultMap="DatabasesDtoMap">
+		show databases
+	</select>
+
+	<select id="getTableDdl" resultType="java.util.Map">
+		show create table `${dbName}`.${tableName}
+	</select>
+
+	<resultMap id="TablesDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableInfoDto" >
+		<result column="name" property="tableName" jdbcType="VARCHAR" />
+		<result column="tab_name" property="tableName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="getTableList" resultMap="TablesDtoMap">
+		show tables in ${dbName}
+	</select>
+
+	<select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
+		describe ${dbName}.${tableName}
+	</select>
+
+	<select id="getTableStatus" resultMap="TableStatusDtoMap">
+		select #{tableName} as Name
+	</select>
+
+	<select id="getTableColumnDescList" resultMap="TableColumnDescDtoMap">
+		select 1 from ${dbName}.${tableName} where 0 = 1
+	</select>
+
+	<select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
+		select 1
+	</select>
+
+	<select id="getTableDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableDescDto">
+		select 1 from ${dbName}.${tableName} where 0 = 1
+	</select>
+
+	<insert id="updateTableDesc">
+		select 1 from ${dbName}.${tableName} where 0 = 1
+	</insert>
+
+	<insert id="updateTableColumnDesc">
+		select 1 from ${dbName}.${tableName} where 0 = 1
+	</insert>
+
+</mapper>

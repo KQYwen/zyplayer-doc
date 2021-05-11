@@ -103,14 +103,16 @@ public class SqlExecutor {
 					preparedStatement.setObject(i + 1, paramDataList.get(i));
 				}
 			}
+			// 最大限制1分钟
+			preparedStatement.setQueryTimeout(60);
+			// 限制下最大数量
+			if (executeParam.getMaxRows() != null) {
+				preparedStatement.setMaxRows(executeParam.getMaxRows());
+			}
 			if (ExecuteType.SELECT.equals(executeParam.getExecuteType())) {
 				preparedStatement.executeQuery();
 			} else {
 				preparedStatement.execute();
-			}
-			// 限制下最大数量
-			if (executeParam.getMaxRows() != null) {
-				preparedStatement.setMaxRows(executeParam.getMaxRows());
 			}
 			// 查询的结果集
 			ResultSet resultSet = preparedStatement.getResultSet();

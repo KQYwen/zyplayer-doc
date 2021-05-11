@@ -39,7 +39,7 @@
 				:total="tableTotalCount">
 		</el-pagination>
         <!--增加数据源弹窗-->
-        <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="760px">
+        <el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'" :visible.sync="datasourceDialogVisible" width="760px" :close-on-click-modal="false">
             <el-form label-width="120px">
                 <el-form-item label="分组：">
 					<el-select v-model="newDatasource.groupName" placeholder="请选择或输入新的分组名字" style="width: 100%" filterable allow-create>
@@ -56,6 +56,7 @@
                         <el-option label="net.sourceforge.jtds.jdbc.Driver" value="net.sourceforge.jtds.jdbc.Driver"></el-option>
                         <el-option label="oracle.jdbc.driver.OracleDriver" value="oracle.jdbc.driver.OracleDriver"></el-option>
                         <el-option label="org.postgresql.Driver" value="org.postgresql.Driver"></el-option>
+                        <el-option label="org.apache.hive.jdbc.HiveDriver" value="org.apache.hive.jdbc.HiveDriver"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="数据源URL：">
@@ -243,8 +244,8 @@
                 }).catch(()=>{});
             },
             saveDatasource() {
-                this.datasourceDialogVisible = false;
                 datasourceApi.manageUpdateDatasource(this.newDatasource).then(() => {
+					this.datasourceDialogVisible = false;
                     this.$message.success("保存成功！");
 					this.$emit('loadDatasourceList');
                     this.getDatasourceList();
@@ -275,6 +276,8 @@
                     this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
                 } else if (this.newDatasource.driverClassName == 'org.postgresql.Driver') {
                     this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
+                } else if (this.newDatasource.driverClassName == 'org.apache.hive.jdbc.HiveDriver') {
+                    this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
                 }
             },
 			handleCurrentChange(to) {

@@ -18,6 +18,11 @@ public class DatabaseFactoryBean {
 	private String groupName;
 	private DatabaseProduct databaseProduct;
 	
+	public static enum DatabaseProduct {
+		MYSQL, SQLSERVER, ORACLE, POSTGRESQL, HIVE
+	}
+	
+	
 	public Long getId() {
 		return id;
 	}
@@ -42,10 +47,6 @@ public class DatabaseFactoryBean {
 		this.groupName = groupName;
 	}
 	
-	public static enum DatabaseProduct {
-		MYSQL, SQLSERVER, ORACLE, POSTGRESQL
-	}
-
 	public DruidDataSource getDataSource() {
 		return dataSource;
 	}
