@@ -1,10 +1,12 @@
 package com.zyplayer.doc.db.framework.db.bean;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import org.mybatis.spring.SqlSessionTemplate;
 
 /**
  * 描述连接信息的对象
+ *
  * @author 暮光：城中城
  * @since 2018年8月8日
  */
@@ -16,12 +18,7 @@ public class DatabaseFactoryBean {
 	private String dbName;
 	private String cnName;
 	private String groupName;
-	private DatabaseProduct databaseProduct;
-	
-	public static enum DatabaseProduct {
-		MYSQL, SQLSERVER, ORACLE, POSTGRESQL, HIVE
-	}
-	
+	private DatabaseProductEnum databaseProduct;
 	
 	public Long getId() {
 		return id;
@@ -50,41 +47,41 @@ public class DatabaseFactoryBean {
 	public DruidDataSource getDataSource() {
 		return dataSource;
 	}
-
+	
 	public void setDataSource(DruidDataSource dataSource) {
 		this.dataSource = dataSource;
 	}
-
+	
 	public String getUrl() {
 		return url;
 	}
-
+	
 	public void setUrl(String url) {
 		this.url = url;
 	}
-
+	
 	public String getDbName() {
 		return dbName;
 	}
-
+	
 	public void setDbName(String dbName) {
 		this.dbName = dbName;
 	}
-
-	public DatabaseProduct getDatabaseProduct() {
+	
+	public DatabaseProductEnum getDatabaseProduct() {
 		return databaseProduct;
 	}
-
-	public void setDatabaseProduct(DatabaseProduct databaseProduct) {
+	
+	public void setDatabaseProduct(DatabaseProductEnum databaseProduct) {
 		this.databaseProduct = databaseProduct;
 	}
-
+	
 	public SqlSessionTemplate getSqlSessionTemplate() {
 		return sqlSessionTemplate;
 	}
-
+	
 	public void setSqlSessionTemplate(SqlSessionTemplate sqlSessionTemplate) {
 		this.sqlSessionTemplate = sqlSessionTemplate;
 	}
-
+	
 }

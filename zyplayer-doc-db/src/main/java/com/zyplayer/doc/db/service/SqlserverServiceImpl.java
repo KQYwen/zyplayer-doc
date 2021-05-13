@@ -1,8 +1,8 @@
 package com.zyplayer.doc.db.service;
 
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
-import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 public class SqlserverServiceImpl extends DbBaseService {
 	
 	@Override
-	DatabaseFactoryBean.DatabaseProduct getDatabaseProduct() {
-		return DatabaseFactoryBean.DatabaseProduct.SQLSERVER;
+	DatabaseProductEnum getDatabaseProduct() {
+		return DatabaseProductEnum.SQLSERVER;
 	}
 	
 	@Override

@@ -1,7 +1,7 @@
 package com.zyplayer.doc.db.service;
 
-import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.dto.TableInfoDto;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +11,8 @@ import java.util.List;
 public class HiveServiceImpl extends DbBaseService {
 	
 	@Override
-	public DatabaseFactoryBean.DatabaseProduct getDatabaseProduct() {
-		return DatabaseFactoryBean.DatabaseProduct.HIVE;
+	public DatabaseProductEnum getDatabaseProduct() {
+		return DatabaseProductEnum.HIVE;
 	}
 	
 	@Override

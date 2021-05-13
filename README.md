@@ -15,7 +15,7 @@ zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、�
 2. 集成了本项目内的各个子模块功能，是各模块的协调管理模块。
 
 ### 二、zyplayer-doc-db 数据库文档
-1. 支持MySQL、SQLServer、Oracle、PostgreSQL数据库。
+1. 支持MySQL、SQLServer、Oracle、PostgreSQL、Hive、Impala数据源。
 2. 支持数据库表、字段文档查看修改，表文档导出、建表语句DDL导出。
 3. 支持SQL执行、表数据预览、不同数据库之间的数据互导，支持多数据源管理。
 4. 支持按人员、按数据源对用户授权，可给用户 库表注释查看、注释修改、SQL执行、函数修改等粒度的授权。

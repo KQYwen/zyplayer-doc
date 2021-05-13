@@ -3,6 +3,7 @@ package com.zyplayer.doc.db.service;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +19,7 @@ public class DbBaseFactory {
 	DatabaseRegistrationBean databaseRegistrationBean;
 	@Resource
 	private List<DbBaseService> dbBaseServiceList;
-	private Map<DatabaseFactoryBean.DatabaseProduct, DbBaseService> dbBaseServiceMap;
+	private Map<DatabaseProductEnum, DbBaseService> dbBaseServiceMap;
 	
 	@PostConstruct
 	private void init() {

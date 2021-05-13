@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
@@ -70,7 +71,7 @@ public class DbDatasourceController {
 		Set<String> groupNameSet = datasourceList.stream().map(DbDatasource::getGroupName).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
 		return DocDbResponseJson.ok(groupNameSet);
 	}
-
+	
 	@PostMapping(value = "/test")
 	public ResponseJson test(DbDatasource dbDatasource) {
 		// 验证新的数据源
@@ -83,10 +84,9 @@ public class DbDatasourceController {
 				}
 			}
 			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource, true);
-			if (databaseFactoryBean == null) {
-				return DocDbResponseJson.warn("获取数据源失败，请检查配置是否正确");
-			}
 			databaseFactoryBean.getDataSource().close();
+		} catch (ConfirmException e) {
+			return DocDbResponseJson.warn(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return DocDbResponseJson.warn(ExceptionUtils.getFullStackTrace(e));

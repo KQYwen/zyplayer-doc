@@ -25,7 +25,7 @@ public class DatabaseRegistrationBean {
 	DbDatasourceService dbDatasourceService;
 	
 	// 描述连接信息的对象列表
-	private Map<Long, DatabaseFactoryBean> databaseFactoryBeanMap = new ConcurrentHashMap<>();
+	private final Map<Long, DatabaseFactoryBean> databaseFactoryBeanMap = new ConcurrentHashMap<>();
 	
 	/**
 	 * 获取BaseMapper
@@ -113,9 +113,6 @@ public class DatabaseRegistrationBean {
 		}
 		try {
 			DatabaseFactoryBean databaseFactoryBean = DatasourceUtil.createDatabaseFactoryBean(dbDatasource, false);
-			if (databaseFactoryBean == null) {
-				throw new ConfirmException("获取数据源失败");
-			}
 			databaseFactoryBeanMap.put(sourceId, databaseFactoryBean);
 			return databaseFactoryBean;
 		} catch (Exception e) {

@@ -1,12 +1,10 @@
 package com.zyplayer.doc.db.service;
 
 import cn.hutool.core.util.RandomUtil;
-import com.sun.org.apache.bcel.internal.generic.RETURN;
-import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
-import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.dto.ColumnInfoDto;
 import com.zyplayer.doc.db.framework.db.dto.ProcedureDto;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
@@ -23,8 +21,8 @@ import java.util.Optional;
 public class MysqlServiceImpl extends DbBaseService {
 	
 	@Override
-	public DatabaseFactoryBean.DatabaseProduct getDatabaseProduct() {
-		return DatabaseFactoryBean.DatabaseProduct.MYSQL;
+	public DatabaseProductEnum getDatabaseProduct() {
+		return DatabaseProductEnum.MYSQL;
 	}
 	
 	@Override
@@ -32,7 +30,7 @@ public class MysqlServiceImpl extends DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		Map<String, String> tableDdl = baseMapper.getTableDdl(dbName, tableName);
 		TableDdlVo tableDdlVo = new TableDdlVo();
-		tableDdlVo.setCurrent(DatabaseFactoryBean.DatabaseProduct.MYSQL.name().toLowerCase());
+		tableDdlVo.setCurrent(DatabaseProductEnum.MYSQL.name().toLowerCase());
 		tableDdlVo.setMysql(tableDdl.get("Create Table"));
 		tableDdlVo.setOracle("// TODO 等待大佬来实现转换");
 		// TODO 将建表语句转换为其他数据库的，还不知道怎么做，先这样留着，看有没大佬来实现

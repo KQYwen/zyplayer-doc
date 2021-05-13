@@ -1,6 +1,5 @@
 package com.zyplayer.doc.db.service;
 
-import cn.hutool.core.util.RandomUtil;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
@@ -12,11 +11,12 @@ import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.db.dto.*;
-import com.zyplayer.doc.db.framework.db.mapper.base.*;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
+import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
+import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
+import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -66,7 +66,7 @@ public abstract class DbBaseService {
 	 *
 	 * @return 服务类型
 	 */
-	abstract DatabaseFactoryBean.DatabaseProduct getDatabaseProduct();
+	abstract DatabaseProductEnum getDatabaseProduct();
 	
 	/**
 	 * 获取库列表
@@ -236,14 +236,14 @@ public abstract class DbBaseService {
 		
 		Map<String, List<TableInfoDto>> tableMapList = new HashMap<>();
 		// MYSQL可以一次性查询所有库表
-		if (databaseFactoryBean.getDatabaseProduct() == DatabaseFactoryBean.DatabaseProduct.MYSQL) {
+		if (databaseFactoryBean.getDatabaseProduct() == DatabaseProductEnum.MYSQL) {
 			List<TableInfoDto> dbTableList = baseMapper.getTableList(null);
 			tableMapList = dbTableList.stream().collect(Collectors.groupingBy(TableInfoDto::getDbName));
 		}
 		for (DatabaseInfoDto infoDto : dbNameDtoList) {
 			List<TableInfoDto> tableInfoDtoList = tableMapList.get(infoDto.getDbName());
 			// SQLSERVER必须要库才能查
-			if (databaseFactoryBean.getDatabaseProduct() == DatabaseFactoryBean.DatabaseProduct.SQLSERVER) {
+			if (databaseFactoryBean.getDatabaseProduct() == DatabaseProductEnum.SQLSERVER) {
 				tableInfoDtoList = baseMapper.getTableList(infoDto.getDbName());
 			}
 			if (CollectionUtils.isEmpty(tableInfoDtoList)) {
@@ -327,9 +327,9 @@ public abstract class DbBaseService {
 	 * 保存存储过程
 	 *
 	 * @param procSql 存储过程SQL
+	 * @return
 	 * @author 暮光：城中城
 	 * @since 2020年4月24日
-	 * @return
 	 */
 	public ExecuteResult saveProcedure(Long sourceId, String dbName, String typeName, String procName, String procSql) {
 		// 需要各数据服务自己实现，各数据库产品的实现都不一样

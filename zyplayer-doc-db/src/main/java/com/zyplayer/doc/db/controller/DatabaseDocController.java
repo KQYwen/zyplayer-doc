@@ -20,9 +20,9 @@ import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.controller.vo.TableStatusVo;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
-import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean.DatabaseProduct;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.db.dto.*;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.framework.utils.PoiUtil;
 import com.zyplayer.doc.db.service.DbBaseFactory;
@@ -206,7 +206,7 @@ public class DatabaseDocController {
 		}
 		try {
 			DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
-			DatabaseProduct databaseProduct = databaseFactoryBean.getDatabaseProduct();
+			DatabaseProductEnum databaseProduct = databaseFactoryBean.getDatabaseProduct();
 			PoiUtil.exportByDdl(ddlSqlMap, dbName, databaseProduct.name(), response);
 		} catch (Exception e) {
 			e.printStackTrace();

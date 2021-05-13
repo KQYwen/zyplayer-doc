@@ -1,6 +1,6 @@
 package com.zyplayer.doc.db.controller.vo;
 
-import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 
 import java.util.Objects;
 
@@ -13,11 +13,11 @@ public class TableDdlVo {
 	private String hive;
 	
 	public String getTableDDLByType() {
-		if (Objects.equals(current, DatabaseFactoryBean.DatabaseProduct.MYSQL.name().toLowerCase())) return mysql;
-		if (Objects.equals(current, DatabaseFactoryBean.DatabaseProduct.SQLSERVER.name().toLowerCase())) return sqlserver;
-		if (Objects.equals(current, DatabaseFactoryBean.DatabaseProduct.ORACLE.name().toLowerCase())) return oracle;
-		if (Objects.equals(current, DatabaseFactoryBean.DatabaseProduct.POSTGRESQL.name().toLowerCase())) return postgresql;
-		if (Objects.equals(current, DatabaseFactoryBean.DatabaseProduct.HIVE.name().toLowerCase())) return hive;
+		if (Objects.equals(current, DatabaseProductEnum.MYSQL.name().toLowerCase())) return mysql;
+		if (Objects.equals(current, DatabaseProductEnum.SQLSERVER.name().toLowerCase())) return sqlserver;
+		if (Objects.equals(current, DatabaseProductEnum.ORACLE.name().toLowerCase())) return oracle;
+		if (Objects.equals(current, DatabaseProductEnum.POSTGRESQL.name().toLowerCase())) return postgresql;
+		if (Objects.equals(current, DatabaseProductEnum.HIVE.name().toLowerCase())) return hive;
 		return null;
 	}
 	
