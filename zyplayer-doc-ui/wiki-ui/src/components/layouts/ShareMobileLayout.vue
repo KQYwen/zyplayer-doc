@@ -1,38 +1,73 @@
 <template>
 	<div style="height: 100%;">
-		<el-container>
-			<el-aside width="300px" style="background-color: #fafafa;" v-show="leftCollapse">
-				<div class="logo">{{nowSpaceShow.name}}</div>
-				<div style="padding: 10px;box-sizing: border-box;background: #fafafa;">
-					<el-input v-model="searchKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
-						<el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywords"></el-button>
-					</el-input>
-					<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
-							 ref="wikiPageTree" :filter-node-method="filterPageNode" highlight-current
-							 :expand-on-click-node="false" :default-expanded-keys="wikiPageExpandedKeys"
-							 node-key="id"
-							 style="background-color: #fafafa;padding-bottom: 30px;">
-					</el-tree>
-					<!--请手下留情，别删我(╥╯^╰╥)，给我一个露脸的机会，我长的不碍眼的-->
-					<div class="build-info">本文档使用<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>构建</div>
-				</div>
-			</el-aside>
-			<el-container>
-				<el-main class="doc-body-box">
-					<router-view></router-view>
-				</el-main>
-			</el-container>
-		</el-container>
+		<nut-icon type="top"></nut-icon>
+		<nut-popup position="left" v-model="popupShow" :style="{ height: '100%', width: '80%' }">
+			<nut-sidenavbar>
+				<nut-sidenavbar>
+					<nut-sidenavbaritem ikey="1" title="人脸识别"></nut-sidenavbaritem>
+					<nut-sidenavbaritem ikey="2" title="云存自然语言处理"></nut-sidenavbaritem>
+					<nut-subsidenavbar title="图像理解" ikey="3" :open="false">
+						<nut-sidenavbaritem ikey="4" title="菜品识别"></nut-sidenavbaritem>
+						<nut-sidenavbaritem ikey="5" title="拍照购"></nut-sidenavbaritem>
+					</nut-subsidenavbar>
+					<nut-sidenavbaritem ikey="313" title="人脸识别"></nut-sidenavbaritem>
+					<nut-sidenavbaritem ikey="3232" title="云存自然语言处理"></nut-sidenavbaritem>
+					<nut-subsidenavbar title="智能城市AI" ikey="6">
+						<nut-sidenavbaritem ikey="7" title="企业风险预警模型"></nut-sidenavbaritem>
+						<nut-sidenavbaritem ikey="8" title="水质量检测"></nut-sidenavbaritem>
+						<nut-subsidenavbar title="人体识别" ikey="9">
+							<nut-sidenavbaritem ikey="10" title="人体检测"></nut-sidenavbaritem>
+							<nut-sidenavbaritem ikey="11" title="细粒度人像分割"></nut-sidenavbaritem>
+						</nut-subsidenavbar>
+					</nut-subsidenavbar>
+					<nut-subsidenavbar title="自然语言处理" ikey="12">
+						<nut-sidenavbaritem ikey="13" title="词法分析"></nut-sidenavbaritem>
+						<nut-sidenavbaritem ikey="14" title="句法分析"></nut-sidenavbaritem>
+					</nut-subsidenavbar>
+				</nut-sidenavbar>
+<!--				<nut-sidenavbaritem data-v-7bf5e136="" ikey="1" title="关于zyplayer-doc工具"></nut-sidenavbaritem>-->
+<!--				<nut-subsidenavbar data-v-7bf5e136="" title="dsadadsadas" ikey="16">-->
+<!--					<nut-sidenavbaritem data-v-7bf5e136="" ikey="17" title="dsadasd"></nut-sidenavbaritem>-->
+<!--				</nut-subsidenavbar>-->
+<!--				<nut-sidenavbaritem data-v-7bf5e136="" ikey="2" title="开发规划"></nut-sidenavbaritem>-->
+<!--				<nut-sidenavbaritem data-v-7bf5e136="" ikey="3" title="升级日志"></nut-sidenavbaritem>-->
+<!--				<nut-sidenavbaritem data-v-7bf5e136="" ikey="4" title="贡献人员列表"></nut-sidenavbaritem>-->
+<!--				<nut-subsidenavbar data-v-7bf5e136="" title="xx" ikey="8">-->
+<!--					<nut-sidenavbaritem data-v-7bf5e136="" ikey="9" title="xxxxx"></nut-sidenavbaritem>-->
+<!--				</nut-subsidenavbar>-->
+<!--				<nut-subsidenavbar data-v-7bf5e136="" title="zyplayer-doc-swagger" ikey="5">-->
+<!--					<nut-sidenavbaritem data-v-7bf5e136="" ikey="6" title="如何使用"></nut-sidenavbaritem>-->
+<!--					<nut-sidenavbaritem data-v-7bf5e136="" ikey="11" title="发发沙发沙发是否"></nut-sidenavbaritem>-->
+<!--				</nut-subsidenavbar>-->
+				<!--				<template v-for="page in wikiPageList">-->
+<!--					<nut-sidenavbaritem1 :ikey="page.id" :title="page.name" v-if="!page.children"></nut-sidenavbaritem1>-->
+<!--					<nut-subsidenavbar1 :title="page.name" :ikey="page.id" v-else>-->
+<!--						<template v-for="page1 in page.children">-->
+<!--							<nut-sidenavbaritem1 :ikey="page1.id" :title="page1.name" v-if="!page1.children"></nut-sidenavbaritem1>-->
+<!--							<nut-subsidenavbar1 :title="page1.name" :ikey="page1.id" v-else>-->
+<!--								<template v-for="page2 in page1.children">-->
+<!--									<nut-sidenavbaritem1 :ikey="page2.id" :title="page2.name" v-if="!page2.children"></nut-sidenavbaritem1>-->
+<!--								</template>-->
+<!--							</nut-subsidenavbar1>-->
+<!--						</template>-->
+<!--					</nut-subsidenavbar1>-->
+<!--				</template>-->
+			</nut-sidenavbar>
+		</nut-popup>
+		<router-view @popupShow="popupShowChange"></router-view>
 	</div>
 </template>
 
 <script>
+	import Vue from 'vue';
 	import pageApi from '../../common/api/page'
+	import NutUI from '@nutui/nutui';
+	import '@nutui/nutui/dist/nutui.css';
+	NutUI.install(Vue);
 
 	export default {
 		data() {
 			return {
-				leftCollapse: true,
 				defaultProps: {
 					children: 'children',
 					label: 'name'
@@ -46,7 +81,10 @@
 				// 页面展示相关
 				wikiPageList:[],
 				wikiPageExpandedKeys: [],
+				popupShow: true,
 			}
+		},
+		components: {
 		},
 		mounted: function () {
 			this.spaceUuid = this.$route.query.space || '';
@@ -57,6 +95,9 @@
 			filterPageNode(value, data) {
 				if (!value) return true;
 				return data.name.indexOf(value) !== -1;
+			},
+			popupShowChange(value) {
+				this.popupShow = value;
 			},
 			handleNodeClick(data) {
 				if (this.nowPageId == data.id) {

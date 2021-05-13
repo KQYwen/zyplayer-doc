@@ -1,5 +1,6 @@
 import GlobalLayout from './components/layouts/GlobalLayout'
 import ShareLayout from './components/layouts/ShareLayout'
+import ShareMobileLayout from './components/layouts/ShareMobileLayout'
 
 let routes = [
 	{path: '/', redirect: '/home'},
@@ -25,6 +26,14 @@ let routes = [
 		children: [
 			{path: '/page/share/home', name: 'WIKI-开放文档', component: () => import('@/views/page/share/pc/Home')},
 			{path: '/page/share/view', name: 'WIKI-内容展示', component: () => import('@/views/page/share/pc/View')},
+		]
+	},
+	{
+		path: '/',
+		name: '页面管理',
+		component: ShareMobileLayout,
+		children: [
+			{path: '/page/share/mobile/home', name: 'WIKI-开放文档', component: () => import('@/views/page/share/mobile/Home')},
 		]
 	},
 ];

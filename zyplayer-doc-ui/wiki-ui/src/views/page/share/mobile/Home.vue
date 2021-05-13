@@ -1,10 +1,15 @@
 <template>
 	<div style="padding: 10px;" class="page-share-home-vue">
+		<nut-button @click="popupShowChange">测试</nut-button>
 	</div>
 </template>
 
 <script>
-	import pageApi from '../../../../common/api/page'
+	import pageApi from '../../../../common/api/page';
+	import Button from '@nutui/nutui/dist/packages/button/button.js';
+	import '@nutui/nutui/dist/packages/button/button.css';
+	import Popup from '@nutui/nutui/dist/packages/popup/popup.js';
+	import '@nutui/nutui/dist/packages/popup/popup.css';
 
 	export default {
 		data() {
@@ -19,6 +24,10 @@
 				spacePageNews: [],
 			};
 		},
+		components: {
+			'nut-button': Button,
+			'nut-popup': Popup,
+		},
 		beforeRouteUpdate(to, from, next) {
 			this.initQueryParam(to);
 			next();
@@ -27,6 +36,9 @@
 			this.initQueryParam(this.$route);
 		},
 		methods: {
+			popupShowChange() {
+				this.$emit("popupShow", true);
+			},
 			getSpacePageNews() {
 				pageApi.openPageNews(this.searchParam).then(json => {
 					this.spacePageNews = json.data || [];
