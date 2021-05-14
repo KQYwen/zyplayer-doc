@@ -1,24 +1,13 @@
 <template>
-	<div style="height: 100%;">
-		<van-popup v-model="popupShow" closeable position="left" :style="{ height: '100%', width: '80%' }">
-			<van-nav-bar :title="nowSpaceShow.name"></van-nav-bar>
-			<van-collapse v-model="pageSelect" @change="pageSelectChange">
-				<template v-for="page in wikiPageList">
-					<div v-if="!page.children" class="van-cell van-cell--clickable">{{page.name}}</div>
-					<van-collapse-item :title="page.name" :name="page.id" v-else>
-						<template v-for="page1 in page.children">
-							<van-collapse v-model="pageSelect" @change="pageSelectChange">
-								<div v-if="!page1.children" class="van-cell van-cell--clickable">{{page1.name}}</div>
-								<van-collapse-item :title="page1.name" :name="page1.id" v-else>
-									<template v-for="page2 in page1.children">
-										<div v-if="!page2.children">{{page2.name}}</div>
-									</template>
-								</van-collapse-item>
-							</van-collapse>
-						</template>
-					</van-collapse-item>
-				</template>
-			</van-collapse>
+	<div class="share-mobile-layout">
+		<van-popup v-model="popupShow" closeable position="left" class="popup-module" :style="{ height: '100%', width: '80%' }">
+			<div class="header">
+				<van-nav-bar :title="nowSpaceShow.name"></van-nav-bar>
+			</div>
+			<div class="main">
+				<page-tree :page-list="wikiPageList" @pageChange="pageSelectChange"></page-tree>
+				<div class="build-info">本文档使用<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>构建</div>
+			</div>
 		</van-popup>
 		<router-view @popupShow="popupShowChange"></router-view>
 	</div>
@@ -27,6 +16,7 @@
 <script>
 	import Vue from 'vue';
 	import pageApi from '../../common/api/page'
+	import PageTree from './PageTree'
 	import Vant from 'vant';
 	import 'vant/lib/index.css';
 	Vue.use(Vant);
@@ -47,11 +37,12 @@
 				// 页面展示相关
 				wikiPageList:[],
 				wikiPageExpandedKeys: [],
-				popupShow: true,
+				popupShow: false,
 				pageSelect: [],
 			}
 		},
 		components: {
+			PageTree: PageTree
 		},
 		mounted: function () {
 			this.spaceUuid = this.$route.query.space || '';
@@ -65,21 +56,12 @@
 			},
 			pageSelectChange(value) {
 				console.log("页面修改：" + value);
+				this.popupShow = false;
+				this.$router.replace({path: '/page/share/mobile/view', query: {pageId: value, space: this.spaceUuid}});
 			},
 			popupShowChange(value) {
 				this.popupShow = value;
 				console.log(this.pageSelect)
-			},
-			handleNodeClick(data) {
-				if (this.nowPageId == data.id) {
-					return;
-				}
-				console.log("点击节点：", data);
-				this.nowPageId = data.id;
-				this.$router.push({path: '/page/share/view', query: {pageId: data.id, space: this.spaceUuid}});
-			},
-			searchByKeywords() {
-				this.$refs.wikiPageTree.filter(this.searchKeywords);
 			},
 			doGetPageList() {
 				pageApi.openPageList({space: this.spaceUuid}).then(json => {
@@ -98,6 +80,12 @@
 
 <style scoped>
 	html,body,#app {margin: 0; padding: 0; height: 100%;}
+
+	.share-mobile-layout{height: 100%;}
+	.popup-module .header{width:100%;height:46px;}
+	.popup-module .main{position:absolute;top:46px;bottom: 0;right:0;left:0;overflow:auto;}
+	.popup-module .footer{width:100%;height:26px;position:fixed;bottom:0}
+
 	pre{margin: 0;white-space: pre-wrap;font-size: 14px; font-family: auto;}
 	.el-menu {box-sizing: border-box;border-right: 0;margin-right: 3px;}
 	.el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}
@@ -120,8 +108,7 @@
 		width: 45px; height: 45px; line-height: 45px;text-align: center;color: #fff;
 	}
 	.build-info{
-		position: fixed;bottom: 0;left: 0;background: #fafafa;width: 240px;text-align: center;
-		padding: 5px 0;color: #aaa;font-size: 12px;
+		text-align: center; padding: 5px 0;color: #aaa;font-size: 12px; margin: 10px 0;
 	}
 	.build-info a{color: #4183c4;cursor: pointer;text-decoration:none;}
 </style>

@@ -33,7 +33,7 @@ let routes = [
 		name: '页面管理',
 		component: ShareMobileLayout,
 		children: [
-			{path: '/page/share/mobile/home', name: 'WIKI-开放文档', component: () => import('@/views/page/share/mobile/Home')},
+			{path: '/page/share/mobile/view', name: 'WIKI-开放文档', component: () => import('@/views/page/share/mobile/View')},
 		]
 	},
 ];

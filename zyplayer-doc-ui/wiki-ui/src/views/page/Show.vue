@@ -28,6 +28,7 @@
 										<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete==1" icon="el-icon-delete">删除</el-dropdown-item>
 										<el-dropdown-item command="editAuth" v-if="wikiPageAuth.canConfigAuth==1" icon="el-icon-s-check">权限设置</el-dropdown-item>
 										<el-dropdown-item command="showOpenPage" v-if="spaceInfo.openDoc == 1" icon="el-icon-share">查看开放文档</el-dropdown-item>
+										<el-dropdown-item command="showMobileView" v-if="spaceInfo.openDoc == 1" icon="el-icon-mobile-phone">手机端查看</el-dropdown-item>
 									</el-dropdown-menu>
 								</el-dropdown>
 							</div>
@@ -158,6 +159,13 @@
 				</el-tabs>
 			</el-col>
 		</el-row>
+		<!--手机扫码查看弹窗-->
+		<el-dialog title="手机扫码查看" :visible.sync="mobileScanDialogVisible" width="400px">
+			<div style="text-align: center;">
+				<div class="mobile-qr" ref="qrCodeDiv"></div>
+				<div>使用微信或手机浏览器扫一扫查看</div>
+			</div>
+		</el-dialog>
 		<!--点赞人员弹窗-->
 		<el-dialog title="赞了它的人" :visible.sync="zanUserDialogVisible" width="600px">
 			<el-table :data="zanUserList" border :show-header="false" style="width: 100%; margin-bottom: 5px;">
@@ -204,6 +212,7 @@
 </template>
 
 <script>
+	import QRCode from 'qrcodejs2'
 	import common from '../../common/lib/common'
 	import pageApi from '../../common/api/page'
 	import userApi from '../../common/api/user'
@@ -232,6 +241,8 @@
 				zanUserDialogVisible: false,
 				zanUserList: [],
 				parentPath: {},
+				// 手机扫码
+				mobileScanDialogVisible: false,
 				// 评论相关
 				commentTextInput: "",
 				commentList: [],
@@ -279,7 +290,7 @@
 					this.pageAuthUserLoading = false;
 				});
 			},
-			handleMoreCommand(val) {
+			handleMoreCommand: function (val) {
 				if (val == 'editAuth') {
 					this.editWikiAuth();
 				} else if (val == 'deletePage') {
@@ -295,6 +306,28 @@
 							query: {pageId: this.wikiPage.id, space: this.spaceInfo.uuid}
 						});
 						window.open(routeUrl.href, '_blank');
+					}
+				} else if (val == 'showMobileView') {
+					if (this.spaceInfo.openDoc != 1) {
+						this.$message.warning("该空间未开放，无法查看开放文档地址");
+					} else {
+						let routeUrl = this.$router.resolve({
+							path: '/page/share/mobile/view',
+							query: {pageId: this.wikiPage.id, space: this.spaceInfo.uuid}
+						});
+						this.mobileScanDialogVisible = true;
+						let hostPath = window.location.href.split("#")[0];
+						setTimeout(() => {
+							this.$refs.qrCodeDiv.innerHTML = "";
+							new QRCode(this.$refs.qrCodeDiv, {
+								text: hostPath + routeUrl.href,
+								width: 250,
+								height: 250,
+								colorDark: "#333333", //二维码颜色
+								colorLight: "#ffffff", //二维码背景色
+								correctLevel: QRCode.CorrectLevel.M//容错率，L/M/H
+							});
+						}, 0);
 					}
 				}
 			},
@@ -715,5 +748,6 @@
 	.page-show-vue .comment-card:hover .comment-user-name .el-icon-delete{
 		display: inline-block;
 	}
+	.mobile-qr{width: 250px; height: 250px; border: 1px solid #ccc;display: inline-block;border-radius: 4px;margin-bottom: 10px;padding: 5px;}
 </style>
 
