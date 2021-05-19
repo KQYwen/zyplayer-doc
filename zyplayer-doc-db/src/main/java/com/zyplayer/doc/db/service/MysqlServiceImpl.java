@@ -1,6 +1,7 @@
 package com.zyplayer.doc.db.service;
 
 import cn.hutool.core.util.RandomUtil;
+import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.framework.db.dto.ColumnInfoDto;
 import com.zyplayer.doc.db.framework.db.dto.ProcedureDto;
@@ -124,5 +125,29 @@ public class MysqlServiceImpl extends DbBaseService {
 			}
 			return ExecuteResult.error(e.getMessage(), procSql);
 		}
+	}
+	
+	@Override
+	public String getQueryPageSql(DataViewParam dataViewParam) {
+		StringBuilder sqlSb = new StringBuilder();
+		sqlSb.append(String.format("select * from %s.%s", dataViewParam.getDbName(), dataViewParam.getTableName()));
+		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
+			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
+		}
+		if (StringUtils.isNotBlank(dataViewParam.getOrderColumn()) && StringUtils.isNotBlank(dataViewParam.getOrderType())) {
+			sqlSb.append(String.format(" order by %s %s", dataViewParam.getOrderColumn(), dataViewParam.getOrderType()));
+		}
+		sqlSb.append(String.format(" limit %s offset %s", dataViewParam.getPageSize(), dataViewParam.getOffset()));
+		return sqlSb.toString();
+	}
+	
+	@Override
+	public String getQueryCountSql(DataViewParam dataViewParam) {
+		StringBuilder sqlSb = new StringBuilder();
+		sqlSb.append(String.format("select count(1) as counts from %s.%s", dataViewParam.getDbName(), dataViewParam.getTableName()));
+		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
+			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
+		}
+		return sqlSb.toString();
 	}
 }

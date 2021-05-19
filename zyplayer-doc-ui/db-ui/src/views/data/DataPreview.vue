@@ -2,13 +2,12 @@
     <div class="data-executor-vue">
         <div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
             <el-card style="margin-bottom: 10px;">
-                <pre id="sqlExecutorEditor" style="width: 100%;height: 500px;margin-top: 0;"></pre>
+                <pre id="sqlExecutorEditor" style="width: 100%;height: 500px;margin-top: 0;margin-bottom: 10px;"></pre>
                 <div>
                     <el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain  size="small" icon="el-icon-video-pause">取消执行</el-button>
                     <el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
-                        <el-button v-on:click="doExecutorClick" type="primary" plain  size="small" icon="el-icon-video-play">执行</el-button>
+                        <el-button v-on:click="doExecutorClick" type="primary" plain  size="small" icon="el-icon-video-play">筛选</el-button>
                     </el-tooltip>
-                    <el-button icon="el-icon-brush" size="small" @click="formatterSql">SQL美化</el-button>
                     <el-button icon="el-icon-refresh-left" size="small" @click="refreshData">重置</el-button>
                 </div>
             </el-card>
@@ -23,21 +22,6 @@
                         </el-tab-pane>
                         <el-tab-pane :label="'结果'+resultItem.index" :name="'table'+resultItem.index" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
                             <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
-<!--                            <pl-table v-else-->
-<!--                                      :datas="resultItem.dataList"-->
-<!--                                      :height="tableMaxHeight"-->
-<!--                                      header-drag-style-->
-<!--                                      :row-height="40">-->
-<!--                                <template slot="empty">暂无数据</template>-->
-<!--                                <pl-table-column width="60px" v-if="resultItem.dataCols.length > 0">-->
-<!--                                    <template slot-scope="scope">{{scope.row._index}}</template>-->
-<!--                                </pl-table-column>-->
-<!--                                <pl-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">-->
-<!--                                    <template slot-scope="scope">-->
-<!--                                        <textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>-->
-<!--                                    </template>-->
-<!--                                </pl-table-column>-->
-<!--                            </pl-table>-->
                             <el-table v-else :data="resultItem.dataList" stripe border
                                       style="width: 100%; margin-bottom: 5px;"
                                       class="execute-result-table" :max-height="tableMaxHeight"
@@ -53,7 +37,6 @@
                                 </el-table-column>
                             </el-table>
                             <el-pagination
-                                    v-show="needShowPage"
                                     style="margin-top: 10px;"
                                     @size-change="handlePageSizeChange"
                                     @current-change="handleCurrentChange"
@@ -97,12 +80,11 @@
                 tableTotalCount: 0,
                 tableSort: {},
                 tableMaxHeight: 600,
-                needShowPage: true,
             }
         },
         mounted: function () {
             let that = this;
-            this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 6);
+            this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 5);
             this.sqlExecutorEditor.setFontSize(16);
             this.sqlExecutorEditor.commands.addCommand({
                 name: "execute-sql",
@@ -148,45 +130,21 @@
                 this.currentPage = 1;
                 this.doExecutorSql();
             },
-            formatterSql() {
-                let dataSql = this.sqlExecutorEditor.getSelectedText();
-                if (!!dataSql) {
-                    let range = this.sqlExecutorEditor.getSelectionRange();
-                    this.sqlExecutorEditor.remove(range);
-                } else {
-                    dataSql = this.sqlExecutorEditor.getValue();
-                    this.sqlExecutorEditor.setValue('', 1);
-                }
-                if (!!dataSql) {
-                    dataSql = sqlFormatter.format(dataSql);
-                    this.sqlExecutorEditor.insert(dataSql);
-                }
-            },
             cancelExecutorSql() {
                 datasourceApi.executeSqlCancel({executeId: this.nowExecutorId}).then(() => {
                     this.$message.success("取消成功");
                 });
             },
             doExecutorClick() {
-                let dataSql = this.sqlExecutorEditor.getSelectedText();
-                if (!dataSql) {
-                    dataSql = this.sqlExecutorEditor.getValue();
-                }
-                if (!dataSql) {
-                    this.$message.error("查询SQL不能为空");
-                    return;
-                }
-                this.needShowPage = false;
-                this.doExecutorSqlCommon(dataSql);
+                let conditionSql = this.sqlExecutorEditor.getSelectedText();
+				conditionSql = conditionSql || this.sqlExecutorEditor.getValue();
+				conditionSql = conditionSql || "";
+                this.doExecutorSqlCommon(conditionSql);
             },
             doExecutorSql() {
-                let dataSql = this.getExecuteSql();
-                let countSql = this.getExecuteCountSql();
-                this.sqlExecutorEditor.setValue(dataSql, 1);
-                this.needShowPage = true;
-                this.doExecutorSqlCommon(dataSql, countSql);
+                this.doExecutorSqlCommon();
             },
-            doExecutorSqlCommon(dataSql, countSql) {
+            doExecutorSqlCommon(conditionSql) {
                 if (!this.vueQueryParam.sourceId) {
                     this.$message.error("请先选择数据源");
                     return;
@@ -194,28 +152,23 @@
                 this.executeError = "";
                 this.executeUseTime = "";
                 this.executeResultList = [];
-                this.tableMaxHeight = document.body.clientHeight  - 230;
-
+                this.tableMaxHeight = document.body.clientHeight  - 400;
                 this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
                 this.sqlExecuting = true;
                 let param = {
                     sourceId: this.vueQueryParam.sourceId,
+					dbName: this.vueQueryParam.dbName,
+					tableName: this.vueQueryParam.tableName,
                     executeId: this.nowExecutorId,
-                    sql: countSql,
+					condition: conditionSql,
+					pageNum: this.currentPage,
+					pageSize: this.pageSize,
+					orderColumn: this.tableSort.prop,
+					orderType: (this.tableSort.order === 'ascending' ? 'asc' : 'desc'),
                     params: '',
                 };
-                // 第一页才查询总条数
-                if (!!countSql && this.currentPage == 1) {
-                    datasourceApi.queryExecuteSql(param).then(res => {
-                        if (res.errCode != 200 || !res.data || res.data.length <= 0) return;
-                        let objItem = JSON.parse(res.data[0]);
-                        if(!objItem.result || objItem.result.length <= 0) return;
-                        this.tableTotalCount = objItem.result[0].counts || 0;
-                    });
-                }
-                param.sql = dataSql;
-                datasourceApi.queryExecuteSql(param).then(json => {
-                    if (json.errCode != 200) {
+                datasourceApi.dataViewQuery(param).then(json => {
+                    if (json.errCode !== 200) {
                         this.executeError = json.errMsg;
                         this.sqlExecuting = false;
                         return;
@@ -232,31 +185,15 @@
                             itemIndex++;
                         }
                         executeResultList.push(resultItem);
-                    }
-                    this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
-                    this.executeResultInfo = executeResultInfo;
-                    this.executeResultList = executeResultList;
+					}
+					if (!!json.total) {
+						this.tableTotalCount = json.total || 0;
+					}
+					this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
+					this.executeResultInfo = executeResultInfo;
+					this.executeResultList = executeResultList;
                     this.sqlExecuting = false;
                 });
-            },
-            getExecuteSql() {
-                if (this.vueQueryParam.dbType == 'mysql') {
-                    let tableSort = ' ';
-                    if (!!this.tableSort.prop && !!this.tableSort.order) {
-                        tableSort = ' order by ' + this.tableSort.prop + ' ' + (this.tableSort.order === 'ascending' ? 'asc' : 'desc');
-                    }
-                    return 'select * from ' + this.vueQueryParam.dbName + '.' + this.vueQueryParam.tableName
-                        + tableSort
-                        + ' limit ' + this.pageSize + ' offset ' + ((this.currentPage - 1) * this.pageSize);
-                }
-                this.$message.error("暂未支持的数据库类型表数据预览");
-                return '';
-            },
-            getExecuteCountSql() {
-                if (this.vueQueryParam.dbType == 'mysql') {
-                    return 'select count(1) as counts from ' + this.vueQueryParam.dbName + '.' + this.vueQueryParam.tableName;
-                }
-                return '';
             },
             getExecuteInfoStr(resultData) {
                 var resultStr = resultData.sql;
@@ -306,7 +243,7 @@
                     enableSnippets: true,
                     enableLiveAutocompletion: true,
                     minLines: minLines,
-                    maxLines: 40,
+                    maxLines: 5
                 });
             },
         }

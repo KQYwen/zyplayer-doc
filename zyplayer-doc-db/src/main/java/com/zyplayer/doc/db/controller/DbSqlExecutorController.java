@@ -1,9 +1,7 @@
 package com.zyplayer.doc.db.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -21,6 +19,7 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
+import com.zyplayer.doc.db.framework.utils.JSONUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,10 +82,7 @@ public class DbSqlExecutorController {
 				executeParam.setSql(sqlItem);
 				executeParam.setMaxRows(1000);
 				ExecuteResult executeResult = sqlExecutor.execute(executeParam);
-				SerializeConfig mapping = new SerializeConfig();
-				mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
-				mapping.put(Timestamp.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
-				String resultJsonStr = JSON.toJSONString(executeResult, mapping, SerializerFeature.WriteMapNullValue);
+				String resultJsonStr = JSON.toJSONString(executeResult, JSONUtil.serializeConfig, SerializerFeature.WriteMapNullValue);
 				resultList.add(resultJsonStr);
 			} catch (Exception e) {
 				logger.error("执行出错", e);
@@ -146,5 +141,6 @@ public class DbSqlExecutorController {
 		}
 		return DocDbResponseJson.ok();
 	}
+	
 }
 

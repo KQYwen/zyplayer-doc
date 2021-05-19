@@ -4,7 +4,7 @@
             <div slot="header" class="clearfix">
                 表信息
                 <span style="float: right;margin-top: -5px;">
-                    <el-button class="search-submit" size="small" type="primary" icon="el-icon-search" @click="previewTableData">表数据预览</el-button>
+                    <el-button class="search-submit" size="small" type="primary" icon="el-icon-search" @click="previewTableData">查看表数据</el-button>
                 </span>
             </div>
             <el-row class="status-info-row">

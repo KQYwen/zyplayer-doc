@@ -101,6 +101,9 @@ export default {
 	procedureLogDetail: data => {
 		return request({url: '/zyplayer-doc-db/procedure/log/detail', method: 'post', data: Qs.stringify(data)});
 	},
+    dataViewQuery: data => {
+        return request({url: '/zyplayer-doc-db/data-view/query', method: 'post', data: Qs.stringify(data)});
+    },
     systemUpgradeInfo: data => {
         return request({url: '/system/info/upgrade', method: 'post', data: Qs.stringify(data)});
     },

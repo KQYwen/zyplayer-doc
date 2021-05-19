@@ -3,6 +3,7 @@ package com.zyplayer.doc.db.service;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.param.ProcedureListParam;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
@@ -332,6 +333,30 @@ public abstract class DbBaseService {
 	 * @since 2020年4月24日
 	 */
 	public ExecuteResult saveProcedure(Long sourceId, String dbName, String typeName, String procName, String procSql) {
+		// 需要各数据服务自己实现，各数据库产品的实现都不一样
+		throw new ConfirmException("暂未支持的数据库类型");
+	}
+	
+	/**
+	 * 获取分页查询的SQL
+	 *
+	 * @return 分页查询的SQL
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 */
+	public String getQueryPageSql(DataViewParam dataViewParam) {
+		// 需要各数据服务自己实现，各数据库产品的实现都不一样
+		throw new ConfirmException("暂未支持的数据库类型");
+	}
+	
+	/**
+	 * 获取查询总条数的SQL
+	 *
+	 * @return 查询总条数的SQL
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 */
+	public String getQueryCountSql(DataViewParam dataViewParam) {
 		// 需要各数据服务自己实现，各数据库产品的实现都不一样
 		throw new ConfirmException("暂未支持的数据库类型");
 	}
