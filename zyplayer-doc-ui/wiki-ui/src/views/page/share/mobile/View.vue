@@ -1,11 +1,10 @@
 <template>
 	<div class="page-share-view-vue">
-		<van-nav-bar :title="wikiPage.name">
-			<van-icon name="ellipsis" slot="left" @click="popupShowChange"></van-icon>
+		<van-nav-bar :title="wikiPage.name" class="header">
+			<van-icon name="wap-nav" slot="left" size="20" @click="popupShowChange"></van-icon>
 		</van-nav-bar>
-		<el-row type="border-card">
+		<el-row type="border-card" class="main">
 			<div style="max-width: 950px;margin: 0 auto;">
-<!--				<div class="wiki-title">{{wikiPage.name}}</div>-->
 				<div class="wiki-author">
 					<span v-if="wikiPage.updateTime">最后修改：{{wikiPage.updateTime}}</span>
 					<span v-else>创建时间：{{wikiPage.createTime}}</span>
@@ -30,9 +29,6 @@
 				</div>
 			</div>
 		</el-row>
-		<div ref="imagePreview">
-			<el-image-viewer v-if="showImagePreview" :url-list="showImagePreviewList" :on-close="closeImagePreview" :initial-index="previewInitialIndex"></el-image-viewer>
-		</div>
 	</div>
 </template>
 
@@ -40,6 +36,7 @@
 	import pageApi from '../../../../common/api/page'
 	import {mavonEditor, markdownIt} from 'mavon-editor'
 	import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
+	import { ImagePreview } from 'vant';
 	import 'mavon-editor/dist/markdown/github-markdown.min.css'
 	import 'mavon-editor/dist/css/index.css'
 
@@ -54,7 +51,6 @@
 				pageShowDetail: '',
 				// 大图预览
 				previewInitialIndex: 0,
-				showImagePreview: false,
 				showImagePreviewList: [],
 			};
 		},
@@ -115,9 +111,6 @@
 				}
 				return size;
 			},
-			closeImagePreview() {
-				this.showImagePreview = false;
-			},
 			previewPageImage() {
 				const imgArr = [];
 				const imgSelector = this.$refs.pageContent.querySelectorAll('img');
@@ -126,16 +119,11 @@
 					item.onclick = () => {
 						this.previewInitialIndex = index;
 						this.showImagePreviewList = imgArr;
-						this.showImagePreview = true;
-						setTimeout(() => this.initImageViewerMask(), 0);
+						ImagePreview({
+							images: imgArr,
+							startPosition: index,
+						});
 					}
-				});
-			},
-			initImageViewerMask() {
-				// 图片预览遮罩点击隐藏预览框
-				let imageViewerMask = this.$refs.imagePreview.querySelectorAll('.el-image-viewer__mask');
-				imageViewerMask.forEach(item => {
-					item.onclick = () => this.showImagePreview = false;
 				});
 			},
 		}
@@ -145,14 +133,18 @@
 <style>
 	@import "../../../../common/lib/wangEditor.css";
 
-	.page-share-view-vue{padding: 10px;}
+	.page-share-view-vue{}
 	.page-share-view-vue .wiki-title{font-size: 20px;text-align: center;}
-	.page-share-view-vue .wiki-author{font-size: 14px;color: #888;padding: 20px 0;height: 40px;line-height: 40px;}
+	.page-share-view-vue .wiki-author{font-size: 14px;color: #888;height: 40px;line-height: 40px;}
 
 	.page-share-view-vue .wiki-page-content img{cursor: pointer;max-width: 100%;}
 	.page-share-view-vue .wiki-page-content img:hover{box-shadow: 0 2px 6px 0 rgba(0,0,0,.3);}
 
 	.page-share-view-vue .upload-page-file .el-upload-list{display: none;}
 	.page-share-view-vue .is-link{color: #1e88e5;cursor: pointer;}
+
+	.page-share-view-vue .header{width:100%;height:46px;}
+	.page-share-view-vue .main{position:absolute;top:46px;bottom: 0;right:0;left:0;overflow:auto;padding: 10px;}
+	.page-share-view-vue .footer{width:100%;height:26px;position:fixed;bottom:0}
 </style>
 
