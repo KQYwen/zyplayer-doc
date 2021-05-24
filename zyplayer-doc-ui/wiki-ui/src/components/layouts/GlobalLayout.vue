@@ -31,10 +31,10 @@
 					</div>
                 </div>
             </el-aside>
-            <el-container style="border-left: 1px solid #dcdfe6;">
+            <el-container>
                 <el-header>
-                    <!--<el-switch v-model="isCollapse" ></el-switch>-->
-                    <i class="el-icon-menu icon-collapse" @click="leftCollapse = !leftCollapse"></i>
+                    <i class="el-icon-upload2" v-if="leftCollapse" @click="turnLeftCollapse"></i>
+                    <i class="el-icon-download" v-else @click="turnLeftCollapse"></i>
 					<span class="header-right-user-name">{{userSelfInfo.userName}}</span>
 					<el-popover placement="bottom" width="600" trigger="click" v-model="userMessagePopVisible">
 						<el-badge :is-dot="haveNotReadUserMessage" slot="reference" style="line-height: 20px;margin: 0 15px;">
@@ -69,18 +69,16 @@
 							</div>
 						</div>
 					</el-popover>
-                    <!--<div class="logo" @click="aboutDialogVisible = true">zyplayer-doc-wiki</div>-->
                     <el-dropdown @command="userSettingDropdown" trigger="click">
                         <i class="el-icon-setting head-icon"></i>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="console">控制台</el-dropdown-item>
-                            <el-dropdown-item command="aboutDoc" divided>关于</el-dropdown-item>
-                            <el-dropdown-item command="myInfo">我的资料</el-dropdown-item>
-                            <el-dropdown-item command="userSignOut">退出登录</el-dropdown-item>
+                            <el-dropdown-item command="aboutDoc">关于</el-dropdown-item>
+                            <el-dropdown-item command="userSignOut" divided>退出登录</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                 </el-header>
-                <el-main style="padding: 0;">
+                <el-main style="padding: 0;border-left: 1px solid #dcdfe6;">
 					<router-view @loadPageList="loadPageList"
 								 @changeExpandedKeys="changeWikiPageExpandedKeys"
 								 @switchSpace="switchSpacePage"
@@ -102,11 +100,15 @@
                 </el-form-item>
                 <template v-if="upgradeInfo.lastVersion">
                     <el-form-item label="当前版本：">{{upgradeInfo.nowVersion}}、最新版本：{{upgradeInfo.lastVersion}}，<a target="_blank" :href="upgradeInfo.upgradeUrl">去升级</a></el-form-item>
-                    <el-form-item label="升级内容：">{{upgradeInfo.upgradeContent}}</el-form-item>
+                    <el-form-item label="升级内容：">
+						<pre class="upgrade-info">{{upgradeInfo.upgradeContent}}</pre>
+					</el-form-item>
                 </template>
                 <el-form-item label="">
-					zyplayer-doc是一款开源的在线文档工具，现有WIKI文档、数据库文档、swagger文档、dubbo文档、ElasticSearch文档等，不止文档。期待与你一起来迭代完善，欢迎加群讨论，QQ群号：466363173
-                </el-form-item>
+					<div style="line-height: 26px;">
+						zyplayer-doc是一款开源的在线文档工具，现有WIKI文档、数据库文档、swagger文档、dubbo文档、ElasticSearch文档等，不止文档。期待与你一起来迭代完善，欢迎加群讨论，QQ群号：466363173
+					</div>
+				</el-form-item>
             </el-form>
         </el-dialog>
 		<create-space ref="createSpace" @success="loadSpaceList"></create-space>
@@ -172,6 +174,9 @@
 			loadPageList(param) {
 				param = param || {};
 				this.doGetPageList(param.parentId, param.node);
+			},
+			turnLeftCollapse() {
+				this.leftCollapse = !this.leftCollapse;
 			},
             createWiki() {
                 if (this.choiceSpace > 0) {
@@ -370,6 +375,9 @@
 				userApi.systemUpgradeInfo({}).then(json => {
                     if (!!json.data) {
                         this.upgradeInfo = json.data;
+						if (!!this.upgradeInfo.upgradeContent) {
+							this.upgradeInfo.upgradeContent = this.upgradeInfo.upgradeContent.replaceAll('；', '\n');
+						}
                         console.log("zyplayer-doc发现新版本："
                             + "\n升级地址：" + json.data.upgradeUrl
                             + "\n当前版本：" + json.data.nowVersion
@@ -407,8 +415,9 @@
 	}
 	.header-right-user-name{color: #fff;padding-right: 5px;}
     .el-header {color: #333; line-height: 40px; text-align: right;height: 40px !important;}
-    .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
-    .icon-collapse:hover{color: #eee;}
+    .el-icon-download,.el-icon-upload2{transform: rotate(-90deg);float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
+    .el-icon-download:hover,.el-icon-upload2:hover{color: #eee;}
 	.head-icon{margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;}
 	.header-user-message .page-info-box{text-align: right;margin-top: 10px;}
+	.upgrade-info{max-height: 150px;overflow-y: auto;word-break: break-all; white-space: pre-wrap; line-height: 26px;}
 </style>

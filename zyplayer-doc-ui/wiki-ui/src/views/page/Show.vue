@@ -681,8 +681,7 @@
 <style>
 	@import "../../common/lib/wangEditor.css";
 	/*覆盖样式*/
-	.el-main{overflow: hidden;}
-	.page-show-vue {height: 100%;}
+	.page-show-vue {height: 100%;overflow: hidden;}
 	.page-show-vue .icon-collapse{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
 	.page-show-vue .icon-collapse:hover{color: #eee;}
 	.page-show-vue .wiki-title{font-size: 20px;text-align: center;font-weight: bold;}

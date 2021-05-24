@@ -249,5 +249,6 @@
 	.space-manage-vue .page-info-box{text-align: right;margin: 20px 0 50px 0;}
 	.space-manage-vue .favorite-icon{cursor: pointer; font-size: 20px;}
 	.space-manage-vue .favorite-icon.el-icon-star-on{color: #E6A23C; font-size: 24px;}
+
 </style>
 
