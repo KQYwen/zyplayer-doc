@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class SqlserverServiceImpl extends DbBaseService {
 	
 	@Override
-	DatabaseProductEnum getDatabaseProduct() {
+	public DatabaseProductEnum getDatabaseProduct() {
 		return DatabaseProductEnum.SQLSERVER;
 	}
 	

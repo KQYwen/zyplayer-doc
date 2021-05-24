@@ -19,11 +19,10 @@ public class DbBaseFactory {
 	DatabaseRegistrationBean databaseRegistrationBean;
 	@Resource
 	private List<DbBaseService> dbBaseServiceList;
-	private Map<DatabaseProductEnum, DbBaseService> dbBaseServiceMap;
+	private final Map<DatabaseProductEnum, DbBaseService> dbBaseServiceMap = new HashMap<>();
 	
 	@PostConstruct
 	private void init() {
-		dbBaseServiceMap = new HashMap<>();
 		dbBaseServiceList.forEach(item -> dbBaseServiceMap.put(item.getDatabaseProduct(), item));
 	}
 	

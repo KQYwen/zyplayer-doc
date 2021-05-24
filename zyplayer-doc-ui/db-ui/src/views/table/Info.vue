@@ -103,6 +103,11 @@
 						<pre><code v-html="tableDDLInfo.postgresql"></code></pre>
 					</div>
 				</el-tab-pane>
+				<el-tab-pane label="hive" name="hive" v-if="!!tableDDLInfo.hive">
+					<div v-highlight>
+						<pre><code v-html="tableDDLInfo.hive"></code></pre>
+					</div>
+				</el-tab-pane>
 			</el-tabs>
         </el-dialog>
     </div>
@@ -199,12 +204,18 @@
                 row.inEdit = 1;
             },
             previewTableData() {
+				if (!this.columnList || this.columnList.length <= 0) {
+					this.$message.error("字段信息尚未加载成功，请稍候...");
+					return;
+				}
                 let previewParam = {
                     sourceId: this.vueQueryParam.sourceId,
                     dbName: this.vueQueryParam.dbName,
                     tableName: this.vueQueryParam.tableName,
                     host: this.vueQueryParam.host,
                     dbType: this.tableStatusInfo.dbType,
+					// 默认排序字段，先随便取一个，impala等数据库必须排序后才能分页查
+                    orderColumn: this.columnList[0].name,
                 };
                 this.$router.push({path: '/data/dataPreview', query: previewParam});
             },

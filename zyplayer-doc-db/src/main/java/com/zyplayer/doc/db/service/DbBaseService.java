@@ -67,7 +67,7 @@ public abstract class DbBaseService {
 	 *
 	 * @return 服务类型
 	 */
-	abstract DatabaseProductEnum getDatabaseProduct();
+	public abstract DatabaseProductEnum getDatabaseProduct();
 	
 	/**
 	 * 获取库列表
@@ -345,8 +345,16 @@ public abstract class DbBaseService {
 	 * @since 2020年4月24日
 	 */
 	public String getQueryPageSql(DataViewParam dataViewParam) {
-		// 需要各数据服务自己实现，各数据库产品的实现都不一样
-		throw new ConfirmException("暂未支持的数据库类型");
+		StringBuilder sqlSb = new StringBuilder();
+		sqlSb.append(String.format("select * from %s.%s", dataViewParam.getDbName(), dataViewParam.getTableName()));
+		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
+			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
+		}
+		if (StringUtils.isNotBlank(dataViewParam.getOrderColumn()) && StringUtils.isNotBlank(dataViewParam.getOrderType())) {
+			sqlSb.append(String.format(" order by %s %s", dataViewParam.getOrderColumn(), dataViewParam.getOrderType()));
+		}
+		sqlSb.append(String.format(" limit %s offset %s", dataViewParam.getPageSize(), dataViewParam.getOffset()));
+		return sqlSb.toString();
 	}
 	
 	/**
@@ -357,7 +365,11 @@ public abstract class DbBaseService {
 	 * @since 2020年4月24日
 	 */
 	public String getQueryCountSql(DataViewParam dataViewParam) {
-		// 需要各数据服务自己实现，各数据库产品的实现都不一样
-		throw new ConfirmException("暂未支持的数据库类型");
+		StringBuilder sqlSb = new StringBuilder();
+		sqlSb.append(String.format("select count(1) as counts from %s.%s", dataViewParam.getDbName(), dataViewParam.getTableName()));
+		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
+			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
+		}
+		return sqlSb.toString();
 	}
 }

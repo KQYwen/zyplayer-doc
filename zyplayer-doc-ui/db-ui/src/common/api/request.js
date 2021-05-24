@@ -3,7 +3,7 @@ import vue from '../../main'
 
 const service = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url process.env.APP_BASE_API
-	timeout: 10000,
+	timeout: 60000,
 	headers: {'Content-type': 'application/x-www-form-urlencoded'},
 	withCredentials: true
 });

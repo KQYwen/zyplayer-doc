@@ -95,7 +95,7 @@
             });
 			// 延迟设置展开的目录，edit比app先初始化
 			setTimeout(() => {
-				this.doExecutorSql();
+				this.doExecutorSqlCommon();
 				this.$emit('initLoadDataList', {
 					sourceId: this.vueQueryParam.sourceId,
 					host: this.vueQueryParam.host,
@@ -114,21 +114,22 @@
             },
             handleCurrentChange(to) {
                 this.currentPage = to;
-                this.doExecutorSql();
+                this.doExecutorSqlCommon();
             },
             handlePageSizeChange(to) {
                 this.pageSize = to;
-                this.doExecutorSql();
+                this.doExecutorSqlCommon();
             },
             tableSortChange(sort) {
                 if (this.tableSort.prop === sort.prop && this.tableSort.order === sort.order) return;
-                this.tableSort = {prop: sort.prop, order: sort.order};
-                this.doExecutorSql();
+                this.tableSort = {orderColumn: sort.prop, orderType: (sort.order === 'ascending' ? 'asc' : 'desc')};
+                this.doExecutorSqlCommon();
             },
             refreshData() {
                 this.tableSort = {};
                 this.currentPage = 1;
-                this.doExecutorSql();
+				this.sqlExecutorEditor.setValue('', 1);
+                this.doExecutorSqlCommon();
             },
             cancelExecutorSql() {
                 datasourceApi.executeSqlCancel({executeId: this.nowExecutorId}).then(() => {
@@ -136,19 +137,21 @@
                 });
             },
             doExecutorClick() {
-                let conditionSql = this.sqlExecutorEditor.getSelectedText();
-				conditionSql = conditionSql || this.sqlExecutorEditor.getValue();
-				conditionSql = conditionSql || "";
-                this.doExecutorSqlCommon(conditionSql);
-            },
-            doExecutorSql() {
+				this.tableSort = {};
+				this.currentPage = 1;
                 this.doExecutorSqlCommon();
             },
-            doExecutorSqlCommon(conditionSql) {
+            doExecutorSqlCommon() {
                 if (!this.vueQueryParam.sourceId) {
                     this.$message.error("请先选择数据源");
                     return;
                 }
+				if (!this.tableSort.orderColumn) {
+					this.tableSort = {orderColumn: this.vueQueryParam.orderColumn, orderType: 'asc'};
+				}
+				let conditionSql = this.sqlExecutorEditor.getSelectedText();
+				conditionSql = conditionSql || this.sqlExecutorEditor.getValue();
+				conditionSql = conditionSql || "";
                 this.executeError = "";
                 this.executeUseTime = "";
                 this.executeResultList = [];
@@ -163,8 +166,8 @@
 					condition: conditionSql,
 					pageNum: this.currentPage,
 					pageSize: this.pageSize,
-					orderColumn: this.tableSort.prop,
-					orderType: (this.tableSort.order === 'ascending' ? 'asc' : 'desc'),
+					orderColumn: this.tableSort.orderColumn,
+					orderType: this.tableSort.orderType,
                     params: '',
                 };
                 datasourceApi.dataViewQuery(param).then(json => {

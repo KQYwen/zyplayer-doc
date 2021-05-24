@@ -11,9 +11,11 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,12 +31,15 @@ public class MysqlServiceImpl extends DbBaseService {
 	@Override
 	public TableDdlVo getTableDdl(Long sourceId, String dbName, String tableName) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		Map<String, String> tableDdl = baseMapper.getTableDdl(dbName, tableName);
+		List<Map<String, String>> tableDdlList = baseMapper.getTableDdl(dbName, tableName);
 		TableDdlVo tableDdlVo = new TableDdlVo();
 		tableDdlVo.setCurrent(DatabaseProductEnum.MYSQL.name().toLowerCase());
-		tableDdlVo.setMysql(tableDdl.get("Create Table"));
+		tableDdlVo.setMysql("// 生成失败");
 		tableDdlVo.setOracle("// TODO 等待大佬来实现转换");
 		// TODO 将建表语句转换为其他数据库的，还不知道怎么做，先这样留着，看有没大佬来实现
+		if (CollectionUtils.isNotEmpty(tableDdlList)) {
+			tableDdlVo.setMysql(tableDdlList.get(0).get("Create Table"));
+		}
 		return tableDdlVo;
 	}
 	
@@ -125,29 +130,5 @@ public class MysqlServiceImpl extends DbBaseService {
 			}
 			return ExecuteResult.error(e.getMessage(), procSql);
 		}
-	}
-	
-	@Override
-	public String getQueryPageSql(DataViewParam dataViewParam) {
-		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append(String.format("select * from %s.%s", dataViewParam.getDbName(), dataViewParam.getTableName()));
-		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
-			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
-		}
-		if (StringUtils.isNotBlank(dataViewParam.getOrderColumn()) && StringUtils.isNotBlank(dataViewParam.getOrderType())) {
-			sqlSb.append(String.format(" order by %s %s", dataViewParam.getOrderColumn(), dataViewParam.getOrderType()));
-		}
-		sqlSb.append(String.format(" limit %s offset %s", dataViewParam.getPageSize(), dataViewParam.getOffset()));
-		return sqlSb.toString();
-	}
-	
-	@Override
-	public String getQueryCountSql(DataViewParam dataViewParam) {
-		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append(String.format("select count(1) as counts from %s.%s", dataViewParam.getDbName(), dataViewParam.getTableName()));
-		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
-			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
-		}
-		return sqlSb.toString();
 	}
 }

@@ -25,17 +25,30 @@
             <el-card>
                 <div v-if="!!executeError" style="color: #f00;">{{executeError}}</div>
                 <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting">暂无数据</div>
-                <div v-else>
-                    <el-tabs :value="executeShowTable">
+                <div v-else style="position: relative;">
+					<div style="position: absolute;right: 0;z-index: 1;">
+						<!-- 复制选中行 -->
+						<el-dropdown @command="handleCopyCheckLineCommand" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
+							<el-button type="primary" size="small">
+								复制选中行<i class="el-icon-arrow-down el-icon--right"></i>
+							</el-button>
+							<el-dropdown-menu slot="dropdown">
+								<el-dropdown-item command="insert">SQL Inserts</el-dropdown-item>
+								<el-dropdown-item command="update">SQL Updates</el-dropdown-item>
+								<el-dropdown-item command="json">JSON</el-dropdown-item>
+							</el-dropdown-menu>
+						</el-dropdown>
+					</div>
+                    <el-tabs v-model="executeShowTable">
                         <el-tab-pane label="信息" name="table0">
                             <pre>{{executeResultInfo}}</pre>
                         </el-tab-pane>
-                        <el-tab-pane :label="'结果'+resultItem.index" :name="'table'+resultItem.index" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
+                        <el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
                             <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
-                            <el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600">
-                                <el-table-column width="60px" v-if="resultItem.dataCols.length > 0">
-                                    <template slot-scope="scope">{{scope.row._index}}</template>
-                                </el-table-column>
+                            <el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600"
+									  @selection-change="handleSelectionChange">
+								<el-table-column type="selection" width="55"></el-table-column>
+								<el-table-column type="index" width="50"></el-table-column>
                                 <el-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
                                     <template slot-scope="scope">
                                         <textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
@@ -93,6 +106,7 @@
     import '../../common/lib/ace/mode-sql'
     import '../../common/lib/ace/ext-language_tools'
     import '../../common/lib/ace/snippets/sql'
+	import copyFormatter from './copy/index'
     import sqlFormatter from "sql-formatter"
     import datasourceApi from '../../common/api/datasource'
 
@@ -107,6 +121,7 @@
 
                 databaseList: [],
                 choiceDatabase: "",
+				editorDbProduct: "",
                 editorDbInfo: [],
                 editorDbTableInfo: {},
                 editorColumnInfo: {},
@@ -122,6 +137,8 @@
                 historyDrawerVisible: false,
                 myFavoriteList: [],
                 myHistoryListList: [],
+				// 选择复制
+				choiceResultObj: {},
             }
         },
         mounted: function () {
@@ -245,6 +262,7 @@
                         var resultItem = this.dealExecuteResult(objItem);
                         if (resultItem.updateCount < 0) {
                             resultItem.index = itemIndex;
+                            resultItem.name = 'table' + itemIndex;
                             itemIndex++;
                         }
                         executeResultList.push(resultItem);
@@ -271,6 +289,7 @@
                 datasourceApi.getEditorData({sourceId: this.choiceDatasourceId}).then(json => {
                     let data = json.data || {};
                     this.editorDbInfo = data.db || [];
+                    this.editorDbProduct = data.product || '';
                     this.editorDbTableInfo = data.table || {};
                     this.editorColumnInfo = data.column || {};
                 });
@@ -316,9 +335,6 @@
                         width = (width < 50) ? 50 : width;
                         width = (width > 200) ? 200 : width;
                         executeResultCols.push({prop: key, width: width + 25});
-                    }
-                    for (var i = 0; i < dataList.length; i++) {
-                        dataList[i]._index = i + 1;
                     }
                 }
                 var resultObj = {};
@@ -422,9 +438,23 @@
                         }
                     }
                 });
-            },
-        }
-    }
+			},
+			handleSelectionChange(val) {
+            	this.$set(this.choiceResultObj, this.executeShowTable, val);
+			},
+			handleCopyCheckLineCommand(type) {
+            	let choiceData = this.choiceResultObj[this.executeShowTable] || [];
+				if (choiceData.length > 0) {
+					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
+					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData);
+					this.$copyText(copyData).then(
+							res => this.$message.success("内容已复制到剪切板！"),
+							err => this.$message.error("抱歉，复制失败！")
+					);
+				}
+			}
+		}
+	}
 </script>
 
 <style>

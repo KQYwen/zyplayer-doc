@@ -21,6 +21,14 @@ public class TableDdlVo {
 		return null;
 	}
 	
+	public String getHive() {
+		return hive;
+	}
+	
+	public void setHive(String hive) {
+		this.hive = hive;
+	}
+	
 	public String getCurrent() {
 		return current;
 	}

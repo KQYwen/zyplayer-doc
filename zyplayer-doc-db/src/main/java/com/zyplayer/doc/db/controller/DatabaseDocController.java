@@ -103,6 +103,7 @@ public class DatabaseDocController {
 		}
 		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
 		Map<String, Object> dbResultMap = dbBaseService.getEditorData(sourceId);
+		dbResultMap.put("product", dbBaseService.getDatabaseProduct().name().toLowerCase());
 		// 缓存10分钟，如果10分钟内库里面增删改了表或字段，则提示不出来
 		CacheUtil.put(cacheKey, dbResultMap, 6000);
 		return DocDbResponseJson.ok(dbResultMap);

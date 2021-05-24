@@ -23,7 +23,7 @@ public interface BaseMapper {
 	 * @author 暮光：城中城
 	 * @since 2018年8月8日
 	 */
-	Map<String, String> getTableDdl(@Param("dbName") String dbName, @Param("tableName") String tableName);
+	List<Map<String, String>> getTableDdl(@Param("dbName") String dbName, @Param("tableName") String tableName);
 	
 	/**
 	 * 获取库列表

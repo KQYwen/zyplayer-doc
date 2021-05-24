@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 public class OracleServiceImpl extends DbBaseService {
 	
 	@Override
-	DatabaseProductEnum getDatabaseProduct() {
+	public DatabaseProductEnum getDatabaseProduct() {
 		return DatabaseProductEnum.ORACLE;
 	}
 }
