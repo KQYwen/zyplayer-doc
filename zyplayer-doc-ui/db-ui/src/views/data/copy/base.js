@@ -28,7 +28,7 @@ export default {
 		});
 		return copyData;
 	},
-	update(dataCols, choiceData) {
+	update(dataCols, choiceData, condition=[]) {
 		// 复制为update语句
 		let copyData = '';
 		choiceData.forEach(item => {
@@ -39,12 +39,20 @@ export default {
 				let val = item[col.prop];
 				if (typeof val === 'number' && !isNaN(val)) {
 					values += val;
-					if (col.prop === 'id') where = ' where id = ' + val;
+					if (condition.indexOf(col.prop) >= 0) {
+						if (where.length > 0) where += ' and ';
+						where += col.prop + ' = ' + val;
+					}
 				} else {
 					val = val.replaceAll('\'', '\'\'');
 					values += "'" + val + "'";
+					if (condition.indexOf(col.prop) >= 0) {
+						if (where.length > 0) where += ' and ';
+						where += col.prop + ' = ' + "'" + val + "'";
+					}
 				}
 			});
+			if (where.length > 0) where = ' where ' + where;
 			copyData += 'update `table` set ' + values + where + ';\n';
 		});
 		return copyData;

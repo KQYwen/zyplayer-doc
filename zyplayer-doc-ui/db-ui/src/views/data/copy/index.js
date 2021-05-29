@@ -1,14 +1,14 @@
 import base from './base'
 
 export default {
-	format(type, product, dataCols, choiceData) {
+	format(type, product, dataCols, choiceData, condition) {
 		let formatter = this.getProduct(product);
 		if (type === 'insert') {
 			// 复制为insert语句
 			return formatter.insert(dataCols, choiceData);
 		} else if (type === 'update') {
 			// 复制为update语句
-			return formatter.update(dataCols, choiceData);
+			return formatter.update(dataCols, choiceData, condition);
 		} else if (type === 'json') {
 			// 复制为json
 			return formatter.json(dataCols, choiceData);

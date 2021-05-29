@@ -96,6 +96,19 @@
                 </el-tabs>
             </div>
         </el-drawer>
+		<!--选择导出为update的条件列弹窗-->
+		<el-dialog :visible.sync="exportConditionVisible" width="500px" title="选择更新语句条件">
+			<div>
+				更新条件列：
+				<el-select v-model="conditionDataColsChoice" multiple placeholder="请选择" style="width: 370px;">
+					<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop" :value="item.prop"></el-option>
+				</el-select>
+			</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="exportConditionVisible = false">取 消</el-button>
+				<el-button type="primary" @click="doCopyCheckLineUpdate">确 定</el-button>
+			</span>
+		</el-dialog>
         <span id="widthCalculate" style="visibility: hidden; white-space: nowrap;position: fixed;"></span>
     </div>
 </template>
@@ -139,6 +152,10 @@
                 myHistoryListList: [],
 				// 选择复制
 				choiceResultObj: {},
+				//
+				exportConditionVisible: false,
+				conditionDataCols: [],
+				conditionDataColsChoice: [],
             }
         },
         mounted: function () {
@@ -442,10 +459,29 @@
 			handleSelectionChange(val) {
             	this.$set(this.choiceResultObj, this.executeShowTable, val);
 			},
+			doCopyCheckLineUpdate() {
+            	let choiceData = this.choiceResultObj[this.executeShowTable] || [];
+				if (choiceData.length > 0) {
+					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
+					let copyData = copyFormatter.format('update', this.editorDbProduct, dataCols, choiceData, this.conditionDataColsChoice);
+					this.conditionDataColsChoice = [];
+					this.exportConditionVisible = false;
+					this.$copyText(copyData).then(
+							res => this.$message.success("内容已复制到剪切板！"),
+							err => this.$message.error("抱歉，复制失败！")
+					);
+				}
+			},
 			handleCopyCheckLineCommand(type) {
             	let choiceData = this.choiceResultObj[this.executeShowTable] || [];
 				if (choiceData.length > 0) {
 					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
+					if (type === 'update') {
+						// 选择更新的条件列
+						this.conditionDataCols = dataCols;
+						this.exportConditionVisible = true;
+						return;
+					}
 					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData);
 					this.$copyText(copyData).then(
 							res => this.$message.success("内容已复制到剪切板！"),
