@@ -9,7 +9,7 @@
 			<pattern>${outPattern}</pattern>
 		</encoder>
 	</appender>
-	<appender name="LOG_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>/web/logs/zyplayer-doc-manage/error.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>/web/logs/zyplayer-doc-manage/error.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -18,8 +18,13 @@
 		<encoder>
 			<pattern>${outPattern}</pattern>
 		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
 	</appender>
-	<appender name="LOG_COMMON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>/web/logs/zyplayer-doc-manage/common.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>/web/logs/zyplayer-doc-manage/common.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -32,11 +37,7 @@
 	<logger name="com.zyplayer.doc.manage.repository" level="warn" />
 	<root level="info">
 		<appender-ref ref="STDOUT" />
+		<appender-ref ref="INFO" />
+		<appender-ref ref="ERROR" />
 	</root>
-	<logger name="LOG_ERROR" level="info">
-		<appender-ref ref="LOG_ERROR_FILE" />
-	</logger>
-	<logger name="LOG_COMMON" level="info">
-		<appender-ref ref="LOG_COMMON_FILE" />
-	</logger>
 </configuration>

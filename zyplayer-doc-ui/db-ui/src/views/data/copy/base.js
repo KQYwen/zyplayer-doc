@@ -16,11 +16,11 @@ export default {
 			let values = '';
 			dataCols.forEach(col => {
 				if (values.length > 0) values += ', ';
-				let val = item[col.prop];
+				let val = item[col.prop] || '';
 				if (typeof val === 'number' && !isNaN(val)) {
 					values += val;
 				} else {
-					val = val.replaceAll('\'', '\'\'');
+					val = String(val).replaceAll('\'', '\'\'');
 					values += "'" + val + "'";
 				}
 			});
@@ -36,7 +36,7 @@ export default {
 			dataCols.forEach(col => {
 				if (values.length > 0) values += ', ';
 				values += col.prop + '=';
-				let val = item[col.prop];
+				let val = item[col.prop] || '';
 				if (typeof val === 'number' && !isNaN(val)) {
 					values += val;
 					if (condition.indexOf(col.prop) >= 0) {
@@ -44,7 +44,7 @@ export default {
 						where += col.prop + ' = ' + val;
 					}
 				} else {
-					val = val.replaceAll('\'', '\'\'');
+					val = String(val).replaceAll('\'', '\'\'');
 					values += "'" + val + "'";
 					if (condition.indexOf(col.prop) >= 0) {
 						if (where.length > 0) where += ' and ';
