@@ -320,6 +320,9 @@
 					}
 				}
 				this.datasourceOptions = datasourceOptions;
+				if (datasourceOptions.length > 0) {
+					this.choiceDatasourceId = datasourceOptions[0].id;
+				}
 			},
             datasourceChangeEvents() {
                 this.loadEditorData();

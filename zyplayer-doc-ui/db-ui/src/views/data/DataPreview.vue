@@ -118,6 +118,7 @@
             },
             handlePageSizeChange(to) {
                 this.pageSize = to;
+				this.currentPage = 1;
                 this.doExecutorSqlCommon();
             },
             tableSortChange(sort) {
