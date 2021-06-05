@@ -56,7 +56,7 @@ public class PoiUtil {
 					.append("-- 表结构：" + entry.getKey() + "\n")
 					.append("-- ----------------------------\n")
 					.append("DROP TABLE IF EXISTS `" + entry.getKey() + "`;\n")
-					.append(entry.getValue()).append(";\n\n");
+					.append(entry.getValue()).append("\n\n");
 		}
 		IoUtil.write(response.getOutputStream(), "utf-8", true, ddlSqlSb.toString());
 	}

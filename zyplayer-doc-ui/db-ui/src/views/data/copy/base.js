@@ -4,7 +4,7 @@
  * @since 2021年5月23日
  */
 export default {
-	insert(dataCols, choiceData) {
+	insert(dataCols, choiceData, tableName = '`table`') {
 		// 复制为insert语句
 		let copyData = '';
 		let names = '';
@@ -24,11 +24,11 @@ export default {
 					values += "'" + val + "'";
 				}
 			});
-			copyData += 'insert into `table` (' + names + ') values (' + values + ');\n';
+			copyData += 'insert into ' + tableName + ' (' + names + ') values (' + values + ');\n';
 		});
 		return copyData;
 	},
-	update(dataCols, choiceData, condition=[]) {
+	update(dataCols, choiceData, condition=[], tableName = '`table`') {
 		// 复制为update语句
 		let copyData = '';
 		choiceData.forEach(item => {
@@ -53,11 +53,11 @@ export default {
 				}
 			});
 			if (where.length > 0) where = ' where ' + where;
-			copyData += 'update `table` set ' + values + where + ';\n';
+			copyData += 'update ' + tableName + ' set ' + values + where + ';\n';
 		});
 		return copyData;
 	},
-	json(dataCols, choiceData) {
+	json(dataCols, choiceData, tableName) {
 		// 复制为json
 		return JSON.stringify(choiceData);
 	},

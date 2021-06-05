@@ -29,7 +29,7 @@
 					<div style="position: absolute;right: 0;z-index: 1;">
 						<!-- 复制选中行 -->
 						<el-dropdown @command="handleCopyCheckLineCommand" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
-							<el-button type="primary" size="small">
+							<el-button type="primary" size="small" icon="el-icon-document-copy">
 								复制选中行<i class="el-icon-arrow-down el-icon--right"></i>
 							</el-button>
 							<el-dropdown-menu slot="dropdown">
@@ -466,7 +466,7 @@
             	let choiceData = this.choiceResultObj[this.executeShowTable] || [];
 				if (choiceData.length > 0) {
 					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
-					let copyData = copyFormatter.format('update', this.editorDbProduct, dataCols, choiceData, this.conditionDataColsChoice);
+					let copyData = copyFormatter.format('update', this.editorDbProduct, dataCols, choiceData, this.conditionDataColsChoice, '`table`');
 					this.conditionDataColsChoice = [];
 					this.exportConditionVisible = false;
 					this.$copyText(copyData).then(
@@ -485,7 +485,7 @@
 						this.exportConditionVisible = true;
 						return;
 					}
-					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData);
+					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData, '', '`table`');
 					this.$copyText(copyData).then(
 							res => this.$message.success("内容已复制到剪切板！"),
 							err => this.$message.error("抱歉，复制失败！")

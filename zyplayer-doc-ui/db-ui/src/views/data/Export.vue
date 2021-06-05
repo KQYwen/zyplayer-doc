@@ -24,26 +24,34 @@
 			<input type="hidden" :name="key" :value="val" v-for="(val,key) in downloadFormParam.param">
 		</form>
 		<!--导出选项弹窗-->
-		<el-dialog :visible.sync="exportTypeChoiceVisible" width="500px">
+		<el-dialog :visible.sync="exportTypeChoiceVisible" width="600px">
 			<span slot="title">库表导出选项</span>
-			<el-form label-width="120px">
+			<el-form label-width="100px">
 				<el-form-item label="导出类型：">
-					<el-radio-group v-model="exportType" @change="exportTypeChange">
-						<el-radio :label="1">表结构文档</el-radio>
-						<el-radio :label="2">建表语句SQL</el-radio>
-					</el-radio-group>
+					<el-select v-model="exportType" filterable placeholder="请选择导出类型" style="width: 300px;">
+						<el-option label="表结构文档" :value="1"></el-option>
+						<el-option label="建表语句SQL" :value="2"></el-option>
+						<el-option label="表数据" :value="3"></el-option>
+					</el-select>
 				</el-form-item>
 				<el-form-item label="导出格式：" v-if="exportType == 1">
-					<el-radio-group v-model="exportFormat">
-						<el-radio :label="1">HTML格式</el-radio>
-						<el-radio :label="2">Excel格式</el-radio>
-						<el-radio :label="3">Word格式</el-radio>
-					</el-radio-group>
+					<el-select v-model="exportFormat" filterable placeholder="请选择导出格式" style="width: 300px;">
+						<el-option label="HTML格式" :value="1"></el-option>
+						<el-option label="Excel格式" :value="2"></el-option>
+						<el-option label="Word格式" :value="3"></el-option>
+					</el-select>
 				</el-form-item>
 				<el-form-item label="导出格式：" v-else-if="exportType == 2">
-					<el-radio-group v-model="exportFormat">
-						<el-radio :label="1">SQL格式</el-radio>
-					</el-radio-group>
+					<el-select v-model="exportFormat" filterable placeholder="请选择导出格式" style="width: 300px;">
+						<el-option label="SQL格式" :value="1"></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="导出格式：" v-else-if="exportType == 3">
+					<el-select v-model="downloadType" filterable placeholder="请选择导出类型" style="width: 300px;">
+						<el-option label="SQL Inserts" value="insert"></el-option>
+						<el-option label="SQL Updates" value="update"></el-option>
+						<el-option label="JSON" value="json"></el-option>
+					</el-select>
 				</el-form-item>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
@@ -78,6 +86,8 @@
 					url: 'zyplayer-doc-db/doc-db/exportDatabase',
 					param: {}
 				},
+				// 数据导出
+				downloadType: 'insert',
             }
         },
         mounted: function () {

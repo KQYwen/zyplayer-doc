@@ -38,7 +38,7 @@ public class MysqlServiceImpl extends DbBaseService {
 		tableDdlVo.setOracle("// TODO 等待大佬来实现转换");
 		// TODO 将建表语句转换为其他数据库的，还不知道怎么做，先这样留着，看有没大佬来实现
 		if (CollectionUtils.isNotEmpty(tableDdlList)) {
-			tableDdlVo.setMysql(tableDdlList.get(0).get("Create Table"));
+			tableDdlVo.setMysql(tableDdlList.get(0).get("Create Table") + ";");
 		}
 		return tableDdlVo;
 	}

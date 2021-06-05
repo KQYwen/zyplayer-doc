@@ -70,6 +70,16 @@ public class SqlExecutor {
 	}
 	
 	/**
+	 * 执行sql，返回结果
+	 * @author 暮光：城中城
+	 * @since 2019年8月18日
+	 */
+	public ExecuteResult execute(ExecuteParam param, ResultHandler handler) {
+		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(param.getDatasourceId());
+		return this.execute(factoryBean, param, handler);
+	}
+	
+	/**
 	 * 执行sql，可通过handler回调每一行的结果
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日

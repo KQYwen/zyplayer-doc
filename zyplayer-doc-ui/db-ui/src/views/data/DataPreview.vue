@@ -9,27 +9,37 @@
                         <el-button v-on:click="doExecutorClick" type="primary" plain  size="small" icon="el-icon-video-play">筛选</el-button>
                     </el-tooltip>
                     <el-button icon="el-icon-refresh-left" size="small" @click="refreshData">重置</el-button>
+					<el-button @click="downloadTableData" type="success" size="small" icon="el-icon-download" plain style="margin-left: 30px;">导出</el-button>
                 </div>
             </el-card>
             <el-card>
                 <div v-if="!!executeError" style="color: #f00;">{{executeError}}</div>
                 <div v-else-if="sqlExecuting" v-loading="sqlExecuting" style="padding: 20px 0;">数据加载中...</div>
                 <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting" style="padding: 20px 0;">暂无数据</div>
-                <div v-else>
-                    <el-tabs :value="executeShowTable">
+				<div v-else style="position: relative;">
+					<div style="position: absolute;right: 0;z-index: 1;">
+						<!-- 复制选中行 -->
+						<el-dropdown @command="handleCopyCheckLineCommand" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
+							<el-button type="primary" size="small" icon="el-icon-document-copy">
+								复制选中行<i class="el-icon-arrow-down el-icon--right"></i>
+							</el-button>
+							<el-dropdown-menu slot="dropdown">
+								<el-dropdown-item command="insert">SQL Inserts</el-dropdown-item>
+								<el-dropdown-item command="update">SQL Updates</el-dropdown-item>
+								<el-dropdown-item command="json">JSON</el-dropdown-item>
+							</el-dropdown-menu>
+						</el-dropdown>
+					</div>
+					<el-tabs v-model="executeShowTable">
                         <el-tab-pane label="信息" name="table0">
                             <pre>{{executeResultInfo}}</pre>
                         </el-tab-pane>
-                        <el-tab-pane :label="'结果'+resultItem.index" :name="'table'+resultItem.index" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
-                            <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
-                            <el-table v-else :data="resultItem.dataList" stripe border
-                                      style="width: 100%; margin-bottom: 5px;"
-                                      class="execute-result-table" :max-height="tableMaxHeight"
-                                      @sort-change="tableSortChange"
-                                      :default-sort="tableSort">
-                                <el-table-column width="60px" v-if="resultItem.dataCols.length > 0">
-                                    <template slot-scope="scope">{{scope.row._index}}</template>
-                                </el-table-column>
+						<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
+							<div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
+							<el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600"
+									  @selection-change="handleSelectionChange">
+								<el-table-column type="selection" width="55"></el-table-column>
+								<el-table-column type="index" width="50"></el-table-column>
                                 <el-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
                                     <template slot-scope="scope">
                                         <textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
@@ -51,6 +61,52 @@
                 </div>
             </el-card>
         </div>
+		<!--选择导出为update的条件列弹窗-->
+		<el-dialog :visible.sync="exportConditionVisible" width="500px" title="选择更新语句条件">
+			<div>
+				更新条件列：
+				<el-select v-model="conditionDataColsChoice" multiple placeholder="请选择" style="width: 370px;">
+					<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop" :value="item.prop"></el-option>
+				</el-select>
+			</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="exportConditionVisible = false">取 消</el-button>
+				<el-button type="primary" @click="doCopyCheckLineUpdate">确 定</el-button>
+			</span>
+		</el-dialog>
+		<!--导出选择弹窗-->
+		<el-dialog :visible.sync="downloadDataVisible" width="600px" title="表数据导出">
+			<el-form label-width="120px">
+				<el-form-item label="导出类型：">
+					<el-select v-model="downloadDataParam.downloadType" filterable placeholder="请选择导出类型" style="width: 370px;">
+						<el-option label="SQL Inserts" value="insert"></el-option>
+						<el-option label="SQL Updates" value="update"></el-option>
+						<el-option label="JSON" value="json"></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="数据表：" v-if="downloadDataParam.downloadType === 'insert'">
+					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.dropTableFlag" @change="dropTableFlagChange">删除表</el-checkbox>
+					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.createTableFlag">创建表</el-checkbox>
+				</el-form-item>
+				<el-form-item label="保留的列：">
+					<el-select v-model="downloadDataParam.retainColumnArr" multiple placeholder="不选则保留全部列" style="width: 370px;">
+						<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop" :value="item.prop"></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="更新条件列：" v-if="downloadDataParam.downloadType === 'update'">
+					<el-select v-model="downloadDataParam.conditionArr" multiple placeholder="不选则是没有条件的更新" style="width: 370px;">
+						<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop" :value="item.prop"></el-option>
+					</el-select>
+				</el-form-item>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="exportConditionVisible = false">取 消</el-button>
+				<el-button type="primary" @click="doDownloadTableData">确 定</el-button>
+			</span>
+		</el-dialog>
+		<form method="post" ref="downloadForm" :action="downloadFormParam.url" target="_blank">
+			<input type="hidden" :name="key" :value="val" v-for="(val,key) in downloadFormParam.param">
+		</form>
         <span id="widthCalculate" style="visibility: hidden; white-space: nowrap;position: fixed;"></span>
     </div>
 </template>
@@ -62,6 +118,7 @@
     import '../../common/lib/ace/ext-language_tools'
     import '../../common/lib/ace/snippets/sql'
     import datasourceApi from '../../common/api/datasource'
+	import copyFormatter from './copy/index'
     import sqlFormatter from "sql-formatter";
 
     export default {
@@ -80,6 +137,25 @@
                 tableTotalCount: 0,
                 tableSort: {},
                 tableMaxHeight: 600,
+				tableStatusInfo: {},
+				// 选择复制
+				choiceResultObj: {},
+				exportConditionVisible: false,
+				conditionDataCols: [],
+				conditionDataColsChoice: [],
+				// 导出
+				downloadDataVisible: false,
+				downloadDataParam: {
+					downloadType: 'insert',
+					dropTableFlag: 0,
+					createTableFlag: 0,
+					conditionArr: [],
+					retainColumnArr: [],
+				},
+				downloadFormParam: {
+					url: 'zyplayer-doc-db/data-view/download',
+					param: {}
+				},
             }
         },
         mounted: function () {
@@ -111,6 +187,9 @@
                 this.vueQueryParam = to.query;
                 let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
                 this.$store.commit('global/addTableName', newName);
+				datasourceApi.tableStatus(this.vueQueryParam).then(json => {
+					this.tableStatusInfo = json.data || {};
+				});
             },
             handleCurrentChange(to) {
                 this.currentPage = to;
@@ -123,7 +202,7 @@
             },
             tableSortChange(sort) {
                 if (this.tableSort.prop === sort.prop && this.tableSort.order === sort.order) return;
-                this.tableSort = {orderColumn: sort.prop, orderType: (sort.order === 'ascending' ? 'asc' : 'desc')};
+                this.tableSort = {prop: sort.prop, order: sort.order};
                 this.doExecutorSqlCommon();
             },
             refreshData() {
@@ -146,31 +225,31 @@
                 if (!this.vueQueryParam.sourceId) {
                     this.$message.error("请先选择数据源");
                     return;
-                }
-				if (!this.tableSort.orderColumn) {
-					this.tableSort = {orderColumn: this.vueQueryParam.orderColumn, orderType: 'asc'};
+				}
+				if (!this.tableSort.prop) {
+					this.tableSort = {prop: this.vueQueryParam.orderColumn, order: 'ascending'};
 				}
 				let conditionSql = this.sqlExecutorEditor.getSelectedText();
 				conditionSql = conditionSql || this.sqlExecutorEditor.getValue();
 				conditionSql = conditionSql || "";
-                this.executeError = "";
-                this.executeUseTime = "";
-                this.executeResultList = [];
-                this.tableMaxHeight = document.body.clientHeight  - 400;
-                this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
-                this.sqlExecuting = true;
-                let param = {
-                    sourceId: this.vueQueryParam.sourceId,
+				this.executeError = "";
+				this.executeUseTime = "";
+				this.executeResultList = [];
+				this.tableMaxHeight = document.body.clientHeight - 400;
+				this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
+				this.sqlExecuting = true;
+				let param = {
+					sourceId: this.vueQueryParam.sourceId,
 					dbName: this.vueQueryParam.dbName,
 					tableName: this.vueQueryParam.tableName,
-                    executeId: this.nowExecutorId,
+					executeId: this.nowExecutorId,
 					condition: conditionSql,
 					pageNum: this.currentPage,
 					pageSize: this.pageSize,
-					orderColumn: this.tableSort.orderColumn,
-					orderType: this.tableSort.orderType,
-                    params: '',
-                };
+					orderColumn: this.tableSort.prop,
+					orderType: (this.tableSort.order === 'ascending' ? 'asc' : 'desc'),
+					params: '',
+				};
                 datasourceApi.dataViewQuery(param).then(json => {
                     if (json.errCode !== 200) {
                         this.executeError = json.errMsg;
@@ -186,6 +265,7 @@
                         let resultItem = this.dealExecuteResult(objItem);
                         if (resultItem.updateCount < 0) {
                             resultItem.index = itemIndex;
+							resultItem.name = 'table' + itemIndex;
                             itemIndex++;
                         }
                         executeResultList.push(resultItem);
@@ -225,9 +305,6 @@
                         width = (width > 200) ? 200 : width;
                         executeResultCols.push({prop: key, width: width + 50});
                     }
-                    for (var i = 0; i < dataList.length; i++) {
-                        dataList[i]._index = i + 1;
-                    }
                 }
                 var resultObj = {};
                 resultObj.dataList = dataList;
@@ -237,6 +314,71 @@
                 resultObj.updateCount = resultData.updateCount;
                 return resultObj;
             },
+			handleSelectionChange(val) {
+				this.$set(this.choiceResultObj, this.executeShowTable, val);
+			},
+			doCopyCheckLineUpdate() {
+				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
+				if (choiceData.length > 0) {
+					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
+					let tableName = '`' + this.vueQueryParam.dbName + '`.`' + this.vueQueryParam.tableName + '`';
+					let copyData = copyFormatter.format('update', this.editorDbProduct, dataCols, choiceData, this.conditionDataColsChoice, tableName);
+					this.conditionDataColsChoice = [];
+					this.exportConditionVisible = false;
+					this.$copyText(copyData).then(
+							res => this.$message.success("内容已复制到剪切板！"),
+							err => this.$message.error("抱歉，复制失败！")
+					);
+				}
+			},
+			handleCopyCheckLineCommand(type) {
+				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
+				if (choiceData.length > 0) {
+					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
+					if (type === 'update') {
+						// 选择更新的条件列
+						this.conditionDataCols = dataCols;
+						this.exportConditionVisible = true;
+						return;
+					}
+					let tableName = '`' + this.vueQueryParam.dbName + '`.`' + this.vueQueryParam.tableName + '`';
+					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData, '', tableName);
+					this.$copyText(copyData).then(
+							res => this.$message.success("内容已复制到剪切板！"),
+							err => this.$message.error("抱歉，复制失败！")
+					);
+				}
+			},
+			doDownloadTableData() {
+				let conditionSql = this.sqlExecutorEditor.getSelectedText();
+				conditionSql = conditionSql || this.sqlExecutorEditor.getValue();
+				conditionSql = conditionSql || "";
+				this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
+				this.downloadFormParam.param = {
+					sourceId: this.vueQueryParam.sourceId,
+					dbName: this.vueQueryParam.dbName,
+					tableName: this.vueQueryParam.tableName,
+					downloadType: this.downloadDataParam.downloadType,
+					conditionColumn: this.downloadDataParam.conditionArr.join(","),
+					retainColumn: this.downloadDataParam.retainColumnArr.join(","),
+					dropTableFlag: this.downloadDataParam.dropTableFlag,
+					createTableFlag: this.downloadDataParam.createTableFlag,
+					condition: conditionSql,
+					executeId: this.nowExecutorId,
+				};
+				setTimeout(() => this.$refs.downloadForm.submit(), 0);
+				this.downloadDataVisible = false;
+			},
+			downloadTableData() {
+				this.downloadDataParam.conditionArr = [];
+				this.conditionDataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
+				this.downloadDataVisible = true;
+			},
+			dropTableFlagChange() {
+				if (this.downloadDataParam.dropTableFlag === 1) {
+					this.downloadDataParam.createTableFlag = 1;
+				}
+			},
             initAceEditor(editor, minLines) {
                 return ace.edit(editor, {
                     theme: "ace/theme/monokai",

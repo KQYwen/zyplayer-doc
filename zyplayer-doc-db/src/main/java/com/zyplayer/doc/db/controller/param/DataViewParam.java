@@ -10,6 +10,11 @@ public class DataViewParam {
 	private String orderColumn;
 	private String orderType;
 	private String condition;
+	private String downloadType;
+	private String retainColumn;
+	private String conditionColumn;
+	private Integer dropTableFlag;
+	private Integer createTableFlag;
 	
 	public Integer getOffset() {
 		return ((this.pageNum - 1) * this.pageSize);
@@ -85,5 +90,45 @@ public class DataViewParam {
 	
 	public void setCondition(String condition) {
 		this.condition = condition;
+	}
+	
+	public String getDownloadType() {
+		return downloadType;
+	}
+	
+	public void setDownloadType(String downloadType) {
+		this.downloadType = downloadType;
+	}
+	
+	public String getConditionColumn() {
+		return conditionColumn;
+	}
+	
+	public void setConditionColumn(String conditionColumn) {
+		this.conditionColumn = conditionColumn;
+	}
+	
+	public Integer getDropTableFlag() {
+		return dropTableFlag;
+	}
+	
+	public void setDropTableFlag(Integer dropTableFlag) {
+		this.dropTableFlag = dropTableFlag;
+	}
+	
+	public Integer getCreateTableFlag() {
+		return createTableFlag;
+	}
+	
+	public void setCreateTableFlag(Integer createTableFlag) {
+		this.createTableFlag = createTableFlag;
+	}
+	
+	public String getRetainColumn() {
+		return retainColumn;
+	}
+	
+	public void setRetainColumn(String retainColumn) {
+		this.retainColumn = retainColumn;
 	}
 }

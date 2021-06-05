@@ -1,5 +1,8 @@
 package com.zyplayer.doc.db.service;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.io.IoUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
@@ -14,12 +17,16 @@ import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.db.dto.*;
 import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
+import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
+import com.zyplayer.doc.db.service.download.BaseDownloadService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,6 +40,8 @@ public abstract class DbBaseService {
 	
 	@Resource
 	SqlExecutor sqlExecutor;
+	@Resource
+	BaseDownloadService baseDownloadService;
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
 	
@@ -338,6 +347,23 @@ public abstract class DbBaseService {
 	}
 	
 	/**
+	 * 获取全量数据查询的SQL
+	 *
+	 * @return 分页查询的SQL
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 */
+	public String getQueryAllSql(DataViewParam dataViewParam) {
+		String queryColumns = StringUtils.defaultIfBlank(dataViewParam.getRetainColumn(), "*");
+		StringBuilder sqlSb = new StringBuilder();
+		sqlSb.append(String.format("select %s from %s.%s", queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName()));
+		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
+			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
+		}
+		return sqlSb.toString();
+	}
+	
+	/**
 	 * 获取分页查询的SQL
 	 *
 	 * @return 分页查询的SQL
@@ -371,5 +397,41 @@ public abstract class DbBaseService {
 			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
 		}
 		return sqlSb.toString();
+	}
+	
+	/**
+	 * 导出单表数据
+	 *
+	 * @author 暮光：城中城
+	 * @since 2020年6月5日
+	 */
+	public void downloadSingleTableData(HttpServletResponse response, DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception {
+		if (Objects.equals(param.getDownloadType(), "insert")) {
+			String resultStr = baseDownloadService.downloadDataByInsert(param, executeParam, dataCols, conditionSet);
+			baseDownloadService.sendResponse(response, param.getTableName(), ".sql", resultStr);
+		} else if (Objects.equals(param.getDownloadType(), "update")) {
+			String resultStr = baseDownloadService.downloadDataByUpdate(param, executeParam, dataCols, conditionSet);
+			baseDownloadService.sendResponse(response, param.getTableName(), ".sql", resultStr);
+		} else if (Objects.equals(param.getDownloadType(), "json")) {
+			String resultStr = baseDownloadService.downloadDataByJson(param, executeParam, dataCols, conditionSet);
+			baseDownloadService.sendResponse(response, param.getTableName(), ".json", resultStr);
+		}
+	}
+	
+	/**
+	 * 获取表数据
+	 *
+	 * @author 暮光：城中城
+	 * @since 2020年6月5日
+	 */
+	public String getDownloadTableData(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception {
+		if (Objects.equals(param.getDownloadType(), "insert")) {
+			return baseDownloadService.downloadDataByInsert(param, executeParam, dataCols, conditionSet);
+		} else if (Objects.equals(param.getDownloadType(), "update")) {
+			return baseDownloadService.downloadDataByUpdate(param, executeParam, dataCols, conditionSet);
+		} else if (Objects.equals(param.getDownloadType(), "json")) {
+			return baseDownloadService.downloadDataByJson(param, executeParam, dataCols, conditionSet);
+		}
+		return null;
 	}
 }
