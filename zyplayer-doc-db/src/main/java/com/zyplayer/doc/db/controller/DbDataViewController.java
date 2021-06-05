@@ -1,5 +1,7 @@
 package com.zyplayer.doc.db.controller;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -92,6 +94,7 @@ public class DbDataViewController {
 	 */
 	@PostMapping(value = "/download")
 	public ResponseJson download(HttpServletResponse response, DataViewParam param) {
+		param.setExecuteId(RandomUtil.simpleUUID());
 		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
 		// 获取列信息等
 		TableColumnVo tableColumnVo = dbBaseService.getTableColumnList(param.getSourceId(), param.getDbName(), param.getTableName());
@@ -125,17 +128,26 @@ public class DbDataViewController {
 	@PostMapping(value = "/downloadMultiple")
 	public ResponseJson downloadMultiple(HttpServletResponse response, DataViewParam param) {
 		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
-		if (StringUtils.isBlank(param.getTableName())) {
+		if (StringUtils.isBlank(param.getTableNames())) {
 			return DocDbResponseJson.warn("请选择导出的表");
 		}
-		StringBuilder resultSb = new StringBuilder();
-		String[] tableNameArr = param.getTableName().split(",");
+		param.setExecuteId(RandomUtil.simpleUUID());
+		StringBuilder resultSb = new StringBuilder("/*\n" +
+				" zyplayer-doc 表数据导出\n" +
+				"\n" +
+				" 数据库       : " + param.getDbName() + "\n" +
+				" 数据库类型   : " + dbBaseService.getDatabaseProduct().name() + "\n" +
+				" 导出时间     : " + DateTime.now().toString() + "\n" +
+				"*/\n\n");
+		String[] tableNameArr = param.getTableNames().split(",");
 		try {
 			for (String tabName : tableNameArr) {
+				param.setTableName(tabName);
 				// 获取列信息等
 				TableColumnVo tableColumnVo = dbBaseService.getTableColumnList(param.getSourceId(), param.getDbName(), tabName);
-				Set<String> conditionSet = StringUtils.isBlank(param.getConditionColumn()) ? Collections.emptySet() : Stream.of(param.getConditionColumn().split(",")).collect(Collectors.toSet());
 				List<TableColumnDescDto> columnList = tableColumnVo.getColumnList();
+				// 找主键作为更新条件
+				Set<String> conditionSet = columnList.stream().filter(item -> Objects.equals(item.getIspramary(), "1")).map(TableColumnDescDto::getName).collect(Collectors.toSet());
 				// 数据查询
 				String queryAllSql = dbBaseService.getQueryAllSql(param);
 				ExecuteParam executeParam = new ExecuteParam();
@@ -150,8 +162,9 @@ public class DbDataViewController {
 				resultSb.append(downloadTableData).append("\n");
 			}
 			String prefix = Objects.equals(param.getDownloadType(), "json") ? ".json" : ".sql";
-			baseDownloadService.sendResponse(response, param.getTableName(), prefix, resultSb.toString());
+			baseDownloadService.sendResponse(response, param.getDbName(), prefix, resultSb.toString());
 		} catch (Exception e) {
+			e.printStackTrace();
 			return DocDbResponseJson.error("导出失败：" + e.getMessage());
 		}
 		return DocDbResponseJson.ok();

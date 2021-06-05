@@ -18,10 +18,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigInteger;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * poi导出相关工具
@@ -144,11 +141,12 @@ public class PoiUtil {
 			run.setFontSize(18);
 			List<List<String>> dataList = new LinkedList<>();
 			List<TableColumnDescDto> tableColumnDescDtos = columnMap.get(tableInfoVo.getTableName());
-			dataList.add(Arrays.asList("字段名", "是否自增", "类型", "空值", "长度", "主键", "注释"));
+			dataList.add(Arrays.asList("字段名", "是否自增", "类型", "空值", "长度", "小数点", "主键", "注释"));
 			// 写入表格
 			for (TableColumnDescDto dto : tableColumnDescDtos) {
-				dataList.add(Arrays.asList(dto.getName(), dto.getIsidenity(), dto.getType(),
-						dto.getNullable(), dto.getLength(), dto.getIspramary(), dto.getDescription()));
+				String nullable = Objects.equals(dto.getNullable(), "1") ? "允许" : "不允许";
+				dataList.add(Arrays.asList(dto.getName(), dto.getIsidenity(), dto.getType(), nullable, dto.getLength(),
+						dto.getNumericScale(), dto.getIspramary(), dto.getDescription()));
 			}
 			PoiUtil.createTable(document, dataList);
 		}

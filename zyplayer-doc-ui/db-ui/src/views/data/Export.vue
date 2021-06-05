@@ -28,30 +28,34 @@
 			<span slot="title">库表导出选项</span>
 			<el-form label-width="100px">
 				<el-form-item label="导出类型：">
-					<el-select v-model="exportType" filterable placeholder="请选择导出类型" style="width: 300px;">
+					<el-select v-model="exportType" @change="exportTypeChange" filterable placeholder="请选择导出类型" style="width: 430px;">
 						<el-option label="表结构文档" :value="1"></el-option>
 						<el-option label="建表语句SQL" :value="2"></el-option>
 						<el-option label="表数据" :value="3"></el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="导出格式：" v-if="exportType == 1">
-					<el-select v-model="exportFormat" filterable placeholder="请选择导出格式" style="width: 300px;">
+					<el-select v-model="exportFormat" filterable placeholder="请选择导出格式" style="width: 430px;">
 						<el-option label="HTML格式" :value="1"></el-option>
 						<el-option label="Excel格式" :value="2"></el-option>
 						<el-option label="Word格式" :value="3"></el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="导出格式：" v-else-if="exportType == 2">
-					<el-select v-model="exportFormat" filterable placeholder="请选择导出格式" style="width: 300px;">
+					<el-select v-model="exportFormat" filterable placeholder="请选择导出格式" style="width: 430px;">
 						<el-option label="SQL格式" :value="1"></el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="导出格式：" v-else-if="exportType == 3">
-					<el-select v-model="downloadType" filterable placeholder="请选择导出类型" style="width: 300px;">
+					<el-select v-model="downloadType" filterable placeholder="请选择导出类型" style="width: 430px;">
 						<el-option label="SQL Inserts" value="insert"></el-option>
 						<el-option label="SQL Updates" value="update"></el-option>
 						<el-option label="JSON" value="json"></el-option>
 					</el-select>
+				</el-form-item>
+				<el-form-item label="数据表：" v-if="exportType == 3 && downloadType === 'insert'">
+					<el-checkbox :true-label="1" :false-label="0" v-model="dropTableFlag" @change="dropTableFlagChange">删除表{{dropTableFlag==1?'!!':''}}</el-checkbox>
+					<el-checkbox :true-label="1" :false-label="0" v-model="createTableFlag" @change="createTableFlagChange">创建表</el-checkbox>
 				</el-form-item>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
@@ -88,6 +92,8 @@
 				},
 				// 数据导出
 				downloadType: 'insert',
+				dropTableFlag: 0,
+				createTableFlag: 0,
             }
         },
         mounted: function () {
@@ -103,6 +109,7 @@
             },
 			exportTypeChange() {
 				this.exportFormat = 1;
+				console.log(this.exportType);
             },
 			doExport() {
 				if (!this.exportType) {
@@ -120,18 +127,22 @@
 					}
 					tableNames += this.selectTables[i].tableName;
 				}
-				// window.open("zyplayer-doc-db/doc-db/exportDatabase?sourceId=" + this.choiceDatasourceId
-				// 	+ "&exportType=" + this.exportType
-				// 	+ "&dbName=" + this.choiceDatabase
-				// 	+ "&tableNames=" + tableNames);
 				// 改为post方式提交下载
 				this.downloadFormParam.param = {
 					sourceId: this.choiceDatasourceId,
 					exportType: this.exportType,
 					exportFormat: this.exportFormat,
 					dbName: this.choiceDatabase,
+					downloadType: this.downloadType,
+					dropTableFlag: this.dropTableFlag,
+					createTableFlag: this.createTableFlag,
 					tableNames: tableNames,
 				};
+				if (this.exportType == 3) {
+					this.downloadFormParam.url = 'zyplayer-doc-db/data-view/downloadMultiple';
+				} else {
+					this.downloadFormParam.url = 'zyplayer-doc-db/doc-db/exportDatabase';
+				}
 				setTimeout(() => this.$refs.downloadForm.submit(), 0);
 				this.exportTypeChoiceVisible = false;
             },
@@ -166,7 +177,17 @@
             },
             handleSelectionChange(val) {
                 this.selectTables = val;
-            }
+            },
+			dropTableFlagChange() {
+				if (this.dropTableFlag === 1) {
+					this.createTableFlag = 1;
+				}
+			},
+			createTableFlagChange() {
+				if (this.createTableFlag == 0) {
+					this.dropTableFlag = 0;
+				}
+			},
         }
     }
 </script>

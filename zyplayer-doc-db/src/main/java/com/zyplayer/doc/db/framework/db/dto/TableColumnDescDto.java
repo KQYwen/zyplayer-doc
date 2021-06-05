@@ -29,6 +29,10 @@ public class TableColumnDescDto {
 	private String length;
 	
 	@ColumnWidth(10)
+	@ExcelProperty("小数点")
+	private String numericScale;
+	
+	@ColumnWidth(10)
 	@ExcelProperty("主键")
 	private String ispramary;
 	
@@ -98,5 +102,13 @@ public class TableColumnDescDto {
 	
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
+	}
+	
+	public String getNumericScale() {
+		return numericScale;
+	}
+	
+	public void setNumericScale(String numericScale) {
+		this.numericScale = numericScale;
 	}
 }

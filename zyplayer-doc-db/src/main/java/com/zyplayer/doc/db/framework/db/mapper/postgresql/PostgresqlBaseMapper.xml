@@ -38,7 +38,7 @@
  	</select>
 
     <select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
-	   SELECT table_name as TABLE_NAME,a.COLUMN_NAME as  NAME,b.DESCRIPTION as  DESCRIPTION,udt_name as  TYPE,case when  is_nullable ='YES' then '允许' else '不允许' end  as  NULLABLE ,  case when  character_maximum_length>0 then character_maximum_length else  numeric_precision end  LENGTH
+	   SELECT table_name as TABLE_NAME,a.COLUMN_NAME as  NAME,b.DESCRIPTION as  DESCRIPTION,udt_name as  TYPE,case when  is_nullable ='YES' then '1' else '0' end  as  NULLABLE ,  case when  character_maximum_length>0 then character_maximum_length else  numeric_precision end  LENGTH
 		FROM information_schema.columns a
 		left join (SELECT a.attname as COLUMN_NAME,col_description(a.attrelid,a.attnum) as DESCRIPTION
 		FROM pg_class as c,pg_attribute as a, pg_namespace as n

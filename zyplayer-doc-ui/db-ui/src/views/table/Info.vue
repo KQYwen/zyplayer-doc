@@ -59,11 +59,16 @@
                     <el-table-column label="自增" width="50">
                         <template slot-scope="scope">{{scope.row.isidentity ? '是' : '否'}}</template>
                     </el-table-column>
-                    <el-table-column prop="type" label="类型" width="180"></el-table-column>
-                    <el-table-column prop="length" label="长度" width="80"></el-table-column>
-                    <el-table-column prop="nullable" label="空值" width="80"></el-table-column>
+                    <el-table-column prop="type" label="类型" width="110"></el-table-column>
+                    <el-table-column prop="length" label="长度" width="110"></el-table-column>
+                    <el-table-column prop="numericScale" label="小数点" width="80">
+						<template slot-scope="scope">{{scope.row.numericScale==0 ? '' : scope.row.numericScale}}</template>
+					</el-table-column>
+                    <el-table-column prop="nullable" label="空值" width="80">
+						<template slot-scope="scope">{{scope.row.nullable==1 ? '允许' : '不允许'}}</template>
+					</el-table-column>
                     <el-table-column label="主键" width="50">
-                        <template slot-scope="scope">{{scope.row.ispramary ? '是' : '否'}}</template>
+                        <template slot-scope="scope">{{scope.row.ispramary==1 ? '是' : '否'}}</template>
                     </el-table-column>
                     <el-table-column label="注释">
                         <template slot-scope="scope">

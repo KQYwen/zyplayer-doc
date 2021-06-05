@@ -35,7 +35,7 @@
 
 	<!-- 获取表字段集合 -->
 	<select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
-	    select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then '允许' when 'N' then '不允许' end NULLABLE, c.COMMENTS
+	    select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then '1' when 'N' then '0' end NULLABLE, c.COMMENTS
 	    from user_tab_columns t left join user_col_comments c  on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
 	    <where>
 	        t.table_name in (select table_name from all_tables where owner = #{dbName} )

@@ -7,6 +7,8 @@ public class DataViewParam {
 	private Integer pageNum;
 	private String dbName;
 	private String tableName;
+	// 下载多张数据表
+	private String tableNames;
 	private String orderColumn;
 	private String orderType;
 	private String condition;
@@ -130,5 +132,13 @@ public class DataViewParam {
 	
 	public void setRetainColumn(String retainColumn) {
 		this.retainColumn = retainColumn;
+	}
+	
+	public String getTableNames() {
+		return tableNames;
+	}
+	
+	public void setTableNames(String tableNames) {
+		this.tableNames = tableNames;
 	}
 }

@@ -9,6 +9,7 @@
 		<result column="TYPE" property="type" jdbcType="VARCHAR" />
 		<result column="NULLABLE" property="nullable" jdbcType="VARCHAR" />
 		<result column="LENGTH" property="length" jdbcType="VARCHAR" />
+		<result column="NUMERIC_SCALE" property="numericScale" jdbcType="VARCHAR" />
 		<result column="ISPRAMARY" property="ispramary" jdbcType="VARCHAR" />
 		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
 	</resultMap>
@@ -59,7 +60,10 @@
 	</select>
 
 	<select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
-		SELECT table_name as TABLE_NAME,COLUMN_NAME NAME,column_comment DESCRIPTION,column_type TYPE,if(is_nullable='YES','允许','不允许') NULLABLE
+		SELECT table_name as TABLE_NAME,COLUMN_NAME as NAME,column_comment DESCRIPTION,data_type TYPE,
+		COALESCE(CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION) as `LENGTH`,NUMERIC_SCALE as NUMERIC_SCALE,
+		if(COLUMN_KEY='PRI','1','0') as ISPRAMARY,
+		if(is_nullable='YES','1','0') NULLABLE
 		FROM `INFORMATION_SCHEMA`.Columns
 		WHERE table_schema=#{dbName}
 		<if test="tableName != null">and table_name=#{tableName}</if>
