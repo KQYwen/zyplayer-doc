@@ -36,7 +36,7 @@
                         </el-tab-pane>
 						<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
 							<div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
-							<el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600"
+							<el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" :max-height="tableMaxHeight"
 									  @selection-change="handleSelectionChange">
 								<el-table-column type="selection" width="55"></el-table-column>
 								<el-table-column type="index" width="50"></el-table-column>
@@ -85,8 +85,8 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="数据表：" v-if="downloadDataParam.downloadType === 'insert'">
-					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.dropTableFlag" @change="dropTableFlagChange">删除表</el-checkbox>
-					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.createTableFlag">创建表</el-checkbox>
+					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.dropTableFlag" @change="dropTableFlagChange">删除表{{downloadDataParam.dropTableFlag==1?'!!':''}}</el-checkbox>
+					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.createTableFlag" @change="createTableFlagChange">创建表</el-checkbox>
 				</el-form-item>
 				<el-form-item label="保留的列：">
 					<el-select v-model="downloadDataParam.retainColumnArr" multiple placeholder="不选则保留全部列" style="width: 370px;">
@@ -122,6 +122,7 @@
     import sqlFormatter from "sql-formatter";
 
     export default {
+    	name: 'dataPreview',
         data() {
             return {
                 sqlExecuting: false,
@@ -131,6 +132,7 @@
                 sqlExecutorEditor: {},
                 nowExecutorId: 1,
                 executeError: "",
+				pageParam: {},
                 vueQueryParam: {},
                 pageSize: 50,
                 currentPage: 1,
@@ -160,7 +162,7 @@
         },
         mounted: function () {
             let that = this;
-            this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 5);
+            this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 3);
             this.sqlExecutorEditor.setFontSize(16);
             this.sqlExecutorEditor.commands.addCommand({
                 name: "execute-sql",
@@ -170,26 +172,28 @@
                 }
             });
 			// 延迟设置展开的目录，edit比app先初始化
-			setTimeout(() => {
-				this.doExecutorSqlCommon();
-				this.$emit('initLoadDataList', {
-					sourceId: this.vueQueryParam.sourceId,
-					host: this.vueQueryParam.host,
-					dbName: this.vueQueryParam.dbName
-				});
-			}, 500);
-        },
-        activated: function () {
-            this.initQueryParam(this.$route);
+			// setTimeout(() => {
+			// 	this.doExecutorSqlCommon();
+				// this.$emit('initLoadDataList', {
+				// 	sourceId: this.vueQueryParam.sourceId,
+				// 	host: this.vueQueryParam.host,
+				// 	dbName: this.vueQueryParam.dbName
+				// });
+			// }, 500);
         },
         methods: {
-            initQueryParam(to) {
-                this.vueQueryParam = to.query;
-                let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
-                this.$store.commit('global/addTableName', newName);
-				datasourceApi.tableStatus(this.vueQueryParam).then(json => {
-					this.tableStatusInfo = json.data || {};
-				});
+			init(param) {
+				if (this.pageParam.sourceId == param.sourceId) {
+					return;
+				}
+				this.pageParam = param;
+				this.doExecutorSqlCommon();
+                // this.vueQueryParam = to.query;
+                // let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
+                // this.$store.commit('global/addTableName', newName);
+				// datasourceApi.tableStatus(this.pageParam).then(json => {
+				// 	this.tableStatusInfo = json.data || {};
+				// });
             },
             handleCurrentChange(to) {
                 this.currentPage = to;
@@ -222,12 +226,12 @@
                 this.doExecutorSqlCommon();
             },
             doExecutorSqlCommon() {
-                if (!this.vueQueryParam.sourceId) {
+                if (!this.pageParam.sourceId) {
                     this.$message.error("请先选择数据源");
                     return;
 				}
 				if (!this.tableSort.prop) {
-					this.tableSort = {prop: this.vueQueryParam.orderColumn, order: 'ascending'};
+					this.tableSort = {prop: this.pageParam.orderColumn, order: 'ascending'};
 				}
 				let conditionSql = this.sqlExecutorEditor.getSelectedText();
 				conditionSql = conditionSql || this.sqlExecutorEditor.getValue();
@@ -235,13 +239,13 @@
 				this.executeError = "";
 				this.executeUseTime = "";
 				this.executeResultList = [];
-				this.tableMaxHeight = document.body.clientHeight - 400;
+				this.tableMaxHeight = document.body.clientHeight - 420;
 				this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
 				this.sqlExecuting = true;
 				let param = {
-					sourceId: this.vueQueryParam.sourceId,
-					dbName: this.vueQueryParam.dbName,
-					tableName: this.vueQueryParam.tableName,
+					sourceId: this.pageParam.sourceId,
+					dbName: this.pageParam.dbName,
+					tableName: this.pageParam.tableName,
 					executeId: this.nowExecutorId,
 					condition: conditionSql,
 					pageNum: this.currentPage,
@@ -321,7 +325,7 @@
 				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
 				if (choiceData.length > 0) {
 					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
-					let tableName = '`' + this.vueQueryParam.dbName + '`.`' + this.vueQueryParam.tableName + '`';
+					let tableName = '`' + this.pageParam.dbName + '`.`' + this.pageParam.tableName + '`';
 					let copyData = copyFormatter.format('update', this.editorDbProduct, dataCols, choiceData, this.conditionDataColsChoice, tableName);
 					this.conditionDataColsChoice = [];
 					this.exportConditionVisible = false;
@@ -341,7 +345,7 @@
 						this.exportConditionVisible = true;
 						return;
 					}
-					let tableName = '`' + this.vueQueryParam.dbName + '`.`' + this.vueQueryParam.tableName + '`';
+					let tableName = '`' + this.pageParam.dbName + '`.`' + this.pageParam.tableName + '`';
 					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData, '', tableName);
 					this.$copyText(copyData).then(
 							res => this.$message.success("内容已复制到剪切板！"),
@@ -355,9 +359,9 @@
 				conditionSql = conditionSql || "";
 				this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
 				this.downloadFormParam.param = {
-					sourceId: this.vueQueryParam.sourceId,
-					dbName: this.vueQueryParam.dbName,
-					tableName: this.vueQueryParam.tableName,
+					sourceId: this.pageParam.sourceId,
+					dbName: this.pageParam.dbName,
+					tableName: this.pageParam.tableName,
 					downloadType: this.downloadDataParam.downloadType,
 					conditionColumn: this.downloadDataParam.conditionArr.join(","),
 					retainColumn: this.downloadDataParam.retainColumnArr.join(","),
@@ -379,6 +383,11 @@
 					this.downloadDataParam.createTableFlag = 1;
 				}
 			},
+			createTableFlagChange() {
+				if (this.downloadDataParam.createTableFlag == 0) {
+					this.downloadDataParam.dropTableFlag = 0;
+				}
+			},
             initAceEditor(editor, minLines) {
                 return ace.edit(editor, {
                     theme: "ace/theme/monokai",
@@ -389,7 +398,7 @@
                     enableSnippets: true,
                     enableLiveAutocompletion: true,
                     minLines: minLines,
-                    maxLines: 5
+                    maxLines: minLines
                 });
             },
         }

@@ -1,86 +1,107 @@
 <template>
     <div class="table-info-vue">
-        <el-card style="margin: 10px;">
-            <div slot="header" class="clearfix">
-                表信息
-                <span style="float: right;margin-top: -5px;">
-                    <el-button class="search-submit" size="small" type="primary" icon="el-icon-search" @click="previewTableData">查看表数据</el-button>
-                </span>
-            </div>
-            <el-row class="status-info-row">
-                <el-col :span="24"><span class="label">数据源：</span>{{vueQueryParam.host}}</el-col>
-            </el-row>
-            <el-row class="status-info-row">
-                <el-col :span="6"><span class="label">数据库：</span>{{vueQueryParam.dbName}}</el-col>
-                <el-col :span="6"><span class="label">数据表：</span>{{tableStatusInfo.name}}</el-col>
-                <el-col :span="6"><span class="label">引擎：</span>{{tableStatusInfo.engine}}</el-col>
-            </el-row>
-            <el-row class="status-info-row">
-                <el-col :span="6"><span class="label">行数：</span>{{tableStatusInfo.rows||0}}</el-col>
-                <el-col :span="6"><span class="label">自动递增：</span>{{tableStatusInfo.avgRowLength||0}}</el-col>
-                <el-col :span="6"><span class="label">行格式：</span>{{tableStatusInfo.rowFormat}}</el-col>
-                <el-col :span="6"><span class="label">排序规则：</span>{{tableStatusInfo.collation}}</el-col>
-            </el-row>
-            <el-row class="status-info-row">
-                <el-col :span="6"><span class="label">索引长度：</span>{{getBytesSize(tableStatusInfo.indexLength)}}</el-col>
-                <el-col :span="6"><span class="label">数据长度：</span>{{getBytesSize(tableStatusInfo.dataLength)}}</el-col>
-                <el-col :span="6"><span class="label">最大长度：</span>{{getBytesSize(tableStatusInfo.maxDataLength)}}</el-col>
-                <el-col :span="6"><span class="label">可用空间：</span>{{getBytesSize(tableStatusInfo.dataFree)}}</el-col>
-            </el-row>
-            <el-row class="status-info-row">
-                <el-col :span="6"><span class="label">创建时间：</span>{{tableStatusInfo.createTime}}</el-col>
-                <el-col :span="6"><span class="label">修改时间：</span>{{tableStatusInfo.updateTime}}</el-col>
-                <el-col :span="6"><span class="label">检查时间：</span>{{tableStatusInfo.checkTime}}</el-col>
-                <el-col :span="6"><span class="label">创建选项：</span>{{tableStatusInfo.createOptions}}</el-col>
-            </el-row>
-            <el-row class="status-info-row">
-                <el-col :span="24">
-                    <span class="label">表注释：</span>
-                    <span v-if="tableInfo.inEdit == 1">
+		<el-tabs v-model="tabActiveName" @tab-click="tabActiveNameChange">
+			<el-tab-pane label="表字段" name="columns">
+				<div v-loading="columnListLoading">
+					<div style="text-align: right; margin-bottom: 10px;">
+						<el-button size="small" @click="showCreateTableDdl" style="margin-left: 10px;" icon="el-icon-magic-stick">DDL</el-button>
+					</div>
+					<el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
+						<el-table-column prop="name" label="字段名" width="220"></el-table-column>
+						<el-table-column label="自增" width="50">
+							<template slot-scope="scope">{{scope.row.isidentity ? '是' : '否'}}</template>
+						</el-table-column>
+						<el-table-column prop="type" label="类型" width="110"></el-table-column>
+						<el-table-column prop="length" label="长度" width="110"></el-table-column>
+						<el-table-column prop="numericScale" label="小数点" width="80">
+							<template slot-scope="scope">{{scope.row.numericScale==0 ? '' : scope.row.numericScale}}</template>
+						</el-table-column>
+						<el-table-column prop="nullable" label="空值" width="80">
+							<template slot-scope="scope">{{scope.row.nullable==1 ? '允许' : '不允许'}}</template>
+						</el-table-column>
+						<el-table-column label="主键" width="50">
+							<template slot-scope="scope">{{scope.row.ispramary==1 ? '是' : '否'}}</template>
+						</el-table-column>
+						<el-table-column>
+							<template slot="header" slot-scope="scope">
+								注释
+								<el-tooltip effect="dark" content="点击注释列可编辑字段注释" placement="top">
+									<i class="el-icon-info" style="color: #999;"></i>
+								</el-tooltip>
+							</template>
+							<template slot-scope="scope">
+								<div v-if="scope.row.inEdit == 1">
+									<el-input v-model="scope.row.newDesc" placeholder="输入字段注释" @keyup.enter.native="saveColumnDescription(scope.row)" v-on:blur="saveColumnDescription(scope.row)"></el-input>
+								</div>
+								<div v-else class="description" v-on:click="descBoxClick(scope.row)">{{scope.row.description}}</div>
+							</template>
+						</el-table-column>
+					</el-table>
+				</div>
+			</el-tab-pane>
+			<el-tab-pane label="表信息" name="tableInfo">
+				<el-row class="status-info-row">
+					<el-col :span="24"><span class="label">数据源：</span>{{vueQueryParam.host}}</el-col>
+				</el-row>
+				<el-row class="status-info-row">
+					<el-col :span="6"><span class="label">数据库：</span>{{vueQueryParam.dbName}}</el-col>
+					<el-col :span="6"><span class="label">数据表：</span>{{tableStatusInfo.name}}</el-col>
+					<el-col :span="6"><span class="label">引擎：</span>{{tableStatusInfo.engine}}</el-col>
+				</el-row>
+				<el-row class="status-info-row">
+					<el-col :span="6"><span class="label">行数：</span>{{tableStatusInfo.rows||0}}</el-col>
+					<el-col :span="6"><span class="label">自动递增：</span>{{tableStatusInfo.avgRowLength||0}}</el-col>
+					<el-col :span="6"><span class="label">行格式：</span>{{tableStatusInfo.rowFormat}}</el-col>
+					<el-col :span="6"><span class="label">排序规则：</span>{{tableStatusInfo.collation}}</el-col>
+				</el-row>
+				<el-row class="status-info-row">
+					<el-col :span="6"><span class="label">索引长度：</span>{{getBytesSize(tableStatusInfo.indexLength)}}</el-col>
+					<el-col :span="6"><span class="label">数据长度：</span>{{getBytesSize(tableStatusInfo.dataLength)}}</el-col>
+					<el-col :span="6"><span class="label">最大长度：</span>{{getBytesSize(tableStatusInfo.maxDataLength)}}</el-col>
+					<el-col :span="6"><span class="label">可用空间：</span>{{getBytesSize(tableStatusInfo.dataFree)}}</el-col>
+				</el-row>
+				<el-row class="status-info-row">
+					<el-col :span="6"><span class="label">创建时间：</span>{{tableStatusInfo.createTime}}</el-col>
+					<el-col :span="6"><span class="label">修改时间：</span>{{tableStatusInfo.updateTime}}</el-col>
+					<el-col :span="6"><span class="label">检查时间：</span>{{tableStatusInfo.checkTime}}</el-col>
+					<el-col :span="6"><span class="label">创建选项：</span>{{tableStatusInfo.createOptions}}</el-col>
+				</el-row>
+				<el-row class="status-info-row">
+					<el-col :span="24">
+						<span class="label">表注释：</span>
+						<span v-if="tableInfo.inEdit == 1">
                         <el-input v-model="tableInfo.newDesc" placeholder="输入表注释" @keyup.enter.native="saveTableDescription" v-on:blur="saveTableDescription" style="width: 500px;"></el-input>
                     </span>
-                    <span v-else>{{tableInfo.description || '暂无注释'}} <i class="el-icon-edit edit-table-desc" v-on:click="tableInfo.inEdit = 1"></i></span>
-                </el-col>
-            </el-row>
-        </el-card>
-        <el-card style="margin: 10px;">
-            <div slot="header" class="clearfix">
-                字段信息
-                <el-tooltip effect="dark" content="点击注释列可编辑字段注释" placement="top">
-                    <i class="el-icon-info" style="color: #999;"></i>
-                </el-tooltip>
-                <span style="float: right;margin-top: -5px;">
-                    <el-button size="small" @click="showCreateTableDdl">DDL</el-button>
-                </span>
-            </div>
-            <div style="padding: 10px;" v-loading="columnListLoading">
-                <el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
-                    <el-table-column prop="name" label="字段名" width="220"></el-table-column>
-                    <el-table-column label="自增" width="50">
-                        <template slot-scope="scope">{{scope.row.isidentity ? '是' : '否'}}</template>
-                    </el-table-column>
-                    <el-table-column prop="type" label="类型" width="110"></el-table-column>
-                    <el-table-column prop="length" label="长度" width="110"></el-table-column>
-                    <el-table-column prop="numericScale" label="小数点" width="80">
-						<template slot-scope="scope">{{scope.row.numericScale==0 ? '' : scope.row.numericScale}}</template>
-					</el-table-column>
-                    <el-table-column prop="nullable" label="空值" width="80">
-						<template slot-scope="scope">{{scope.row.nullable==1 ? '允许' : '不允许'}}</template>
-					</el-table-column>
-                    <el-table-column label="主键" width="50">
-                        <template slot-scope="scope">{{scope.row.ispramary==1 ? '是' : '否'}}</template>
-                    </el-table-column>
-                    <el-table-column label="注释">
-                        <template slot-scope="scope">
-                            <div v-if="scope.row.inEdit == 1">
-                                <el-input v-model="scope.row.newDesc" placeholder="输入字段注释" @keyup.enter.native="saveColumnDescription(scope.row)" v-on:blur="saveColumnDescription(scope.row)"></el-input>
-                            </div>
-                            <div v-else class="description" v-on:click="descBoxClick(scope.row)">{{scope.row.description}}</div>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </div>
-        </el-card>
+						<span v-else>{{tableInfo.description || '暂无注释'}} <i class="el-icon-edit edit-table-desc" v-on:click="tableInfo.inEdit = 1"></i></span>
+					</el-col>
+				</el-row>
+			</el-tab-pane>
+			<el-tab-pane label="关系图" name="relationChart">
+				<table-relation-charts ref="relationChart"></table-relation-charts>
+			</el-tab-pane>
+			<el-tab-pane label="表数据" name="tableData">
+				<data-preview ref="dataPreview"></data-preview>
+			</el-tab-pane>
+		</el-tabs>
+<!--        <el-card style="margin: 10px;">-->
+<!--            <div slot="header" class="clearfix">-->
+<!--                表信息-->
+<!--                <span style="float: right;margin-top: -5px;">-->
+<!--                    <el-button class="search-submit" size="small" type="primary" icon="el-icon-search" @click="previewTableData">查看表数据</el-button>-->
+<!--                </span>-->
+<!--            </div>-->
+<!--        </el-card>-->
+<!--        <el-card style="margin: 10px;">-->
+<!--            <div slot="header" class="clearfix">-->
+<!--                字段信息-->
+<!--                <el-tooltip effect="dark" content="点击注释列可编辑字段注释" placement="top">-->
+<!--                    <i class="el-icon-info" style="color: #999;"></i>-->
+<!--                </el-tooltip>-->
+<!--                <span style="float: right;margin-top: -5px;">-->
+<!--                    <el-button size="small" @click="showCreateTableDdl">DDL</el-button>-->
+<!--                </span>-->
+<!--            </div>-->
+<!--        </el-card>-->
         <!--增加数据源弹窗-->
         <el-dialog :visible.sync="tableDDLInfoDialogVisible" :footer="null" width="760px">
 			<div slot="title">
@@ -120,6 +141,8 @@
 
 <script>
     import datasourceApi from '../../common/api/datasource'
+    import dataPreview from '../data/DataPreview'
+    import tableRelation from './TableRelation'
 
     export default {
         data() {
@@ -133,6 +156,8 @@
 				tableDDLInfoTab: '',
                 tableDDLInfo: '',
                 tableDDLInfoDialogVisible: false,
+				// 标签
+				tabActiveName: 'columns',
             };
         },
 		mounted: function () {
@@ -147,6 +172,10 @@
 		},
 		activated: function () {
 			this.initQueryParam(this.$route);
+		},
+		components: {
+			'data-preview': dataPreview,
+			'table-relation-charts': tableRelation,
 		},
         methods: {
             initQueryParam(to) {
@@ -173,6 +202,31 @@
                 datasourceApi.tableStatus(this.vueQueryParam).then(json => {
                     this.tableStatusInfo = json.data || {};
                 });
+            },
+			tabActiveNameChange() {
+				if (this.tabActiveName == 'relationChart') {
+					this.$refs.relationChart.init({
+						sourceId: this.vueQueryParam.sourceId,
+						dbName: this.vueQueryParam.dbName,
+						tableName: this.vueQueryParam.tableName,
+					});
+				} else if (this.tabActiveName == 'tableData') {
+					if (!this.columnList || this.columnList.length <= 0) {
+						this.$message.error("字段信息尚未加载成功，请稍候...");
+						setTimeout(() => this.tabActiveName = 'columns', 0);
+						return;
+					}
+					let primaryColumn = this.columnList.find(item => item.ispramary == 1) || this.columnList[0];
+					this.$refs.dataPreview.init({
+						sourceId: this.vueQueryParam.sourceId,
+						dbName: this.vueQueryParam.dbName,
+						tableName: this.vueQueryParam.tableName,
+						host: this.vueQueryParam.host,
+						dbType: this.tableStatusInfo.dbType,
+						// 默认排序字段，先随便取一个，impala等数据库必须排序后才能分页查
+						orderColumn: primaryColumn.name,
+					});
+				}
             },
 			onCopySuccess(e) {
 				this.$message.success("内容已复制到剪切板！");
@@ -207,22 +261,6 @@
             descBoxClick(row) {
                 // row.newDesc = row.description;
                 row.inEdit = 1;
-            },
-            previewTableData() {
-				if (!this.columnList || this.columnList.length <= 0) {
-					this.$message.error("字段信息尚未加载成功，请稍候...");
-					return;
-				}
-                let previewParam = {
-                    sourceId: this.vueQueryParam.sourceId,
-                    dbName: this.vueQueryParam.dbName,
-                    tableName: this.vueQueryParam.tableName,
-                    host: this.vueQueryParam.host,
-                    dbType: this.tableStatusInfo.dbType,
-					// 默认排序字段，先随便取一个，impala等数据库必须排序后才能分页查
-                    orderColumn: this.columnList[0].name,
-                };
-                this.$router.push({path: '/data/dataPreview', query: previewParam});
             },
             getBytesSize(size) {
                 if (!size) return "0 bytes";
@@ -261,7 +299,9 @@
         }
     }
 </script>
+
 <style>
+    .table-info-vue{padding: 0 20px;}
     .table-info-vue .el-dialog__body{padding: 0 20px 10px;}
     .table-info-vue .el-form-item{margin-bottom: 5px;}
     .table-info-vue .edit-table-desc{cursor: pointer; color: #409EFF;}
