@@ -28,11 +28,11 @@
 			<span slot="title">库表导出选项</span>
 			<el-form label-width="100px">
 				<el-form-item label="导出类型：">
-					<el-select v-model="exportType" @change="exportTypeChange" filterable placeholder="请选择导出类型" style="width: 430px;">
-						<el-option label="表结构文档" :value="1"></el-option>
-						<el-option label="建表语句SQL" :value="2"></el-option>
-						<el-option label="表数据" :value="3"></el-option>
-					</el-select>
+					<el-radio-group v-model="exportType" @change="exportTypeChange">
+						<el-radio :label="3">表数据</el-radio>
+						<el-radio :label="1">表结构文档</el-radio>
+						<el-radio :label="2">建表语句SQL</el-radio>
+					</el-radio-group>
 				</el-form-item>
 				<el-form-item label="导出格式：" v-if="exportType == 1">
 					<el-select v-model="exportFormat" filterable placeholder="请选择导出格式" style="width: 430px;">
@@ -41,22 +41,25 @@
 						<el-option label="Word格式" :value="3"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="导出格式：" v-else-if="exportType == 2">
-					<el-select v-model="exportFormat" filterable placeholder="请选择导出格式" style="width: 430px;">
-						<el-option label="SQL格式" :value="1"></el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="导出格式：" v-else-if="exportType == 3">
-					<el-select v-model="downloadType" filterable placeholder="请选择导出类型" style="width: 430px;">
-						<el-option label="SQL Inserts" value="insert"></el-option>
-						<el-option label="SQL Updates" value="update"></el-option>
-						<el-option label="JSON" value="json"></el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="数据表：" v-if="exportType == 3 && downloadType === 'insert'">
-					<el-checkbox :true-label="1" :false-label="0" v-model="dropTableFlag" @change="dropTableFlagChange">删除表{{dropTableFlag==1?'!!':''}}</el-checkbox>
-					<el-checkbox :true-label="1" :false-label="0" v-model="createTableFlag" @change="createTableFlagChange">创建表</el-checkbox>
-				</el-form-item>
+				<template v-else-if="exportType == 3">
+					<el-form-item label="导出格式：">
+						<el-select v-model="downloadType" filterable placeholder="请选择导出类型" style="width: 430px;">
+							<el-option label="SQL Inserts" value="insert"></el-option>
+							<el-option label="SQL Updates" value="update"></el-option>
+							<el-option label="JSON" value="json"></el-option>
+						</el-select>
+					</el-form-item>
+					<el-form-item label="数据表：" v-if="downloadType === 'insert'">
+						<el-checkbox :true-label="1" :false-label="0" v-model="dropTableFlag" @change="dropTableFlagChange">删除表{{dropTableFlag==1?'!!':''}}</el-checkbox>
+						<el-checkbox :true-label="1" :false-label="0" v-model="createTableFlag" @change="createTableFlagChange">创建表</el-checkbox>
+					</el-form-item>
+					<el-form-item label="导出方式：">
+						<el-radio-group v-model="downloadFileType">
+							<el-radio :label="1">单个文件</el-radio>
+							<el-radio :label="2">zip压缩文件</el-radio>
+						</el-radio-group>
+					</el-form-item>
+				</template>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
 				<el-button @click="exportTypeChoiceVisible = false">取 消</el-button>
@@ -78,8 +81,9 @@
                 choiceDatasourceId: "",
                 choiceDatabase: "",
                 choiceTable: "",
-                exportType: 1,
+                exportType: 3,
                 exportFormat: 1,
+				downloadFileType: 1,
 				exportTypeChoiceVisible: false,
                 // 页面展示相关
                 nowDatasourceShow: {},
@@ -136,6 +140,7 @@
 					downloadType: this.downloadType,
 					dropTableFlag: this.dropTableFlag,
 					createTableFlag: this.createTableFlag,
+					downloadFileType: this.downloadFileType,
 					tableNames: tableNames,
 				};
 				if (this.exportType == 3) {

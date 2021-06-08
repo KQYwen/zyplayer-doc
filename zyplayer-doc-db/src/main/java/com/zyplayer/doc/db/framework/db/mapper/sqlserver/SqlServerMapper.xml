@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper">
+
+	<select id="getTableColumnDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto">
+		SELECT B.name AS name,C.value AS description
+		FROM sys.tables A
+		INNER JOIN sys.columns B ON B.object_id = A.object_id
+		LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id
+		WHERE A.name = #{tableName}
+	</select>
+
+</mapper>
+

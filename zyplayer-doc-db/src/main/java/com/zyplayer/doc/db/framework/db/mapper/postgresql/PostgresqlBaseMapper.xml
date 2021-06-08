@@ -5,11 +5,11 @@
     <resultMap id="TableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto">
         <result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR"/>
         <result column="NAME" property="name" jdbcType="VARCHAR"/>
-        <result column="ISIDENITY" property="isidenity" jdbcType="VARCHAR"/>
+        <result column="ISIDENITY" property="selfIncrement" jdbcType="VARCHAR"/>
         <result column="TYPE" property="type" jdbcType="VARCHAR"/>
         <result column="NULLABLE" property="nullable" jdbcType="VARCHAR"/>
         <result column="LENGTH" property="length" jdbcType="VARCHAR"/>
-        <result column="ISPRAMARY" property="ispramary" jdbcType="VARCHAR"/>
+        <result column="ISPRAMARY" property="primaryKey" jdbcType="VARCHAR"/>
         <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
     </resultMap>
 

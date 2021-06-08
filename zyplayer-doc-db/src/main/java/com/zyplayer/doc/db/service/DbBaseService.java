@@ -145,19 +145,6 @@ public abstract class DbBaseService {
 	}
 	
 	/**
-	 * 获取字段注释
-	 *
-	 * @param tableName 表名
-	 * @return 表字段注释
-	 * @author 暮光：城中城
-	 * @since 2018年8月8日
-	 */
-	public List<TableColumnDescDto> getTableColumnDescList(Long sourceId, String tableName) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		return baseMapper.getTableColumnDescList(tableName);
-	}
-	
-	/**
 	 * 模糊搜索表和字段
 	 *
 	 * @param dbName     数据库名

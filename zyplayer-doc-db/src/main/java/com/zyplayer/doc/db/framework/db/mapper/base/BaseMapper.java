@@ -56,16 +56,6 @@ public interface BaseMapper {
 	List<TableColumnDescDto> getTableColumnList(@Param("dbName") String dbName, @Param("tableName") String tableName);
 	
 	/**
-	 * 获取字段注释
-	 *
-	 * @param tableName 表名
-	 * @return 表字段注释
-	 * @author 暮光：城中城
-	 * @since 2018年8月8日
-	 */
-	List<TableColumnDescDto> getTableColumnDescList(@Param("tableName") String tableName);
-	
-	/**
 	 * 模糊搜索表和字段
 	 *
 	 * @param dbName     数据库名

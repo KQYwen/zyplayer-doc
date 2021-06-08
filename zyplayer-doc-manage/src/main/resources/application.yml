@@ -55,7 +55,10 @@ zyplayer:
       git-remote-username:
       # git远程仓库登录密码
       git-remote-password:
-    # ------swagger相关配置------
+    # ------数据库相关配置------
+    db:
+      # 最大允许导出的行数，设置的过大有可能会导致内存溢出
+      download-max-row: 100000
     swagger:
       proxy-request:
         # 允许代理请求的域名，正则表达式，多个使用 ; 分割，必须设置，防止通过代理接口访问到内部资源，实在觉得没必要可设置为：.+

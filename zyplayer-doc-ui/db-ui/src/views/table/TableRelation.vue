@@ -1,14 +1,25 @@
 <template>
 	<div class="data-executor-vue">
-		<div id="relationChart" style="width: 100%; height: max(calc(100vh - 160px), 600px);"></div>
+		<div style="width: max(100%, 1000px); height: calc(100vh - 160px);overflow: auto;">
+			<div id="relationChart" style="width: 1500px; height: 1000px;"></div>
+		</div>
 		<!--选择导出为update的条件列弹窗-->
-		<el-dialog :visible.sync="choiceRelationColumnVisible" width="500px" title="选择关联的表字段">
-			<div>
-				更新条件列：
+		<el-dialog :visible.sync="choiceRelationColumnVisible" width="750px" :title="'选择关联的表字段 '+editNodeInfo.tableName+'.'+editNodeInfo.columnName">
+			<div v-for="item in editRelationArr" style="margin-top: 10px;">
+				<el-select v-model="item.dbName" @change="dbNameChangeEvents(item)" filterable placeholder="请选择数据库" style="margin-right: 10px;width: 200px;">
+					<el-option v-for="db in databaseList" :key="db.dbName" :label="db.dbName" :value="db.dbName"></el-option>
+				</el-select>
+				<el-select v-model="item.tableName" @change="tableNameChangeEvents(item)" filterable placeholder="请选择数据表" style="margin-right: 10px;width: 200px;">
+					<el-option v-for="table in dbTableList[item.dbName]" :key="table.tableName" :label="table.tableName" :value="table.tableName"></el-option>
+				</el-select>
+				<el-select v-model="item.columnName" filterable placeholder="请选择表字段" style="margin-right: 10px;width: 200px;">
+					<el-option v-for="columns in dbTableColumnList[item.dbName+'.'+item.tableName]" :key="columns.name" :label="columns.name" :value="columns.name"></el-option>
+				</el-select>
+				<el-button icon="el-icon-delete" circle @click="delTableColumnRelation(item)"></el-button>
 			</div>
 			<span slot="footer" class="dialog-footer">
-				<el-button @click="choiceRelationColumnVisible = false">取 消</el-button>
-				<el-button type="primary" @click="">确 定</el-button>
+				<el-button @click="addTableColumnRelation">添加关联</el-button>
+				<el-button type="primary" @click="doUpdateTableColumnRelation">确 定</el-button>
 			</span>
 		</el-dialog>
 	</div>
@@ -26,6 +37,11 @@
 				relationChart: {},
 				relationChartData: {},
 				relationChartOption: {},
+				editNodeInfo: {},
+				editRelationArr: [],
+				databaseList: [],
+				dbTableList: {},
+				dbTableColumnList: {},
 				// 选择复制
 				choiceRelationColumnVisible: false,
 				columnListLoading: false,
@@ -66,9 +82,9 @@
 							},
 							label: {
 								backgroundColor: '#fff',
-								position: 'left',
+								position: 'right',
 								verticalAlign: 'middle',
-								align: 'right'
+								align: 'left'
 							},
 							leaves: {
 								label: {
@@ -89,41 +105,83 @@
 				// 使用刚指定的配置项和数据显示图表。
 				this.relationChart.setOption(this.relationChartOption);
 				this.relationChart.on('click', (params) => {
-					console.log(params);
-					var dataIndex = params.data.index;
-					var description = params.data.description;
-					if (!!params.data.columnName) {
+					if (params.data.nodeType == 1) {
+						this.editNodeInfo = params.data;
+						let children = this.editNodeInfo.children || [];
+						this.editRelationArr = [];
+						if (children.length <= 0) {
+							this.editRelationArr.push({dbName: this.pageParam.dbName, tableName: '', columnName: ''});
+						} else {
+							children.forEach(item => {
+								this.editRelationArr.push({dbName: item.dbName, tableName: item.tableName, columnName: item.columnName});
+							});
+						}
+						let dbNameArr = [], tableNameArr = [];
+						this.editRelationArr.forEach(item => {
+							if (dbNameArr.indexOf(item.dbName) < 0) {
+								dbNameArr.push(item.dbName);
+								this.dbNameChangeEvents(item);
+							}
+							if (tableNameArr.indexOf(item.dbName + '.' + item.tableName) < 0) {
+								tableNameArr.push(item.dbName + '.' + item.tableName);
+								this.tableNameChangeEvents(item);
+							}
+						});
 						this.choiceRelationColumnVisible = true;
-					} else {
-						params.data.collapsed = true;
 					}
 				});
 				this.relationChart.on('contextmenu', function (params) {
 					console.log(params);
 				});
-				datasourceApi.tableColumnList(this.pageParam).then(json => {
-					this.columnList = json.data.columnList || [];
-					this.tableInfo = json.data.tableInfo || {};
+				this.doGetTableColumnRelation();
+				datasourceApi.databaseList({sourceId: this.pageParam.sourceId}).then(json => {
+					this.databaseList = json.data || [];
+				});
+			},
+			doGetTableColumnRelation() {
+				// 先清空，不然直接重新渲染会有连接线清除不掉
+				this.relationChart.clear();
+				datasourceApi.getTableColumnRelation(this.pageParam).then(json => {
+					this.relationChartData = json.data || {};
+					this.relationChartOption.series[0].data = [json.data || {}];
 					this.columnListLoading = false;
-					this.changeTableRelationOption(this.relationChartData, this.columnList);
 					this.relationChart.setOption(this.relationChartOption);
 					setTimeout(() => this.relationChart.resize(), 0);
 				});
 			},
-			changeTableRelationOption(data, columnList) {
-				let childrenArr = [];
-				for (let i = 0; i < columnList.length; i++) {
-					let item = columnList[i];
-					childrenArr.push({
-						name: item.name,
-						tableName: item.tableName,
-						columnName: item.name,
-						children: [],
-						collapsed: false,
-					});
+			delTableColumnRelation(item) {
+				this.editRelationArr = this.editRelationArr.filter(re => re !== item);
+			},
+			addTableColumnRelation() {
+				this.editRelationArr.push({dbName: this.pageParam.dbName, tableName: '', columnName: ''});
+			},
+			doUpdateTableColumnRelation() {
+				let param = {
+					dbName: this.editNodeInfo.dbName,
+					tableName: this.editNodeInfo.tableName,
+					columnName: this.editNodeInfo.columnName,
+					sourceId: this.pageParam.sourceId,
+					relation: JSON.stringify(this.editRelationArr)
 				}
-				data.children = childrenArr;
-			}
+				datasourceApi.updateTableColumnRelation(param).then(json => {
+					this.choiceRelationColumnVisible = false;
+					this.doGetTableColumnRelation();
+				});
+			},
+			dbNameChangeEvents(item) {
+				datasourceApi.tableList({sourceId: this.pageParam.sourceId, dbName: item.dbName}).then(json => {
+					this.$set(this.dbTableList, item.dbName, json.data || []);
+				});
+			},
+			tableNameChangeEvents(item) {
+				datasourceApi.tableColumnList({
+					sourceId: this.pageParam.sourceId,
+					dbName: item.dbName,
+					tableName: item.tableName
+				}).then(json => {
+					this.$set(this.dbTableColumnList, item.dbName + '.' + item.tableName, json.data.columnList || []);
+				});
+			},
 		}
 	}
 </script>

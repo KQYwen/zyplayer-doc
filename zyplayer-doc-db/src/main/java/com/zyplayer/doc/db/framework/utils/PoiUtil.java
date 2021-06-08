@@ -6,6 +6,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSON;
+import com.zyplayer.doc.core.util.ZyplayerDocVersion;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
@@ -47,6 +48,7 @@ public class PoiUtil {
 				" 数据库       : " + dbName + "\n" +
 				" 数据库类型   : " + dbType + "\n" +
 				" 导出时间     : " + DateTime.now().toString() + "\n" +
+				" 软件版本     : " + ZyplayerDocVersion.version + "\n" +
 				"*/\n\n");
 		for (Map.Entry<String, String> entry : ddlSqlMap.entrySet()) {
 			ddlSqlSb.append("-- ----------------------------\n")
@@ -145,8 +147,8 @@ public class PoiUtil {
 			// 写入表格
 			for (TableColumnDescDto dto : tableColumnDescDtos) {
 				String nullable = Objects.equals(dto.getNullable(), "1") ? "允许" : "不允许";
-				dataList.add(Arrays.asList(dto.getName(), dto.getIsidenity(), dto.getType(), nullable, dto.getLength(),
-						dto.getNumericScale(), dto.getIspramary(), dto.getDescription()));
+				dataList.add(Arrays.asList(dto.getName(), dto.getSelfIncrement(), dto.getType(), nullable, dto.getLength(),
+						dto.getNumericScale(), dto.getPrimaryKey(), dto.getDescription()));
 			}
 			PoiUtil.createTable(document, dataList);
 		}

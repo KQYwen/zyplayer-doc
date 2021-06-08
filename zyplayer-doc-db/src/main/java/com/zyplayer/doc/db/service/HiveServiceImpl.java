@@ -53,11 +53,6 @@ public class HiveServiceImpl extends DbBaseService {
 	}
 	
 	@Override
-	public List<TableColumnDescDto> getTableColumnDescList(Long sourceId, String tableName) {
-		throw new ConfirmException("不支持的操作");
-	}
-	
-	@Override
 	public List<QueryTableColumnDescDto> getTableAndColumnBySearch(Long sourceId, String dbName, String searchText) {
 		throw new ConfirmException("不支持的操作");
 	}

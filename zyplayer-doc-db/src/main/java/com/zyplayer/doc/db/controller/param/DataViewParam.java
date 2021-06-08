@@ -17,6 +17,7 @@ public class DataViewParam {
 	private String conditionColumn;
 	private Integer dropTableFlag;
 	private Integer createTableFlag;
+	private Integer downloadFileType;
 	
 	public Integer getOffset() {
 		return ((this.pageNum - 1) * this.pageSize);
@@ -140,5 +141,13 @@ public class DataViewParam {
 	
 	public void setTableNames(String tableNames) {
 		this.tableNames = tableNames;
+	}
+	
+	public Integer getDownloadFileType() {
+		return downloadFileType;
+	}
+	
+	public void setDownloadFileType(Integer downloadFileType) {
+		this.downloadFileType = downloadFileType;
 	}
 }

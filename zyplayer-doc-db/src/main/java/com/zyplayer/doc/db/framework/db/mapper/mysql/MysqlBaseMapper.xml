@@ -2,51 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper">
 
-	<resultMap id="TableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto" >
-		<result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
-		<result column="NAME" property="name" jdbcType="VARCHAR" />
-		<result column="ISIDENITY" property="isidenity" jdbcType="VARCHAR" />
-		<result column="TYPE" property="type" jdbcType="VARCHAR" />
-		<result column="NULLABLE" property="nullable" jdbcType="VARCHAR" />
-		<result column="LENGTH" property="length" jdbcType="VARCHAR" />
-		<result column="NUMERIC_SCALE" property="numericScale" jdbcType="VARCHAR" />
-		<result column="ISPRAMARY" property="ispramary" jdbcType="VARCHAR" />
-		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
-	</resultMap>
-
-	<resultMap id="QueryTableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto" >
-		<result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
-		<result column="COLUMN_NAME" property="columnName" jdbcType="VARCHAR" />
-		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
-	</resultMap>
-
-	<resultMap id="TableStatusDtoMap" type="com.zyplayer.doc.db.controller.vo.TableStatusVo">
-		<result column="Name" property="name"/>
-		<result column="Engine" property="engine"/>
-		<result column="Version" property="version"/>
-		<result column="Row_format" property="rowFormat"/>
-		<result column="Rows" property="rows"/>
-		<result column="Avg_row_length" property="avgRowLength"/>
-		<result column="Data_length" property="dataLength"/>
-		<result column="Max_data_length" property="maxDataLength"/>
-		<result column="Index_length" property="indexLength"/>
-		<result column="Data_free" property="dataFree"/>
-		<result column="Auto_increment" property="autoIncrement"/>
-		<result column="Create_time" property="createTime"/>
-		<result column="Update_time" property="updateTime"/>
-		<result column="Check_time" property="checkTime"/>
-		<result column="Collation" property="collation"/>
-		<result column="Checksum" property="checksum"/>
-		<result column="Create_options" property="createOptions"/>
-		<result column="Comment" property="comment"/>
-	</resultMap>
-
 	<select id="getDatabaseList" resultType="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto">
-		select TABLE_SCHEMA dbName
-		from `information_schema`.tables
-		<!--排除系统库-->
-		where TABLE_SCHEMA != 'information_schema'
-		group by TABLE_SCHEMA
+		select SCHEMA_NAME dbName from `information_schema`.SCHEMATA
 	</select>
 
 	<select id="getTableDdl" resultType="java.util.Map">
@@ -59,27 +16,35 @@
 		<if test="dbName != null">where table_schema=#{dbName}</if>
 	</select>
 
-	<select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
-		SELECT table_name as TABLE_NAME,COLUMN_NAME as NAME,column_comment DESCRIPTION,data_type TYPE,
-		COALESCE(CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION) as `LENGTH`,NUMERIC_SCALE as NUMERIC_SCALE,
-		if(COLUMN_KEY='PRI','1','0') as ISPRAMARY,
-		if(is_nullable='YES','1','0') NULLABLE
+	<select id="getTableColumnList" resultType="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto">
+		SELECT table_name as tableName,COLUMN_NAME as name,column_comment description,data_type type,
+		COALESCE(CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION) as `length`,NUMERIC_SCALE as numericScale,
+		if(COLUMN_KEY='PRI','1','0') as primaryKey,
+		if(is_nullable='YES','1','0') nullable
 		FROM `INFORMATION_SCHEMA`.Columns
 		WHERE table_schema=#{dbName}
 		<if test="tableName != null">and table_name=#{tableName}</if>
 		ORDER BY ordinal_position
 	</select>
 
-	<select id="getTableStatus" resultMap="TableStatusDtoMap">
-		show table status from `${dbName}` like #{tableName}
+	<select id="getTableStatus" resultType="com.zyplayer.doc.db.controller.vo.TableStatusVo">
+		<!-- show table status from `${dbName}` like #{tableName} -->
+		select TABLE_NAME as name, ENGINE as engine, VERSION as version, ROW_FORMAT as rowFormat,
+		TABLE_ROWS as `rows`, AVG_ROW_LENGTH as avgRowLength, DATA_LENGTH as dataLength,
+		MAX_DATA_LENGTH as maxDataLength, INDEX_LENGTH as indexLength, DATA_FREE as dataFree,
+		AUTO_INCREMENT as autoIncrement, CREATE_TIME as createTime, UPDATE_TIME as updateTime,
+		CHECK_TIME as checkTime, TABLE_COLLATION as `collation`, CHECKSUM as checksum,
+		CREATE_OPTIONS as createOptions, TABLE_COMMENT as comment
+		from `information_schema`.tables
+		where table_schema=#{dbName} and table_name=#{tableName}
 	</select>
 
-	<select id="getTableColumnDescList" resultMap="TableColumnDescDtoMap">
+	<select id="getTableColumnDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto">
 		select 1
 	</select>
 
-	<select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
-		SELECT TABLE_NAME, COLUMN_NAME, column_comment DESCRIPTION
+	<select id="getTableAndColumnBySearch" resultType="com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto">
+		SELECT TABLE_NAME as tableName, column_name as columnName, column_comment as description
 		FROM `INFORMATION_SCHEMA`.Columns
 		WHERE table_schema=#{dbName} AND (COLUMN_NAME like #{searchText} or column_comment like #{searchText})
 	</select>

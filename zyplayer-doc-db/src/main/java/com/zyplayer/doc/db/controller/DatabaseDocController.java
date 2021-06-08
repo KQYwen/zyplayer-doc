@@ -144,13 +144,6 @@ public class DatabaseDocController {
 		return DocDbResponseJson.ok(tableColumnVo);
 	}
 	
-	@PostMapping(value = "/getTableColumnDescList")
-	public ResponseJson getTableColumnDescList(Long sourceId, String tableName) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
-		List<TableColumnDescDto> columnDescDto = dbBaseService.getTableColumnDescList(sourceId, tableName);
-		return DocDbResponseJson.ok(columnDescDto);
-	}
-	
 	@PostMapping(value = "/getTableAndColumnBySearch")
 	public ResponseJson getTableAndColumnBySearch(Long sourceId, String dbName, String searchText) {
 		if (StringUtils.isBlank(searchText)) {

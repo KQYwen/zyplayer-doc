@@ -14,7 +14,7 @@
                         <template slot-scope="scope">{{scope.row.nullable ? '允许' : '不允许'}}</template>
                     </el-table-column>
                     <el-table-column label="主键" width="50">
-                        <template slot-scope="scope">{{scope.row.ispramary ? '是' : '否'}}</template>
+                        <template slot-scope="scope">{{scope.row.primaryKey ? '是' : '否'}}</template>
                     </el-table-column>
                     <el-table-column label="注释">
                         <template slot-scope="scope">

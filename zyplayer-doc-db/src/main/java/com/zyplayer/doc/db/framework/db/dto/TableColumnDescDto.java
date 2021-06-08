@@ -14,7 +14,7 @@ public class TableColumnDescDto {
 	
 	@ColumnWidth(15)
 	@ExcelProperty("是否自增")
-	private String isidenity;
+	private String selfIncrement;
 	
 	@ColumnWidth(20)
 	@ExcelProperty("类型")
@@ -34,7 +34,7 @@ public class TableColumnDescDto {
 	
 	@ColumnWidth(10)
 	@ExcelProperty("主键")
-	private String ispramary;
+	private String primaryKey;
 	
 	@ColumnWidth(80)
 	@ExcelProperty("注释")
@@ -46,14 +46,6 @@ public class TableColumnDescDto {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getIsidenity() {
-		return isidenity;
-	}
-
-	public void setIsidenity(String isidenity) {
-		this.isidenity = isidenity;
 	}
 
 	public String getType() {
@@ -80,14 +72,6 @@ public class TableColumnDescDto {
 		this.length = length;
 	}
 
-	public String getIspramary() {
-		return ispramary;
-	}
-
-	public void setIspramary(String ispramary) {
-		this.ispramary = ispramary;
-	}
-
 	public String getDescription() {
 		return description;
 	}
@@ -110,5 +94,21 @@ public class TableColumnDescDto {
 	
 	public void setNumericScale(String numericScale) {
 		this.numericScale = numericScale;
+	}
+	
+	public String getSelfIncrement() {
+		return selfIncrement;
+	}
+	
+	public void setSelfIncrement(String selfIncrement) {
+		this.selfIncrement = selfIncrement;
+	}
+	
+	public String getPrimaryKey() {
+		return primaryKey;
+	}
+	
+	public void setPrimaryKey(String primaryKey) {
+		this.primaryKey = primaryKey;
 	}
 }

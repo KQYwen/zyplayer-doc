@@ -4,12 +4,12 @@
 			<el-tab-pane label="表字段" name="columns">
 				<div v-loading="columnListLoading">
 					<div style="text-align: right; margin-bottom: 10px;">
-						<el-button size="small" @click="showCreateTableDdl" style="margin-left: 10px;" icon="el-icon-magic-stick">DDL</el-button>
+						<el-button size="small" plain type="primary" @click="showCreateTableDdl" style="margin-left: 10px;" icon="el-icon-magic-stick">DDL</el-button>
 					</div>
 					<el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
 						<el-table-column prop="name" label="字段名" width="220"></el-table-column>
 						<el-table-column label="自增" width="50">
-							<template slot-scope="scope">{{scope.row.isidentity ? '是' : '否'}}</template>
+							<template slot-scope="scope">{{scope.row.selfIncrement ? '是' : '否'}}</template>
 						</el-table-column>
 						<el-table-column prop="type" label="类型" width="110"></el-table-column>
 						<el-table-column prop="length" label="长度" width="110"></el-table-column>
@@ -20,7 +20,7 @@
 							<template slot-scope="scope">{{scope.row.nullable==1 ? '允许' : '不允许'}}</template>
 						</el-table-column>
 						<el-table-column label="主键" width="50">
-							<template slot-scope="scope">{{scope.row.ispramary==1 ? '是' : '否'}}</template>
+							<template slot-scope="scope">{{scope.row.primaryKey==1 ? '是' : '否'}}</template>
 						</el-table-column>
 						<el-table-column>
 							<template slot="header" slot-scope="scope">
@@ -83,25 +83,6 @@
 				<data-preview ref="dataPreview"></data-preview>
 			</el-tab-pane>
 		</el-tabs>
-<!--        <el-card style="margin: 10px;">-->
-<!--            <div slot="header" class="clearfix">-->
-<!--                表信息-->
-<!--                <span style="float: right;margin-top: -5px;">-->
-<!--                    <el-button class="search-submit" size="small" type="primary" icon="el-icon-search" @click="previewTableData">查看表数据</el-button>-->
-<!--                </span>-->
-<!--            </div>-->
-<!--        </el-card>-->
-<!--        <el-card style="margin: 10px;">-->
-<!--            <div slot="header" class="clearfix">-->
-<!--                字段信息-->
-<!--                <el-tooltip effect="dark" content="点击注释列可编辑字段注释" placement="top">-->
-<!--                    <i class="el-icon-info" style="color: #999;"></i>-->
-<!--                </el-tooltip>-->
-<!--                <span style="float: right;margin-top: -5px;">-->
-<!--                    <el-button size="small" @click="showCreateTableDdl">DDL</el-button>-->
-<!--                </span>-->
-<!--            </div>-->
-<!--        </el-card>-->
         <!--增加数据源弹窗-->
         <el-dialog :visible.sync="tableDDLInfoDialogVisible" :footer="null" width="760px">
 			<div slot="title">
@@ -216,7 +197,7 @@
 						setTimeout(() => this.tabActiveName = 'columns', 0);
 						return;
 					}
-					let primaryColumn = this.columnList.find(item => item.ispramary == 1) || this.columnList[0];
+					let primaryColumn = this.columnList.find(item => item.primaryKey == 1) || this.columnList[0];
 					this.$refs.dataPreview.init({
 						sourceId: this.vueQueryParam.sourceId,
 						dbName: this.vueQueryParam.dbName,

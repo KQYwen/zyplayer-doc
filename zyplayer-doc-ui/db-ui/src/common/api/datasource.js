@@ -104,6 +104,12 @@ export default {
     dataViewQuery: data => {
         return request({url: '/zyplayer-doc-db/data-view/query', method: 'post', data: Qs.stringify(data)});
     },
+    updateTableColumnRelation: data => {
+        return request({url: '/zyplayer-doc-db/table-relation/update', method: 'post', data: Qs.stringify(data)});
+    },
+    getTableColumnRelation: data => {
+        return request({url: '/zyplayer-doc-db/table-relation/getRelation', method: 'post', data: Qs.stringify(data)});
+    },
     systemUpgradeInfo: data => {
         return request({url: '/system/info/upgrade', method: 'post', data: Qs.stringify(data)});
     },

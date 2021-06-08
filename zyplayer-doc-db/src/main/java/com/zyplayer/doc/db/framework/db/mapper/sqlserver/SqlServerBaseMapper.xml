@@ -4,11 +4,11 @@
 
 	<resultMap id="TableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto" >
 		<result column="NAME" property="name" jdbcType="VARCHAR" />
-		<result column="ISIDENITY" property="isidenity" jdbcType="VARCHAR" />
+		<result column="ISIDENITY" property="selfIncrement" jdbcType="VARCHAR" />
 		<result column="TYPE" property="type" jdbcType="VARCHAR" />
 		<result column="NULLABLE" property="nullable" jdbcType="VARCHAR" />
 		<result column="LENGTH" property="length" jdbcType="VARCHAR" />
-		<result column="ISPRAMARY" property="ispramary" jdbcType="VARCHAR" />
+		<result column="ISPRAMARY" property="primaryKey" jdbcType="VARCHAR" />
 		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
 	</resultMap>
 
@@ -51,14 +51,6 @@
 		LEFT JOIN PRIMARYINFO ON PRIMARYINFO.COLUMNNAME=NAME
 		LEFT JOIN SYSTYPES ON SYSCOLUMNS.XUSERTYPE = SYSTYPES.XUSERTYPE
 		WHERE SYSCOLUMNS.ID = OBJECT_ID(#{tableName})
-	</select>
-
-	<select id="getTableColumnDescList" resultMap="TableColumnDescDtoMap">
-		SELECT B.name AS NAME,C.value AS DESCRIPTION
-		FROM sys.tables A
-		INNER JOIN sys.columns B ON B.object_id = A.object_id
-		LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id
-		WHERE A.name = #{tableName}
 	</select>
 
 	<select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
