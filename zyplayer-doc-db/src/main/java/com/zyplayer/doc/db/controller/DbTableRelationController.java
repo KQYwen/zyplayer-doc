@@ -8,6 +8,7 @@ import com.zyplayer.doc.data.repository.manage.param.TableRelationParam;
 import com.zyplayer.doc.data.repository.manage.vo.TableRelationVo;
 import com.zyplayer.doc.data.service.manage.DbTableRelationService;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
+import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.service.DbBaseFactory;
@@ -41,6 +42,8 @@ public class DbTableRelationController {
 	
 	@PostMapping(value = "/update")
 	public ResponseJson update(TableRelationParam param) {
+		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
+		dbBaseService.judgeAuth(param.getSourceId(), DbAuthType.UPDATE.getName(), "没有该库的执行权限");
 		dbTableRelationService.update(param);
 		return DocDbResponseJson.ok();
 	}
@@ -105,23 +108,26 @@ public class DbTableRelationController {
 			if (drillPath.contains(endDbName + "." + endTableName + "." + endColumnName)) {
 				continue;
 			}
-			drillPath.add(endDbName + "." + endTableName + "." + endColumnName);
 			TableRelationVo relationVo = new TableRelationVo();
 			relationVo.setDbName(endDbName);
 			relationVo.setTableName(endTableName);
-			relationVo.setName("表："+endTableName + "\n列：" + endColumnName);
+			relationVo.setName("表：" + endTableName + "\n列：" + endColumnName);
 			relationVo.setColumnName(endColumnName);
 			TableColumnVo tableColumn = dbBaseService.getTableColumnList(sourceId, endDbName, endTableName);
 			if (CollectionUtils.isNotEmpty(tableColumn.getColumnList())) {
 				List<TableRelationVo> childrenRelationList = new LinkedList<>();
 				for (TableColumnDescDto columnDto : tableColumn.getColumnList()) {
+					boolean contains = drillPath.contains(endDbName + "." + endTableName + "." + columnDto.getName());
+					drillPath.add(endDbName + "." + endTableName + "." + columnDto.getName());
 					TableRelationVo relationVoChildren = new TableRelationVo();
 					relationVoChildren.setNodeType(1);
 					relationVoChildren.setDbName(endDbName);
 					relationVoChildren.setTableName(endTableName);
 					relationVoChildren.setName(columnDto.getName());
 					relationVoChildren.setColumnName(columnDto.getName());
-					relationVoChildren.setChildren(this.getRelation(sourceId, endDbName, endTableName, columnDto.getName(), drillPath, recursion + 1));
+					if (!contains) {
+						relationVoChildren.setChildren(this.getRelation(sourceId, endDbName, endTableName, columnDto.getName(), drillPath, recursion + 1));
+					}
 					childrenRelationList.add(relationVoChildren);
 				}
 				relationVo.setChildren(childrenRelationList);

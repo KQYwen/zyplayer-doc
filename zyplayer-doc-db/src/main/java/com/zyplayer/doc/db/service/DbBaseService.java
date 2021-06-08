@@ -64,7 +64,7 @@ public abstract class DbBaseService {
 	 *
 	 * @author 暮光：城中城
 	 */
-	private void judgeAuth(Long sourceId, String authName, String noAuthInfo) {
+	public void judgeAuth(Long sourceId, String authName, String noAuthInfo) {
 		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
 				&& !DocUserUtil.haveCustomAuth(authName, DocAuthConst.DB + sourceId)) {
 			throw new ConfirmException(noAuthInfo);

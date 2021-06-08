@@ -37,7 +37,9 @@
 						<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
 							<div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
 							<el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" :max-height="tableMaxHeight"
-									  @selection-change="handleSelectionChange">
+									  @selection-change="handleSelectionChange"
+									  @sort-change="tableSortChange"
+									  :default-sort="tableSort">
 								<el-table-column type="selection" width="55"></el-table-column>
 								<el-table-column type="index" width="50"></el-table-column>
                                 <el-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">

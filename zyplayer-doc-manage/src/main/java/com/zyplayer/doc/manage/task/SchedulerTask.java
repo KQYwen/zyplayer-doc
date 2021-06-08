@@ -2,6 +2,7 @@ package com.zyplayer.doc.manage.task;
 
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
+import com.zyplayer.doc.core.util.ZyplayerDocVersion;
 import com.zyplayer.doc.manage.utils.UpgradeUtil;
 import com.zyplayer.doc.manage.utils.bean.UpgradeInfo;
 import org.apache.commons.lang.StringUtils;
@@ -17,8 +18,6 @@ import java.util.Properties;
 @Component
 public class SchedulerTask {
 	
-	@Value("${zyplayer.doc.manage.version:}")
-	private String nowVersion;
 	@Value("${zyplayer.doc.manage.upgradePropertiesUrl:}")
 	private String upgradePropertiesUrl;
 	
@@ -28,7 +27,7 @@ public class SchedulerTask {
 		this.upgradeTask();
 	}
 	
-//	@Scheduled(cron = "0 0/2 * * * ? ")
+	//	@Scheduled(cron = "0 0/2 * * * ? ")
 	@Scheduled(cron = "0 0 1 * * ?")
 	public void upgradeTask() {
 		// 检查更新，访问的码云服务器获取升级内容的
@@ -39,10 +38,10 @@ public class SchedulerTask {
 			String upgradeStr = HttpRequest.get(upgradePropertiesUrl).execute().body();
 			Properties properties = new Properties();
 			properties.load(new StringReader(upgradeStr));
-			if (Objects.equals(nowVersion, properties.getProperty("lastVersion"))) {
+			if (Objects.equals(ZyplayerDocVersion.version, properties.getProperty("lastVersion"))) {
 				return;
 			}
-			properties.setProperty("nowVersion", nowVersion);
+			properties.setProperty("nowVersion", ZyplayerDocVersion.version);
 			String jsonString = JSON.toJSONString(properties);
 			UpgradeUtil.upgradeInfo = JSON.parseObject(jsonString, UpgradeInfo.class);
 		} catch (Exception e) {
