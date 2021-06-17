@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper">
+<mapper namespace="com.zyplayer.doc.db.framework.db.mapper.sqlserver.SqlServerMapper">
 
 	<select id="getTableColumnDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto">
 		SELECT B.name AS name,C.value AS description

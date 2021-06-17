@@ -4,7 +4,6 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -25,7 +24,7 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.framework.utils.JSONUtil;
-import com.zyplayer.doc.db.service.DbBaseFactory;
+import com.zyplayer.doc.db.service.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.DbBaseService;
 import com.zyplayer.doc.db.service.download.BaseDownloadService;
 import org.apache.commons.collections.CollectionUtils;
@@ -60,7 +59,7 @@ public class DbDataViewController {
 	@Resource
 	SqlExecutor sqlExecutor;
 	@Resource
-	DbBaseFactory dbBaseFactory;
+	DatabaseServiceFactory databaseServiceFactory;
 	@Resource
 	BaseDownloadService baseDownloadService;
 	// 最大允许导出的行数，设置的过大有可能会导致内存溢出，默认10W条
@@ -71,7 +70,7 @@ public class DbDataViewController {
 	public ResponseJson query(DataViewParam param) {
 		// 数据查询
 		ExecuteType executeType = this.getExecuteType(param.getSourceId());
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
 		String queryPageSql = dbBaseService.getQueryPageSql(param);
 		ExecuteResult executeResult = this.query(param.getSourceId(), param.getExecuteId(), executeType, queryPageSql);
 		// 数据组装
@@ -99,7 +98,7 @@ public class DbDataViewController {
 	public ResponseJson download(HttpServletResponse response, DataViewParam param) {
 		param.setExecuteId(RandomUtil.simpleUUID());
 		ExecuteType executeType = this.getExecuteType(param.getSourceId());
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
 		if (this.getDataCount(param, executeType) > downloadMaxRow) {
 			return DocDbResponseJson.error(String.format("导出失败，表：%s 数据行数超过最大导出配置 %s，请联系管理员修改", param.getTableName(), downloadMaxRow));
 		}
@@ -132,7 +131,7 @@ public class DbDataViewController {
 	 */
 	@PostMapping(value = "/downloadMultiple")
 	public ResponseJson downloadMultiple(HttpServletResponse response, DataViewParam param) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
 		if (StringUtils.isBlank(param.getTableNames())) {
 			return DocDbResponseJson.warn("请选择导出的表");
 		}
@@ -204,7 +203,7 @@ public class DbDataViewController {
 	}
 	
 	private Long getDataCount(DataViewParam param, ExecuteType executeType) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
 		String queryCountSql = dbBaseService.getQueryCountSql(param);
 		ExecuteResult countResult = this.query(param.getSourceId(), param.getExecuteId(), executeType, queryCountSql);
 		if (CollectionUtils.isNotEmpty(countResult.getResult()) && MapUtils.isNotEmpty(countResult.getResult().get(0))) {

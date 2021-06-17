@@ -25,7 +25,7 @@ import com.zyplayer.doc.db.framework.db.dto.*;
 import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.framework.utils.PoiUtil;
-import com.zyplayer.doc.db.service.DbBaseFactory;
+import com.zyplayer.doc.db.service.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.DbBaseService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -57,7 +57,7 @@ public class DatabaseDocController {
 	@Resource
 	UserAuthService userAuthService;
 	@Resource
-	DbBaseFactory dbBaseFactory;
+	DatabaseServiceFactory databaseServiceFactory;
 	
 	@PostMapping(value = "/getDataSourceList")
 	public ResponseJson getDataSourceList() {
@@ -101,7 +101,7 @@ public class DatabaseDocController {
 		if (resultObj != null) {
 			return DocDbResponseJson.ok(resultObj);
 		}
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		Map<String, Object> dbResultMap = dbBaseService.getEditorData(sourceId);
 		dbResultMap.put("product", dbBaseService.getDatabaseProduct().name().toLowerCase());
 		// 缓存10分钟，如果10分钟内库里面增删改了表或字段，则提示不出来
@@ -111,35 +111,35 @@ public class DatabaseDocController {
 	
 	@PostMapping(value = "/getTableDdl")
 	public ResponseJson getTableDdl(Long sourceId, String dbName, String tableName) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		TableDdlVo tableDdlVo = dbBaseService.getTableDdl(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableDdlVo);
 	}
 	
 	@PostMapping(value = "/getDatabaseList")
 	public ResponseJson getDatabaseList(Long sourceId) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		List<DatabaseInfoDto> databaseList = dbBaseService.getDatabaseList(sourceId);
 		return DocDbResponseJson.ok(databaseList);
 	}
 	
 	@PostMapping(value = "/getTableStatus")
 	public ResponseJson getTableStatus(Long sourceId, String dbName, String tableName) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		TableStatusVo tableStatusVo = dbBaseService.getTableStatus(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableStatusVo);
 	}
 	
 	@PostMapping(value = "/getTableList")
 	public ResponseJson getTableList(Long sourceId, String dbName) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		List<TableInfoDto> tableList = dbBaseService.getTableList(sourceId, dbName);
 		return DocDbResponseJson.ok(tableList);
 	}
 	
 	@PostMapping(value = "/getTableColumnList")
 	public ResponseJson getTableColumnList(Long sourceId, String dbName, String tableName) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		TableColumnVo tableColumnVo = dbBaseService.getTableColumnList(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableColumnVo);
 	}
@@ -149,14 +149,14 @@ public class DatabaseDocController {
 		if (StringUtils.isBlank(searchText)) {
 			return DocDbResponseJson.ok();
 		}
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		List<QueryTableColumnDescDto> columnDescDto = dbBaseService.getTableAndColumnBySearch(sourceId, dbName, searchText);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
 	
 	@PostMapping(value = "/getTableDescList")
 	public ResponseJson getTableDescList(Long sourceId, String dbName, String tableName) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		List<TableDescDto> tableDescList = dbBaseService.getTableDescList(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableDescList);
 	}
@@ -164,7 +164,7 @@ public class DatabaseDocController {
 	@PostMapping(value = "/updateTableDesc")
 	public ResponseJson updateTableDesc(Long sourceId, String dbName, String tableName, String newDesc) {
 		this.judgeAuth(sourceId, DbAuthType.DESC_EDIT.getName(), "没有修改该表注释的权限");
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		dbBaseService.updateTableDesc(sourceId, dbName, tableName, newDesc);
 		return DocDbResponseJson.ok();
 	}
@@ -172,7 +172,7 @@ public class DatabaseDocController {
 	@PostMapping(value = "/updateTableColumnDesc")
 	public ResponseJson updateTableColumnDesc(Long sourceId, String dbName, String tableName, String columnName, String newDesc) {
 		this.judgeAuth(sourceId, DbAuthType.DESC_EDIT.getName(), "没有修改该表字段注释的权限");
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		dbBaseService.updateTableColumnDesc(sourceId, dbName, tableName, columnName, newDesc);
 		return DocDbResponseJson.ok();
 	}
@@ -192,7 +192,7 @@ public class DatabaseDocController {
 	}
 	
 	private DocDbResponseJson exportForTableDdl(HttpServletResponse response, Long sourceId, String dbName, List<String> tableNameList, Integer exportFormat) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		Map<String, String> ddlSqlMap = new HashMap<>();
 		for (String tableName : tableNameList) {
 			TableDdlVo tableDdlVo = dbBaseService.getTableDdl(sourceId, dbName, tableName);
@@ -210,7 +210,7 @@ public class DatabaseDocController {
 	}
 	
 	private DocDbResponseJson exportForTableDoc(HttpServletResponse response, Long sourceId, String dbName, List<String> tableNameList, Integer exportFormat) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		// 数据组装
 		List<TableInfoVo> tableList = new LinkedList<>();
 		Map<String, List<TableColumnDescDto>> columnList = new HashMap<>();

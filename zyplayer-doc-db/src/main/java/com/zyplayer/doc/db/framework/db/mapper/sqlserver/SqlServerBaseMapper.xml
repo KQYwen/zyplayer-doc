@@ -23,7 +23,7 @@
 	</select>
 
 	<select id="getTableStatus" resultType="com.zyplayer.doc.db.controller.vo.TableStatusVo">
-		select 1
+		select #{tableName} as name
 	</select>
 
 	<select id="getTableList" resultType="com.zyplayer.doc.db.framework.db.dto.TableInfoDto">
@@ -31,7 +31,7 @@
 		FROM ${dbName}..SysObjects Where XType='U' ORDER BY NAME
 	</select>
 
-	<select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
+	<select id="getTableColumnList" resultType="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto">
 		WITH PRIMARYINFO( COLUMNNAME ,ISPRAMARY) AS
 		(
 			SELECT C.NAME,'true' AS COLUMNNAME
@@ -46,7 +46,8 @@
 		SELECT (
 			SELECT IS_IDENTITY FROM SYS.ALL_COLUMNS
 			WHERE SYS.ALL_COLUMNS.NAME=SYSCOLUMNS.NAME AND OBJECT_ID = OBJECT_ID(#{tableName})
-		) ISIDENTITY,SYSCOLUMNS.NAME NAME,SYSTYPES.NAME TYPE,Iif(SYSCOLUMNS.ISNULLABLE=1,'1','0') NULLABLE,SYSCOLUMNS.LENGTH LENGTH,PRIMARYINFO.ISPRAMARY
+		) selfIncrement, SYSCOLUMNS.NAME name,SYSTYPES.NAME type,Iif(SYSCOLUMNS.ISNULLABLE=1,'1','0') nullable,
+		SYSCOLUMNS.LENGTH length,PRIMARYINFO.ISPRAMARY primaryKey
 		FROM SYSCOLUMNS
 		LEFT JOIN PRIMARYINFO ON PRIMARYINFO.COLUMNNAME=NAME
 		LEFT JOIN SYSTYPES ON SYSCOLUMNS.XUSERTYPE = SYSTYPES.XUSERTYPE

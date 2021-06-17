@@ -11,7 +11,7 @@ import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
-import com.zyplayer.doc.db.service.DbBaseFactory;
+import com.zyplayer.doc.db.service.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.DbBaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -36,13 +36,13 @@ public class DbTableRelationController {
 	private static Logger logger = LoggerFactory.getLogger(DbTableRelationController.class);
 	
 	@Resource
-	DbBaseFactory dbBaseFactory;
+	DatabaseServiceFactory databaseServiceFactory;
 	@Resource
 	DbTableRelationService dbTableRelationService;
 	
 	@PostMapping(value = "/update")
 	public ResponseJson update(TableRelationParam param) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
 		dbBaseService.judgeAuth(param.getSourceId(), DbAuthType.UPDATE.getName(), "没有该库的执行权限");
 		dbTableRelationService.update(param);
 		return DocDbResponseJson.ok();
@@ -53,7 +53,7 @@ public class DbTableRelationController {
 		TableRelationVo relationVo = new TableRelationVo();
 		relationVo.setDbName(param.getDbName());
 		relationVo.setName(param.getTableName());
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(param.getSourceId());
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
 		TableColumnVo tableColumn = dbBaseService.getTableColumnList(param.getSourceId(), param.getDbName(), param.getTableName());
 		if (CollectionUtils.isNotEmpty(tableColumn.getColumnList())) {
 			Set<String> drillPath = new HashSet<>();
@@ -93,7 +93,7 @@ public class DbTableRelationController {
 		if (CollectionUtils.isEmpty(relationList)) {
 			return resultRelationList;
 		}
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		for (DbTableRelation tableRelation : relationList) {
 			String endDbName = tableRelation.getStartDbName();
 			String endTableName = tableRelation.getStartTableName();

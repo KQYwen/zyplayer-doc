@@ -3,13 +3,11 @@ package com.zyplayer.doc.db.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
-import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
 import com.zyplayer.doc.data.repository.manage.entity.DbProcLog;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.DbProcLogService;
@@ -18,7 +16,7 @@ import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.dto.ProcedureDto;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
-import com.zyplayer.doc.db.service.DbBaseFactory;
+import com.zyplayer.doc.db.service.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.DbBaseService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -44,7 +42,7 @@ public class DbProcedureController {
 	private static Logger logger = LoggerFactory.getLogger(DbProcedureController.class);
 	
 	@Resource
-	DbBaseFactory dbBaseFactory;
+	DatabaseServiceFactory databaseServiceFactory;
 	@Resource
 	DbProcLogService dbProcLogService;
 	
@@ -57,7 +55,7 @@ public class DbProcedureController {
 	@PostMapping(value = "/list")
 	public ResponseJson list(ProcedureListParam procedureParam) {
 		try {
-			DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(procedureParam.getSourceId());
+			DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(procedureParam.getSourceId());
 			procedureParam.setOffset((procedureParam.getPageNum() - 1) * procedureParam.getPageSize());
 			List<ProcedureDto> procedureDtoList = dbBaseService.getProcedureList(procedureParam);
 			DocDbResponseJson responseJson = DocDbResponseJson.ok(procedureDtoList);
@@ -82,7 +80,7 @@ public class DbProcedureController {
 	 */
 	@PostMapping(value = "/detail")
 	public ResponseJson detail(Long sourceId, String dbName, String typeName, String procName) {
-		DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		try {
 			ProcedureDto procedureDto = dbBaseService.getProcedureDetail(sourceId, dbName, typeName, procName);
 			return DocDbResponseJson.ok(procedureDto);
@@ -106,7 +104,7 @@ public class DbProcedureController {
 		this.judgeAuth(sourceId, DbAuthType.PROC_EDIT.getName(), "没有修改该库函数的权限");
 		DbProcLog dbProcLog = this.createDbProcLog(sourceId, dbName, typeName, procName, "删除函数操作");
 		try {
-			DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+			DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 			dbBaseService.deleteProcedure(sourceId, dbName, typeName, procName);
 			return DocDbResponseJson.ok();
 		} catch (Exception e) {
@@ -133,7 +131,7 @@ public class DbProcedureController {
 		this.judgeAuth(sourceId, DbAuthType.PROC_EDIT.getName(), "没有修改该库函数的权限");
 		DbProcLog dbProcLog = this.createDbProcLog(sourceId, dbName, typeName, procName, procSql);
 		try {
-			DbBaseService dbBaseService = dbBaseFactory.getDbBaseService(sourceId);
+			DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 			ExecuteResult executeResult = dbBaseService.saveProcedure(sourceId, dbName, typeName, procName, procSql);
 			if (StringUtils.isNotBlank(executeResult.getErrMsg())) {
 				dbProcLog.setStatus(2);

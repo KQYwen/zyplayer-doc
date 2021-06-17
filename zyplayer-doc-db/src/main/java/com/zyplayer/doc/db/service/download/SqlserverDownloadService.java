@@ -1,11 +1,5 @@
 package com.zyplayer.doc.db.service.download;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.CharsetUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
@@ -20,20 +14,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * 基础的数据导出服务类，按照MySQL规范写的，不满足的可新增类来实现
+ * SQLServer的数据导出服务类
  */
 @Service
-public class BaseDownloadService implements DownloadService {
-	private static Logger logger = LoggerFactory.getLogger(BaseDownloadService.class);
+public class SqlserverDownloadService implements DownloadService {
+	private static Logger logger = LoggerFactory.getLogger(SqlserverDownloadService.class);
 	
 	@Resource
 	SqlExecutor sqlExecutor;
@@ -42,7 +33,7 @@ public class BaseDownloadService implements DownloadService {
 	
 	@Override
 	public DatabaseProductEnum getDatabaseProductEnum() {
-		return DatabaseProductEnum.MYSQL;
+		return DatabaseProductEnum.SQLSERVER;
 	}
 	
 	/**
@@ -53,7 +44,7 @@ public class BaseDownloadService implements DownloadService {
 	 */
 	@Override
 	public String downloadDataByInsert(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception {
-		String dbTableName = String.format("`%s`.`%s`", param.getDbName(), param.getTableName());
+		String dbTableName = String.format("%s..%s", param.getDbName(), param.getTableName());
 		StringBuilder resultSb = new StringBuilder();
 		if (Objects.equals(param.getCreateTableFlag(), 1)) {
 			resultSb.append("-- 导出表 ").append(dbTableName).append(" 结构\n");
@@ -106,7 +97,7 @@ public class BaseDownloadService implements DownloadService {
 	 */
 	@Override
 	public String downloadDataByUpdate(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception {
-		String dbTableName = String.format("`%s`.`%s`", param.getDbName(), param.getTableName());
+		String dbTableName = String.format("%s..%s", param.getDbName(), param.getTableName());
 		StringBuilder resultSb = new StringBuilder();
 		Pattern pattern = Pattern.compile("\t|\r\n|\r|\n|\\s+");
 		String executeSql = pattern.matcher(executeParam.getSql()).replaceAll(" ");
@@ -170,43 +161,6 @@ public class BaseDownloadService implements DownloadService {
 	}
 	
 	/**
-	 * 发送字符串到response
-	 */
-	public void sendResponse(HttpServletResponse response, String tableName, String prefix, String dataStr) throws Exception {
-		String fileNameOrigin = tableName + "." + DateTime.now().toString("yyyyMMddHHmmss");
-		String fileName = URLEncoder.encode(fileNameOrigin, "UTF-8") + prefix;
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-disposition", "attachment;filename=" + fileName);
-		response.setCharacterEncoding("utf-8");
-		IoUtil.write(response.getOutputStream(), "utf-8", true, dataStr);
-	}
-	
-	/**
-	 * 把文件夹压缩为zip后发送
-	 */
-	public void sendResponse(HttpServletResponse response, String tableName, String tempDirName) throws Exception {
-		File zipTempFile = File.createTempFile("zyplayer-doc-" + IdUtil.fastSimpleUUID(), ".zip");
-		ZipUtil.zip(zipTempFile, CharsetUtil.defaultCharset(), false, FileUtil.file(tempDirName));
-		String fileNameOrigin = tableName + "." + DateTime.now().toString("yyyyMMddHHmmss");
-		String fileName = URLEncoder.encode(fileNameOrigin, "UTF-8") + ".zip";
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-disposition", "attachment;filename=" + fileName);
-		response.setCharacterEncoding("utf-8");
-		try {
-			IoUtil.write(response.getOutputStream(), true, FileUtil.readBytes(zipTempFile));
-		} catch (Exception e) {
-			logger.error("发送数据流失败", e);
-		} finally {
-			// 删除临时文件
-			try {
-				zipTempFile.delete();
-			} catch (Exception e) {
-				logger.error("删除临时ZIP文件失败", e);
-			}
-		}
-	}
-	
-	/**
 	 * 是否是数值类型
 	 *
 	 * @param type 类型
@@ -219,6 +173,7 @@ public class BaseDownloadService implements DownloadService {
 				|| type.contains("float")
 				|| type.contains("double")
 				|| type.contains("decimal")
+				|| type.contains("real")
 				;
 	}
 }
