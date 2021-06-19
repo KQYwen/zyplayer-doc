@@ -2,10 +2,12 @@ package com.zyplayer.doc.db.framework.db.mapper.base;
 
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.zyplayer.doc.core.util.StringUtil;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
@@ -93,16 +95,23 @@ public class SqlExecutor {
 //		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
 		// 有参数的时候不输出日志，暂时只有导数据才有参数
 		if (CollectionUtils.isEmpty(executeParam.getParamList())) {
+			if (StringUtils.isNotBlank(executeParam.getPrefixSql())) {
+				logger.info("prefix sql ==> {}", executeParam.getPrefixSql());
+			}
 			logger.info("sql ==> {}", executeParam.getSql());
 		}
-		
 //		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		PreparedStatement preparedStatement = null;
+		PreparedStatement prefixStatement = null;
 		DruidPooledConnection connection = null;
 		// 执行查询
 		try {
 			long startTime = System.currentTimeMillis();
 			connection = factoryBean.getDataSource().getConnection();
+			if (StringUtils.isNotBlank(executeParam.getPrefixSql())) {
+				prefixStatement = connection.prepareStatement(executeParam.getPrefixSql());
+				prefixStatement.execute();
+			}
 			preparedStatement = connection.prepareStatement(executeParam.getSql());
 			// 设置当前的PreparedStatement
 			statementMap.put(executeParam.getExecuteId(), preparedStatement);
@@ -150,6 +159,13 @@ public class SqlExecutor {
 			throw new RuntimeException(e);
 		} finally {
 			statementMap.remove(executeParam.getExecuteId());
+			try {
+				if (prefixStatement != null && !prefixStatement.isClosed()) {
+					prefixStatement.close();
+				}
+			} catch (Exception e) {
+				logger.error("关闭Statement失败");
+			}
 			try {
 				if (preparedStatement != null && !preparedStatement.isClosed()) {
 					preparedStatement.close();

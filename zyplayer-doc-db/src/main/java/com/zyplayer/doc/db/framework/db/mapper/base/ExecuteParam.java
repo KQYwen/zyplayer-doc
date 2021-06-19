@@ -17,7 +17,11 @@ public class ExecuteParam {
 	private Long datasourceId;
 	private Integer maxRows;
 	private String executeId;
+	private String prefixSql;
 	private ExecuteType executeType;
+	
+	public ExecuteParam() {
+	}
 	
 	public Long getDatasourceId() {
 		return datasourceId;
@@ -73,5 +77,13 @@ public class ExecuteParam {
 	
 	public void setMaxRows(Integer maxRows) {
 		this.maxRows = maxRows;
+	}
+	
+	public String getPrefixSql() {
+		return prefixSql;
+	}
+	
+	public void setPrefixSql(String prefixSql) {
+		this.prefixSql = prefixSql;
 	}
 }

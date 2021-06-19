@@ -17,7 +17,7 @@
 <!--				<el-button type="" @click="" icon="el-icon-video-play" size="mini">运行</el-button>-->
 <!--				<el-button type="" @click="" icon="el-icon-video-pause" size="mini">停止</el-button>-->
 			</div>
-			<pre id="sqlExecutorEditor" style="width: 100%;height: 500px;margin-top: 0;"></pre>
+			<ace-editor v-model="sqlExecutorContent" @init="sqlExecutorInit" lang="sql" theme="monokai" width="100%" height="500" :options="sqlEditorConfig" style="margin-bottom: 10px;"></ace-editor>
 		</el-card>
 		<!--错误信息弹窗-->
 		<el-dialog title="保存函数失败" :visible.sync="saveProcedureErrVisible" :footer="null">
@@ -59,12 +59,8 @@
 </template>
 
 <script>
-	import '../../common/lib/ace/ace'
-	import '../../common/lib/ace/theme-monokai'
-	import '../../common/lib/ace/mode-sql'
-	import '../../common/lib/ace/ext-language_tools'
-	import '../../common/lib/ace/snippets/sql'
 	import datasourceApi from '../../common/api/datasource'
+	import aceEditor from "../../common/lib/ace-editor";
 
 	export default {
 		data() {
@@ -81,9 +77,23 @@
 				pageSize: 30,
 				currentPage: 1,
 				tableTotalCount: 0,
+				// 编辑器
+				sqlExecutorContent: '',
+				sqlEditorConfig: {
+					wrap: true,
+					autoScrollEditorIntoView: true,
+					enableBasicAutocompletion: true,
+					enableSnippets: true,
+					enableLiveAutocompletion: true,
+					minLines: 20,
+					maxLines: 40,
+				},
 			};
 		},
-		mounted: function () {
+		components: {
+			'ace-editor': aceEditor
+		},
+		mounted() {
 			// 延迟设置展开的目录，edit比app先初始化
 			setTimeout(() => {
 				this.$emit('initLoadDataList', {
@@ -92,16 +102,6 @@
 					dbName: this.vueQueryParam.dbName
 				});
 			}, 500);
-			let that = this;
-			this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 20);
-			this.sqlExecutorEditor.setFontSize(16);
-			this.sqlExecutorEditor.commands.addCommand({
-				name: "execute-sql",
-				bindKey: {win: "Ctrl-S", mac: "Command-S"},
-				exec: function (editor) {
-					that.saveProcedure();
-				}
-			});
 			this.initQueryParam(this.$route);
 			this.searchProcedureDetail();
 		},
@@ -110,6 +110,18 @@
 				this.vueQueryParam = to.query;
 				let newName = {key: this.$route.fullPath, val: '编辑函数-' + this.vueQueryParam.procName};
 				this.$store.commit('global/addTableName', newName);
+			},
+			sqlExecutorInit(editor) {
+				this.sqlExecutorEditor = editor;
+				this.sqlExecutorEditor.setFontSize(16);
+				let that = this;
+				this.sqlExecutorEditor.commands.addCommand({
+					name: "execute-sql",
+					bindKey: {win: "Ctrl-S", mac: "Command-S"},
+					exec: function (editor) {
+						that.saveProcedure();
+					}
+				});
 			},
 			handleCurrentChange(to) {
 				this.currentPage = to;

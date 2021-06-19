@@ -2,7 +2,7 @@
     <div class="data-executor-vue">
         <div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
             <el-card style="margin-bottom: 10px;">
-                <pre id="sqlExecutorEditor" style="width: 100%;height: 500px;margin-top: 0;margin-bottom: 10px;"></pre>
+				<ace-editor v-model="sqlExecutorContent" @init="sqlExecutorInit" lang="sql" theme="monokai" width="100%" height="60" :options="sqlEditorConfig" :source="executorSource" style="margin-bottom: 10px;"></ace-editor>
                 <div>
                     <el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain  size="small" icon="el-icon-video-pause">取消执行</el-button>
                     <el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
@@ -36,28 +36,31 @@
                         </el-tab-pane>
 						<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
 							<div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
-							<el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" :max-height="tableMaxHeight"
-									  @selection-change="handleSelectionChange"
-									  @sort-change="tableSortChange"
-									  :default-sort="tableSort">
-								<el-table-column type="selection" width="55"></el-table-column>
-								<el-table-column type="index" width="50"></el-table-column>
-                                <el-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
-                                    <template slot-scope="scope">
-                                        <textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                            <el-pagination
-                                    style="margin-top: 10px;"
-                                    @size-change="handlePageSizeChange"
-                                    @current-change="handleCurrentChange"
-                                    :current-page="currentPage"
-                                    :page-sizes="[50, 100, 300, 500]"
-                                    :page-size="pageSize"
-                                    layout="total, sizes, prev, pager, next, jumper"
-                                    :total="tableTotalCount">
-                            </el-pagination>
+							<div v-else-if="resultItem.dataList.length <= 0" style="text-align: center; color: #aaa; padding: 20px 0;">暂无数据</div>
+							<template v-else>
+								<el-table :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" :max-height="tableMaxHeight"
+										  @selection-change="handleSelectionChange"
+										  @sort-change="tableSortChange"
+										  :default-sort="tableSort">
+									<el-table-column type="selection" width="55"></el-table-column>
+									<el-table-column type="index" width="50"></el-table-column>
+									<el-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
+										<template slot-scope="scope">
+											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
+										</template>
+									</el-table-column>
+								</el-table>
+								<el-pagination
+									style="margin-top: 10px;"
+									@size-change="handlePageSizeChange"
+									@current-change="handleCurrentChange"
+									:current-page="currentPage"
+									:page-sizes="[50, 100, 300, 500]"
+									:page-size="pageSize"
+									layout="total, sizes, prev, pager, next, jumper"
+									:total="tableTotalCount">
+								</el-pagination>
+							</template>
                         </el-tab-pane>
                     </el-tabs>
                 </div>
@@ -114,14 +117,10 @@
 </template>
 
 <script>
-    import '../../common/lib/ace/ace'
-    import '../../common/lib/ace/theme-monokai'
-    import '../../common/lib/ace/mode-sql'
-    import '../../common/lib/ace/ext-language_tools'
-    import '../../common/lib/ace/snippets/sql'
     import datasourceApi from '../../common/api/datasource'
 	import copyFormatter from './copy/index'
     import sqlFormatter from "sql-formatter";
+	import aceEditor from "../../common/lib/ace-editor";
 
     export default {
     	name: 'dataPreview',
@@ -160,19 +159,24 @@
 					url: 'zyplayer-doc-db/data-view/download',
 					param: {}
 				},
+				// 编辑器
+				sqlExecutorContent: '',
+				sqlEditorConfig: {
+					wrap: true,
+					autoScrollEditorIntoView: true,
+					enableBasicAutocompletion: true,
+					enableSnippets: true,
+					enableLiveAutocompletion: true,
+					minLines: 3,
+					maxLines: 3,
+				},
+				executorSource: {}
             }
         },
+		components: {
+			'ace-editor': aceEditor
+		},
         mounted: function () {
-            let that = this;
-            this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 3);
-            this.sqlExecutorEditor.setFontSize(16);
-            this.sqlExecutorEditor.commands.addCommand({
-                name: "execute-sql",
-                bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
-                exec: function (editor) {
-                    that.doExecutorClick();
-                }
-            });
 			// 延迟设置展开的目录，edit比app先初始化
 			// setTimeout(() => {
 			// 	this.doExecutorSqlCommon();
@@ -189,6 +193,7 @@
 					return;
 				}
 				this.pageParam = param;
+				this.executorSource = {sourceId: param.sourceId, dbName: param.dbName, tableName: param.tableName};
 				this.doExecutorSqlCommon();
                 // this.vueQueryParam = to.query;
                 // let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
@@ -197,6 +202,18 @@
 				// 	this.tableStatusInfo = json.data || {};
 				// });
             },
+			sqlExecutorInit(editor) {
+				this.sqlExecutorEditor = editor;
+				this.sqlExecutorEditor.setFontSize(16);
+				let that = this;
+				this.sqlExecutorEditor.commands.addCommand({
+					name: "execute-sql",
+					bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
+					exec: function (editor) {
+						that.doExecutorClick();
+					}
+				});
+			},
             handleCurrentChange(to) {
                 this.currentPage = to;
                 this.doExecutorSqlCommon();
@@ -219,6 +236,7 @@
             },
             cancelExecutorSql() {
                 datasourceApi.executeSqlCancel({executeId: this.nowExecutorId}).then(() => {
+					this.sqlExecuting = false;
                     this.$message.success("取消成功");
                 });
             },
@@ -257,9 +275,9 @@
 					params: '',
 				};
                 datasourceApi.dataViewQuery(param).then(json => {
+					this.sqlExecuting = false;
                     if (json.errCode !== 200) {
                         this.executeError = json.errMsg;
-                        this.sqlExecuting = false;
                         return;
                     }
                     let resultList = json.data || [];
@@ -282,8 +300,9 @@
 					this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
 					this.executeResultInfo = executeResultInfo;
 					this.executeResultList = executeResultList;
-                    this.sqlExecuting = false;
-                });
+                }).catch(e => {
+					this.sqlExecuting = false;
+				});
             },
             getExecuteInfoStr(resultData) {
                 var resultStr = resultData.sql;
@@ -390,19 +409,6 @@
 					this.downloadDataParam.dropTableFlag = 0;
 				}
 			},
-            initAceEditor(editor, minLines) {
-                return ace.edit(editor, {
-                    theme: "ace/theme/monokai",
-                    mode: "ace/mode/sql",
-                    wrap: true,
-                    autoScrollEditorIntoView: true,
-                    enableBasicAutocompletion: true,
-                    enableSnippets: true,
-                    enableLiveAutocompletion: true,
-                    minLines: minLines,
-                    maxLines: minLines
-                });
-            },
         }
     }
 </script>

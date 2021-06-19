@@ -371,6 +371,20 @@ public abstract class DbBaseService {
 	}
 	
 	/**
+	 * 获取指定数据库的SQL
+	 *
+	 * @return use db
+	 * @author 暮光：城中城
+	 * @since 2020年4月24日
+	 */
+	public String getUseDbSql(String dbName) {
+		if (StringUtils.isNotBlank(dbName)) {
+			return "use " + dbName;
+		}
+		return null;
+	}
+	
+	/**
 	 * 获取查询总条数的SQL
 	 *
 	 * @return 查询总条数的SQL

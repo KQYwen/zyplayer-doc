@@ -20,6 +20,8 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.framework.utils.JSONUtil;
+import com.zyplayer.doc.db.service.DatabaseServiceFactory;
+import com.zyplayer.doc.db.service.DbBaseService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +53,11 @@ public class DbSqlExecutorController {
 	DbHistoryService dbHistoryService;
 	@Resource
 	DbFavoriteService dbFavoriteService;
+	@Resource
+	DatabaseServiceFactory databaseServiceFactory;
 	
 	@PostMapping(value = "/execute")
-	public ResponseJson execute(Long sourceId, String executeId, String sql, String params) {
+	public ResponseJson execute(Long sourceId, String executeId, String dbName, String sql, String params) {
 		if (StringUtils.isBlank(sql)) {
 			return DocDbResponseJson.warn("执行的SQL不能为空");
 		}
@@ -63,6 +67,8 @@ public class DbSqlExecutorController {
 		if (!manageAuth && !select && !update) {
 			return DocDbResponseJson.warn("没有该数据源的执行权限");
 		}
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
+		String useDbSql = dbBaseService.getUseDbSql(dbName);
 		// 保留历史记录
 		dbHistoryService.saveHistory(sql.trim(), sourceId);
 		List<String> resultList = new LinkedList<>();
@@ -80,13 +86,14 @@ public class DbSqlExecutorController {
 				executeParam.setExecuteId(executeId);
 				executeParam.setExecuteType(executeType);
 				executeParam.setSql(sqlItem);
+				executeParam.setPrefixSql(useDbSql);
 				executeParam.setMaxRows(1000);
 				ExecuteResult executeResult = sqlExecutor.execute(executeParam);
 				String resultJsonStr = JSON.toJSONString(executeResult, JSONUtil.serializeConfig, SerializerFeature.WriteMapNullValue);
 				resultList.add(resultJsonStr);
 			} catch (Exception e) {
 				logger.error("执行出错", e);
-				ExecuteResult executeResult = ExecuteResult.error(StringUtil.getException(e), sqlItem);
+				ExecuteResult executeResult = ExecuteResult.error(e.getMessage(), sqlItem);
 				resultList.add(JSON.toJSONString(executeResult));
 			}
 		}

@@ -4,6 +4,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.zyplayer.doc.core.exception.ConfirmException;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DruidDataSourceUtil {
@@ -33,7 +34,7 @@ public class DruidDataSourceUtil {
 		dataSource.setBreakAfterAcquireFailure(breakAfterAcquireFailure);// false：连接出错后不退出，等待下个定时周期重试，true：失败不再重试
 		dataSource.setTimeBetweenConnectErrorMillis(180000);// 连接出错后重试时间间隔3分钟
 		dataSource.setName("zyplayer-doc-db-" + nameId.incrementAndGet());
-		if (url.contains("oracle")) {
+		if (Objects.equals("oracle.jdbc.driver.OracleDriver", driverClassName)) {
 			dataSource.setValidationQuery("select 1 from dual");
 		}
 		DruidPooledConnection connection = dataSource.getConnection(3000);

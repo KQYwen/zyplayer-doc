@@ -169,6 +169,7 @@
                     let columnList = json.data.columnList || [];
                     for (let i = 0; i < columnList.length; i++) {
                         columnList[i].inEdit = 0;
+                        columnList[i].description = columnList[i].description || '';
                         columnList[i].newDesc = columnList[i].description;
                     }
                     this.columnList = columnList;

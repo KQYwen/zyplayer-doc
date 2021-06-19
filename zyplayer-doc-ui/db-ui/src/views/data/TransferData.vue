@@ -59,7 +59,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="查询SQL：">
-                    <pre id="querySqlEditor" style="width: 100%;height: 100px;margin: 0;"></pre>
+					<ace-editor v-model="querySqlContent" @init="querySqlInit" lang="sql" theme="monokai" width="100%" height="100" :options="editSqlConfig"></ace-editor>
                 </el-form-item>
                 <el-form-item label="总条数查询：">
                     <el-radio v-model="taskEditInfo.needCount" :label="0">不查询</el-radio>
@@ -71,7 +71,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="入库SQL：">
-                    <pre id="storageSqlEditor" style="width: 100%;height: 100px;margin: 0;"></pre>
+					<ace-editor v-model="storageSqlContent" @init="storageSqlInit" lang="sql" theme="monokai" width="100%" height="100" :options="editSqlConfig"></ace-editor>
                     <el-button v-on:click="autoFillStorageSql" style="margin-top: 10px;">智能填充</el-button>
                 </el-form-item>
             </el-form>
@@ -106,14 +106,9 @@
 </template>
 
 <script>
-    import '../../common/lib/ace/ace'
-    import '../../common/lib/ace/theme-monokai'
-    import '../../common/lib/ace/mode-sql'
-    import '../../common/lib/ace/ext-language_tools'
-    import '../../common/lib/ace/snippets/sql'
     import datasourceApi from '../../common/api/datasource'
+	import aceEditor from "../../common/lib/ace-editor";
 
-    var app;
     export default {
         data() {
             return {
@@ -130,31 +125,51 @@
                 taskViewDialogVisible: false,
                 taskEditDialogVisible: false,
                 taskEditInfo: {},
+				// 编辑器
+				querySqlEditor: {},
+				storageSqlEditor: {},
+				querySqlContent: '',
+				storageSqlContent: '',
+				editSqlConfig: {
+					wrap: true,
+					autoScrollEditorIntoView: true,
+					enableBasicAutocompletion: true,
+					enableSnippets: true,
+					enableLiveAutocompletion: true,
+					minLines: 10,
+					maxLines: 25,
+				},
             }
-        },
-        mounted: function () {
-            app = this;
-            this.loadDatasourceList();
-        },
-        methods: {
-            editTask(row) {
-                this.taskEditInfo = JSON.parse(JSON.stringify(row));
-                this.taskEditDialogVisible = true;
-                setTimeout(() => {
-                    app.querySqlEditor = app.initAceEditor("querySqlEditor", 10);
-                    app.storageSqlEditor = app.initAceEditor("storageSqlEditor", 10);
-                    app.querySqlEditor.setValue(app.taskEditInfo.querySql, 1);
-                    app.storageSqlEditor.setValue(app.taskEditInfo.storageSql, 1);
-                }, 200);
-            },
+		},
+		components: {
+			'ace-editor': aceEditor
+		},
+		mounted() {
+			this.loadDatasourceList();
+		},
+		methods: {
+			editTask(row) {
+				this.taskEditInfo = JSON.parse(JSON.stringify(row));
+				this.taskEditDialogVisible = true;
+				setTimeout(() => {
+					this.querySqlEditor.setValue(this.taskEditInfo.querySql, 1);
+					this.storageSqlEditor.setValue(this.taskEditInfo.storageSql, 1);
+				}, 200);
+			},
+			querySqlInit(editor) {
+				this.querySqlEditor = editor;
+				this.querySqlEditor.setFontSize(16);
+			},
+			storageSqlInit(editor) {
+				this.storageSqlEditor = editor;
+				this.storageSqlEditor.setFontSize(16);
+			},
             createNewTask() {
                 this.taskEditInfo = {querySql: '', storageSql: '', name: '', needCount: 1, queryDatasourceId: '', storageDatasourceId: ''};
                 this.taskEditDialogVisible = true;
                 setTimeout(() => {
-                    app.querySqlEditor = app.initAceEditor("querySqlEditor", 10);
-                    app.storageSqlEditor = app.initAceEditor("storageSqlEditor", 10);
-                    app.querySqlEditor.setValue('', 1);
-                    app.storageSqlEditor.setValue('', 1);
+                    this.querySqlEditor.setValue('', 1);
+                    this.storageSqlEditor.setValue('', 1);
                 }, 200);
             },
             deleteTask(id) {
@@ -195,7 +210,7 @@
                 datasourceApi.transferDetail({id: id}).then(json => {
                     this.taskEditInfo = json.data || {};
                     setTimeout(() => {
-                        app.viewTaskLoading = false;
+						this.viewTaskLoading = false;
                     }, 300);
                 });
             },

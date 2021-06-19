@@ -83,12 +83,14 @@ public class DatabaseDocController {
 	}
 	
 	/**
+	 * 不再使用此接口，优化了
 	 * 获取编辑器所需的所有信息，用于自动补全
 	 * 此接口会返回所有库表结构，介意的话请自己手动屏蔽调此接口
 	 *
 	 * @param sourceId
 	 * @return
 	 */
+	@Deprecated
 	@PostMapping(value = "/getEditorData")
 	public ResponseJson getEditorData(Long sourceId) {
 		// 没权限，返回空

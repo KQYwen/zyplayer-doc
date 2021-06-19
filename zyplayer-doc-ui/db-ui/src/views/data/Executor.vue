@@ -2,7 +2,7 @@
     <div class="data-executor-vue">
         <div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
             <el-card style="margin-bottom: 10px;">
-                <pre id="sqlExecutorEditor" style="width: 100%;height: 500px;margin-top: 0;"></pre>
+				<ace-editor v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit" lang="sql" theme="monokai" width="100%" height="500" :options="sqlEditorConfig" :source="executorSource" style="margin-bottom: 10px;"></ace-editor>
                 <div>
                     <el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain  size="small" icon="el-icon-video-pause">取消执行</el-button>
                     <el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
@@ -12,12 +12,16 @@
                     <el-button v-on:click="addFavorite('')" plain  size="small" icon="el-icon-star-off">收藏</el-button>
                     <el-button v-on:click="loadHistoryAndFavoriteList" plain  size="small" icon="el-icon-tickets">收藏及历史</el-button>
                     <div style="float: right;">
-						<el-select v-model="choiceDatasourceGroup" @change="sourceGroupChangeEvents" size="small" filterable placeholder="请先选择分组" style="width: 200px;">
-							<el-option value="" label="全部分组"></el-option>
-							<el-option v-for="item in datasourceGroupList" :key="item" :value="item"></el-option>
-						</el-select>
+<!--						增加了选择数据库后，分组加上就太长了，先去掉，感觉用处不大 -->
+<!--						<el-select v-model="choiceDatasourceGroup" @change="sourceGroupChangeEvents" size="small" filterable placeholder="请先选择分组" style="width: 200px;">-->
+<!--							<el-option value="" label="全部分组"></el-option>-->
+<!--							<el-option v-for="item in datasourceGroupList" :key="item" :value="item"></el-option>-->
+<!--						</el-select>-->
                         <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="small" filterable placeholder="请选择数据源" style="width: 300px;margin-left: 10px;">
                             <el-option v-for="item in datasourceOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        </el-select>
+                        <el-select v-model="choiceDatabase" @change="databaseChangeEvents" size="small" filterable placeholder="请选择数据库" style="width: 200px;margin-left: 10px;">
+                            <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>
                         </el-select>
                     </div>
                 </div>
@@ -45,6 +49,7 @@
                         </el-tab-pane>
                         <el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
                             <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
+							<div v-else-if="resultItem.dataList.length <= 0" style="text-align: center; color: #aaa; padding: 20px 0;">暂无数据</div>
                             <el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600"
 									  @selection-change="handleSelectionChange">
 								<el-table-column type="selection" width="55"></el-table-column>
@@ -114,14 +119,10 @@
 </template>
 
 <script>
-    import '../../common/lib/ace/ace'
-    import '../../common/lib/ace/theme-monokai'
-    import '../../common/lib/ace/mode-sql'
-    import '../../common/lib/ace/ext-language_tools'
-    import '../../common/lib/ace/snippets/sql'
 	import copyFormatter from './copy/index'
     import sqlFormatter from "sql-formatter"
     import datasourceApi from '../../common/api/datasource'
+	import aceEditor from "../../common/lib/ace-editor";
 
     export default {
         data() {
@@ -156,37 +157,39 @@
 				exportConditionVisible: false,
 				conditionDataCols: [],
 				conditionDataColsChoice: [],
+				// 编辑器
+				sqlExecutorContent: '',
+				sqlEditorConfig: {
+					wrap: true,
+					autoScrollEditorIntoView: true,
+					enableBasicAutocompletion: true,
+					enableSnippets: true,
+					enableLiveAutocompletion: true,
+					minLines: 15,
+					maxLines: 40,
+				},
+				executorSource: {},
             }
         },
+		components: {
+			'ace-editor': aceEditor
+		},
         mounted: function () {
             this.loadDatasourceList();
-            // 下面两行先后顺序不能改
-            this.addEditorCompleter();
-            this.sqlExecutorEditor = this.initAceEditor("sqlExecutorEditor", 15);
-            this.sqlExecutorEditor.setFontSize(16);
-            let that = this;
-            this.sqlExecutorEditor.commands.addCommand({
-                name: "execute-sql",
-                bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
-                exec: function (editor) {
-                    that.doExecutorSql();
-                }
-            });
         },
         methods: {
-            initAceEditor(editor, minLines) {
-                return ace.edit(editor, {
-                    theme: "ace/theme/monokai",
-                    mode: "ace/mode/sql",
-                    wrap: true,
-                    autoScrollEditorIntoView: true,
-                    enableBasicAutocompletion: true,
-                    enableSnippets: true,
-                    enableLiveAutocompletion: true,
-                    minLines: minLines,
-                    maxLines: 40,
-                });
-            },
+			sqlExecutorInit(editor) {
+				this.sqlExecutorEditor = editor;
+				this.sqlExecutorEditor.setFontSize(16);
+				let that = this;
+				this.sqlExecutorEditor.commands.addCommand({
+					name: "execute-sql",
+					bindKey: {win: "Ctrl-R|Ctrl-Shift-R|Ctrl-Enter", mac: "Command-R|Command-Shift-R|Command-Enter"},
+					exec: function (editor) {
+						that.doExecutorSql();
+					}
+				});
+			},
             cancelExecutorSql() {
                 datasourceApi.executeSqlCancel({executeId: this.nowExecutorId}).then(() => {
                     this.$message.success("取消成功");
@@ -261,6 +264,7 @@
                 this.sqlExecuting = true;
                 datasourceApi.queryExecuteSql({
                     sourceId: this.choiceDatasourceId,
+                    dbName: this.choiceDatabase,
                     executeId: this.nowExecutorId,
                     sql: sqlValue,
                     params: '',
@@ -298,9 +302,22 @@
 					this.datasourceGroupList = Array.from(new Set(datasourceGroupList));
                     if (this.datasourceList.length > 0) {
                         this.choiceDatasourceId = this.datasourceList[0].id;
-                        this.loadEditorData();
+						this.executorSource = {sourceId: this.choiceDatasourceId};
+                        this.loadDatabaseList();
                     }
                 });
+            },
+			loadDatabaseList() {
+				datasourceApi.databaseList({sourceId: this.choiceDatasourceId}).then(json => {
+					this.databaseList = json.data || [];
+					if (this.databaseList.length > 0) {
+						// 排除系统库
+						let sysDbName = ["information_schema", "master", "model", "msdb", "tempdb"];
+						let notSysDbItem = this.databaseList.find(item => sysDbName.indexOf(item.dbName) < 0);
+						this.choiceDatabase = (!!notSysDbItem) ?notSysDbItem.dbName : this.databaseList[0].dbName;
+						this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
+					}
+				});
             },
             loadEditorData() {
                 datasourceApi.getEditorData({sourceId: this.choiceDatasourceId}).then(json => {
@@ -322,13 +339,16 @@
 				this.datasourceOptions = datasourceOptions;
 				if (datasourceOptions.length > 0) {
 					this.choiceDatasourceId = datasourceOptions[0].id;
+					this.executorSource = {sourceId: this.choiceDatasourceId};
+					this.loadDatabaseList();
 				}
 			},
             datasourceChangeEvents() {
-                this.loadEditorData();
+				this.executorSource = {sourceId: this.choiceDatasourceId};
+				this.loadDatabaseList();
             },
             databaseChangeEvents() {
-
+				this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
             },
             getExecuteInfoStr(resultData) {
                 var resultStr = resultData.sql;
@@ -365,100 +385,6 @@
                 resultObj.updateCount = resultData.updateCount;
                 return resultObj;
             },
-            addEditorCompleter() {
-                let that = this;
-                var languageTools = ace.require("ace/ext/language_tools");
-                languageTools.addCompleter({
-                    needDestory: true, // 一定得加上这个参数~不然页面生命周期内页面的切换，编辑器会有多个相同的completer
-                    getCompletions: function (editor, session, pos, prefix, callback) {
-                        var isFound = false;
-                        var callbackArr = [];
-                        var lineStr = session.getLine(pos.row).substring(0, pos.column - 1);
-                        if (lineStr.endsWith("from ") || lineStr.endsWith("join ")) {
-                            // 库
-                            for (var i = 0; i < that.editorDbInfo.length; i++) {
-                                callbackArr.push({caption: that.editorDbInfo[i].dbName, snippet: that.editorDbInfo[i].dbName, meta: "database", type: "snippet", score : 1000});
-                            }
-                            // 所有表
-                            for (var key in that.editorDbTableInfo) {
-                                var tableInfo = that.editorDbTableInfo[key];
-                                for (var i = 0; i < tableInfo.length; i++) {
-                                    var caption = (!!tableInfo[i].tableComment) ? tableInfo[i].tableName + "-" + tableInfo[i].tableComment : tableInfo[i].tableName;
-                                    callbackArr.push({caption: caption, snippet: tableInfo[i].tableName, meta: "table", type: "snippet", score : 1000});
-                                }
-                            }
-                            callback(null,  callbackArr);
-                        } else if (lineStr.endsWith(".")) {
-                            // 匹配 库名. 搜索表名
-                            for (var i = 0; i < that.editorDbInfo.length; i++) {
-                                if (lineStr.endsWith(that.editorDbInfo[i].dbName + ".")) {
-                                    var tableInfo = that.editorDbTableInfo[that.editorDbInfo[i].dbName];
-                                    if (!!tableInfo) {
-                                        for (var j = 0; j < tableInfo.length; j++) {
-                                            var caption = (!!tableInfo[j].tableComment) ? tableInfo[j].tableName + "-" + tableInfo[j].tableComment : tableInfo[j].tableName;
-                                            callbackArr.push({caption: caption, snippet: tableInfo[j].tableName, meta: "table", type: "snippet", score : 1000});
-                                        }
-                                        isFound = true;
-                                    }
-                                }
-                            }
-                            // 未找到，匹配 表名. 搜索字段名
-                            if (!isFound) {
-                                for (var key in that.editorColumnInfo) {
-                                    if (!lineStr.endsWith(key + ".")) {
-                                        continue;
-                                    }
-                                    var columnInfo = that.editorColumnInfo[key];
-                                    if (!!columnInfo) {
-                                        for (var i = 0; i < columnInfo.length; i++) {
-                                            var caption = (!!columnInfo[i].description) ? columnInfo[i].name + "-" + columnInfo[i].description : columnInfo[i].name;
-                                            callbackArr.push({caption: caption, snippet: columnInfo[i].name, meta: "column", type: "snippet", score : 1000});
-                                        }
-                                        isFound = true;
-                                    }
-                                }
-                            }
-                            callback(null,  callbackArr);
-                        } else if (lineStr.endsWith("select ") || lineStr.endsWith("where ") || lineStr.endsWith("and ")) {
-                            var queryText = "";
-                            // 往前加
-                            for (var i = pos.row; i >= 0; i--) {
-                                var tempLine = session.getLine(i);
-                                queryText = tempLine + " " + queryText;
-                                if (tempLine.indexOf(";") >= 0) {
-                                    break;
-                                }
-                            }
-                            // 往后加
-                            for (var i = pos.row + 1; i < session.getLength(); i++) {
-                                var tempLine = session.getLine(i);
-                                queryText = queryText + " " + tempLine;
-                                if (tempLine.indexOf(";") >= 0) {
-                                    break;
-                                }
-                            }
-                            // 所有表，找下面的字段列表
-                            for (var key in that.editorDbTableInfo) {
-                                var tableInfo = that.editorDbTableInfo[key];
-                                for (var i = 0; i < tableInfo.length; i++) {
-                                    if (queryText.indexOf(tableInfo[i].tableName) < 0) {
-                                        continue;
-                                    }
-                                    var columnInfo = that.editorColumnInfo[tableInfo[i].tableName];
-                                    if (!!columnInfo) {
-                                        for (var j = 0; j < columnInfo.length; j++) {
-                                            var caption = (!!columnInfo[j].description) ? columnInfo[j].name + "-" + columnInfo[j].description : columnInfo[j].name;
-                                            callbackArr.push({caption: caption, snippet: columnInfo[j].name, meta: "column", type: "snippet", score : 1000});
-                                        }
-                                        isFound = true;
-                                    }
-                                }
-                            }
-                            callback(null,  callbackArr);
-                        }
-                    }
-                });
-			},
 			handleSelectionChange(val) {
             	this.$set(this.choiceResultObj, this.executeShowTable, val);
 			},
