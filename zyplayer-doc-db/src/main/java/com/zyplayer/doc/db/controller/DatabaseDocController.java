@@ -83,31 +83,15 @@ public class DatabaseDocController {
 	}
 	
 	/**
-	 * 不再使用此接口，优化了
-	 * 获取编辑器所需的所有信息，用于自动补全
-	 * 此接口会返回所有库表结构，介意的话请自己手动屏蔽调此接口
-	 *
-	 * @param sourceId
-	 * @return
+	 * 获取数据源基本信息
+	 * @param sourceId 数据源ID
+	 * @return 基本信息
 	 */
-	@Deprecated
-	@PostMapping(value = "/getEditorData")
-	public ResponseJson getEditorData(Long sourceId) {
-		// 没权限，返回空
-		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
-				&& !DocUserUtil.haveCustomAuth(DbAuthType.VIEW.getName(), DocAuthConst.DB + sourceId)) {
-			return DocDbResponseJson.ok();
-		}
-		String cacheKey = CachePrefix.DB_EDITOR_DATA_CACHE + sourceId;
-		Object resultObj = CacheUtil.get(cacheKey);
-		if (resultObj != null) {
-			return DocDbResponseJson.ok(resultObj);
-		}
+	@PostMapping(value = "/getSourceBaseInfo")
+	public ResponseJson getSourceBaseInfo(Long sourceId) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
-		Map<String, Object> dbResultMap = dbBaseService.getEditorData(sourceId);
+		Map<String, Object> dbResultMap = new HashMap<>();
 		dbResultMap.put("product", dbBaseService.getDatabaseProduct().name().toLowerCase());
-		// 缓存10分钟，如果10分钟内库里面增删改了表或字段，则提示不出来
-		CacheUtil.put(cacheKey, dbResultMap, 6000);
 		return DocDbResponseJson.ok(dbResultMap);
 	}
 	

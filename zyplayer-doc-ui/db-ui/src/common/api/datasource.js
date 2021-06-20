@@ -8,8 +8,8 @@ export default {
     queryTableDdl: data => {
         return request({url: '/zyplayer-doc-db/doc-db/getTableDdl', method: 'post', data: Qs.stringify(data)});
     },
-    getEditorData: data => {
-        return request({url: '/zyplayer-doc-db/doc-db/getEditorData', method: 'post', data: Qs.stringify(data)});
+	getSourceBaseInfo: data => {
+        return request({url: '/zyplayer-doc-db/doc-db/getSourceBaseInfo', method: 'post', data: Qs.stringify(data)});
     },
     datasourceList: data => {
         return request({url: '/zyplayer-doc-db/doc-db/getDataSourceList', method: 'post', data: Qs.stringify(data)});

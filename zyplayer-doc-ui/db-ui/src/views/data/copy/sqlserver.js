@@ -5,8 +5,8 @@
  */
 export default {
 	insert(dataCols, choiceData, dbName, tableName) {
-		let tableNameRes = (!!dbName) ? '`' + dbName + '`.`' : '';
-		tableNameRes += (!!tableName) ? tableName : '`table`';
+		let tableNameRes = (!!dbName) ? dbName + '..' : '';
+		tableNameRes += (!!tableName) ? tableName : 'table';
 		// 复制为insert语句
 		let copyData = '';
 		let names = '';
@@ -31,8 +31,8 @@ export default {
 		return copyData;
 	},
 	update(dataCols, choiceData, condition=[], dbName, tableName) {
-		let tableNameRes = (!!dbName) ? '`' + dbName + '`.`' : '';
-		tableNameRes += (!!tableName) ? tableName : '`table`';
+		let tableNameRes = (!!dbName) ? dbName + '..' : '';
+		tableNameRes += (!!tableName) ? tableName : 'table';
 		// 复制为update语句
 		let copyData = '';
 		choiceData.forEach(item => {

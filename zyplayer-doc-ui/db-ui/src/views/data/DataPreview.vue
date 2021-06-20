@@ -346,8 +346,7 @@
 				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
 				if (choiceData.length > 0) {
 					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
-					let tableName = '`' + this.pageParam.dbName + '`.`' + this.pageParam.tableName + '`';
-					let copyData = copyFormatter.format('update', this.editorDbProduct, dataCols, choiceData, this.conditionDataColsChoice, tableName);
+					let copyData = copyFormatter.format('update', this.pageParam.dbType, dataCols, choiceData, this.conditionDataColsChoice, this.pageParam.dbName, this.pageParam.tableName);
 					this.conditionDataColsChoice = [];
 					this.exportConditionVisible = false;
 					this.$copyText(copyData).then(
@@ -366,8 +365,7 @@
 						this.exportConditionVisible = true;
 						return;
 					}
-					let tableName = '`' + this.pageParam.dbName + '`.`' + this.pageParam.tableName + '`';
-					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData, '', tableName);
+					let copyData = copyFormatter.format(type, this.pageParam.dbType, dataCols, choiceData, '', this.pageParam.dbName, this.pageParam.tableName);
 					this.$copyText(copyData).then(
 							res => this.$message.success("内容已复制到剪切板！"),
 							err => this.$message.error("抱歉，复制失败！")

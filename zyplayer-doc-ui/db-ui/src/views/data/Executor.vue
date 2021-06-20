@@ -304,6 +304,7 @@
                         this.choiceDatasourceId = this.datasourceList[0].id;
 						this.executorSource = {sourceId: this.choiceDatasourceId};
                         this.loadDatabaseList();
+                        this.loadSourceBaseInfo();
                     }
                 });
             },
@@ -319,13 +320,10 @@
 					}
 				});
             },
-            loadEditorData() {
-                datasourceApi.getEditorData({sourceId: this.choiceDatasourceId}).then(json => {
+            loadSourceBaseInfo() {
+                datasourceApi.getSourceBaseInfo({sourceId: this.choiceDatasourceId}).then(json => {
                     let data = json.data || {};
-                    this.editorDbInfo = data.db || [];
                     this.editorDbProduct = data.product || '';
-                    this.editorDbTableInfo = data.table || {};
-                    this.editorColumnInfo = data.column || {};
                 });
             },
 			sourceGroupChangeEvents() {
@@ -341,11 +339,13 @@
 					this.choiceDatasourceId = datasourceOptions[0].id;
 					this.executorSource = {sourceId: this.choiceDatasourceId};
 					this.loadDatabaseList();
+					this.loadSourceBaseInfo();
 				}
 			},
             datasourceChangeEvents() {
 				this.executorSource = {sourceId: this.choiceDatasourceId};
 				this.loadDatabaseList();
+				this.loadSourceBaseInfo();
             },
             databaseChangeEvents() {
 				this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
@@ -392,7 +392,7 @@
             	let choiceData = this.choiceResultObj[this.executeShowTable] || [];
 				if (choiceData.length > 0) {
 					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
-					let copyData = copyFormatter.format('update', this.editorDbProduct, dataCols, choiceData, this.conditionDataColsChoice, '`table`');
+					let copyData = copyFormatter.format('update', this.editorDbProduct, dataCols, choiceData, this.conditionDataColsChoice);
 					this.conditionDataColsChoice = [];
 					this.exportConditionVisible = false;
 					this.$copyText(copyData).then(
@@ -411,7 +411,7 @@
 						this.exportConditionVisible = true;
 						return;
 					}
-					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData, '', '`table`');
+					let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData, '');
 					this.$copyText(copyData).then(
 							res => this.$message.success("内容已复制到剪切板！"),
 							err => this.$message.error("抱歉，复制失败！")

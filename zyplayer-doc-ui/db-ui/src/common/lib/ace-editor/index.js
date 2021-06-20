@@ -5,7 +5,7 @@ import 'brace/snippets/sql';
 import 'brace/mode/json';
 import 'brace/snippets/json';
 import 'brace/theme/monokai';
-import complater from './DatabaseCompleter'
+import completer from './DatabaseCompleter'
 
 export default {
 	render: function (h) {
@@ -59,7 +59,7 @@ export default {
 			})
 		},
 		source: function (source) {
-			complater.change(source);
+			completer.change(source);
 		},
 	},
 	beforeDestroy: function () {
@@ -67,7 +67,7 @@ export default {
 		this.editor.container.remove();
 	},
 	activated: function () {
-		complater.change(this.source);
+		completer.change(this.source);
 	},
 	mounted: function () {
 		let vm = this;
@@ -88,14 +88,14 @@ export default {
 			let content = editor.getValue();
 			vm.$emit('input', content);
 			vm.contentBackup = content;
-			// 内容改变就执行输入提示功能，todo 某些情况下应当不提示
+			// 内容改变就执行输入提示功能，和自动的冲突了，感觉自动的就符合了，但是按空格他不出现提示框
 			// console.log('change content：' + content);
 			// editor.execCommand("startAutocomplete");
 		});
 		if (vm.options) {
 			editor.setOptions(vm.options);
 		}
-		complater.change(this.source);
+		completer.change(this.source);
 	},
 	methods: {
 		px: function (n) {

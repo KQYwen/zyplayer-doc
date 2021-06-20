@@ -216,58 +216,6 @@ public abstract class DbBaseService {
 	}
 	
 	/**
-	 * 获取编辑器所需的所有信息，用于自动补全
-	 * 此接口会返回所有库表结构，介意的话请自己手动屏蔽调此接口
-	 *
-	 * @param sourceId sourceId
-	 * @author 暮光：城中城
-	 * @since 2019年9月1日
-	 */
-	public Map<String, Object> getEditorData(Long sourceId) {
-		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-		DatabaseFactoryBean databaseFactoryBean = databaseRegistrationBean.getOrCreateFactoryById(sourceId);
-		List<DatabaseInfoDto> dbNameDtoList = baseMapper.getDatabaseList();
-		Map<String, List<TableInfoDto>> dbTableMap = new HashMap<>();
-		Map<String, List<TableColumnDescDto>> tableColumnsMap = new HashMap<>();
-		
-		Map<String, List<TableInfoDto>> tableMapList = new HashMap<>();
-		// MYSQL可以一次性查询所有库表
-		if (databaseFactoryBean.getDatabaseProduct() == DatabaseProductEnum.MYSQL) {
-			List<TableInfoDto> dbTableList = baseMapper.getTableList(null);
-			tableMapList = dbTableList.stream().collect(Collectors.groupingBy(TableInfoDto::getDbName));
-		}
-		for (DatabaseInfoDto infoDto : dbNameDtoList) {
-			List<TableInfoDto> tableInfoDtoList = tableMapList.get(infoDto.getDbName());
-			// SQLSERVER必须要库才能查
-			if (databaseFactoryBean.getDatabaseProduct() == DatabaseProductEnum.SQLSERVER) {
-				tableInfoDtoList = baseMapper.getTableList(infoDto.getDbName());
-			}
-			if (CollectionUtils.isEmpty(tableInfoDtoList)) {
-				continue;
-			}
-			dbTableMap.put(infoDto.getDbName(), tableInfoDtoList);
-			// 小于10个库，查所有库，否则只查询当前链接的库，防止库表太多，数据量太大
-			// 如果觉得没必要就自己改吧！
-			Map<String, List<TableColumnDescDto>> columnDescDtoMap = new HashMap<>();
-			if (dbNameDtoList.size() <= 10 || Objects.equals(databaseFactoryBean.getDbName(), infoDto.getDbName())) {
-				List<TableColumnDescDto> columnDescDto = baseMapper.getTableColumnList(infoDto.getDbName(), null);
-				columnDescDtoMap = columnDescDto.stream().collect(Collectors.groupingBy(TableColumnDescDto::getTableName));
-			}
-			for (TableInfoDto tableInfoDto : tableInfoDtoList) {
-				List<TableColumnDescDto> descDtoList = columnDescDtoMap.get(tableInfoDto.getTableName());
-				if (CollectionUtils.isNotEmpty(descDtoList)) {
-					tableColumnsMap.put(tableInfoDto.getTableName(), descDtoList);
-				}
-			}
-		}
-		Map<String, Object> dbResultMap = new HashMap<>();
-		dbResultMap.put("db", dbNameDtoList);
-		dbResultMap.put("table", dbTableMap);
-		dbResultMap.put("column", tableColumnsMap);
-		return dbResultMap;
-	}
-	
-	/**
 	 * 获取存储过程列表
 	 *
 	 * @param procedureParam 参数
