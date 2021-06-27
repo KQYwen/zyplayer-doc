@@ -10,13 +10,7 @@
                     </el-tooltip>
                     <el-button icon="el-icon-brush" size="small" @click="formatterSql">SQL美化</el-button>
                     <el-button v-on:click="addFavorite('')" plain  size="small" icon="el-icon-star-off">收藏</el-button>
-                    <el-button v-on:click="loadHistoryAndFavoriteList" plain  size="small" icon="el-icon-tickets">收藏及历史</el-button>
                     <div style="float: right;">
-<!--						增加了选择数据库后，分组加上就太长了，先去掉，感觉用处不大 -->
-<!--						<el-select v-model="choiceDatasourceGroup" @change="sourceGroupChangeEvents" size="small" filterable placeholder="请先选择分组" style="width: 200px;">-->
-<!--							<el-option value="" label="全部分组"></el-option>-->
-<!--							<el-option v-for="item in datasourceGroupList" :key="item" :value="item"></el-option>-->
-<!--						</el-select>-->
                         <el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="small" filterable placeholder="请选择数据源" style="width: 300px;margin-left: 10px;">
                             <el-option v-for="item in datasourceOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         </el-select>
@@ -25,11 +19,14 @@
                         </el-select>
                     </div>
                 </div>
+				<div v-if="sqlParams.length > 0" class="sql-params">
+					<el-input :placeholder="'请输入'+param.key+'的值'" v-model="param.value" v-for="param in sqlParams">
+						<template slot="prepend">{{param.key}}</template>
+					</el-input>
+				</div>
             </el-card>
             <el-card>
-                <div v-if="!!executeError" style="color: #f00;">{{executeError}}</div>
-                <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting">暂无数据</div>
-                <div v-else style="position: relative;">
+                <div style="position: relative;">
 					<div style="position: absolute;right: 0;z-index: 1;">
 						<!-- 复制选中行 -->
 						<el-dropdown @command="handleCopyCheckLineCommand" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
@@ -44,63 +41,64 @@
 						</el-dropdown>
 					</div>
                     <el-tabs v-model="executeShowTable">
-                        <el-tab-pane label="信息" name="table0">
+                        <el-tab-pane label="执行历史" name="tabHistory">
+							<el-table :data="myHistoryListList" stripe border style="width: 100%; margin-bottom: 5px;">
+								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
+								<el-table-column prop="content" label="SQL">
+									<template slot-scope="scope">
+										<pre style="margin: 0;" @dblclick="inputFavoriteSql(scope.row.content)">{{scope.row.content}}</pre>
+									</template>
+								</el-table-column>
+								<el-table-column label="操作" width="160px">
+									<template slot-scope="scope">
+										<el-button size="mini" type="primary" @click="inputFavoriteSql(scope.row.content)">输入</el-button>
+										<el-button size="mini" type="success" @click="addFavorite(scope.row.content)" style="margin-left: 10px;">收藏</el-button>
+									</template>
+								</el-table-column>
+							</el-table>
+                        </el-tab-pane>
+                        <el-tab-pane label="我的收藏" name="tabFavorite">
+							<el-table :data="myFavoriteList" stripe border style="width: 100%; margin-bottom: 5px;" v-infinite-scroll>
+								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
+								<el-table-column prop="content" label="SQL">
+									<template slot-scope="scope">
+										<pre style="margin: 0;" @dblclick="inputFavoriteSql(scope.row.content)">{{scope.row.content}}</pre>
+									</template>
+								</el-table-column>
+								<el-table-column label="操作" width="160px">
+									<template slot-scope="scope">
+										<el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row.content)">输入</el-button>
+										<el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)" style="margin-left: 10px;">删除</el-button>
+									</template>
+								</el-table-column>
+							</el-table>
+                        </el-tab-pane>
+                        <el-tab-pane label="信息" name="tabInfo" v-if="!!executeResultInfo">
                             <pre>{{executeResultInfo}}</pre>
                         </el-tab-pane>
-                        <el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
-                            <div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
-							<div v-else-if="resultItem.dataList.length <= 0" style="text-align: center; color: #aaa; padding: 20px 0;">暂无数据</div>
-                            <el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600"
-									  @selection-change="handleSelectionChange">
-								<el-table-column type="selection" width="55"></el-table-column>
-								<el-table-column type="index" width="50"></el-table-column>
-                                <el-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
-                                    <template slot-scope="scope">
-                                        <textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
+                        <el-tab-pane label="错误" name="tabError" v-if="!!executeError">
+							<div style="color: #f00;">{{executeError}}</div>
                         </el-tab-pane>
+						<template v-else>
+							<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name" v-for="resultItem in executeResultList" v-if="!!resultItem.index">
+								<div v-if="!!resultItem.errMsg" style="color: #f00;">{{resultItem.errMsg}}</div>
+								<div v-else-if="resultItem.dataList.length <= 0" style="text-align: center; color: #aaa; padding: 20px 0;">暂无数据</div>
+								<el-table v-else :data="resultItem.dataList" stripe border style="width: 100%; margin-bottom: 5px;" class="execute-result-table" max-height="600"
+										  @selection-change="handleSelectionChange">
+									<el-table-column type="selection" width="55"></el-table-column>
+									<el-table-column type="index" width="50"></el-table-column>
+									<el-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
+										<template slot-scope="scope">
+											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
+										</template>
+									</el-table-column>
+								</el-table>
+							</el-tab-pane>
+						</template>
                     </el-tabs>
                 </div>
             </el-card>
         </div>
-        <el-drawer title="收藏及历史" :visible.sync="historyDrawerVisible" size="50%" class="data-executor-vue-out">
-            <div style="padding: 10px;">
-                <el-tabs value="favorite">
-                    <el-tab-pane label="我的收藏" name="favorite">
-                        <el-table :data="myFavoriteList" stripe border style="width: 100%; margin-bottom: 5px;" v-infinite-scroll>
-                            <el-table-column prop="content" label="SQL">
-                                <template slot-scope="scope">
-                                    <pre style="margin: 0;">{{scope.row.content}}</pre>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="操作" width="160px">
-                                <template slot-scope="scope">
-                                    <el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row.content)">输入</el-button>
-                                    <el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)" style="margin-left: 10px;">删除</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </el-tab-pane>
-                    <el-tab-pane label="历史记录" name="history">
-                        <el-table :data="myHistoryListList" stripe border style="width: 100%; margin-bottom: 5px;">
-                            <el-table-column prop="content" label="SQL">
-								<template slot-scope="scope">
-									<pre style="margin: 0;">{{scope.row.content}}</pre>
-								</template>
-							</el-table-column>
-                            <el-table-column label="操作" width="160px">
-                                <template slot-scope="scope">
-                                    <el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row.content)">输入</el-button>
-                                    <el-button size="mini" type="success" v-on:click="addFavorite(scope.row.content)" style="margin-left: 10px;">收藏</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </el-tab-pane>
-                </el-tabs>
-            </div>
-        </el-drawer>
 		<!--选择导出为update的条件列弹窗-->
 		<el-dialog :visible.sync="exportConditionVisible" width="500px" title="选择更新语句条件">
 			<div>
@@ -123,6 +121,7 @@
     import sqlFormatter from "sql-formatter"
     import datasourceApi from '../../common/api/datasource'
 	import aceEditor from "../../common/lib/ace-editor";
+	import sqlParser from "./parser/SqlParser";
 
     export default {
         data() {
@@ -143,12 +142,11 @@
                 sqlExecuting: false,
                 executeResultList: [],
                 executeResultInfo: "",
-                executeShowTable: "table1",
+                executeShowTable: "tabHistory",
                 sqlExecutorEditor: {},
                 nowExecutorId: 1,
                 executeError: "",
                 // 收藏及历史
-                historyDrawerVisible: false,
                 myFavoriteList: [],
                 myHistoryListList: [],
 				// 选择复制
@@ -169,6 +167,10 @@
 					maxLines: 40,
 				},
 				executorSource: {},
+				// sql参数
+				sqlParams: [],
+				sqlParamWaiting: false,
+				sqlParamHistory: {},
             }
         },
 		components: {
@@ -189,6 +191,22 @@
 						that.doExecutorSql();
 					}
 				});
+				editor.on('change', () => {
+					if (!this.sqlParamWaiting) {
+						this.sqlParamWaiting = true;
+						setTimeout(() => {
+							let content = editor.getValue();
+							let paramArr = sqlParser.parserArr(content, [
+								{start: '${', end: '}'}, {start: '#{', end: '}'}
+							]);
+							this.sqlParams = [];
+							paramArr.forEach(item => {
+								this.sqlParams.push({key: item, value: this.sqlParamHistory[item] || ''});
+							});
+							this.sqlParamWaiting = false;
+						}, 1000);
+					}
+				});
 			},
             cancelExecutorSql() {
                 datasourceApi.executeSqlCancel({executeId: this.nowExecutorId}).then(() => {
@@ -196,7 +214,6 @@
                 });
             },
             loadHistoryAndFavoriteList() {
-                this.historyDrawerVisible = true;
                 this.loadHistoryList();
                 this.loadFavoriteList();
             },
@@ -231,7 +248,6 @@
             },
             inputFavoriteSql(content) {
                 this.sqlExecutorEditor.setValue(content, 1);
-                this.historyDrawerVisible = false;
             },
             formatterSql() {
                 let dataSql = this.sqlExecutorEditor.getSelectedText();
@@ -255,9 +271,15 @@
                 this.executeError = "";
                 this.executeUseTime = "";
                 this.executeResultList = [];
-
+                let sqlParamObj = {};
+				this.sqlParams.forEach(item => {
+					if (!!item.value) {
+						sqlParamObj[item.key] = item.value;
+						this.sqlParamHistory[item.key] = item.value;
+					}
+				});
                 this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
-                var sqlValue = this.sqlExecutorEditor.getSelectedText();
+				let sqlValue = this.sqlExecutorEditor.getSelectedText();
                 if (!sqlValue) {
                     sqlValue = this.sqlExecutorEditor.getValue();
                 }
@@ -267,30 +289,31 @@
                     dbName: this.choiceDatabase,
                     executeId: this.nowExecutorId,
                     sql: sqlValue,
-                    params: '',
+                    params: JSON.stringify(sqlParamObj),
                 }).then(json => {
                     this.sqlExecuting = false;
                     if (json.errCode != 200) {
                         this.executeError = json.errMsg;
                         return;
                     }
-                    var resultList = json.data || [];
-                    var executeResultList = [];
-                    var executeResultInfo = "", itemIndex = 1;
-                    for (var i = 0; i < resultList.length; i++) {
-                        var objItem = JSON.parse(resultList[i]);
+                    let resultList = json.data || [];
+                    let executeResultList = [];
+                    let executeResultInfo = "", itemIndex = 1;
+                    for (let i = 0; i < resultList.length; i++) {
+						let objItem = JSON.parse(resultList[i]);
                         executeResultInfo += this.getExecuteInfoStr(objItem);
-                        var resultItem = this.dealExecuteResult(objItem);
+						let resultItem = this.dealExecuteResult(objItem);
                         if (resultItem.updateCount < 0) {
                             resultItem.index = itemIndex;
-                            resultItem.name = 'table' + itemIndex;
+                            resultItem.name = 'tab' + itemIndex;
                             itemIndex++;
                         }
                         executeResultList.push(resultItem);
                     }
-                    this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
+                    this.executeShowTable = (itemIndex === 1) ? "tabInfo" : "tab1";
                     this.executeResultInfo = executeResultInfo;
                     this.executeResultList = executeResultList;
+					this.loadHistoryList();
                 });
             },
             loadDatasourceList() {
@@ -305,6 +328,7 @@
 						this.executorSource = {sourceId: this.choiceDatasourceId};
                         this.loadDatabaseList();
                         this.loadSourceBaseInfo();
+                        this.loadHistoryAndFavoriteList();
                     }
                 });
             },
@@ -340,12 +364,14 @@
 					this.executorSource = {sourceId: this.choiceDatasourceId};
 					this.loadDatabaseList();
 					this.loadSourceBaseInfo();
+					this.loadHistoryAndFavoriteList();
 				}
 			},
             datasourceChangeEvents() {
 				this.executorSource = {sourceId: this.choiceDatasourceId};
 				this.loadDatabaseList();
 				this.loadSourceBaseInfo();
+				this.loadHistoryAndFavoriteList();
             },
             databaseChangeEvents() {
 				this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
@@ -428,6 +454,14 @@
     }
     .data-executor-vue .el-card__body{
         padding: 10px;
+    }
+    .data-executor-vue .sql-params{
+    }
+    .data-executor-vue .sql-params .el-input-group{
+        width: auto;margin: 10px 10px 0 0;
+    }
+    .data-executor-vue .sql-params .el-input__inner{
+        width: 200px;
     }
     .data-executor-vue .el-table td, .el-table th{
         padding: 6px 0;

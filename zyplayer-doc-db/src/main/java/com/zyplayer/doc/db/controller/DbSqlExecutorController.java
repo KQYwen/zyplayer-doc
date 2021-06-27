@@ -1,6 +1,7 @@
 package com.zyplayer.doc.db.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
@@ -18,8 +19,10 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
+import com.zyplayer.doc.db.framework.db.transfer.SqlParseUtil;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.framework.utils.JSONUtil;
+import com.zyplayer.doc.db.framework.utils.SqlLogUtil;
 import com.zyplayer.doc.db.service.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.DbBaseService;
 import org.apache.commons.lang.StringUtils;
@@ -30,10 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * sql执行器
@@ -71,6 +71,8 @@ public class DbSqlExecutorController {
 		String useDbSql = dbBaseService.getUseDbSql(dbName);
 		// 保留历史记录
 		dbHistoryService.saveHistory(sql.trim(), sourceId);
+		// 参数处理
+		Map<String, Object> paramMap = JSON.parseObject(params);
 		List<String> resultList = new LinkedList<>();
 		// 支持;分割的多个sql执行
 		String[] sqlArr = sql.split(";");
@@ -79,23 +81,25 @@ public class DbSqlExecutorController {
 				continue;
 			}
 			sqlItem = sqlItem.trim();
+			ExecuteResult executeResult;
+			ExecuteParam executeParam = new ExecuteParam();
 			try {
 				ExecuteType executeType = (manageAuth || update) ? ExecuteType.ALL : ExecuteType.SELECT;
-				ExecuteParam executeParam = new ExecuteParam();
+				executeParam = SqlParseUtil.getSingleExecuteParam(sqlItem, paramMap);
 				executeParam.setDatasourceId(sourceId);
 				executeParam.setExecuteId(executeId);
 				executeParam.setExecuteType(executeType);
-				executeParam.setSql(sqlItem);
 				executeParam.setPrefixSql(useDbSql);
 				executeParam.setMaxRows(1000);
-				ExecuteResult executeResult = sqlExecutor.execute(executeParam);
-				String resultJsonStr = JSON.toJSONString(executeResult, JSONUtil.serializeConfig, SerializerFeature.WriteMapNullValue);
-				resultList.add(resultJsonStr);
+				executeResult = sqlExecutor.execute(executeParam);
 			} catch (Exception e) {
 				logger.error("执行出错", e);
-				ExecuteResult executeResult = ExecuteResult.error(e.getMessage(), sqlItem);
-				resultList.add(JSON.toJSONString(executeResult));
+				executeResult = ExecuteResult.error(e.getMessage(), sqlItem);
 			}
+			// 执行的sql处理
+			String executeSqlLog = SqlLogUtil.parseLogSql(executeParam.getSql(), executeParam.getParameterMappings(), executeParam.getParamList());
+			executeResult.setSql(executeSqlLog);
+			resultList.add(JSON.toJSONString(executeResult, JSONUtil.serializeConfig, SerializerFeature.WriteMapNullValue));
 		}
 		return DocDbResponseJson.ok(resultList);
 	}

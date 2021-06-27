@@ -1,6 +1,7 @@
 package com.zyplayer.doc.db.framework.db.transfer;
 
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
+import com.zyplayer.doc.db.framework.db.parser.FillParamUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
@@ -152,8 +153,8 @@ public class SqlParseUtil {
 	 * @return
 	 */
 	public static ExecuteParam getSingleExecuteParam(String sql, Map<String, Object> paramMap) {
+		sql = FillParamUtil.fillSqlParam(sql, paramMap);
 		ExecuteParam executeParam = new ExecuteParam();
-		
 		SqlSourceBuilder sqlSourceBuilder = new SqlSourceBuilder(new Configuration());
 		StaticSqlSource parse = (StaticSqlSource) sqlSourceBuilder.parse(sql, Object.class, paramMap);
 		BoundSql boundSql =  parse.getBoundSql(new Object());
