@@ -41,9 +41,9 @@ public class SchedulerTask {
 			if (Objects.equals(ZyplayerDocVersion.version, properties.getProperty("lastVersion"))) {
 				return;
 			}
-			properties.setProperty("nowVersion", ZyplayerDocVersion.version);
 			String jsonString = JSON.toJSONString(properties);
 			UpgradeUtil.upgradeInfo = JSON.parseObject(jsonString, UpgradeInfo.class);
+			UpgradeUtil.upgradeInfo.setNowVersion(ZyplayerDocVersion.version);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
