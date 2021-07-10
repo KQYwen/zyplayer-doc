@@ -17,7 +17,4 @@ export default {
 	request: data => {
         return request({url: '/zyplayer-doc-dubbo/doc-dubbo/request', method: 'post', data: Qs.stringify(data)});
     },
-    systemUpgradeInfo: data => {
-        return request({url: '/system/info/upgrade', method: 'post', data: Qs.stringify(data)});
-    },
 };

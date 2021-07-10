@@ -110,7 +110,7 @@
 		<finalName>zyplayer-doc-manage</finalName>
 		<resources>
 			<resource>
-				<directory>src/main/webapp/static/console</directory>
+				<directory>src/main/resources/dist</directory>
 				<targetPath>META-INF/resources/</targetPath>
 			</resource>
 			<resource>

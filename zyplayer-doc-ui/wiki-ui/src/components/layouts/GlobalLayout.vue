@@ -89,29 +89,8 @@
 				</el-main>
 			</el-container>
         </el-container>
-        <!--关于弹窗-->
-        <el-dialog title="关于zyplayer-doc-wiki" :visible.sync="aboutDialogVisible" width="600px">
-            <el-form>
-                <el-form-item label="开源地址：">
-                    <a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>
-                </el-form-item>
-                <el-form-item label="开发人员：">
-                    <a target="_blank" href="http://zyplayer.com">暮光：城中城</a>
-                </el-form-item>
-                <template v-if="upgradeInfo.lastVersion">
-                    <el-form-item label="当前版本：">{{upgradeInfo.nowVersion}}、最新版本：{{upgradeInfo.lastVersion}}，<a target="_blank" :href="upgradeInfo.upgradeUrl">去升级</a></el-form-item>
-                    <el-form-item label="升级内容：">
-						<pre class="upgrade-info">{{upgradeInfo.upgradeContent}}</pre>
-					</el-form-item>
-                </template>
-                <el-form-item label="">
-					<div style="line-height: 26px;">
-						zyplayer-doc是一款开源的在线文档工具，现有WIKI文档、数据库文档、swagger文档、dubbo文档、ElasticSearch文档等，不止文档。期待与你一起来迭代完善，欢迎加群讨论，QQ群号：466363173
-					</div>
-				</el-form-item>
-            </el-form>
-        </el-dialog>
 		<create-space ref="createSpace" @success="loadSpaceList"></create-space>
+		<about-dialog ref="aboutDialog"></about-dialog>
     </div>
 </template>
 
@@ -119,12 +98,12 @@
     import userApi from '../../common/api/user'
     import pageApi from '../../common/api/page'
 	import CreateSpace from '../space/CreateSpace'
+	import aboutDialog from "../../views/common/AboutDialog";
 
     export default {
         data() {
             return {
                 leftCollapse: true,
-                aboutDialogVisible: false,
                 rightContentLoading: false,
                 pathIndex: [],
                 defaultProps: {
@@ -146,8 +125,6 @@
                 wikiPage: {},
                 wikiPageExpandedKeys: [],
 				userSelfInfo: {},
-                // 升级信息
-                upgradeInfo: {},
 				userMessageList: [],
 				haveNotReadUserMessage: false,
 				userMessagePopVisible: false,
@@ -161,6 +138,7 @@
         },
 		components: {
 			"create-space": CreateSpace,
+			'about-dialog': aboutDialog
 		},
         computed: {
         },
@@ -168,7 +146,6 @@
             this.loadSpaceList();
             this.loadUserMessageList();
 			this.getSelfUserInfo();
-            this.checkSystemUpgrade();
         },
         methods: {
 			loadPageList(param) {
@@ -344,7 +321,7 @@
                 if (command == 'userSignOut') {
                     this.userSignOut();
                 } else if (command == 'aboutDoc') {
-					this.aboutDialogVisible = true;
+					this.$refs.aboutDialog.show();
                 } else if (command == 'myInfo') {
                     this.$router.push({path: '/user/myInfo'});
                 } else if (command == 'console') {
@@ -371,22 +348,6 @@
 				}
 				return {};
 			},
-            checkSystemUpgrade() {
-				userApi.systemUpgradeInfo({}).then(json => {
-                    if (!!json.data) {
-                        this.upgradeInfo = json.data;
-						if (!!this.upgradeInfo.upgradeContent) {
-							this.upgradeInfo.upgradeContent = this.upgradeInfo.upgradeContent.replaceAll('；', '\n');
-						}
-                        console.log("zyplayer-doc发现新版本："
-                            + "\n升级地址：" + json.data.upgradeUrl
-                            + "\n当前版本：" + json.data.nowVersion
-                            + "\n最新版本：" + json.data.lastVersion
-                            + "\n升级内容：" + json.data.upgradeContent
-                        );
-                    }
-                });
-            },
             switchSpacePage(spaceId) {
                 spaceId = parseInt(spaceId);
                 if (this.choiceSpace == spaceId) {

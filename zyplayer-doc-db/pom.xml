@@ -110,6 +110,10 @@
 	<build>
 		<resources>
 			<resource>
+				<directory>src/main/resources/dist</directory>
+				<targetPath>META-INF/resources/</targetPath>
+			</resource>
+			<resource>
 				<directory>src/main/resources</directory>
 				<targetPath>META-INF/resources/</targetPath>
 			</resource>
