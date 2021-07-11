@@ -33,7 +33,7 @@ target/
 nbproject/private/
 build/*
 nbbuild/
-dist/
+zyplayer-doc-ui/dist/
 nbdist/
 .nb-gradle/
 
@@ -59,12 +59,3 @@ rebel.xml
 # 忽略office文件打开临时文件 #
 [~$]*.*
 tmlog.lck
-zyplayer-doc-es/src/test/
-zyplayer-doc-manage/tmlog.lck
-zyplayer-doc-other/src/
-zyplayer-doc-other/zyplayer-doc-annotation/src/main/resources/
-zyplayer-doc-other/zyplayer-doc-annotation/src/test/
-zyplayer-doc-other/zyplayer-doc-dubbo-libs/dependency-reduced-pom.xml
-zyplayer-doc-other/zyplayer-doc-dubbo-libs/src/
-zyplayer-doc-other/zyplayer-doc-test/src/main/java/com/zyplayer/doc/test/db/
-zyplayer-doc-other/zyplayer-doc-test/src/test/
