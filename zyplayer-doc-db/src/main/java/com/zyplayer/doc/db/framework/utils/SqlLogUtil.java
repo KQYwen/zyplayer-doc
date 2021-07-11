@@ -33,7 +33,7 @@ public class SqlLogUtil {
 	}
 	
 	public static String parseLogSql(String sql, List<ParameterMapping> parameterMappings, List<Object> paramList) {
-		StringBuilder sqlSb = new StringBuilder(sql.replaceAll("[\\s]+", " "));
+		StringBuilder sqlSb = new StringBuilder(sql.replaceAll(" {2,}", " "));
 		int fromIndex = 0;
 		if (parameterMappings.size() > 0) {
 			for (int i = 0; i < parameterMappings.size(); i++) {

@@ -46,7 +46,7 @@
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
-										<pre style="margin: 0;" @dblclick="inputFavoriteSql(scope.row.content)">{{scope.row.content}}</pre>
+										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row.content)" :title="scope.row.content">{{scope.row.content}}</pre>
 									</template>
 								</el-table-column>
 								<el-table-column label="操作" width="160px">
@@ -62,7 +62,7 @@
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
-										<pre style="margin: 0;" @dblclick="inputFavoriteSql(scope.row.content)">{{scope.row.content}}</pre>
+										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row.content)" :title="scope.row.content">{{scope.row.content}}</pre>
 									</template>
 								</el-table-column>
 								<el-table-column label="操作" width="160px">
@@ -74,7 +74,7 @@
 							</el-table>
                         </el-tab-pane>
                         <el-tab-pane label="信息" name="tabInfo" v-if="!!executeResultInfo">
-                            <pre>{{executeResultInfo}}</pre>
+                            <pre style="white-space: pre-wrap;">{{executeResultInfo}}</pre>
                         </el-tab-pane>
                         <el-tab-pane label="错误" name="tabError" v-if="!!executeError">
 							<div style="color: #f00;">{{executeError}}</div>
@@ -204,7 +204,7 @@
 								this.sqlParams.push({key: item, value: this.sqlParamHistory[item] || ''});
 							});
 							this.sqlParamWaiting = false;
-						}, 1000);
+						}, 300);
 					}
 				});
 			},
@@ -293,6 +293,7 @@
                 }).then(json => {
                     this.sqlExecuting = false;
                     if (json.errCode != 200) {
+						this.executeShowTable = 'tabError';
                         this.executeError = json.errMsg;
                         return;
                     }
@@ -477,6 +478,14 @@
         line-height: 25px;
         padding: 0 5px;
         resize: none;
+    }
+    .data-executor-vue .sql-content-line{
+        margin: 0;
+		overflow:hidden;
+		text-overflow:ellipsis;
+		display:-webkit-box;
+		-webkit-line-clamp:2;
+		-webkit-box-orient:vertical;
     }
     .data-executor-vue .execute-use-time{
         font-size: 12px;margin-right: 10px;

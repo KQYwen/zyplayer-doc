@@ -76,6 +76,10 @@ public class DbSqlExecutorController {
 		List<String> resultList = new LinkedList<>();
 		// 支持;分割的多个sql执行
 		String[] sqlArr = sql.split(";");
+		// 执行条数太多，反应慢，展示结果栏太多，也不应该在这一次执行很多条语句，应该使用导入
+		if (sqlArr.length > 20) {
+			return DocDbResponseJson.warn("单次执行最多支持20条语句同时执行，当前语句条数：" + sqlArr.length);
+		}
 		for (String sqlItem : sqlArr) {
 			if (StringUtils.isBlank(sqlItem)) {
 				continue;
