@@ -3,7 +3,7 @@
 	<el-dialog title="关于" :visible.sync="aboutDialogVisible" width="600px" custom-class="about-zyplayer-doc">
 		<div style="">
 			<div style="font-weight: bold;font-size: 25px;">zyplayer-doc</div>
-			<div style="line-height: 30px;font-size: 12px;color: #666;padding: 10px 0;">
+			<div style="line-height: 30px;padding: 10px 0;">
 				<div>版本 {{upgradeInfo.nowVersion || '1.0.0'}}</div>
 				<div>版权所有 © 2018-2021 <a target="_blank" href="http://doc.zyplayer.com">doc.zyplayer.com</a></div>
 			</div>

@@ -31,7 +31,9 @@
 							 ref="databaseTree" highlight-current empty-text=""
 							 :default-expanded-keys="databaseExpandedKeys"
 							 node-key="id" @node-expand="handleNodeExpand"
-							 class="database-list-tree" style="overflow-x: auto;">
+							 v-loading="databaseListLoading"
+							 element-loading-text="数据库信息加载中"
+							 class="database-list-tree">
 						<div slot-scope="{node, data}">
 							<span v-if="data.needLoad"><i class="el-icon-loading"></i></span>
 							<span v-else>
@@ -95,8 +97,8 @@
 				choiceDatasourceGroup: "",
                 defaultProps: {children: 'children', label: 'name'},
                 // 页面展示相关
-                nowDatasourceShow: {},
                 databaseList: [],
+				databaseListLoading: false,
                 databaseExpandedKeys: [],
             }
         },
@@ -139,26 +141,18 @@
             },
 			sourceGroupChangeEvents() {
 				let datasourceOptions = [];
-				for (let i = 0; i < this.datasourceList.length; i++) {
-					let item = this.datasourceList[i];
+				this.datasourceList.forEach(item => {
 					if (!this.choiceDatasourceGroup || this.choiceDatasourceGroup == item.groupName) {
 						datasourceOptions.push({label: item.name, value: item.id});
 					}
-				}
+				});
 				this.datasourceOptions = datasourceOptions;
 				this.choiceDatasourceId = '';
 				this.databaseList = [];
             },
             datasourceChangeEvents() {
-				this.nowDatasourceShow = this.choiceDatasourceId;
-                var host = "";
-                for (var i = 0; i < this.datasourceList.length; i++) {
-                    if (this.datasourceList[i].id == this.choiceDatasourceId) {
-                        host = this.datasourceList[i].name;
-                        break;
-                    }
-                }
-				this.loadDatabaseList(this.choiceDatasourceId, host);
+				let choiceSource = this.datasourceList.find(item => item.id == this.choiceDatasourceId);
+				this.loadDatabaseList(this.choiceDatasourceId, choiceSource.name);
             },
             handleNodeClick(node) {
                 console.log("点击节点：", node);
@@ -217,23 +211,25 @@
                 });
             },
             loadDatasourceList() {
-                datasourceApi.datasourceList({}).then(json => {
-                    this.datasourceList = json.data || [];
-					let datasourceOptions = [];
-					for (let i = 0; i < this.datasourceList.length; i++) {
-						let item = this.datasourceList[i];
-						datasourceOptions.push({label: item.name, value: item.id});
+				datasourceApi.datasourceList({}).then(json => {
+					this.datasourceList = json.data || [];
+					if (this.datasourceList.length <= 0) {
+						return;
 					}
+					let datasourceOptions = [];
+					this.datasourceList.forEach(item => datasourceOptions.push({label: item.name, value: item.id}));
                     this.datasourceOptions = datasourceOptions;
 					let datasourceGroupList = [];
-					this.datasourceList.filter(item => !!item.groupName).forEach(item => datasourceGroupList.push(item.groupName || ''));
+					this.datasourceList.filter(item => !!item.groupName).forEach(item => datasourceGroupList.push(item.groupName));
 					this.datasourceGroupList = Array.from(new Set(datasourceGroupList));
 				});
             },
 			loadDatabaseList(sourceId, host) {
 				return new Promise((resolve, reject) => {
 					this.databaseList = [];
+					this.databaseListLoading = true;
 					datasourceApi.databaseList({sourceId: sourceId}).then(json => {
+						this.databaseListLoading = false;
 						let result = json.data || [];
 						let pathIndex = [];
 						let children = [];
@@ -248,6 +244,9 @@
 						pathIndex.push({id: host, host: host, name: host, children: children});
 						this.databaseList = pathIndex;
 						resolve();
+					}).catch(e => {
+						this.choiceDatasourceId = '';
+						this.databaseListLoading = false;
 					});
 				});
             },
@@ -276,7 +275,8 @@
 	.el-header {
 		background-color: #1D4E89 !important;
 	}
-    .database-list-tree{background-color: #fafafa;}
+    .database-list-tree{background-color: #fafafa;overflow-x: auto;min-height: 150px;}
+    .database-list-tree .el-loading-mask{background-color: #fafafa;}
     .database-list-tree .el-tree-node>.el-tree-node__children {
         overflow: unset;
     }
