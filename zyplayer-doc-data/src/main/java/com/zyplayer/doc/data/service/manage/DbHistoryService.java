@@ -13,6 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface DbHistoryService extends IService<DbHistory> {
 	
-	void saveHistory(String content, Long datasourceId);
+	void saveHistory(String content, String paramJson, Long datasourceId);
 	
 }

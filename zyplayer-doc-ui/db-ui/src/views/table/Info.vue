@@ -207,7 +207,7 @@
 						dbType: this.tableStatusInfo.dbType,
 						// 默认排序字段，先随便取一个，impala等数据库必须排序后才能分页查
 						orderColumn: primaryColumn.name,
-					});
+					}, this.columnList);
 				}
             },
 			onCopySuccess(e) {

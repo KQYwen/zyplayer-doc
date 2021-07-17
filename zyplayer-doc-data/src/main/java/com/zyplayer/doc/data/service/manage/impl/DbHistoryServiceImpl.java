@@ -26,11 +26,12 @@ public class DbHistoryServiceImpl extends ServiceImpl<DbHistoryMapper, DbHistory
 	DbHistoryMapper dbHistoryMapper;
 	
 	@Override
-	public void saveHistory(String content, Long datasourceId) {
+	public void saveHistory(String content, String paramJson, Long datasourceId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		DbHistory dbHistory = new DbHistory();
 		dbHistory.setDatasourceId(datasourceId);
 		dbHistory.setContent(content);
+		dbHistory.setParamJson(paramJson);
 		dbHistory.setCreateTime(new Date());
 		dbHistory.setCreateUserId(currentUser.getUserId());
 		dbHistory.setCreateUserName(currentUser.getUsername());

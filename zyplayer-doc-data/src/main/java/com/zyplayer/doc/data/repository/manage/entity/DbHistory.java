@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
@@ -52,6 +52,11 @@ public class DbHistory implements Serializable {
      * 是否有效 0=无效 1=有效
      */
     private Integer yn;
+
+    /**
+     * 执行参数JSON
+     */
+    private String paramJson;
 
     public Long getId() {
         return id;
@@ -114,5 +119,13 @@ public class DbHistory implements Serializable {
     
     public void setDatasourceId(Long datasourceId) {
         this.datasourceId = datasourceId;
+    }
+    
+    public String getParamJson() {
+        return paramJson;
+    }
+    
+    public void setParamJson(String paramJson) {
+        this.paramJson = paramJson;
     }
 }

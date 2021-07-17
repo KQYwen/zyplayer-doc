@@ -93,6 +93,7 @@ CREATE TABLE `db_favorite`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   `datasource_id` bigint(20) NULL DEFAULT NULL COMMENT '数据源ID',
+  `param_json` varchar(1024) DEFAULT NULL COMMENT '执行参数JSON',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
@@ -112,6 +113,7 @@ CREATE TABLE `db_history`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   `datasource_id` bigint(20) NULL DEFAULT NULL COMMENT '数据源ID',
+  `param_json` varchar(1024) DEFAULT NULL COMMENT '执行参数JSON',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 135 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 

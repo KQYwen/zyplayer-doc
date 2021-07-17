@@ -70,7 +70,7 @@ public class DbSqlExecutorController {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		String useDbSql = dbBaseService.getUseDbSql(dbName);
 		// 保留历史记录
-		dbHistoryService.saveHistory(sql.trim(), sourceId);
+		dbHistoryService.saveHistory(sql.trim(), params, sourceId);
 		// 参数处理
 		Map<String, Object> paramMap = JSON.parseObject(params);
 		List<String> resultList = new LinkedList<>();

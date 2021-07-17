@@ -21,5 +21,6 @@ CREATE TABLE `db_table_relation` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='表关系';
 
-
-
+-- 增加执行参数JSON
+alter table db_history add `param_json` varchar(1024) DEFAULT NULL COMMENT '执行参数JSON';
+alter table db_favorite add `param_json` varchar(1024) DEFAULT NULL COMMENT '执行参数JSON';

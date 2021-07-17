@@ -58,6 +58,11 @@ public class DbFavorite implements Serializable {
      * 是否有效 0=无效 1=有效
      */
     private Integer yn;
+    
+    /**
+     * 执行参数JSON
+     */
+    private String paramJson;
 
     public Long getId() {
         return id;
@@ -128,5 +133,13 @@ public class DbFavorite implements Serializable {
     
     public void setDatasourceId(Long datasourceId) {
         this.datasourceId = datasourceId;
+    }
+    
+    public String getParamJson() {
+        return paramJson;
+    }
+    
+    public void setParamJson(String paramJson) {
+        this.paramJson = paramJson;
     }
 }

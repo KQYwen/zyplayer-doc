@@ -46,12 +46,12 @@
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
-										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row.content)" :title="scope.row.content">{{scope.row.content}}</pre>
+										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row)" :title="scope.row.content">{{scope.row.content}}</pre>
 									</template>
 								</el-table-column>
 								<el-table-column label="操作" width="160px">
 									<template slot-scope="scope">
-										<el-button size="mini" type="primary" @click="inputFavoriteSql(scope.row.content)">输入</el-button>
+										<el-button size="mini" type="primary" @click="inputFavoriteSql(scope.row)">输入</el-button>
 										<el-button size="mini" type="success" @click="addFavorite(scope.row.content)" style="margin-left: 10px;">收藏</el-button>
 									</template>
 								</el-table-column>
@@ -62,12 +62,12 @@
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
-										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row.content)" :title="scope.row.content">{{scope.row.content}}</pre>
+										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row)" :title="scope.row.content">{{scope.row.content}}</pre>
 									</template>
 								</el-table-column>
 								<el-table-column label="操作" width="160px">
 									<template slot-scope="scope">
-										<el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row.content)">输入</el-button>
+										<el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row)">输入</el-button>
 										<el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)" style="margin-left: 10px;">删除</el-button>
 									</template>
 								</el-table-column>
@@ -234,11 +234,22 @@
                         sqlValue = this.sqlExecutorEditor.getValue();
                     }
                 }
-                let param = {name: '我的收藏', content: sqlValue, datasourceId: this.choiceDatasourceId};
-                datasourceApi.updateFavorite(param).then(() => {
-                    this.$message.success("收藏成功");
-                    this.loadFavoriteList();
-                });
+				let sqlParamObj = {};
+				this.sqlParams.forEach(item => {
+					if (!!item.value) {
+						sqlParamObj[item.key] = item.value;
+					}
+				});
+				let param = {
+					name: '我的收藏',
+					content: sqlValue,
+					paramJson: JSON.stringify(sqlParamObj),
+					datasourceId: this.choiceDatasourceId
+				};
+				datasourceApi.updateFavorite(param).then(() => {
+					this.$message.success("收藏成功");
+					this.loadFavoriteList();
+				});
             },
             delFavorite(row) {
                 datasourceApi.updateFavorite({id: row.id, yn: 0}).then(() => {
@@ -246,9 +257,15 @@
                     this.loadFavoriteList();
                 });
             },
-            inputFavoriteSql(content) {
-                this.sqlExecutorEditor.setValue(content, 1);
-            },
+			inputFavoriteSql(item) {
+				this.sqlExecutorEditor.setValue(item.content, 1);
+				if (!!item.paramJson) {
+					let paramJson = JSON.parse(item.paramJson);
+					for (let key in paramJson) {
+						this.sqlParamHistory[key] = paramJson[key];
+					}
+				}
+			},
             formatterSql() {
                 let dataSql = this.sqlExecutorEditor.getSelectedText();
                 if (!!dataSql) {

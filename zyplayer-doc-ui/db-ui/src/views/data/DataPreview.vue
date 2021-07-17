@@ -45,6 +45,11 @@
 									<el-table-column type="selection" width="55"></el-table-column>
 									<el-table-column type="index" width="50"></el-table-column>
 									<el-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :label="item.prop" :width="item.width">
+										<template slot="header" slot-scope="scope">
+											<el-tooltip effect="dark" :content="item.desc" placement="top">
+												<span>{{item.prop}}</span>
+											</el-tooltip>
+										</template>
 										<template slot-scope="scope">
 											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
 										</template>
@@ -170,7 +175,8 @@
 					minLines: 3,
 					maxLines: 3,
 				},
-				executorSource: {}
+				executorSource: {},
+				columnMap: {},
             }
         },
 		components: {
@@ -188,12 +194,15 @@
 			// }, 500);
         },
         methods: {
-			init(param) {
+			init(param, columnList) {
 				if (this.pageParam.sourceId == param.sourceId) {
 					return;
 				}
 				this.pageParam = param;
 				this.executorSource = {sourceId: param.sourceId, dbName: param.dbName, tableName: param.tableName};
+				let columnMap = {};
+				columnList.forEach(item => columnMap[item.name] = item);
+				this.columnMap = columnMap;
 				this.doExecutorSqlCommon();
                 // this.vueQueryParam = to.query;
                 // let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
@@ -328,7 +337,8 @@
                         var width = (width1 > width2) ? width1 : width2;
                         width = (width < 50) ? 50 : width;
                         width = (width > 200) ? 200 : width;
-                        executeResultCols.push({prop: key, width: width + 50});
+						let column = this.columnMap[key] || {};
+                        executeResultCols.push({prop: key, width: width + 50, desc: (column.description || key)});
                     }
                 }
                 var resultObj = {};
