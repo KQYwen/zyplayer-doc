@@ -1,10 +1,10 @@
-# zyplayer-doc-db项目的UI
+# zyplayer-doc-manage项目的UI
 
 ## 常见问题
 
 1、命令行要进入这个文件夹才能执行命令：
 
-zyplayer-doc/zyplayer-doc-ui/db-ui
+zyplayer-doc/zyplayer-doc-ui/console-ui
 
 2、修改host，否则run不起来：
 
@@ -23,25 +23,20 @@ zyplayer-doc/zyplayer-doc-ui/db-ui
 `Node >= 6`
 
 ## 开始
-
+执行下面的命令安装项目依赖
 ``` bash
-# 执行下面的命令初始化
 npm install
 ```
 
 ## 开发环境
-
+执行下面的命令启动前端工程
 ``` bash
-# 执行下面的命令后即可到启动前端工程
 npm run dev
 ```
 
 ## 打包
-
+执行下面的命令编译打包前端页面
 ``` bash
 npm run build
-# 开发完成后执行打包命令，然后复制dist目录里的文件到zyplayer-doc-db/resources目录下
-# 复制完成后记得修改index.html为doc-db.html
-# todo：是否可以直接打包为：doc-db.html，不用手动改名字
-# todo：是否可以直接打包到zyplayer-doc-db/resources文件夹下，难得复制
 ```
+打包会自动将打包的文件放到项目的resource文件夹下

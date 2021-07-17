@@ -8,5 +8,13 @@ module.exports = {
 		host: 'local.zyplayer.com'
 	},
 	publicPath: './',
-	productionSourceMap: false
+	outputDir: '../../zyplayer-doc-wiki/src/main/resources/dist',
+	productionSourceMap: false,
+	pages: {
+		index: {
+			entry: 'src/main.js',
+			template: 'public/index.html',
+			filename: process.env.NODE_ENV === 'production'?'doc-wiki.html':'index.html',
+		},
+	}
 };
