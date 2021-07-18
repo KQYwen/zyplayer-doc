@@ -325,7 +325,7 @@
                 } else if (command == 'myInfo') {
                     this.$router.push({path: '/user/myInfo'});
                 } else if (command == 'console') {
-                    window.location = process.env.VUE_APP_BASE_API;
+					window.open(process.env.VUE_APP_BASE_API, '_blank');
                 } else {
 					this.$message.warning("暂未开放");
                 }
