@@ -201,7 +201,7 @@
                 }).then(() => {
                     this.editUserForm = JSON.parse(JSON.stringify(row));
 					consoleApi.resetPassword(this.editUserForm).then(json => {
-						app.$confirm("重置成功！新的密码为：" + json.data).then(()=> {
+						this.$confirm("重置成功！新的密码为：" + json.data).then(()=> {
 						}).catch(()=> {});
 					});
                 }).catch(()=>{});

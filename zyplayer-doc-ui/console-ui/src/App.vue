@@ -72,9 +72,8 @@
 				return this.$store.state.global.fullscreen;
 			}
 		},
-		mounted: function () {
+		mounted() {
 			this.getSelfUserInfo();
-			this.checkSystemUpgrade();
 		},
 		methods: {
 			handleOpen(key, keyPath) {

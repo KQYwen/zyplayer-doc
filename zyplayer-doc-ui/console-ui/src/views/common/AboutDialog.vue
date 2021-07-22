@@ -80,7 +80,7 @@
 					if (!!json.data) {
 						this.upgradeInfo = json.data;
 						if (!!this.upgradeInfo.upgradeContent) {
-							this.upgradeInfo.upgradeContent = this.upgradeInfo.upgradeContent.replaceAll('；', '；\n');
+							this.upgradeInfo.upgradeContent = this.upgradeInfo.upgradeContent.replaceAll('；', '\n');
 						}
 						console.log("zyplayer-doc发现新版本："
 								+ "\n升级地址：" + json.data.upgradeUrl
