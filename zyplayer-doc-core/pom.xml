@@ -6,7 +6,7 @@
 
 	<groupId>com.zyplayer</groupId>
 	<artifactId>zyplayer-doc-core</artifactId>
-	<version>1.0.8</version>
+	<version>1.0.9</version>
 	<name>zyplayer-doc-core</name>
 
 	<url>http://maven.apache.org</url>
