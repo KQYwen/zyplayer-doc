@@ -16,5 +16,7 @@ module.exports = {
 			template: 'public/index.html',
 			filename: process.env.NODE_ENV === 'production'?'doc-db.html':'index.html',
 		},
-	}
+	},
+	// 在项目配置的时候，默认 npm 包导出的是运行时构建，即 runtime 版本，不支持编译 template 模板。
+	runtimeCompiler: true
 };

@@ -1,4 +1,5 @@
 import Home from './views/home/Home.vue'
+import Er from './views/home/Er.vue'
 
 import UserLogin from './views/user/Login.vue'
 import UserMyInfo from './views/user/MyInfo.vue'
@@ -45,6 +46,7 @@ let routes = [
             {path: '/data/transferData', name: '数据互导工具',component: DataTransferData},
             {path: '/data/dataPreview', name: '表数据预览',component: DataPreview},
 			{path: '/user/myInfo', name: '我的信息',component: UserMyInfo},
+			// {path: '/home/er', name: 'ER图测试',component: Er},
         ]
     }, {
         path: '/user',

@@ -177,6 +177,7 @@
 				},
 				executorSource: {},
 				columnMap: {},
+				primaryKeyColumn: {}
             }
         },
 		components: {
@@ -200,9 +201,13 @@
 				}
 				this.pageParam = param;
 				this.executorSource = {sourceId: param.sourceId, dbName: param.dbName, tableName: param.tableName};
-				let columnMap = {};
-				columnList.forEach(item => columnMap[item.name] = item);
-				this.columnMap = columnMap;
+				this.columnMap = {};
+				columnList.forEach(item => {
+					this.columnMap[item.name] = item;
+					if (item.primaryKey == 1) {
+						this.primaryKeyColumn = item;
+					}
+				});
 				this.doExecutorSqlCommon();
                 // this.vueQueryParam = to.query;
                 // let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
@@ -267,6 +272,7 @@
 				conditionSql = conditionSql || "";
 				this.executeError = "";
 				this.executeUseTime = "";
+				this.choiceResultObj = {};
 				this.executeResultList = [];
 				this.tableMaxHeight = document.body.clientHeight - 420;
 				this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
@@ -368,14 +374,19 @@
 			handleCopyCheckLineCommand(type) {
 				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
 				if (choiceData.length > 0) {
+					this.conditionDataColsChoice = [];
 					let dataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
 					if (type === 'update') {
-						// 选择更新的条件列
-						this.conditionDataCols = dataCols;
-						this.exportConditionVisible = true;
-						return;
+						if (!!this.primaryKeyColumn.name) {
+							this.conditionDataColsChoice = [this.primaryKeyColumn.name];
+						} else {
+							// 没有主键的时候，选择更新的条件列
+							this.conditionDataCols = dataCols;
+							this.exportConditionVisible = true;
+							return;
+						}
 					}
-					let copyData = copyFormatter.format(type, this.pageParam.dbType, dataCols, choiceData, '', this.pageParam.dbName, this.pageParam.tableName);
+					let copyData = copyFormatter.format(type, this.pageParam.dbType, dataCols, choiceData, this.conditionDataColsChoice, this.pageParam.dbName, this.pageParam.tableName);
 					this.$copyText(copyData).then(
 							res => this.$message.success("内容已复制到剪切板！"),
 							err => this.$message.error("抱歉，复制失败！")
@@ -403,9 +414,15 @@
 				this.downloadDataVisible = false;
 			},
 			downloadTableData() {
+				let dataRes = this.executeResultList.find(item => item.name === this.executeShowTable);
+				if (!dataRes || !dataRes.dataList || dataRes.dataList.length <= 0) {
+					this.$message.warning("当前筛选条件下无数据，请重新筛选后再操作导出");
+					return;
+				}
 				this.downloadDataParam.conditionArr = [];
-				this.conditionDataCols = this.executeResultList.find(item => item.name === this.executeShowTable).dataCols;
+				this.conditionDataCols = dataRes.dataCols;
 				this.downloadDataVisible = true;
+
 			},
 			dropTableFlagChange() {
 				if (this.downloadDataParam.dropTableFlag === 1) {
