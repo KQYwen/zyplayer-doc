@@ -3,9 +3,14 @@
 		<el-tabs v-model="tabActiveName" @tab-click="tabActiveNameChange">
 			<el-tab-pane label="表字段" name="columns">
 				<div v-loading="columnListLoading">
-					<div style="text-align: right; margin-bottom: 10px;">
-						<el-button size="small" plain type="primary" @click="showCreateTableDdl" style="margin-left: 10px;" icon="el-icon-magic-stick">DDL</el-button>
-					</div>
+					<el-row type="flex" class="row-bg" justify="space-between" style="margin-bottom: 10px;">
+						<el-col>
+							<span style="color: #888;vertical-align: middle;">表名：{{tableStatusInfo.name}}</span>
+						</el-col>
+						<el-col style="width: 200px;text-align: right;">
+							<el-button size="small" plain type="primary" @click="showCreateTableDdl" style="margin-left: 10px;" icon="el-icon-magic-stick">DDL</el-button>
+						</el-col>
+					</el-row>
 					<el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
 						<el-table-column prop="name" label="字段名" width="220"></el-table-column>
 						<el-table-column label="自增" width="50">
@@ -177,7 +182,7 @@
                     tableInfo.inEdit = 0;
                     tableInfo.newDesc = tableInfo.description;
                     this.tableInfo = tableInfo;
-                    let newName = {key: this.$route.fullPath, val: '表-' + tableInfo.tableName};
+                    let newName = {key: this.$route.fullPath, val: tableInfo.tableName};
                     this.$store.commit('global/addTableName', newName);
                     this.columnListLoading = false;
                 });

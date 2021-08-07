@@ -10,6 +10,7 @@ export default {
 	tableInfo: {},
 	columnInfo: {},
 	lastCallbackArr: [],
+	isAutocomplete: false,
 	change(source) {
 		this.source = source;
 		this.lastCallbackArr = [];
@@ -51,23 +52,34 @@ export default {
 			}
 		}
 	},
+	startAutocomplete(editor) {
+		this.isAutocomplete = true;
+		editor.execCommand("startAutocomplete");
+	},
 	async getCompletions(editor, session, pos, prefix, callback) {
 		let callbackArr = [];
-		let lineStr = session.getLine(pos.row).substring(0, pos.column - 1);
+		let endPos = this.isAutocomplete ? pos.column : pos.column - 1;
+		let lineStr = session.getLine(pos.row).substring(0, endPos);
+		this.isAutocomplete = false;
 		console.log("Executor.vue getCompletions，sourceId：" + JSON.stringify(this.source) + '， lineStr：' + lineStr, pos);
 		if (!!this.source.tableName) {
 			// 如果指定了表名，则只提示字段，其他都不用管，用在表数据查看页面
 			callbackArr = await this.getAssignTableColumns(this.source.dbName, this.source.tableName);
 			callback(null, callbackArr);
-		} else if (lineStr.endsWith("from ") || lineStr.endsWith("join ")) {
+		} else if (lineStr.endsWith("from ") || lineStr.endsWith("join ") || lineStr.endsWith("into ")
+			|| lineStr.endsWith("update ") || lineStr.endsWith("table ")) {
+			// 获取库和表
 			callbackArr = this.getDatabasesAndTables();
 			this.lastCallbackArr = callbackArr;
 			callback(null, callbackArr);
 		} else if (lineStr.endsWith(".")) {
+			// 获取表和字段
 			callbackArr = await this.getTablesAndColumns(lineStr);
 			this.lastCallbackArr = callbackArr;
 			callback(null, callbackArr);
-		} else if (lineStr.endsWith("select ") || lineStr.endsWith("where ") || lineStr.endsWith("and ") || lineStr.endsWith("or ")) {
+		} else if (lineStr.endsWith("select ") || lineStr.endsWith("where ") || lineStr.endsWith("and ")
+			|| lineStr.endsWith("or ") || lineStr.endsWith("set ")) {
+			// 获取字段
 			callbackArr = await this.getTableColumns(session, pos);
 			this.lastCallbackArr = callbackArr;
 			callback(null, callbackArr);

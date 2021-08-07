@@ -54,7 +54,7 @@
         methods: {
             initQueryParam(to) {
                 this.vueQueryParam = to.query;
-                let newName = {key: this.$route.fullPath, val: '库-' + this.vueQueryParam.dbName};
+                let newName = {key: this.$route.fullPath, val: this.vueQueryParam.dbName};
                 this.$store.commit('global/addTableName', newName);
             },
             searchSubmit() {

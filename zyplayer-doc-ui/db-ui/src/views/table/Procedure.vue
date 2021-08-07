@@ -108,7 +108,7 @@
 		methods: {
 			initQueryParam(to) {
 				this.vueQueryParam = to.query;
-				let newName = {key: this.$route.fullPath, val: '函数管理-' + this.vueQueryParam.dbName};
+				let newName = {key: this.$route.fullPath, val: '函数管理'};
 				this.$store.commit('global/addTableName', newName);
 			},
 			handleCurrentChange(to) {

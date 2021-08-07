@@ -108,7 +108,7 @@
 		methods: {
 			initQueryParam(to) {
 				this.vueQueryParam = to.query;
-				let newName = {key: this.$route.fullPath, val: '编辑函数-' + this.vueQueryParam.procName};
+				let newName = {key: this.$route.fullPath, val: '编辑函数'};
 				this.$store.commit('global/addTableName', newName);
 			},
 			sqlExecutorInit(editor) {

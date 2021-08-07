@@ -6,6 +6,7 @@ import 'brace/mode/json';
 import 'brace/snippets/json';
 import 'brace/theme/monokai';
 import completer from './DatabaseCompleter'
+import './index.css';
 
 export default {
 	render: function (h) {
@@ -91,6 +92,13 @@ export default {
 			// 内容改变就执行输入提示功能，和自动的冲突了，感觉自动的就符合了，但是按空格他不出现提示框
 			// console.log('change content：' + content);
 			// editor.execCommand("startAutocomplete");
+		});
+		editor.commands.addCommand({
+			name: "start-autocomplete",
+			bindKey: {win: "Alt-Enter", mac: "Alt-Enter"},
+			exec: function (editor) {
+				completer.startAutocomplete(editor);
+			}
 		});
 		if (vm.options) {
 			editor.setOptions(vm.options);
