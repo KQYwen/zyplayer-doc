@@ -4,11 +4,17 @@
 			<el-tab-pane label="表字段" name="columns">
 				<div v-loading="columnListLoading">
 					<el-row type="flex" class="row-bg" justify="space-between" style="margin-bottom: 10px;">
-						<el-col>
-							<span style="color: #888;vertical-align: middle;">表名：{{tableStatusInfo.name}}</span>
+						<el-col style="color: #606266;line-height: 40px;">
+							<span>表名：{{tableStatusInfo.name}}</span>
+							<span style="margin-left: 20px;">
+								<span v-if="tableInfo.inEdit == 1">
+									<el-input v-model="tableInfo.newDesc" placeholder="输入表注释" @keyup.enter.native="saveTableDescription" v-on:blur="saveTableDescription" style="width: 500px;"></el-input>
+								</span>
+								<span v-else>{{tableInfo.description || '暂无表注释'}} <i class="el-icon-edit edit-table-desc" @click="tableInfo.inEdit = 1"></i></span>
+							</span>
 						</el-col>
-						<el-col style="width: 200px;text-align: right;">
-							<el-button size="small" plain type="primary" @click="showCreateTableDdl" style="margin-left: 10px;" icon="el-icon-magic-stick">DDL</el-button>
+						<el-col style="width: 100px;text-align: right;">
+							<el-button plain type="primary" @click="showCreateTableDdl" style="margin-left: 10px;" icon="el-icon-magic-stick">DDL</el-button>
 						</el-col>
 					</el-row>
 					<el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">

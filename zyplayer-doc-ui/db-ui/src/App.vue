@@ -56,9 +56,7 @@
 				</div>
 			</el-aside>
 			<div ref="rightResize" class="right-resize">
-				<el-tooltip class="item" effect="dark" content="拖动改变侧边栏宽度" placement="left">
-					<i ref="rightResizeBar">...</i>
-				</el-tooltip>
+				<i ref="rightResizeBar">...</i>
 			</div>
 			<el-container>
 				<el-header>

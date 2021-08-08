@@ -17,9 +17,10 @@
                 <div v-else-if="sqlExecuting" v-loading="sqlExecuting" style="padding: 20px 0;">数据加载中...</div>
                 <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting" style="padding: 20px 0;">暂无数据</div>
 				<div v-else style="position: relative;">
-					<div style="position: absolute;right: 0;z-index: 1;">
+					<div style="position: absolute;right: 0;z-index: 1;" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
+<!--						<el-button icon="el-icon-delete" size="small" @click="deleteCheckLine" type="danger" plain style="margin-right: 10px;">删除</el-button>-->
 						<!-- 复制选中行 -->
-						<el-dropdown @command="handleCopyCheckLineCommand" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
+						<el-dropdown @command="handleCopyCheckLineCommand">
 							<el-button type="primary" size="small" icon="el-icon-document-copy">
 								复制选中行<i class="el-icon-arrow-down el-icon--right"></i>
 							</el-button>
@@ -193,6 +194,11 @@
 				// 	dbName: this.vueQueryParam.dbName
 				// });
 			// }, 500);
+			let resizeWindow = () => {
+				this.tableMaxHeight = document.body.clientHeight - 420;
+			};
+			resizeWindow();
+			window.onresize = resizeWindow;
         },
         methods: {
 			init(param, columnList) {
@@ -274,7 +280,6 @@
 				this.executeUseTime = "";
 				this.choiceResultObj = {};
 				this.executeResultList = [];
-				this.tableMaxHeight = document.body.clientHeight - 420;
 				this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
 				this.sqlExecuting = true;
 				let param = {
@@ -370,6 +375,9 @@
 							err => this.$message.error("抱歉，复制失败！")
 					);
 				}
+			},
+			deleteCheckLine() {
+				// todo
 			},
 			handleCopyCheckLineCommand(type) {
 				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
