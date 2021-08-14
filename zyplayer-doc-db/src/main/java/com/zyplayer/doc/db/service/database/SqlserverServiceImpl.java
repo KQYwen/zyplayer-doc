@@ -1,22 +1,17 @@
-package com.zyplayer.doc.db.service;
+package com.zyplayer.doc.db.service.database;
 
 import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
 import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
-import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.sqlserver.SqlServerMapper;
-import com.zyplayer.doc.db.service.download.BaseDownloadService;
 import com.zyplayer.doc.db.service.download.SqlserverDownloadService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

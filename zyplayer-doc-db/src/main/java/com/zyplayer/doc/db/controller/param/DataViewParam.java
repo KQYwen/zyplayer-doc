@@ -1,23 +1,32 @@
 package com.zyplayer.doc.db.controller.param;
 
 public class DataViewParam {
-	private Long sourceId;
+	// 基本信息
 	private String executeId;
+	private Long sourceId;
 	private Integer pageSize;
 	private Integer pageNum;
 	private String dbName;
 	private String tableName;
-	// 下载多张数据表
-	private String tableNames;
-	private String orderColumn;
-	private String orderType;
+	// 保留的列json，多个使用英文逗号分隔，{"user_info": "id,name,age"}
+	private String retainColumnJson;
+	// 查询的条件json，{"user_info": "id > 0"}
+	private String conditionJson;
+	// 哪些列作为update语句的更新条件json，{"user_info": "id,name"}，用于update语句拼where条件使用
+	private String conditionColumnJson;
+	// 解析之后设置的，待使用
 	private String condition;
-	private String downloadType;
 	private String retainColumn;
 	private String conditionColumn;
+	// 下载多张数据表
+	private String tableNames;
+	private String downloadType;
 	private Integer dropTableFlag;
 	private Integer createTableFlag;
 	private Integer downloadFileType;
+	// 数据查询时使用，导出暂不支持排序
+	private String orderColumn;
+	private String orderType;
 	
 	public Integer getOffset() {
 		return ((this.pageNum - 1) * this.pageSize);
@@ -149,5 +158,29 @@ public class DataViewParam {
 	
 	public void setDownloadFileType(Integer downloadFileType) {
 		this.downloadFileType = downloadFileType;
+	}
+	
+	public String getRetainColumnJson() {
+		return retainColumnJson;
+	}
+	
+	public void setRetainColumnJson(String retainColumnJson) {
+		this.retainColumnJson = retainColumnJson;
+	}
+	
+	public String getConditionJson() {
+		return conditionJson;
+	}
+	
+	public void setConditionJson(String conditionJson) {
+		this.conditionJson = conditionJson;
+	}
+	
+	public String getConditionColumnJson() {
+		return conditionColumnJson;
+	}
+	
+	public void setConditionColumnJson(String conditionColumnJson) {
+		this.conditionColumnJson = conditionColumnJson;
 	}
 }

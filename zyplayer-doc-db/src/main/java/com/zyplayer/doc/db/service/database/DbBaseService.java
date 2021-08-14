@@ -1,4 +1,4 @@
-package com.zyplayer.doc.db.service;
+package com.zyplayer.doc.db.service.database;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;

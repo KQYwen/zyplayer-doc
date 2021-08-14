@@ -107,7 +107,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="更新条件列：" v-if="downloadDataParam.downloadType === 'update'">
-					<el-select v-model="downloadDataParam.conditionArr" multiple placeholder="不选则是没有条件的更新" style="width: 370px;">
+					<el-select v-model="downloadDataParam.conditionColumnArr" multiple placeholder="不选则是没有条件的更新" style="width: 370px;">
 						<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop" :value="item.prop"></el-option>
 					</el-select>
 				</el-form-item>
@@ -160,11 +160,11 @@
 					downloadType: 'insert',
 					dropTableFlag: 0,
 					createTableFlag: 0,
-					conditionArr: [],
+					conditionColumnArr: [],
 					retainColumnArr: [],
 				},
 				downloadFormParam: {
-					url: 'zyplayer-doc-db/data-view/download',
+					url: 'zyplayer-doc-db/data-view/downloadMultiple',
 					param: {}
 				},
 				// 编辑器
@@ -438,17 +438,21 @@
 				conditionSql = conditionSql || this.sqlExecutorEditor.getValue();
 				conditionSql = conditionSql || "";
 				this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
+				let condition = {}, conditionColumn = {}, retainColumn = {};
+				condition[this.pageParam.tableName] = conditionSql;
+				conditionColumn[this.pageParam.tableName] = this.downloadDataParam.conditionColumnArr.join(",");
+				retainColumn[this.pageParam.tableName] = this.downloadDataParam.retainColumnArr.join(",");
 				this.downloadFormParam.param = {
+					executeId: this.nowExecutorId,
 					sourceId: this.pageParam.sourceId,
 					dbName: this.pageParam.dbName,
-					tableName: this.pageParam.tableName,
+					tableNames: this.pageParam.tableName,
 					downloadType: this.downloadDataParam.downloadType,
-					conditionColumn: this.downloadDataParam.conditionArr.join(","),
-					retainColumn: this.downloadDataParam.retainColumnArr.join(","),
 					dropTableFlag: this.downloadDataParam.dropTableFlag,
 					createTableFlag: this.downloadDataParam.createTableFlag,
-					condition: conditionSql,
-					executeId: this.nowExecutorId,
+					conditionJson: JSON.stringify(condition),
+					conditionColumnJson: JSON.stringify(conditionColumn),
+					retainColumnJson: JSON.stringify(retainColumn),
 				};
 				setTimeout(() => this.$refs.downloadForm.submit(), 0);
 				this.downloadDataVisible = false;
@@ -459,7 +463,10 @@
 					this.$message.warning("当前筛选条件下无数据，请重新筛选后再操作导出");
 					return;
 				}
-				this.downloadDataParam.conditionArr = [];
+				let primaryKey = this.primaryKeyColumn.name;
+				if (this.downloadDataParam.conditionColumnArr.length <= 0 && !!primaryKey) {
+					this.downloadDataParam.conditionColumnArr = [primaryKey];
+				}
 				this.conditionDataCols = dataRes.dataCols;
 				this.downloadDataVisible = true;
 

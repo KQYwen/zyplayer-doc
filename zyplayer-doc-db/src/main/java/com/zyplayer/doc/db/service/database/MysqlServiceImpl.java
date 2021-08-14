@@ -1,7 +1,6 @@
-package com.zyplayer.doc.db.service;
+package com.zyplayer.doc.db.service.database;
 
 import cn.hutool.core.util.RandomUtil;
-import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.framework.db.dto.ColumnInfoDto;
 import com.zyplayer.doc.db.framework.db.dto.ProcedureDto;

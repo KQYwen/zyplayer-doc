@@ -1,4 +1,4 @@
-package com.zyplayer.doc.db.service;
+package com.zyplayer.doc.db.service.database;
 
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;

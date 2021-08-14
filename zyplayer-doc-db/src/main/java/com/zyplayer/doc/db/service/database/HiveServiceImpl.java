@@ -1,10 +1,8 @@
-package com.zyplayer.doc.db.service;
+package com.zyplayer.doc.db.service.database;
 
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
-import com.zyplayer.doc.db.controller.vo.TableStatusVo;
 import com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto;
-import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
 import com.zyplayer.doc.db.framework.db.dto.TableDescDto;
 import com.zyplayer.doc.db.framework.db.dto.TableInfoDto;
 import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;

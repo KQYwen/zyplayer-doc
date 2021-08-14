@@ -1,6 +1,7 @@
 package com.zyplayer.doc.manage.web.manage;
 
 import com.zyplayer.doc.core.annotation.AuthMan;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -13,35 +14,47 @@ public class DocSystemController {
 	
 	@GetMapping("/")
 	public ModelAndView home() {
-		return new ModelAndView("/doc-console.html");
+		ModelAndView modelAndView = new ModelAndView("/doc-console.html");
+		modelAndView.setStatus(HttpStatus.OK);
+		return modelAndView;
 	}
 	
 	@GetMapping("/doc-wiki")
 	public ModelAndView wiki() {
-		return new ModelAndView("/doc-wiki.html");
+		ModelAndView modelAndView = new ModelAndView("/doc-wiki.html");
+		modelAndView.setStatus(HttpStatus.OK);
+		return modelAndView;
 	}
 	
 	@AuthMan
 	@GetMapping("/doc-db")
 	public ModelAndView db() {
-		return new ModelAndView("/doc-db.html");
+		ModelAndView modelAndView = new ModelAndView("/doc-db.html");
+		modelAndView.setStatus(HttpStatus.OK);
+		return modelAndView;
 	}
 	
 	@AuthMan
 	@GetMapping("/doc-swagger")
 	public ModelAndView swagger() {
-		return new ModelAndView("/document.html");
+		ModelAndView modelAndView = new ModelAndView("/document.html");
+		modelAndView.setStatus(HttpStatus.OK);
+		return modelAndView;
 	}
 	
 	@AuthMan
 	@GetMapping("/doc-dubbo")
 	public ModelAndView dubbo() {
-		return new ModelAndView("/doc-dubbo.html");
+		ModelAndView modelAndView = new ModelAndView("/doc-dubbo.html");
+		modelAndView.setStatus(HttpStatus.OK);
+		return modelAndView;
 	}
 	
 	@AuthMan
 	@GetMapping("/doc-es")
 	public ModelAndView es() {
-		return new ModelAndView("/doc-es.html");
+		ModelAndView modelAndView = new ModelAndView("/doc-es.html");
+		modelAndView.setStatus(HttpStatus.OK);
+		return modelAndView;
 	}
 }

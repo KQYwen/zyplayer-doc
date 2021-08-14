@@ -1,12 +1,10 @@
 package com.zyplayer.doc.db.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.core.util.StringUtil;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbFavorite;
@@ -23,8 +21,8 @@ import com.zyplayer.doc.db.framework.db.transfer.SqlParseUtil;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.framework.utils.JSONUtil;
 import com.zyplayer.doc.db.framework.utils.SqlLogUtil;
-import com.zyplayer.doc.db.service.DatabaseServiceFactory;
-import com.zyplayer.doc.db.service.DbBaseService;
+import com.zyplayer.doc.db.service.database.DatabaseServiceFactory;
+import com.zyplayer.doc.db.service.database.DbBaseService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
