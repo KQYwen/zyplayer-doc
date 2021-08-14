@@ -18,7 +18,7 @@
                 <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting" style="padding: 20px 0;">暂无数据</div>
 				<div v-else style="position: relative;">
 					<div style="position: absolute;right: 0;z-index: 1;" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
-<!--						<el-button icon="el-icon-delete" size="small" @click="deleteCheckLine" type="danger" plain style="margin-right: 10px;">删除</el-button>-->
+						<el-button icon="el-icon-delete" size="small" @click="deleteCheckLine" type="danger" plain style="margin-right: 10px;">删除</el-button>
 						<!-- 复制选中行 -->
 						<el-dropdown @command="handleCopyCheckLineCommand">
 							<el-button type="primary" size="small" icon="el-icon-document-copy">
@@ -93,6 +93,8 @@
 						<el-option label="SQL Inserts" value="insert"></el-option>
 						<el-option label="SQL Updates" value="update"></el-option>
 						<el-option label="JSON" value="json"></el-option>
+<!--						<el-option label="Excel" value="excel"></el-option>-->
+<!--						<el-option label="CVS" value="cvs"></el-option>-->
 					</el-select>
 				</el-form-item>
 				<el-form-item label="数据表：" v-if="downloadDataParam.downloadType === 'insert'">
@@ -377,7 +379,37 @@
 				}
 			},
 			deleteCheckLine() {
-				// todo
+				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
+				if (choiceData.length > 0) {
+					let primaryKey = this.primaryKeyColumn.name;
+					if (!primaryKey) {
+						this.$message.error("删除失败，未找到数据表的主键列");
+						return;
+					}
+					// 通过主键ID和值删除行的数据
+					let deleteParam = [];
+					choiceData.forEach(item => {
+						let line = {};
+						line[primaryKey] = item[primaryKey];
+						deleteParam.push(line);
+					});
+					this.$confirm(`确定要删除选中的${choiceData.length}行数据吗？`, '提示', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+						type: 'warning'
+					}).then(() => {
+						let param = {
+							sourceId: this.pageParam.sourceId,
+							dbName: this.pageParam.dbName,
+							tableName: this.pageParam.tableName,
+							lineJson: JSON.stringify(deleteParam)
+						};
+						datasourceApi.deleteTableLineData(param).then(() => {
+							this.$message.success("删除成功！");
+							this.refreshData();
+						});
+					}).catch(()=>{});
+				}
 			},
 			handleCopyCheckLineCommand(type) {
 				let choiceData = this.choiceResultObj[this.executeShowTable] || [];

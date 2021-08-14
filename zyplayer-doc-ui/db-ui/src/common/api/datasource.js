@@ -110,4 +110,7 @@ export default {
     getTableColumnRelation: data => {
         return request({url: '/zyplayer-doc-db/table-relation/getRelation', method: 'post', data: Qs.stringify(data)});
     },
+	deleteTableLineData: data => {
+        return request({url: '/zyplayer-doc-db/data-view/deleteTableLineData', method: 'post', data: Qs.stringify(data)});
+    },
 };

@@ -1,5 +1,6 @@
 package com.zyplayer.doc.db.framework.db.mapper.base;
 
+import com.alibaba.fastjson.JSONObject;
 import com.zyplayer.doc.db.controller.param.ProcedureListParam;
 import com.zyplayer.doc.db.controller.vo.TableStatusVo;
 import com.zyplayer.doc.db.framework.db.dto.*;
@@ -150,4 +151,11 @@ public interface BaseMapper {
 	 * @since 2020年4月24日
 	 */
 	void deleteProcedure(@Param("dbName") String dbName, @Param("typeName") String typeName, @Param("procName") String procName);
+	
+	/**
+	 * 删除行数
+	 * @author 暮光：城中城
+	 * @since 2021-08-14
+	 */
+	void deleteTableLineData(@Param("dbName") String dbName, @Param("tableName") String tableName, @Param("lineParam") JSONObject lineParam);
 }

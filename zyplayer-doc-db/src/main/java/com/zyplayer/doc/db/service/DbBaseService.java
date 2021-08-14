@@ -1,5 +1,7 @@
 package com.zyplayer.doc.db.service;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
@@ -19,13 +21,16 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import com.zyplayer.doc.db.service.download.BaseDownloadService;
 import com.zyplayer.doc.db.service.download.DownloadService;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * 数据库的mapper持有对象接口
@@ -34,6 +39,7 @@ import java.util.stream.Collectors;
  * @since 2018年8月8日
  */
 public abstract class DbBaseService {
+	private static Logger logger = LoggerFactory.getLogger(DbBaseService.class);
 	
 	@Resource
 	SqlExecutor sqlExecutor;
@@ -386,5 +392,17 @@ public abstract class DbBaseService {
 			return downloadService.downloadDataByJson(param, executeParam, dataCols, conditionSet);
 		}
 		return null;
+	}
+	
+	public void deleteTableLineData(Long sourceId, String dbName, String tableName, JSONArray lineJsonArr) {
+		for (int i = 0; i < lineJsonArr.size(); i++) {
+			JSONObject lineParam = lineJsonArr.getJSONObject(i);
+			if (lineParam.isEmpty()) {
+				logger.error("待删除行的条件参数为空，不允许删除");
+				continue;
+			}
+			BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+			baseMapper.deleteTableLineData(dbName, tableName, lineParam);
+		}
 	}
 }

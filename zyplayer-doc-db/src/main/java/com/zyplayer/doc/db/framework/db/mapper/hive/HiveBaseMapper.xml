@@ -86,4 +86,11 @@
 		select 1 from ${dbName}.${tableName} where 0 = 1
 	</insert>
 
+	<delete id="deleteTableLineData">
+		delete from ${dbName}.${tableName} where
+		<foreach collection="lineParam.entrySet()" index="key" item="value">
+			${key} = #{value}
+		</foreach>
+	</delete>
+
 </mapper>

@@ -96,5 +96,12 @@
 		, @level2type = 'COLUMN', @level2name = #{columnName}
 	</insert>
 
+	<delete id="deleteTableLineData">
+		delete from ${dbName}.${tableName} where
+		<foreach collection="lineParam.entrySet()" index="key" item="value">
+			${key} = #{value}
+		</foreach>
+	</delete>
+
 </mapper>
 

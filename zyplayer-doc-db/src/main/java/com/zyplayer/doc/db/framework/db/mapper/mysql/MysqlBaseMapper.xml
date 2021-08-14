@@ -87,6 +87,13 @@
 		 DROP ${typeName} IF EXISTS `${dbName}`.`${procName}`
 	</delete>
 
+	<delete id="deleteTableLineData">
+		delete from `${dbName}`.`${tableName}` where
+		<foreach collection="lineParam.entrySet()" index="key" item="value">
+			${key} = #{value}
+		</foreach>
+	</delete>
+
 	<sql id="ProcedureListCondition">
 		 where db=#{param.dbName}
 		 <if test="param.name != null and param.name != ''">and `name` like #{param.name}</if>

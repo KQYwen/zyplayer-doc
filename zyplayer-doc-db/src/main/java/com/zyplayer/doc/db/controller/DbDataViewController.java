@@ -5,6 +5,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.zyplayer.doc.core.annotation.AuthMan;
@@ -85,6 +86,20 @@ public class DbDataViewController {
 			}
 		}
 		return responseJson;
+	}
+	
+	/**
+	 * 删除表数据
+	 *
+	 * @param lineJson
+	 * @return
+	 */
+	@PostMapping(value = "/deleteTableLineData")
+	public ResponseJson deleteTableLineData(Long sourceId, String dbName, String tableName, String lineJson) {
+		JSONArray lineJsonArr = JSON.parseArray(lineJson);
+		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
+		dbBaseService.deleteTableLineData(sourceId, dbName, tableName, lineJsonArr);
+		return DocDbResponseJson.ok();
 	}
 	
 	/**
