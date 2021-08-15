@@ -93,8 +93,7 @@
 						<el-option label="SQL Inserts" value="insert"></el-option>
 						<el-option label="SQL Updates" value="update"></el-option>
 						<el-option label="JSON" value="json"></el-option>
-<!--						<el-option label="Excel" value="excel"></el-option>-->
-<!--						<el-option label="CVS" value="cvs"></el-option>-->
+						<el-option label="Excel" value="excel"></el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="数据表：" v-if="downloadDataParam.downloadType === 'insert'">

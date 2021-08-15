@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.db.controller.download.FormatDownloadConst;
 import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.param.ProcedureListParam;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
@@ -355,27 +356,6 @@ public abstract class DbBaseService {
 	}
 	
 	/**
-	 * 导出单表数据
-	 *
-	 * @author 暮光：城中城
-	 * @since 2020年6月5日
-	 */
-	public void downloadSingleTableData(HttpServletResponse response, DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception {
-		DatabaseProductEnum databaseProduct = databaseServiceFactory.getDbBaseService(param.getSourceId()).getDatabaseProduct();
-		DownloadService downloadService = databaseServiceFactory.getDownloadService(databaseProduct);
-		if (Objects.equals(param.getDownloadType(), "insert")) {
-			String resultStr = downloadService.downloadDataByInsert(param, executeParam, dataCols, conditionSet);
-			baseDownloadService.sendResponse(response, param.getTableName(), ".sql", resultStr);
-		} else if (Objects.equals(param.getDownloadType(), "update")) {
-			String resultStr = downloadService.downloadDataByUpdate(param, executeParam, dataCols, conditionSet);
-			baseDownloadService.sendResponse(response, param.getTableName(), ".sql", resultStr);
-		} else if (Objects.equals(param.getDownloadType(), "json")) {
-			String resultStr = downloadService.downloadDataByJson(param, executeParam, dataCols, conditionSet);
-			baseDownloadService.sendResponse(response, param.getTableName(), ".json", resultStr);
-		}
-	}
-	
-	/**
 	 * 获取表数据
 	 *
 	 * @author 暮光：城中城
@@ -384,11 +364,11 @@ public abstract class DbBaseService {
 	public String getDownloadTableData(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception {
 		DatabaseProductEnum databaseProduct = databaseServiceFactory.getDbBaseService(param.getSourceId()).getDatabaseProduct();
 		DownloadService downloadService = databaseServiceFactory.getDownloadService(databaseProduct);
-		if (Objects.equals(param.getDownloadType(), "insert")) {
+		if (Objects.equals(param.getDownloadType(), FormatDownloadConst.INSERT)) {
 			return downloadService.downloadDataByInsert(param, executeParam, dataCols, conditionSet);
-		} else if (Objects.equals(param.getDownloadType(), "update")) {
+		} else if (Objects.equals(param.getDownloadType(), FormatDownloadConst.UPDATE)) {
 			return downloadService.downloadDataByUpdate(param, executeParam, dataCols, conditionSet);
-		} else if (Objects.equals(param.getDownloadType(), "json")) {
+		} else if (Objects.equals(param.getDownloadType(), FormatDownloadConst.JSON)) {
 			return downloadService.downloadDataByJson(param, executeParam, dataCols, conditionSet);
 		}
 		return null;

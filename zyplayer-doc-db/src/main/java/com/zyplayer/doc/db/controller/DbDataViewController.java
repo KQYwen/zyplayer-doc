@@ -1,24 +1,16 @@
 package com.zyplayer.doc.db.controller;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.zyplayer.doc.core.annotation.AuthMan;
-import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.core.util.StringUtil;
-import com.zyplayer.doc.data.config.security.DocUserUtil;
-import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.db.controller.download.FormatDownloadConst;
 import com.zyplayer.doc.db.controller.download.FormatDownloadService;
 import com.zyplayer.doc.db.controller.param.DataViewParam;
-import com.zyplayer.doc.db.controller.vo.TableColumnVo;
-import com.zyplayer.doc.db.framework.consts.DbAuthType;
-import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
@@ -41,8 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 表数据查看控制器

@@ -159,11 +159,7 @@ public class BaseDownloadService implements DownloadService {
 			for (TableColumnDescDto dataCol : dataCols) {
 				result.put(dataCol.getName(), item.get(dataCol.getName()));
 			}
-			String resultData = result.toJSONString();
-			if (resultSb.length() > 1) {
-				resultSb.append(",");
-			}
-			resultSb.append(resultData);
+			resultSb.append((resultSb.length() > 1) ? "," : "").append(result.toJSONString());
 		});
 		resultSb.append("]\n");
 		return resultSb.toString();
