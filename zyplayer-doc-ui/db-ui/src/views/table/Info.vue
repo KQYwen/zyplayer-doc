@@ -162,7 +162,7 @@
 				});
 			}, 500);
 		},
-		activated: function () {
+		activated() {
 			this.initQueryParam(this.$route);
 		},
 		components: {

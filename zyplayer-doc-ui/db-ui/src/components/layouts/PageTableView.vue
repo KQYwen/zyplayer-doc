@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-tabs v-model="activePage" type="card" closable @tab-click="changePage" @tab-remove="removePageTab" style="padding: 5px 10px 0;">
-            <el-tab-pane :label="pageTabNameMap[item.fullPath]||item.name" :name="item.fullPath" v-for="item in pageList"/>
+            <el-tab-pane :label="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)" v-for="item in pageList"/>
         </el-tabs>
         <keep-alive>
             <router-view :key="$route.fullPath" @initLoadDataList="initLoadDataList" @loadDatasourceList="loadDatasourceList"/>
@@ -18,7 +18,10 @@
                 pageList: [],
                 linkList: [],
                 activePage: '',
-                multiPage: true,
+				multiPage: true,
+				ignoreParamPath: [
+					"/data/export",
+				],
             }
         },
         computed: {
@@ -27,20 +30,24 @@
             }
         },
         created() {
-            this.pageList.push(this.$route);
-            this.linkList.push(this.$route.fullPath);
-            this.activePage = this.$route.fullPath;
-        },
-        watch: {
-            '$route': function (newRoute, oldRoute) {
-                this.activePage = newRoute.fullPath;
-                if (this.linkList.indexOf(newRoute.fullPath) < 0) {
-                    this.linkList.push(newRoute.fullPath);
-                    this.pageList.push(newRoute);
+			this.pageList.push(this.$route);
+			let activePage = this.getRouteRealPath(this.$route);
+			this.linkList.push(activePage);
+			this.activePage = activePage;
+		},
+		watch: {
+			'$route': function (newRoute, oldRoute) {
+				let activePage = this.getRouteRealPath(newRoute);
+				this.activePage = activePage;
+				if (this.linkList.indexOf(activePage) < 0) {
+					this.linkList.push(activePage);
+					this.pageList.push(newRoute);
                 }
             },
             'activePage': function (key) {
-                this.$router.push(key)
+				if (!this.isIgnoreParamPath(key)) {
+					this.$router.push(key);
+				}
             },
         },
         methods: {
@@ -49,6 +56,12 @@
             },
 			loadDatasourceList() {
                 this.$emit('loadDatasourceList');
+            },
+			isIgnoreParamPath(path) {
+				return this.ignoreParamPath.indexOf(path) >= 0;
+            },
+			getRouteRealPath(route) {
+				return this.isIgnoreParamPath(route.path) ? route.path : route.fullPath;
             },
             changePage(key) {
                 this.activePage = key.name;
@@ -61,7 +74,7 @@
                     this.$message.warning('这是最后一页，不能再关闭了啦');
                     return
                 }
-                this.pageList = this.pageList.filter(item => item.fullPath !== key);
+                this.pageList = this.pageList.filter(item => this.getRouteRealPath(item) !== key);
                 let index = this.linkList.indexOf(key);
                 this.linkList = this.linkList.filter(item => item !== key);
                 index = index >= this.linkList.length ? this.linkList.length - 1 : index;

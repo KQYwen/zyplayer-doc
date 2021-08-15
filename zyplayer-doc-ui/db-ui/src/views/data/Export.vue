@@ -87,7 +87,6 @@
 				downloadFileType: 1,
 				exportTypeChoiceVisible: false,
                 // 页面展示相关
-                nowDatasourceShow: {},
                 databaseList: [],
                 tableList: [],
                 selectTables: [],
@@ -99,14 +98,30 @@
 				downloadType: 'insert',
 				dropTableFlag: 0,
 				createTableFlag: 0,
-            }
-        },
-        mounted: function () {
-            this.loadDatasourceList();
-        },
+			}
+		},
+		activated() {
+			this.initQueryParam(this.$route);
+		},
+		mounted() {
+			this.loadDatasourceList();
+		},
         methods: {
-            datasourceChangeEvents() {
-				this.nowDatasourceShow = this.choiceDatasourceId;
+			initQueryParam(to) {
+				let queryParam = to.query;
+				let sourceId = parseInt(queryParam.sourceId);
+				if (!sourceId || !queryParam.dbName) {
+					return;
+				}
+				if (this.choiceDatasourceId === sourceId && this.choiceDatabase === queryParam.dbName) {
+					return;
+				}
+				this.choiceDatasourceId = sourceId;
+				this.choiceDatabase = queryParam.dbName;
+				this.datasourceChangeEvents();
+				this.databaseChangeEvents();
+			},
+			datasourceChangeEvents() {
 				this.loadDatabaseList(this.choiceDatasourceId);
             },
             databaseChangeEvents() {
