@@ -17,21 +17,26 @@
                 <div v-else-if="sqlExecuting" v-loading="sqlExecuting" style="padding: 20px 0;">数据加载中...</div>
                 <div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting" style="padding: 20px 0;">暂无数据</div>
 				<div v-else style="position: relative;">
-					<div style="position: absolute;right: 0;z-index: 1;" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
-						<el-button icon="el-icon-delete" size="small" @click="deleteCheckLine" type="danger" plain style="margin-right: 10px;">删除</el-button>
-						<!-- 复制选中行 -->
-						<el-dropdown @command="handleCopyCheckLineCommand">
-							<el-button type="primary" size="small" icon="el-icon-document-copy">
-								复制选中行<i class="el-icon-arrow-down el-icon--right"></i>
-							</el-button>
-							<el-dropdown-menu slot="dropdown">
-								<el-dropdown-item command="insert">SQL Inserts</el-dropdown-item>
-								<el-dropdown-item command="update">SQL Updates</el-dropdown-item>
-								<el-dropdown-item command="json">JSON</el-dropdown-item>
-							</el-dropdown-menu>
-						</el-dropdown>
+					<div style="position: absolute;right: 0;z-index: 1;" v-show="executeShowTable !== 'table0'">
+						<span v-show="choiceResultObj[executeShowTable] && choiceResultObj[executeShowTable].length > 0">
+							<el-button icon="el-icon-delete" size="small" @click="deleteCheckLine" type="danger" plain style="margin-right: 10px;">删除</el-button>
+							<!-- 复制选中行 -->
+							<el-dropdown @command="handleCopyCheckLineCommand">
+								<el-button type="primary" size="small" icon="el-icon-document-copy">
+									复制选中行<i class="el-icon-arrow-down el-icon--right"></i>
+								</el-button>
+								<el-dropdown-menu slot="dropdown">
+									<el-dropdown-item command="insert">SQL Inserts</el-dropdown-item>
+									<el-dropdown-item command="update">SQL Updates</el-dropdown-item>
+									<el-dropdown-item command="json">JSON</el-dropdown-item>
+								</el-dropdown-menu>
+							</el-dropdown>
+						</span>
+						<el-tooltip effect="dark" content="选择展示列" placement="top">
+							<el-button icon="el-icon-setting" size="small" style="margin-left: 10px;" @click="choiceShowColumnDrawerShow"></el-button>
+						</el-tooltip>
 					</div>
-					<el-tabs v-model="executeShowTable">
+					<el-tabs v-model="executeShowTable" @tab-click="executeShowTableClick">
                         <el-tab-pane label="信息" name="table0">
                             <pre>{{executeResultInfo}}</pre>
                         </el-tab-pane>
@@ -100,11 +105,6 @@
 					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.dropTableFlag" @change="dropTableFlagChange">删除表{{downloadDataParam.dropTableFlag==1?'!!':''}}</el-checkbox>
 					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.createTableFlag" @change="createTableFlagChange">创建表</el-checkbox>
 				</el-form-item>
-				<el-form-item label="保留的列：">
-					<el-select v-model="downloadDataParam.retainColumnArr" multiple placeholder="不选则保留全部列" style="width: 370px;">
-						<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop" :value="item.prop"></el-option>
-					</el-select>
-				</el-form-item>
 				<el-form-item label="更新条件列：" v-if="downloadDataParam.downloadType === 'update'">
 					<el-select v-model="downloadDataParam.conditionColumnArr" multiple placeholder="不选则是没有条件的更新" style="width: 370px;">
 						<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop" :value="item.prop"></el-option>
@@ -116,6 +116,27 @@
 				<el-button type="primary" @click="doDownloadTableData">确 定</el-button>
 			</span>
 		</el-dialog>
+		<el-drawer
+				size="350px"
+				:with-header="false"
+				:visible.sync="choiceShowColumnDrawer"
+				:before-close="choiceShowColumnDrawerClose"
+				direction="rtl">
+			<div style="padding: 10px;">
+				<el-row>
+					<el-col :span="12">选择展示列</el-col>
+					<el-col :span="12" style="text-align: right;">
+						<el-checkbox v-model="choiceShowColumnAll" @change="choiceShowColumnAllChange">全选</el-checkbox>
+						<el-button type="primary" size="mini" @click="choiceShowColumnOk" style="margin-left: 10px;">确定</el-button>
+					</el-col>
+				</el-row>
+			</div>
+			<div style="">
+				<el-tree ref="showColumnTree" node-key="name" :props="showColumnProps" :data="tableDataColumns" check-on-click-node show-checkbox
+					@check-change="tableDataColumnsCheckChange">
+				</el-tree>
+			</div>
+		</el-drawer>
 		<form method="post" ref="downloadForm" :action="downloadFormParam.url" target="_blank">
 			<input type="hidden" :name="key" :value="val" v-for="(val,key) in downloadFormParam.param">
 		</form>
@@ -151,6 +172,7 @@
 				// 选择复制
 				choiceResultObj: {},
 				exportConditionVisible: false,
+				tableDataColumns: [],
 				conditionDataCols: [],
 				conditionDataColsChoice: [],
 				// 导出
@@ -166,6 +188,11 @@
 					url: 'zyplayer-doc-db/data-view/downloadMultiple',
 					param: {}
 				},
+				// 选择展示列
+				choiceShowColumnDrawer: false,
+				showColumnProps: {label: 'name'},
+				choiceShowColumnLast: [],
+				choiceShowColumnAll: true,
 				// 编辑器
 				sqlExecutorContent: '',
 				sqlEditorConfig: {
@@ -215,6 +242,7 @@
 						this.primaryKeyColumn = item;
 					}
 				});
+				this.tableDataColumns = columnList;
 				this.doExecutorSqlCommon();
                 // this.vueQueryParam = to.query;
                 // let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
@@ -289,6 +317,7 @@
 					tableName: this.pageParam.tableName,
 					executeId: this.nowExecutorId,
 					condition: conditionSql,
+					retainColumn: this.choiceShowColumnLast.join(','),
 					pageNum: this.currentPage,
 					pageSize: this.pageSize,
 					orderColumn: this.tableSort.prop,
@@ -321,7 +350,8 @@
 					this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
 					this.executeResultInfo = executeResultInfo;
 					this.executeResultList = executeResultList;
-                }).catch(e => {
+					this.executeShowTableClick();
+				}).catch(e => {
 					this.sqlExecuting = false;
 				});
             },
@@ -363,6 +393,12 @@
             },
 			handleSelectionChange(val) {
 				this.$set(this.choiceResultObj, this.executeShowTable, val);
+			},
+			executeShowTableClick() {
+				let currentTable = this.executeResultList.find(item => item.name === this.executeShowTable);
+				if (currentTable) {
+					this.choiceShowColumnLast = currentTable.dataCols.map(val => val.prop);
+				}
 			},
 			doCopyCheckLineUpdate() {
 				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
@@ -440,7 +476,7 @@
 				let condition = {}, conditionColumn = {}, retainColumn = {};
 				condition[this.pageParam.tableName] = conditionSql;
 				conditionColumn[this.pageParam.tableName] = this.downloadDataParam.conditionColumnArr.join(",");
-				retainColumn[this.pageParam.tableName] = this.downloadDataParam.retainColumnArr.join(",");
+				retainColumn[this.pageParam.tableName] = this.choiceShowColumnLast.join(",");
 				this.downloadFormParam.param = {
 					executeId: this.nowExecutorId,
 					sourceId: this.pageParam.sourceId,
@@ -479,6 +515,37 @@
 				if (this.downloadDataParam.createTableFlag == 0) {
 					this.downloadDataParam.dropTableFlag = 0;
 				}
+			},
+			choiceShowColumnDrawerShow() {
+				this.choiceShowColumnDrawer = true;
+				setTimeout(() => {
+					this.$refs.showColumnTree.setCheckedKeys(this.choiceShowColumnLast);
+					this.choiceShowColumnAll = (this.choiceShowColumnLast.length === this.tableDataColumns.length);
+				}, 10);
+			},
+			choiceShowColumnDrawerClose() {
+				this.choiceShowColumnDrawer = false;
+			},
+			choiceShowColumnOk() {
+				let checkedKeys = this.$refs.showColumnTree.getCheckedKeys();
+				if (checkedKeys.length <= 0) {
+					this.$message.warning("必须选择一列展示");
+				} else {
+					this.choiceShowColumnLast = checkedKeys;
+					this.choiceShowColumnDrawer = false;
+					this.doExecutorClick();
+				}
+			},
+			tableDataColumnsCheckChange() {
+				let checkedKeys = this.$refs.showColumnTree.getCheckedKeys();
+				this.choiceShowColumnAll = (checkedKeys.length === this.tableDataColumns.length);
+			},
+			choiceShowColumnAllChange() {
+				let choiceAll = [];
+				if (this.choiceShowColumnAll) {
+					choiceAll = this.tableDataColumns.map(val => val.name);
+				}
+				this.$refs.showColumnTree.setCheckedKeys(choiceAll);
 			},
         }
     }

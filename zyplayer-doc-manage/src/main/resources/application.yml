@@ -10,6 +10,13 @@ spring:
 
   datasource:
     continue-on-error: true
+  ldap:
+    enable: false
+    urls: ['ldap://10.0.1.1:10389']
+    base: dc=xx,dc=net
+    username: cn=Manager,dc=xx,dc=net
+    password: MKDSHYDNIS
+    anonymousReadOnly: true
 
 # 端口和根路劲，main方法启动时需要，放tomcat后以tomcat的配置为准
 server:

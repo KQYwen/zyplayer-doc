@@ -58,10 +58,11 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = pool.getResource();
+			T result = consumer.apply(jedis);
 			if (key != null && expire > 0) {
 				jedis.expire(key, expire);
 			}
-			return consumer.apply(jedis);
+			return result;
 		} catch (Exception e) {
 			logger.error("redis操作失败：{}", e.getMessage());
 			return null;

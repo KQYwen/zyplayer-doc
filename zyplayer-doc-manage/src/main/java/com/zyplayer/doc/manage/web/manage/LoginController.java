@@ -46,8 +46,8 @@ public class LoginController {
 	// TODO 域账号登录，待测试
 	@Value("${spring.ldap.domainName:}")
 	private String ldapDomainName;
-	@Value("${spring.ldap.urls:}")
-	private String ldapUrls;
+	@Value("${spring.ldap.enable:}")
+	private boolean ldapLoginEnable;
 	
 	/**
 	 * 用户登录
@@ -59,7 +59,7 @@ public class LoginController {
 		queryWrapper.eq("del_flag", 0);
 		UserInfo userInfo = userInfoService.getOne(queryWrapper);
 		// 如果使用域账号登录
-		if (this.isUseLdapServer()) {
+		if (ldapLoginEnable) {
 			LdapPerson ldapPerson = this.getUserFromLdap(username, password);
 			if (null == ldapPerson) {
 				return DocResponseJson.warn("用户名或密码错误");
@@ -115,13 +115,6 @@ public class LoginController {
 		userInfo.setSex(1);
 		userInfoService.save(userInfo);
 		return userInfo;
-	}
-	
-	/**
-	 * 是否使用域账号登录
-	 */
-	public boolean isUseLdapServer() {
-		return StringUtils.isNotEmpty(ldapUrls);
 	}
 	
 	/**
