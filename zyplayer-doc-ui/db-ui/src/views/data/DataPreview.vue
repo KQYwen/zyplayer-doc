@@ -131,7 +131,7 @@
 					</el-col>
 				</el-row>
 			</div>
-			<div style="">
+			<div style="overflow: auto; height: calc(100vh - 50px);">
 				<el-tree ref="showColumnTree" node-key="name" :props="showColumnProps" :data="tableDataColumns" check-on-click-node show-checkbox
 					@check-change="tableDataColumnsCheckChange">
 				</el-tree>
