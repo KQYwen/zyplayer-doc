@@ -36,7 +36,7 @@
 							<el-button icon="el-icon-setting" size="small" style="margin-left: 10px;" @click="choiceShowColumnDrawerShow"></el-button>
 						</el-tooltip>
 					</div>
-					<el-tabs v-model="executeShowTable" @tab-click="executeShowTableClick">
+					<el-tabs v-model="executeShowTable">
                         <el-tab-pane label="信息" name="table0">
                             <pre>{{executeResultInfo}}</pre>
                         </el-tab-pane>
@@ -149,6 +149,7 @@
 	import copyFormatter from './copy/index'
     import sqlFormatter from "sql-formatter";
 	import aceEditor from "../../common/lib/ace-editor";
+	import storageUtil from "../../common/lib/zyplayer/storageUtil";
 
     export default {
     	name: 'dataPreview',
@@ -206,7 +207,10 @@
 				},
 				executorSource: {},
 				columnMap: {},
-				primaryKeyColumn: {}
+				primaryKeyColumn: {},
+				storageKey: {
+					key: 'zyplayer-doc-table-show-columns', subKey: ''
+				},
             }
         },
 		components: {
@@ -243,6 +247,17 @@
 					}
 				});
 				this.tableDataColumns = columnList;
+				// 设置选择展示的列
+				this.storageKey.subKey = param.sourceId + '-' + param.dbName + '-' + param.tableName;
+				let storageShowColumns = storageUtil.set.get(this.storageKey.key, this.storageKey.subKey);
+				this.choiceShowColumnLast = columnList.map(val => val.name);
+				if (storageShowColumns) {
+					let showColumns = storageShowColumns.split(',');
+					showColumns = showColumns.filter(item => this.choiceShowColumnLast.indexOf(item) >= 0);
+					if (showColumns.length > 0) {
+						this.choiceShowColumnLast = showColumns;
+					}
+				}
 				this.doExecutorSqlCommon();
                 // this.vueQueryParam = to.query;
                 // let newName = {key: this.$route.fullPath, val: '数据-'+this.vueQueryParam.tableName};
@@ -350,7 +365,6 @@
 					this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
 					this.executeResultInfo = executeResultInfo;
 					this.executeResultList = executeResultList;
-					this.executeShowTableClick();
 				}).catch(e => {
 					this.sqlExecuting = false;
 				});
@@ -393,12 +407,6 @@
             },
 			handleSelectionChange(val) {
 				this.$set(this.choiceResultObj, this.executeShowTable, val);
-			},
-			executeShowTableClick() {
-				let currentTable = this.executeResultList.find(item => item.name === this.executeShowTable);
-				if (currentTable) {
-					this.choiceShowColumnLast = currentTable.dataCols.map(val => val.prop);
-				}
 			},
 			doCopyCheckLineUpdate() {
 				let choiceData = this.choiceResultObj[this.executeShowTable] || [];
@@ -531,6 +539,7 @@
 				if (checkedKeys.length <= 0) {
 					this.$message.warning("必须选择一列展示");
 				} else {
+					storageUtil.set.save(this.storageKey.key, this.storageKey.subKey, checkedKeys.join(','), 50);
 					this.choiceShowColumnLast = checkedKeys;
 					this.choiceShowColumnDrawer = false;
 					this.doExecutorClick();
