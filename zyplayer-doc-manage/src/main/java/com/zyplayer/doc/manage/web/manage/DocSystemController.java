@@ -43,6 +43,14 @@ public class DocSystemController {
 	}
 	
 	@AuthMan
+	@GetMapping("/doc-swagger-plus")
+	public ModelAndView swaggerPlus() {
+		ModelAndView modelAndView = new ModelAndView("/doc-swagger-plus.html");
+		modelAndView.setStatus(HttpStatus.OK);
+		return modelAndView;
+	}
+	
+	@AuthMan
 	@GetMapping("/doc-dubbo")
 	public ModelAndView dubbo() {
 		ModelAndView modelAndView = new ModelAndView("/doc-dubbo.html");

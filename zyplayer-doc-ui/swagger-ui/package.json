@@ -1,0 +1,30 @@
+{
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite --mode development",
+    "prod": "vite --mode production",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons-vue": "^6.0.1",
+    "ant-design-vue": "^2.2.8",
+    "axios": "^0.19.2",
+    "brace": "^0.11.1",
+    "element-plus": "^1.0.2-beta.71",
+    "less": "^2.7.3",
+    "less-loader": "^4.1.0",
+    "moment": "^2.29.1",
+    "qs": "^6.10.1",
+    "sass": "^1.39.0",
+    "vue": "^3.2.9",
+    "vue-router": "^4.0.11",
+    "vuex": "^4.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^1.6.0",
+    "@vue/compiler-sfc": "^3.2.9",
+    "vite": "^2.5.3",
+    "vite-plugin-style-import": "^1.2.1"
+  }
+}

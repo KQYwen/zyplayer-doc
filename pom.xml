@@ -29,5 +29,6 @@
 		<module>zyplayer-doc-grpc</module>
 		<module>zyplayer-doc-other</module>
 		<module>zyplayer-doc-es</module>
-	</modules>
+        <module>zyplayer-doc-swagger-plus</module>
+    </modules>
 </project>

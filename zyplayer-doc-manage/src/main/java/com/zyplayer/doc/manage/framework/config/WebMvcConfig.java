@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.Resource;
@@ -51,7 +52,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		fastJsonHttpMessageConverter.setFastJsonConfig(fastJsonConfig);
 		return fastJsonHttpMessageConverter;
 	}
-
+	
 	@Override
 	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
 		converters.add(0, fastJsonHttpMessageConverter());

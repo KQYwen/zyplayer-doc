@@ -20,7 +20,7 @@ public class CodeGenerator {
 //		final String[] tableName = { "zyplayer_storage", "auth_info", "user_auth", "user_info", "db_datasource" };
 //		final String[] tableName = { "wiki_space", "wiki_page", "wiki_page_content", "wiki_page_file", "wiki_page_comment", "wiki_page_zan" };
 //		final String[] tableName = { "db_datasource", "es_datasource", "db_favorite" };
-		final String[] tableName = {"db_table_relation"};
+		final String[] tableName = {"swagger_doc", "swagger_request_param", "swagger_global_param"};
 		
 		// 代码生成器
 		AutoGenerator mpg = new AutoGenerator();
