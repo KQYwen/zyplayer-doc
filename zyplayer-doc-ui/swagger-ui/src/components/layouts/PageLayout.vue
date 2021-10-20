@@ -3,9 +3,11 @@
 		<a-tabs type="card" v-model:activeKey="activePage" closable @tab-click="changePage" @edit="removePageTab" style="padding: 5px 10px 0;">
 			<a-tab-pane :tab="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)" :fullPath="item.fullPath" :key="item.fullPath" v-for="item in pageList"/>
 		</a-tabs>
-		<keep-alive>
-			<router-view :key="$route.fullPath"/>
-		</keep-alive>
+		<div class="page-body">
+			<keep-alive>
+				<router-view :key="$route.fullPath"/>
+			</keep-alive>
+		</div>
 	</div>
 </template>
 
@@ -85,5 +87,6 @@
 
 <style>
 	.page-layout{background: #fff;}
+	.page-layout .page-body{padding: 0 10px 10px 10px;}
 	.ant-tabs-bar{margin-bottom: 0;}
 </style>

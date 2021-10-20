@@ -2,10 +2,8 @@
     <a-layout class="swagger-menu-trigger">
         <a-layout-sider theme="light" :trigger="null" collapsible v-model:collapsed="appMenuCollapsed" :width="rightAsideWidth" style="height: 100vh;overflow: auto;">
             <div class="logo">
-                <router-link to="/doc/console">
-                    <img src="../../assets/logo.png">
-                    <h1>swagger文档管理</h1>
-                </router-link>
+                <img src="../../assets/logo.png">
+                <h1>swagger文档管理</h1>
             </div>
             <menu-layout></menu-layout>
         </a-layout-sider>

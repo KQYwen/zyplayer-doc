@@ -16,6 +16,7 @@
             <router-link :to="{path: menuItem.path, query: menuItem.query}">
                 <template v-if="menuItem.meta">
                     <DashboardOutlined v-if="menuItem.meta.icon === 'DashboardOutlined'"/>
+                    <FileTextOutlined v-if="menuItem.meta.icon === 'FileTextOutlined'"/>
                 </template>
                 <span>{{menuItem.name}}</span>
             </router-link>

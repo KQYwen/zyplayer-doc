@@ -75,9 +75,11 @@
             },
             getSwaggerResourceList() {
                 customApi.post('./swagger-resources').then(res => {
-                    this.swaggerResourceList = res || [];
-                    if (this.swaggerResourceList.length > 0) {
-                        this.swaggerDocChoice = this.swaggerResourceList[0].url;
+                    if (res instanceof Array) {
+                        this.swaggerResourceList = res || [];
+                        if (this.swaggerResourceList.length > 0) {
+                            this.swaggerDocChoice = this.swaggerResourceList[0].url;
+                        }
                     }
                 });
             }

@@ -11,9 +11,6 @@ let routers = [
             {
                 path: '/doc',
                 name: '系统配置',
-                meta: {
-                    icon: 'SettingOutlined'
-                },
                 component: PageLayout,
                 children: [
                     {
@@ -28,7 +25,7 @@ let routers = [
                         path: '/doc/manage',
                         name: '文档管理',
                         meta: {
-                            icon: 'DashboardOutlined'
+                            icon: 'FileTextOutlined'
                         },
                         component: () => import('./views/doc/DocManage.vue')
                     },
