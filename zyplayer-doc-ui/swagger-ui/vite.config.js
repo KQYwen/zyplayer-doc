@@ -8,6 +8,7 @@ export default defineConfig({
     server: {
         host: 'local.zyplayer.com',
         port: 80,
+        // https: true
     },
     base: '',
     plugins: [

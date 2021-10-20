@@ -4,7 +4,7 @@ import {getZyplayerApiBaseUrl} from "./utils";
 
 // 增加不需要验证结果的标记
 const noValidate = {
-    "/zyplayer-doc-db/executor/execute": true,
+    "./swagger-resources": true,
     "/zyplayer-doc-db/datasource/test": true,
 };
 
@@ -38,7 +38,7 @@ export default function (axios) {
         response => {
             if (!!response.message) {
                 vue.$message.error('请求错误：' + response.message);
-            }else {
+            } else {
                 if (!response.config.needValidateResult || response.data.errCode === 200) {
                     return response.data;
                 } else if (response.data.errCode === 400) {

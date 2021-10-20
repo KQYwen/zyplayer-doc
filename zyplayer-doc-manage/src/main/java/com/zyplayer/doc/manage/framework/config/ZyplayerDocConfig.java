@@ -32,9 +32,9 @@ public class ZyplayerDocConfig {
 	@EnableDocDb
 	public class enableDocDb{}
 	
-	@EnableDocSwagger(selfDoc = false)
-	public class enableDocSwagger{}
+//	@EnableDocSwagger(selfDoc = false)
+//	public class enableDocSwagger{}
 	
-//	@EnableDocSwaggerPlus
-//	public class enableDocSwaggerPlus{}
+	@EnableDocSwaggerPlus
+	public class enableDocSwaggerPlus{}
 }

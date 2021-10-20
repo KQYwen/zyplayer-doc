@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Documented
 @Configuration
 @ComponentScan(basePackages = {
-		"com.zyplayer.doc.swagger",
+		"com.zyplayer.doc.swaggerplus",
 })
 public @interface EnableDocSwaggerPlus {
 

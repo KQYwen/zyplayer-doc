@@ -38,7 +38,7 @@ public class SwaggerProxyController {
 		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList();
 		for (SwaggerDoc swaggerDoc : docList) {
 			SwaggerResource resource = new SwaggerResource();
-			resource.setLocation(swaggerDoc.getDocUrl());
+			resource.setUrl("/doc-swagger/doc/content?id=" + swaggerDoc.getId());
 			resource.setName(swaggerDoc.getName());
 			resource.setSwaggerVersion("2.0");
 			resourceList.add(resource);

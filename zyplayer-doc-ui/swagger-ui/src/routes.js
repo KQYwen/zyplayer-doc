@@ -20,9 +20,17 @@ let routers = [
                         path: '/doc/console',
                         name: '控制台',
                         meta: {
-                            icon: 'DashboardOutlined'
+                            hidden: true,
                         },
                         component: () => import('./views/common/Console.vue')
+                    },
+                    {
+                        path: '/doc/manage',
+                        name: '文档管理',
+                        meta: {
+                            icon: 'DashboardOutlined'
+                        },
+                        component: () => import('./views/doc/DocManage.vue')
                     },
                     {
                         path: '/doc/setting',
