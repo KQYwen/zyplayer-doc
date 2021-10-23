@@ -5,7 +5,7 @@
                 <img src="../../assets/logo.png">
                 <h1>swagger文档管理</h1>
             </div>
-            <menu-layout></menu-layout>
+            <menu-layout :collapsed="appMenuCollapsed"></menu-layout>
         </a-layout-sider>
         <div ref="rightResize" class="right-resize" v-show="!appMenuCollapsed">
             <i ref="rightResizeBar">...</i>

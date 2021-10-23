@@ -50,8 +50,8 @@ public class SwaggerDocumentController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/list")
-	public ResponseJson<List<SwaggerDoc>> list() {
-		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList();
+	public ResponseJson<List<SwaggerDoc>> list(SwaggerDoc swaggerDoc) {
+		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList(swaggerDoc);
 		return DocResponseJson.ok(docList);
 	}
 	

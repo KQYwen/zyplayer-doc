@@ -35,7 +35,7 @@ public class SwaggerProxyController {
 	@RequestMapping("/swagger-resources")
 	public List<SwaggerResource> swaggerResources() {
 		Set<SwaggerResource> resourceList = new HashSet<>();
-		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList();
+		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList(new SwaggerDoc());
 		for (SwaggerDoc swaggerDoc : docList) {
 			SwaggerResource resource = new SwaggerResource();
 			resource.setUrl("/doc-swagger/doc/content?id=" + swaggerDoc.getId());

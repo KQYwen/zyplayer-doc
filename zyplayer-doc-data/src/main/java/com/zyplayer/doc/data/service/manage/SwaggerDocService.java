@@ -14,5 +14,5 @@ import java.util.List;
  * @since 2021-10-15
  */
 public interface SwaggerDocService extends IService<SwaggerDoc> {
-	public List<SwaggerDoc> getSwaggerDocList();
+	public List<SwaggerDoc> getSwaggerDocList(SwaggerDoc swaggerDoc);
 }

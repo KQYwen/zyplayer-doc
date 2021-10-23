@@ -1,14 +1,17 @@
 <template>
     <div class="menu-layout">
-        <div style="padding: 10px 5px;">
-            <a-select placeholder="请选择分组" v-model:value="swaggerDocChoice" style="width: 100%;">
-                <a-select-option :value="item.url" v-for="item in swaggerResourceList">{{item.name}}</a-select-option>
-            </a-select>
-        </div>
-        <a-menu theme="light" mode="inline" :inline-collapsed="collapsed" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys">
+        <a-menu theme="light" mode="inline" :inline-collapsed="false" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys">
             <menu-children-layout :menuItem="menuItem" v-for="menuItem in menuData"></menu-children-layout>
         </a-menu>
-        <a-directory-tree :tree-data="treeData" v-model:expandedKeys="expandedKeys" @select="docChecked"></a-directory-tree>
+        <a-divider style="margin: 6px 0;"/>
+        <div v-show="!collapsed">
+            <div style="padding: 10px 5px;">
+                <a-select placeholder="请选择分组" v-model:value="swaggerDocChoice" style="width: 100%;">
+                    <a-select-option :value="item.url" v-for="item in swaggerResourceList">{{item.name}}</a-select-option>
+                </a-select>
+            </div>
+            <a-directory-tree :tree-data="treeData" v-model:expandedKeys="expandedKeys" @select="docChecked"></a-directory-tree>
+        </div>
     </div>
 </template>
 
@@ -18,12 +21,17 @@
 
     export default {
         name: 'MenuLayout',
+        props: {
+            collapsed: {
+                type: Boolean,
+                default: false
+            },
+        },
         data() {
             return {
                 menuData: [],
                 selectedKeys: [],
                 openKeys: [],
-                collapsed: false,
                 // 文档树
                 treeData: [
                     {
@@ -49,6 +57,9 @@
         },
         watch:{
             '$store.state.userInfo'(userInfo) {
+            },
+            collapsed(x) {
+                console.log(x, this.collapsed)
             }
         },
         components: {MenuChildrenLayout},
@@ -80,6 +91,8 @@
                         if (this.swaggerResourceList.length > 0) {
                             this.swaggerDocChoice = this.swaggerResourceList[0].url;
                         }
+                    } else {
+                        this.$message.error('获取文档列表请求失败');
                     }
                 });
             }

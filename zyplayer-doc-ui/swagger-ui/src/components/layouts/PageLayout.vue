@@ -1,12 +1,14 @@
 <template>
 	<div class="page-layout">
-		<a-tabs type="card" v-model:activeKey="activePage" closable @tab-click="changePage" @edit="removePageTab" style="padding: 5px 10px 0;">
-			<a-tab-pane :tab="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)" :fullPath="item.fullPath" :key="item.fullPath" v-for="item in pageList"/>
+		<a-tabs type="editable-card" hide-add v-model:activeKey="activePage" @tab-click="changePage" @edit="removePageTab" style="padding: 5px 10px 0;">
+			<a-tab-pane closable :tab="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)" :fullPath="item.fullPath" :key="item.fullPath" v-for="item in pageList"/>
 		</a-tabs>
 		<div class="page-body">
-			<keep-alive>
-				<router-view :key="$route.fullPath"/>
-			</keep-alive>
+			<router-view v-slot="{ Component }">
+				<keep-alive>
+					<component :is="Component" />
+				</keep-alive>
+			</router-view>
 		</div>
 	</div>
 </template>

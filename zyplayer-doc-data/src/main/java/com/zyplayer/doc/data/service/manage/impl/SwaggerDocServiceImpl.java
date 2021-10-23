@@ -21,9 +21,12 @@ import java.util.List;
 public class SwaggerDocServiceImpl extends ServiceImpl<SwaggerDocMapper, SwaggerDoc> implements SwaggerDocService {
 	
 	@Override
-	public List<SwaggerDoc> getSwaggerDocList() {
+	public List<SwaggerDoc> getSwaggerDocList(SwaggerDoc swaggerDoc) {
 		QueryWrapper<SwaggerDoc> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("yn", 1);
+		queryWrapper.eq(swaggerDoc.getDocType() != null, "doc_type", swaggerDoc.getDocType());
+		queryWrapper.eq(swaggerDoc.getOpenVisit() != null, "open_visit", swaggerDoc.getOpenVisit());
+		queryWrapper.eq(swaggerDoc.getDocStatus() != null, "doc_status", swaggerDoc.getDocStatus());
 		return this.list(queryWrapper);
 	}
 }
