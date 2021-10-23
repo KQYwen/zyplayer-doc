@@ -30,10 +30,10 @@
         <a-table :dataSource="docList" :columns="docListColumns" size="middle"
                  :loading="docListLoading"
                  :scroll="{ x: 1200, y: 'calc(100vh - 340px)' }">
-            <template #bodyCell="{ column, text, row }">
+            <template #bodyCell="{ column, text, record }">
                 <template v-if="column.dataIndex === 'operation'">
                     <a-button type="link">编辑</a-button>
-                    <a-button type="link" danger @click="updateDocStatus(row)">删除</a-button>
+                    <a-button type="link" danger @click="deleteDoc(record)">删除</a-button>
                 </template>
                 <template v-if="column.dataIndex === 'docType'">
                     <a-tag color="red" v-if="text === 1">URL添加</a-tag>
@@ -98,7 +98,7 @@
                     setTimeout(() => docListLoading.value = false, 500);
                     docList.value = res.data || [];
                 });
-            }
+            };
             let docEdit = ref({});
             let newDocFormRef = ref();
             let newDocVisible = ref(false);
@@ -111,18 +111,19 @@
                 }).catch(error => {
                     console.log('error', error);
                 });
-            }
+            };
             const openNewDoc = async () => {
                 newDocVisible.value = true;
                 docEdit.value = {
                     docType: 1, openVisit: 0, docStatus: 1,
                 };
-            }
-            const updateDocStatus = async (row) => {
-                zyplayerApi.swaggerDocUpdate({docStatus: 1}).then(res => {
+            };
+            const updateDoc = async (id, docStatus, yn) => {
+                zyplayerApi.swaggerDocUpdate({id, docStatus, yn}).then(res => {
                     searchDocList();
                 });
-            }
+            };
+            const deleteDoc = async (row) => updateDoc(row.id, null, 0);
             onMounted(() => {
                 searchDocList();
             });
@@ -136,7 +137,7 @@
                 searchDocList,
                 openNewDoc,
                 handleNewDocOk,
-                updateDocStatus,
+                deleteDoc,
                 newDocRules: {
                     name: [{required: true, message: '请输入文档名称', trigger: 'change'}],
                     docUrl: [{required: true, message: '请输入文档地址', trigger: 'change'}],

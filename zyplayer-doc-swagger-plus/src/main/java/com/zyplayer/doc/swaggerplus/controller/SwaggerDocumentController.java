@@ -108,7 +108,19 @@ public class SwaggerDocumentController {
 	@ResponseBody
 	@PostMapping(value = "/update")
 	public ResponseJson<List<SwaggerDoc>> update(SwaggerDoc swaggerDoc) {
-		swaggerDocService.saveOrUpdate(swaggerDoc);
+		if (swaggerDoc.getId() == null) {
+			return DocResponseJson.warn("请指定修改的记录ID");
+		}
+		SwaggerDoc swaggerDocUp = new SwaggerDoc();
+		swaggerDocUp.setId(swaggerDoc.getId());
+		swaggerDocUp.setDocStatus(swaggerDoc.getDocStatus());
+		swaggerDocUp.setDocUrl(swaggerDoc.getDocUrl());
+		swaggerDocUp.setJsonContent(swaggerDoc.getJsonContent());
+		swaggerDocUp.setName(swaggerDoc.getName());
+		swaggerDocUp.setOpenVisit(swaggerDoc.getOpenVisit());
+		swaggerDocUp.setRewriteDomain(swaggerDoc.getRewriteDomain());
+		swaggerDocUp.setYn(swaggerDoc.getYn());
+		swaggerDocService.updateById(swaggerDocUp);
 		return DocResponseJson.ok();
 	}
 	
