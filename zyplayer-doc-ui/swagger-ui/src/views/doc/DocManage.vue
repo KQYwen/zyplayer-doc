@@ -88,9 +88,11 @@
 <script>
     import { toRefs, ref, reactive, onMounted } from 'vue';
     import {zyplayerApi} from '../../api';
+    import {useStore} from 'vuex';
 
     export default {
         setup() {
+            const store = useStore()
             let docList = ref([]);
             let docListLoading = ref(false);
             let searchParam = ref({docType: '', openVisit: '', docStatus: ''});
@@ -109,6 +111,7 @@
                     zyplayerApi.swaggerDocAdd(docEdit.value).then(res => {
                         searchDocList();
                         newDocVisible.value = false;
+                        store.commit('addDocChangedNum');
                     });
                 }).catch(error => {
                     console.log('error', error);
@@ -127,6 +130,7 @@
             const updateDoc = async (id, docStatus, yn) => {
                 zyplayerApi.swaggerDocUpdate({id, docStatus, yn}).then(res => {
                     searchDocList();
+                    store.commit('addDocChangedNum');
                 });
             };
             const deleteDoc = async (row) => updateDoc(row.id, null, 0);

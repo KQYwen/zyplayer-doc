@@ -102,8 +102,9 @@ function getTreeHtmlForTag(pathData, treeId, metaInfo) {
                 isLeaf: true,
                 method: nodeSub.method,
                 query: {
-                    path: nodeSub.path,
-                    ...metaInfo
+                    ...metaInfo,
+                    path: nodeSub.url,
+                    method: nodeSub.method,
                 }
             });
         } else if (actionArrays.indexOf(key) >= 0) {
@@ -115,8 +116,9 @@ function getTreeHtmlForTag(pathData, treeId, metaInfo) {
                 isLeaf: true,
                 method: tempNode.method,
                 query: {
-                    path: tempNode.path,
-                    ...metaInfo
+                    ...metaInfo,
+                    path: tempNode.url,
+                    method: tempNode.method,
                 }
             });
         } else {

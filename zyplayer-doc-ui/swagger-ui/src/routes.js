@@ -6,21 +6,13 @@ let routers = [
         path: '/',
         name: '主页',
         component: () => import('./components/layouts/GlobalLayout.vue'),
-        redirect: '/doc/console',
+        redirect: '/doc/info',
         children: [
             {
                 path: '/doc',
                 name: '系统配置',
                 component: PageLayout,
                 children: [
-                    {
-                        path: '/doc/console',
-                        name: '控制台',
-                        meta: {
-                            hidden: true,
-                        },
-                        component: () => import('./views/common/Console.vue')
-                    },
                     {
                         path: '/doc/info',
                         name: '文档信息',

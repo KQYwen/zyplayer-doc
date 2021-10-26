@@ -4,9 +4,9 @@
 			<a-tab-pane closable :tab="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)" :fullPath="item.fullPath" :key="item.fullPath" v-for="item in pageList"/>
 		</a-tabs>
 		<div class="page-body">
-			<router-view v-slot="{ Component }">
+			<router-view v-slot="{ Component, route }">
 				<keep-alive>
-					<component :is="Component" />
+					<component :is="Component" :key="route.fullPath" />
 				</keep-alive>
 			</router-view>
 		</div>

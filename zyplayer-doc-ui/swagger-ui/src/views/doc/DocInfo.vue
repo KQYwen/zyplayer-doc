@@ -1,6 +1,6 @@
 <template>
-	<a-card style="width: 600px">
-		<a-form :label-col="{span: 4}" :wrapper-col="{span: 20}">
+	<a-card>
+		<a-form :label-col="{span: 4}" :wrapper-col="{span: 20}" v-if="swaggerDocInfo">
 			<a-form-item label="标题">{{swaggerDocInfo.title}}</a-form-item>
 			<a-form-item label="版本">{{swaggerDocInfo.version}}</a-form-item>
 			<a-form-item label="作者" v-if="swaggerDocInfo.contact">
@@ -15,6 +15,7 @@
 				<span v-html="swaggerDocInfo.description"></span>
 			</a-form-item>
 		</a-form>
+		<div v-else style="text-align: center;">暂无文档信息，请先选择文档</div>
 	</a-card>
 </template>
 
@@ -30,7 +31,7 @@
 				return this.$store.state.swaggerDoc || {};
 			},
 			swaggerDocInfo () {
-				return this.$store.state.swaggerDoc.info || {};
+				return this.$store.state.swaggerDoc.info;
 			}
 		},
 		mounted() {

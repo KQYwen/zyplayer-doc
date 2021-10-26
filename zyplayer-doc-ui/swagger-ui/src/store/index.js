@@ -4,19 +4,9 @@ import {getDefinitions, createTreeViewByTag} from './SwaggerDocUtil'
 export default createStore({
     state() {
         return {
+            docChangedNum: 1,
             userInfo: {},
             pageTabNameMap: {},
-            docMap: {
-                '/getUserInfo': {
-                    name: '获取用户信息'
-                },
-                '/deleteUserInfo': {
-                    name: '删除用户信息'
-                },
-                '/updateUserInfo': {
-                    name: '修改用户信息'
-                },
-            },
             swaggerDoc: {},
             swaggerDefinitions: {},
             swaggerTreePathMap: [],
@@ -25,6 +15,9 @@ export default createStore({
     mutations: {
         setUserInfo(state, userInfo) {
             state.userInfo = userInfo;
+        },
+        addDocChangedNum(state) {
+            state.docChangedNum++;
         },
         setSwaggerDoc(state, swaggerDoc) {
             state.swaggerDoc = swaggerDoc;
