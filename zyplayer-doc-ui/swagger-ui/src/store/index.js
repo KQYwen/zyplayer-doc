@@ -1,4 +1,5 @@
 import {createStore} from 'vuex'
+import {getDefinitions, createTreeViewByTag} from './SwaggerDocUtil'
 
 export default createStore({
     state() {
@@ -16,11 +17,21 @@ export default createStore({
                     name: '修改用户信息'
                 },
             },
+            swaggerDoc: {},
+            swaggerDefinitions: {},
+            swaggerTreePathMap: [],
         }
     },
     mutations: {
         setUserInfo(state, userInfo) {
             state.userInfo = userInfo;
+        },
+        setSwaggerDoc(state, swaggerDoc) {
+            state.swaggerDoc = swaggerDoc;
+            state.swaggerDefinitions = getDefinitions(swaggerDoc.definitions);
+        },
+        setSwaggerTreePathMap(state, swaggerTreePathMap) {
+            state.swaggerTreePathMap = swaggerTreePathMap;
         },
         addTableName(state, item) {
             let sameObj = Object.assign({}, state.pageTabNameMap);

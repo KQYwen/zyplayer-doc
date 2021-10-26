@@ -29,11 +29,13 @@
         </a-form>
         <a-table :dataSource="docList" :columns="docListColumns" size="middle"
                  :loading="docListLoading"
-                 :scroll="{ x: 1200, y: 'calc(100vh - 340px)' }">
+                 :scroll="{ x: 1400, y: 'calc(100vh - 340px)' }">
             <template #bodyCell="{ column, text, record }">
                 <template v-if="column.dataIndex === 'operation'">
-                    <a-button type="link">编辑</a-button>
-                    <a-button type="link" danger @click="deleteDoc(record)">删除</a-button>
+                    <a-button type="link" @click="editDoc(record)">编辑</a-button>
+                    <a-popconfirm title="确定要删除吗？" @confirm="deleteDoc(record)">
+                        <a-button type="link" danger>删除</a-button>
+                    </a-popconfirm>
                 </template>
                 <template v-if="column.dataIndex === 'docType'">
                     <a-tag color="red" v-if="text === 1">URL添加</a-tag>
@@ -84,7 +86,7 @@
 </template>
 
 <script>
-    import { toRefs, ref, onMounted } from 'vue';
+    import { toRefs, ref, reactive, onMounted } from 'vue';
     import {zyplayerApi} from '../../api';
 
     export default {
@@ -118,6 +120,10 @@
                     docType: 1, openVisit: 0, docStatus: 1,
                 };
             };
+            const editDoc = (record) => {
+                docEdit.value = {...record};
+                newDocVisible.value = true;
+            };
             const updateDoc = async (id, docStatus, yn) => {
                 zyplayerApi.swaggerDocUpdate({id, docStatus, yn}).then(res => {
                     searchDocList();
@@ -138,6 +144,7 @@
                 openNewDoc,
                 handleNewDocOk,
                 deleteDoc,
+                editDoc,
                 newDocRules: {
                     name: [{required: true, message: '请输入文档名称', trigger: 'change'}],
                     docUrl: [{required: true, message: '请输入文档地址', trigger: 'change'}],
@@ -154,16 +161,11 @@
                     }, {
                         title: '文档名称',
                         dataIndex: 'name',
+                        width: 150,
                     }, {
                         title: '文档类型',
                         dataIndex: 'docType',
                         width: 90,
-                    }, {
-                        title: '文档地址',
-                        dataIndex: 'docUrl',
-                    }, {
-                        title: '目标域名',
-                        dataIndex: 'rewriteDomain',
                     }, {
                         title: '开放访问',
                         dataIndex: 'openVisit',
@@ -172,6 +174,13 @@
                         title: '状态',
                         dataIndex: 'docStatus',
                         width: 90,
+                    }, {
+                        title: '文档地址',
+                        dataIndex: 'docUrl',
+                    }, {
+                        title: '目标域名',
+                        dataIndex: 'rewriteDomain',
+                        width: 250,
                     }, {
                         title: '操作',
                         dataIndex: 'operation',

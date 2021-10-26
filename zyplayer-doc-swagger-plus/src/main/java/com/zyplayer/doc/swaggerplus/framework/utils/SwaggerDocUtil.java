@@ -14,6 +14,14 @@ public class SwaggerDocUtil {
 		return docUrl.contains("/swagger-resources");
 	}
 	
+	public static String getSwaggerResourceDomain(String docUrl) {
+		int index = docUrl.indexOf("/swagger-resources");
+		if (index >= 0) {
+			return docUrl.substring(0, index);
+		}
+		return "";
+	}
+	
 	public static boolean isSwaggerLocation(String docUrl) {
 		return docUrl.contains("/v2/api-docs");
 	}

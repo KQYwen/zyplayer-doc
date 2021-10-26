@@ -27,6 +27,7 @@ public class SwaggerDocServiceImpl extends ServiceImpl<SwaggerDocMapper, Swagger
 		queryWrapper.eq(swaggerDoc.getDocType() != null, "doc_type", swaggerDoc.getDocType());
 		queryWrapper.eq(swaggerDoc.getOpenVisit() != null, "open_visit", swaggerDoc.getOpenVisit());
 		queryWrapper.eq(swaggerDoc.getDocStatus() != null, "doc_status", swaggerDoc.getDocStatus());
+		queryWrapper.orderByAsc("id");
 		return this.list(queryWrapper);
 	}
 }

@@ -17,6 +17,7 @@
                 <template v-if="menuItem.meta">
                     <DashboardOutlined v-if="menuItem.meta.icon === 'DashboardOutlined'"/>
                     <FileTextOutlined v-if="menuItem.meta.icon === 'FileTextOutlined'"/>
+                    <InfoCircleOutlined v-if="menuItem.meta.icon === 'InfoCircleOutlined'"/>
                 </template>
                 <span>{{menuItem.name}}</span>
             </router-link>
@@ -30,7 +31,8 @@
         SettingOutlined,
         CarryOutOutlined,
         FileTextOutlined,
-        DashboardOutlined
+        DashboardOutlined,
+        InfoCircleOutlined,
     } from '@ant-design/icons-vue';
 
     export default {
@@ -43,7 +45,7 @@
         },
         components: {
             StarOutlined, SettingOutlined, CarryOutOutlined, FileTextOutlined,
-            DashboardOutlined
+            DashboardOutlined, InfoCircleOutlined
         },
         methods: {
             haveShowChildren(children) {

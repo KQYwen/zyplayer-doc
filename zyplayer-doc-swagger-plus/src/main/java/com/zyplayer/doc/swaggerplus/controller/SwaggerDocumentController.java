@@ -80,15 +80,20 @@ public class SwaggerDocumentController {
 				if (resourceList == null || resourceList.isEmpty()) {
 					return DocResponseJson.warn("该地址未找到文档");
 				}
+				// 删除原有文档
+				if (swaggerDoc.getId() != null) {
+					swaggerDocService.removeById(swaggerDoc.getId());
+				}
 				// 存明细地址
+				String swaggerDomain = SwaggerDocUtil.getSwaggerResourceDomain(docUrl);
 				for (SwaggerResource resource : resourceList) {
 					swaggerDoc.setId(null);
-					swaggerDoc.setDocUrl(resource.getUrl());
+					swaggerDoc.setDocUrl(swaggerDomain + resource.getUrl());
 					swaggerDoc.setName(resource.getName());
 					swaggerDocService.save(swaggerDoc);
 				}
 			} else if (SwaggerDocUtil.isSwaggerLocation(docUrl)) {
-				swaggerDocService.save(swaggerDoc);
+				swaggerDocService.saveOrUpdate(swaggerDoc);
 			} else {
 				return DocResponseJson.warn("不支持的地址：" + docUrl);
 			}

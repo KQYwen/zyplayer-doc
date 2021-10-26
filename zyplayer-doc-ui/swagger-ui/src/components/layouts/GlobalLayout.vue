@@ -3,7 +3,7 @@
         <a-layout-sider theme="light" :trigger="null" collapsible v-model:collapsed="appMenuCollapsed" :width="rightAsideWidth" style="height: 100vh;overflow: auto;">
             <div class="logo">
                 <img src="../../assets/logo.png">
-                <h1>swagger文档管理</h1>
+                <h1>Swagger文档管理</h1>
             </div>
             <menu-layout :collapsed="appMenuCollapsed"></menu-layout>
         </a-layout-sider>
@@ -13,12 +13,9 @@
         <a-layout>
             <a-layout-header style="border-bottom: 2px solid #eee;background: #fff; padding: 0; box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);-webkit-box-shadow:0 1px 4px rgba(0, 21, 41, 0.08);">
                 <a-row type="flex">
-                    <a-col flex="60px">
+                    <a-col flex="auto">
                         <MenuUnfoldOutlined class="trigger" v-if="appMenuCollapsed" @click="appMenuCollapsed = !appMenuCollapsed"/>
                         <MenuFoldOutlined class="trigger" v-else @click="appMenuCollapsed = !appMenuCollapsed"/>
-                    </a-col>
-                    <a-col flex="auto" style="text-align: center;">
-                        <span v-if="initialEnv === 'newGray'" class="initial-env">当前环境：灰度</span>
                     </a-col>
                     <a-col flex="400px" style="text-align: right;padding-right: 20px;">
                         <header-avatar></header-avatar>
@@ -46,14 +43,10 @@
             return {
                 minHeight: minHeight + 'px',
                 appMenuCollapsed: false,
-                rightAsideWidth: 250
+                rightAsideWidth: 300
             }
         },
-        computed: {
-            initialEnv () {
-                return this.$store.state.initialEnv;
-            }
-        },
+        computed: {},
         mounted() {
             this.dragChangeRightAsideWidth();
         },

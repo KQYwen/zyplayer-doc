@@ -1,6 +1,6 @@
 <template>
 	<div>
-		控制台
+		控制台{{swaggerDoc.info}}
 	</div>
 </template>
 
@@ -11,7 +11,11 @@
 		data() {
 			return {}
 		},
-		computed: {},
+		computed: {
+			swaggerDoc () {
+				return this.$store.state.swaggerDoc;
+			}
+		},
 		mounted() {
 		},
 		methods: {}

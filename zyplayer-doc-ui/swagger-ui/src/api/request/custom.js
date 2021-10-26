@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import interceptors from './interceptors'
+import interceptors from './interceptorsCustom'
 import {getCustomApiBaseUrl} from "./utils";
 
 const apiClient = Axios.create({

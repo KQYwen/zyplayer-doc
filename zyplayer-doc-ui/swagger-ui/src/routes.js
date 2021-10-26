@@ -22,6 +22,14 @@ let routers = [
                         component: () => import('./views/common/Console.vue')
                     },
                     {
+                        path: '/doc/info',
+                        name: '文档信息',
+                        meta: {
+                            icon: 'InfoCircleOutlined',
+                        },
+                        component: () => import('./views/doc/DocInfo.vue')
+                    },
+                    {
                         path: '/doc/manage',
                         name: '文档管理',
                         meta: {
