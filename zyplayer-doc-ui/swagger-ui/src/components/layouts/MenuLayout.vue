@@ -75,6 +75,11 @@
             if (matched.length >= 1) {
                 this.openKeys = [matched[1].path];
             }
+            // 加载初始化的地址
+            if (this.$route.path === '/doc/view' && this.$route.query.url) {
+                this.swaggerDocChoice = this.$route.query.url;
+                this.swaggerDocChoiceChange();
+            }
             this.getSwaggerResourceList();
         },
         methods: {
@@ -111,10 +116,10 @@
                     }
                     this.$store.commit('setSwaggerDoc', v2Doc);
                     let metaInfo = {url};
-                    let treeData = createTreeViewByTag(v2Doc);
-                    this.treeData = getTreeDataForTag(v2Doc, treeData.pathIndex, metaInfo);
-                    this.$store.commit('setSwaggerTreePathMap', treeData.treePathDataMap);
-                    setTimeout(() => this.treeDataLoading = false, 300);
+                    let treeData = createTreeViewByTag(v2Doc, '');
+                    this.treeData = getTreeDataForTag(v2Doc, treeData.pathData, metaInfo);
+                    this.$store.commit('setSwaggerTreePathMap', treeData.pathDataMap);
+                    setTimeout(() => this.treeDataLoading = false, 100);
                 });
             },
             toJsonObj(value) {

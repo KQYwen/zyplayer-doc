@@ -23,7 +23,7 @@ let routers = [
                     },
                     {
                         path: '/doc/manage',
-                        name: '文档管理',
+                        name: '文档地址管理',
                         meta: {
                             icon: 'FileTextOutlined'
                         },
@@ -38,8 +38,16 @@ let routers = [
                         component: EmptyLayout,
                         children: [
                             {
+                                path: '/doc/setting/globalParam',
+                                name: '全局参数',
+                                component: () => import('./views/doc/GlobalParam.vue')
+                            },
+                            {
                                 path: '/doc/setting/view',
                                 name: '展示配置',
+                                meta: {
+                                    hidden: true,
+                                },
                                 component: () => import('./views/common/SettingView.vue')
                             },
                         ]

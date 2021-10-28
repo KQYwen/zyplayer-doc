@@ -28,7 +28,7 @@
             </a-form-item>
         </a-form>
         <a-table :dataSource="docList" :columns="docListColumns" size="middle"
-                 :loading="docListLoading"
+                 :loading="docListLoading" :pagination="false"
                  :scroll="{ x: 1400, y: 'calc(100vh - 340px)' }">
             <template #bodyCell="{ column, text, record }">
                 <template v-if="column.dataIndex === 'operation'">
@@ -158,39 +158,14 @@
                     docStatus: [{type: 'number', required: true, message: '请选择文档状态', trigger: 'change'}],
                 },
                 docListColumns: [
-                    {
-                        title: 'ID',
-                        dataIndex: 'id',
-                        width: 70,
-                    }, {
-                        title: '文档名称',
-                        dataIndex: 'name',
-                        width: 150,
-                    }, {
-                        title: '文档类型',
-                        dataIndex: 'docType',
-                        width: 90,
-                    }, {
-                        title: '开放访问',
-                        dataIndex: 'openVisit',
-                        width: 90,
-                    }, {
-                        title: '状态',
-                        dataIndex: 'docStatus',
-                        width: 90,
-                    }, {
-                        title: '文档地址',
-                        dataIndex: 'docUrl',
-                    }, {
-                        title: '目标域名',
-                        dataIndex: 'rewriteDomain',
-                        width: 250,
-                    }, {
-                        title: '操作',
-                        dataIndex: 'operation',
-                        fixed: 'right',
-                        width: 170,
-                    },
+                    {title: 'ID', dataIndex: 'id', width: 70},
+                    {title: '文档名称', dataIndex: 'name', width: 150},
+                    {title: '文档类型', dataIndex: 'docType', width: 90},
+                    {title: '开放访问', dataIndex: 'openVisit', width: 90},
+                    {title: '状态', dataIndex: 'docStatus', width: 90},
+                    {title: '文档地址', dataIndex: 'docUrl'},
+                    {title: '目标域名', dataIndex: 'rewriteDomain', width: 250},
+                    {title: '操作', dataIndex: 'operation', fixed: 'right', width: 170},
                 ],
             };
         },

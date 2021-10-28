@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerDoc;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerGlobalParam;
 import com.zyplayer.doc.data.service.manage.SwaggerGlobalParamService;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -60,17 +63,15 @@ public class SwaggerGlobalParamController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/update")
-	public ResponseJson<List<SwaggerDoc>> update(String globalParam) {
-		List<SwaggerGlobalParam> newParamList = JSON.parseArray(globalParam, SwaggerGlobalParam.class);
-		QueryWrapper<SwaggerGlobalParam> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("yn", 1);
-		List<SwaggerGlobalParam> queryParamList = swaggerGlobalParamService.list(queryWrapper);
-		List<Long> newIdList = newParamList.stream().map(SwaggerGlobalParam::getId).filter(Objects::nonNull).collect(Collectors.toList());
-		List<Long> deletedList = queryParamList.stream().map(SwaggerGlobalParam::getId).filter(id -> !newIdList.contains(id)).collect(Collectors.toList());
-		// 删除不存在的
-		swaggerGlobalParamService.removeByIds(deletedList);
-		// 保存或更新的
-		swaggerGlobalParamService.saveOrUpdateBatch(newParamList);
+	public ResponseJson<List<SwaggerDoc>> update(SwaggerGlobalParam globalParam) {
+		if (globalParam.getId() == null) {
+			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+			globalParam.setYn(1);
+			globalParam.setCreateTime(new Date());
+			globalParam.setCreateUserId(currentUser.getUserId());
+			globalParam.setCreateUserName(currentUser.getUsername());
+		}
+		swaggerGlobalParamService.saveOrUpdate(globalParam);
 		return DocResponseJson.ok();
 	}
 }

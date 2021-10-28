@@ -1,5 +1,5 @@
 import {createStore} from 'vuex'
-import {getDefinitions, createTreeViewByTag} from './SwaggerDocUtil'
+import {createTreeViewByTag} from './SwaggerDocUtil'
 
 export default createStore({
     state() {
@@ -9,7 +9,7 @@ export default createStore({
             pageTabNameMap: {},
             swaggerDoc: {},
             swaggerDefinitions: {},
-            swaggerTreePathMap: [],
+            swaggerTreePathMap: {},
         }
     },
     mutations: {
@@ -21,7 +21,7 @@ export default createStore({
         },
         setSwaggerDoc(state, swaggerDoc) {
             state.swaggerDoc = swaggerDoc;
-            state.swaggerDefinitions = getDefinitions(swaggerDoc.definitions);
+            state.swaggerDefinitions = swaggerDoc.definitions || {};
         },
         setSwaggerTreePathMap(state, swaggerTreePathMap) {
             state.swaggerTreePathMap = swaggerTreePathMap;

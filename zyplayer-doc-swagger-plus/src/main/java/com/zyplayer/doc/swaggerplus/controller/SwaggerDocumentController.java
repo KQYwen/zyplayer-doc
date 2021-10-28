@@ -128,19 +128,4 @@ public class SwaggerDocumentController {
 		swaggerDocService.updateById(swaggerDocUp);
 		return DocResponseJson.ok();
 	}
-	
-	/**
-	 * 获取文档内容
-	 *
-	 * @return 文档内容
-	 * @author 暮光：城中城
-	 * @since 2021年10月16日
-	 */
-	@ResponseBody
-	@PostMapping(value = "/content")
-	public ResponseJson<List<SwaggerDoc>> content(HttpServletRequest request, String docUrl) {
-		String contentStr = swaggerHttpRequestService.requestUrl(request, docUrl);
-		return DocResponseJson.ok(contentStr);
-	}
-	
 }
