@@ -3,10 +3,9 @@ const methodArray = ["get", "head", "post", "put", "patch", "delete", "options",
 /**
  * 通过tag创建文档树
  * @param swagger 文档内容
- * @param keywords 搜索内容
  * @returns {{pathDataMap: {}, pathData: {}}}
  */
-export function createTreeViewByTag(swagger, keywords) {
+export function createTreeViewByTag(swagger) {
     let pathData = {}, pathDataMap = {}, methodStatistic = {};
     let swaggerPaths = swagger.paths;
     if (!swaggerPaths) {
@@ -45,21 +44,11 @@ export function createTreeViewByTag(swagger, keywords) {
     return {pathData, pathDataMap, methodStatistic};
 }
 
-export function getTreeDataForTag(swagger, pathData, metaInfo) {
-    return [
-        {
-            key: 'main',
-            title: swagger.title || 'Swagger接口文档',
-            children: getTreeHtmlForTag(swagger.tags, pathData, metaInfo)
-        }
-    ];
-}
-
-function getTreeHtmlForTag(swaggerTags, pathData, metaInfo) {
+export function getTreeDataForTag(swagger, pathData, keywords, metaInfo) {
     let treeData = [];
     let indexTag = 1;
     // 遍历分组
-    swaggerTags.forEach(tag => {
+    swagger.tags.forEach(tag => {
         let indexUrl = 1;
         let urlTree = [];
         let pathTagNode = pathData[tag.name];
@@ -74,6 +63,9 @@ function getTreeHtmlForTag(swaggerTags, pathData, metaInfo) {
             Object.keys(pathUrlNode).forEach(method => {
                 let tempTreeId = indexTag + "_" + indexUrl + "_" + indexMethod;
                 let methodNode = pathUrlNode[method];
+                if (!searchInPathMethods(url, methodNode, keywords)) {
+                    return;
+                }
                 methodNode.treeId = tempTreeId;
                 let title = methodNode.summary || methodNode.path;
                 urlTree.push({
@@ -94,5 +86,25 @@ function getTreeHtmlForTag(swaggerTags, pathData, metaInfo) {
         treeData.push({title: tag.name, key: indexTag, children: urlTree});
         indexTag++;
     });
-    return treeData;
+    return [
+        {
+            key: 'main',
+            title: swagger.title || 'Swagger接口文档',
+            children: treeData
+        }
+    ];
+}
+
+function searchInPathMethods(url, methodNode, keywords) {
+    if (!keywords || !url) {
+        return true;
+    }
+    url = url.toLowerCase();
+    keywords = keywords.toLowerCase();
+    // 路径中有就不用再去找了
+    if (url.indexOf(keywords) >= 0) {
+        return true;
+    }
+    let searchData = methodNode.path + methodNode.summary + methodNode.description + methodNode.tags;
+    return (searchData && searchData.toLowerCase().indexOf(keywords) >= 0);
 }

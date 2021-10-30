@@ -1,5 +1,4 @@
 import {createStore} from 'vuex'
-import {createTreeViewByTag} from './SwaggerDocUtil'
 
 export default createStore({
     state() {

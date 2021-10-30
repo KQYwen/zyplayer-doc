@@ -65,9 +65,32 @@
             </a-form-item>
             <a-form-item label="文档地址" required name="docUrl" v-if="docEdit.docType === 1">
                 <a-input placeholder="请输入文档地址URL" v-model:value="docEdit.docUrl"></a-input>
+                <template #extra>
+                    查看文档地址
+                    <a-popover title="文档地址支持以下任一格式">
+                        <template #content>
+                            <p>格式一：http://doc.zyplayer.com/v2/api-docs</p>
+                            <p>格式二：http://doc.zyplayer.com/swagger-resources</p>
+                            <p>格式三：http://doc.zyplayer.com/swagger-ui.html</p>
+                        </template>
+                        <a>示例</a>
+                    </a-popover>
+                </template>
             </a-form-item>
             <a-form-item label="文档内容" required name="jsonContent" v-else-if="docEdit.docType === 2">
                 <a-textarea placeholder="请输入JSON格式的swagger文档内容" v-model:value="docEdit.jsonContent"></a-textarea>
+                <template #extra>
+                    查看文档内容
+                    <a-popover title="文档内容说明">
+                        <template #content>
+                            <div>支持以下格式的Swagger文档内容输入，其中 {"swagger": "2.0"} 为必要属性</div>
+                            <div v-highlight>
+                                <pre><code class="lang-json">{{swaggerDocDemo}}</code></pre>
+                            </div>
+                        </template>
+                        <a>说明</a>
+                    </a-popover>
+                </template>
             </a-form-item>
             <a-form-item label="开放访问" required name="openVisit">
                 <a-radio-group v-model:value="docEdit.openVisit">
@@ -167,6 +190,16 @@
                     {title: '目标域名', dataIndex: 'rewriteDomain', width: 250},
                     {title: '操作', dataIndex: 'operation', fixed: 'right', width: 170},
                 ],
+                swaggerDocDemo:
+                    '{\n'
+                    + '    "swagger": "2.0",\n'
+                    + '    "info": {},\n'
+                    + '    "host": "doc.zyplayer.com",\n'
+                    + '    "basePath":"/",\n'
+                    + '    "tags": [],\n'
+                    + '    "paths": {},\n'
+                    + '    "definitions": {}\n'
+                    + '}'
             };
         },
     };

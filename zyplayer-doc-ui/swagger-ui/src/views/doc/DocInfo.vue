@@ -31,25 +31,20 @@
 </template>
 
 <script>
+	import { toRefs, ref, reactive, onMounted, computed } from 'vue';
+	import {useStore} from 'vuex';
+
 	export default {
-		name: 'docInfo',
-		components: {},
-		data() {
-			return {}
+		setup() {
+			const store = useStore()
+			const swaggerDoc = computed(() => store.state.swaggerDoc);
+			const swaggerDocInfo = computed(() => store.state.swaggerDoc.info);
+			const methodStatistic = computed(() => store.state.methodStatistic);
+			return {
+				swaggerDoc,
+				swaggerDocInfo,
+				methodStatistic
+			};
 		},
-		computed: {
-			swaggerDoc () {
-				return this.$store.state.swaggerDoc || {};
-			},
-			swaggerDocInfo () {
-				return this.$store.state.swaggerDoc.info;
-			},
-			methodStatistic () {
-				return this.$store.state.methodStatistic;
-			},
-		},
-		mounted() {
-		},
-		methods: {}
-	}
+	};
 </script>

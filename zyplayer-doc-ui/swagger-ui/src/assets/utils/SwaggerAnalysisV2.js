@@ -35,8 +35,7 @@ export default {
                 } else if (parameter.items && parameter.items.type) {
                     subType = parameter.items.type;
                 } else {
-                    console.log('001-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-                    message.error('001-遇到未处理的类型，请联系开发人员修改：' + type);
+                    this.logMessage('001', type, parameter);
                 }
             } else if (!type) {
                 if (parameter.schema) {
@@ -56,14 +55,13 @@ export default {
                             } else if (parameter.schema.items.type) {
                                 subType = parameter.schema.items.type;
                             } else {
-                                console.log('0014-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
+                                this.log('0014', type, parameter);
                             }
                         } else {
-                            console.log('0011-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
+                            this.log('0011', type, parameter);
                         }
                     } else {
-                        console.log('0013-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-                        message.error('0013-遇到未处理的类型，请联系开发人员修改：' + type);
+                        this.logMessage('0013', type, parameter);
                     }
                 } else if (parameter.items && parameter.items.type) {
                     // 解析parameter.items {type: "object", $ref: "#/definitions/Model"}
@@ -73,19 +71,16 @@ export default {
                         children = this.getAdditionalProperties(parameter.items.additionalProperties, additional, definitionsDataMap, indexKey, {}, 0);
                         format = additional.type;
                     } else {
-                        console.log('0012-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-                        message.error('0012-遇到未处理的类型，请联系开发人员修改：' + type);
+                        this.logMessage('0012', type, parameter);
                     }
                 } else {
-                    console.log('002-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-                    message.error('002-遇到未处理的类型，请联系开发人员修改：' + type);
+                    this.logMessage('002', type, parameter);
                 }
             } else {
                 if (notNeedHandleTypeArr.indexOf(type) >= 0) {
                     // 无需特殊处理的类型
                 } else {
-                    console.log('003-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-                    message.error('003-遇到未处理的类型，请联系开发人员修改：' + type);
+                    this.logMessage('003', type, parameter);
                 }
             }
             if (parameter.enum && parameter.enum.length > 0) {
@@ -171,8 +166,7 @@ export default {
                     } else if (parameter.items && parameter.items.type) {
                         subType = parameter.items.type;
                     } else {
-                        console.log('004-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-                        message.error('004-遇到未处理的类型，请联系开发人员修改：' + type);
+                        this.logMessage('004', type, parameter);
                     }
                 } else if (type === 'object') {
                     if (parameter.additionalProperties) {
@@ -180,22 +174,20 @@ export default {
                         children = this.getAdditionalProperties(parameter.additionalProperties, additional, definitionsDataMap, keySub, parentRef, deep + 1);
                         format = additional.type;
                     } else {
-                        console.log('0041-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
+                        this.log('0041', type, parameter);
                     }
                 } else if (!type) {
                     if (parameter.originalRef) {
                         type = parameter.originalRef;
                         children = this.getParamDefinitions(parameter.originalRef, definitionsDataMap, keySub, parentRef, deep + 1);
                     } else {
-                        console.log('005-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-                        message.error('005-遇到未处理的类型，请联系开发人员修改：' + type);
+                        this.logMessage('005', type, parameter);
                     }
                 } else {
                     if (notNeedHandleTypeArr.indexOf(type) >= 0) {
                         // 无需特殊处理的类型
                     } else {
-                        console.log('006-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-                        message.error('006-遇到未处理的类型，请联系开发人员修改：' + type);
+                        this.logMessage('006', type, parameter);
                     }
                 }
                 if (parameter.items && parameter.items.enum && parameter.items.enum.length > 0) {
@@ -239,19 +231,24 @@ export default {
                 };
                 return children;
             } else {
-                console.log('007-遇到未处理的类型，请联系开发人员修改：', additionalProperties);
-                message.error('007-遇到未处理的类型，请联系开发人员修改');
+                this.logMessage('007', '', additionalProperties);
             }
         } else {
             additional.type = additionalProperties.type;
             if (notNeedHandleTypeArr.indexOf(additional.type) >= 0) {
                 // 无需特殊处理的类型
             } else {
-                console.log('008-遇到未处理的类型，请联系开发人员修改：', additionalProperties);
-                message.error('008-遇到未处理的类型，请联系开发人员修改');
+                this.logMessage('008', '', additionalProperties);
             }
         }
         return undefined;
     },
+    log(code, type, parameter) {
+        console.log(code + '-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
+    },
+    logMessage(code, type, parameter) {
+        console.log(code + '-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
+        message.error(code + '-遇到未处理的类型，请联系开发人员修改：' + type);
+    }
 }
 

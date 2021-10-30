@@ -10,6 +10,7 @@
                     <a-select placeholder="请选择分组" v-model:value="swaggerDocChoice" @change="swaggerDocChoiceChange" style="width: 100%;">
                         <a-select-option :value="item.url" v-for="item in swaggerResourceList">{{item.name}}</a-select-option>
                     </a-select>
+                    <a-input-search v-model:value="searchKeywords" placeholder="搜索文档内容" style="width: 100%;margin-top: 10px;" @search="loadTreeData"/>
                 </div>
                 <a-directory-tree :showIcon="false" :tree-data="treeData" v-model:expandedKeys="expandedKeys" @select="docChecked">
                     <template #title="{ title, isLeaf, method, children, key }">
@@ -35,7 +36,7 @@
 <script>
     import MenuChildrenLayout from './MenuChildrenLayout.vue'
     import {customApi} from '../../api'
-    import {createTreeViewByTag, getTreeDataForTag} from '../../store/SwaggerDocUtil'
+    import {createTreeViewByTag, getTreeDataForTag} from '../../store/TreeViewByTag'
 
     export default {
         name: 'MenuLayout',
@@ -52,10 +53,13 @@
                 openKeys: [],
                 // 文档树
                 treeDataLoading: false,
+                pathData: {},
+                swaggerDoc: {},
                 treeData: [],
                 expandedKeys: [],
                 swaggerResourceList: [],
                 swaggerDocChoice: undefined,
+                searchKeywords: '',
             }
         },
         watch:{
@@ -104,26 +108,31 @@
                 });
             },
             swaggerDocChoiceChange() {
-                this.loadV2Doc(this.swaggerDocChoice);
+                this.loadV2Doc();
             },
-            loadV2Doc(url) {
-                this.expandedKeys = [];
+            loadV2Doc() {
                 this.treeDataLoading = true;
-                customApi.get(url).then(res => {
+                customApi.get(this.swaggerDocChoice).then(res => {
                     let v2Doc = this.toJsonObj(res);
                     if (typeof v2Doc !== 'object' || !v2Doc.swagger) {
                         this.$message.error('获取文档数据请求失败');
                         this.treeDataLoading = false;
                         return;
                     }
-                    this.$store.commit('setSwaggerDoc', v2Doc);
-                    let metaInfo = {url};
-                    let treeData = createTreeViewByTag(v2Doc, '');
-                    this.treeData = getTreeDataForTag(v2Doc, treeData.pathData, metaInfo);
+                    this.swaggerDoc = v2Doc;
+                    this.$store.commit('setSwaggerDoc', this.swaggerDoc);
+                    let treeData = createTreeViewByTag(this.swaggerDoc);
                     this.$store.commit('setSwaggerTreePathMap', treeData.pathDataMap);
                     this.$store.commit('setMethodStatistic', treeData.methodStatistic);
+                    this.pathData = treeData.pathData;
+                    this.loadTreeData();
                     setTimeout(() => this.treeDataLoading = false, 100);
                 });
+            },
+            loadTreeData() {
+                this.expandedKeys = ['main'];
+                let metaInfo = {url: this.swaggerDocChoice};
+                this.treeData = getTreeDataForTag(this.swaggerDoc, this.pathData, this.searchKeywords, metaInfo);
             },
             toJsonObj(value) {
                 if (typeof value !== 'string') {

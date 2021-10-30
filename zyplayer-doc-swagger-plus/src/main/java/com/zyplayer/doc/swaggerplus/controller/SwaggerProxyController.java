@@ -49,7 +49,9 @@ public class SwaggerProxyController {
 	@RequestMapping("/swagger-resources")
 	public List<SwaggerResource> swaggerResources() {
 		List<SwaggerResource> resourceList = new LinkedList<>();
-		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList(new SwaggerDoc());
+		SwaggerDoc swaggerSearch = new SwaggerDoc();
+		swaggerSearch.setDocStatus(1);
+		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList(swaggerSearch);
 		for (SwaggerDoc swaggerDoc : docList) {
 			SwaggerResource resource = new SwaggerResource();
 			resource.setUrl("/v2/api-docs?id=" + swaggerDoc.getId());

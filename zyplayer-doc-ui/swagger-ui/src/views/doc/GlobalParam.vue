@@ -57,6 +57,7 @@
             let docList = ref([]);
             let docListLoading = ref(false);
             const searchDocList = async () => {
+                docEdit.value = {};
                 docListLoading.value = true;
                 zyplayerApi.docSwaggerGlobalParamList().then(res => {
                     setTimeout(() => docListLoading.value = false, 500);
@@ -66,13 +67,16 @@
             let docEdit = ref({});
             const addDocLine = () => {
                 if (docEdit.value.isEdit) {
-                    return;
+                    cancelEditDoc(docEdit.value);
                 }
                 let newLine = {isEdit: true};
                 docList.value.push(newLine);
                 docEdit.value = newLine;
             };
             const editDoc = (record) => {
+                if (docEdit.value.isEdit) {
+                    cancelEditDoc(docEdit.value);
+                }
                 record.isEdit = true;
                 docEdit.value = {...record};
             };
@@ -80,6 +84,8 @@
                 record.isEdit = false;
                 if (!record.id) {
                     docList.value = docList.value.filter(item => item !== record);
+                } else {
+                    docList.value.forEach(item => item.isEdit = false);
                 }
                 docEdit.value = {};
             };
