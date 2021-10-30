@@ -10,6 +10,7 @@ export default createStore({
             swaggerDoc: {},
             swaggerDefinitions: {},
             swaggerTreePathMap: {},
+            methodStatistic: {},
         }
     },
     mutations: {
@@ -25,6 +26,9 @@ export default createStore({
         },
         setSwaggerTreePathMap(state, swaggerTreePathMap) {
             state.swaggerTreePathMap = swaggerTreePathMap;
+        },
+        setMethodStatistic(state, methodStatistic) {
+            state.methodStatistic = methodStatistic;
         },
         addTableName(state, item) {
             let sameObj = Object.assign({}, state.pageTabNameMap);

@@ -4,7 +4,7 @@ CREATE TABLE `swagger_doc` (
   `name` varchar(100) DEFAULT NULL COMMENT '文档名称',
   `doc_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '文档类型 1=url 2=swagger文档json',
   `doc_url` varchar(250) DEFAULT NULL COMMENT '文档URL地址',
-  `json_content` text DEFAULT NULL COMMENT 'swagger文档json内容',
+  `json_content` mediumtext DEFAULT NULL COMMENT 'swagger文档json内容',
   `rewrite_domain` varchar(100) DEFAULT NULL COMMENT '重写的域名',
   `open_visit` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否开放访问 0=否 1=是',
   `doc_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态 1=启用 2=禁用',

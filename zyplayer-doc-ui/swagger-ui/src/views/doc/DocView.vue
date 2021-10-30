@@ -3,15 +3,32 @@
         <a-tab-pane tab="接口说明" key="doc">
             <a-form :label-col="{span: 4}" :wrapper-col="{span: 20}">
                 <a-form-item label="接口地址">{{docInfoShow.url}}</a-form-item>
-                <a-form-item label="说明">{{docInfoShow.description}}</a-form-item>
+                <a-form-item label="说明">
+                    <a-card size=small><div class="markdown-body" v-html="docInfoShow.description" v-highlight></div></a-card>
+                </a-form-item>
                 <a-form-item label="请求方式">{{docInfoShow.method}}</a-form-item>
                 <a-form-item label="请求数据类型">{{docInfoShow.consumes}}</a-form-item>
                 <a-form-item label="响应数据类型">{{docInfoShow.produces}}</a-form-item>
                 <a-form-item label="请求参数">
                     <a-table :dataSource="requestParamList" :columns="requestParamListColumns" size="small" :pagination="false" defaultExpandAllRows>
                         <template #bodyCell="{ column, text, record }">
-                            <template v-if="column.dataIndex === 'htmlStr'">
-                                <div v-html="text"></div>
+                            <template v-if="column.dataIndex === 'type'">
+                                {{text}}
+                                <template v-if="record.subType">[{{record.subType}}]</template>
+                                <template v-if="record.format">({{record.format}})</template>
+                            </template>
+                            <template v-if="column.dataIndex === 'in'">
+                                <a-tag color="pink" v-if="text === 'header'">header</a-tag>
+                                <a-tag color="red" v-else-if="text === 'body'">body</a-tag>
+                                <a-tag color="orange" v-else-if="text === 'query'">query</a-tag>
+                                <a-tag color="green" v-else-if="text === 'formData'">formData</a-tag>
+                                <template v-else-if="!text">-</template>
+                                <a-tag color="purple" v-else>{{text}}</a-tag>
+                            </template>
+                            <template v-if="column.dataIndex === 'required'">
+                                <span v-if="text === '是'" style="color: #f00;">是</span>
+                                <template v-else-if="text === '否'">否</template>
+                                <template v-else>-</template>
                             </template>
                         </template>
                     </a-table>
@@ -26,6 +43,13 @@
                         <template #expandedRowRender="{ record }">
                             <template v-if="record.schemas">
                                 <a-table :dataSource="record.schemas" :columns="responseParamListColumns" size="small" :pagination="false" defaultExpandAllRows>
+                                    <template #bodyCell="{ column, text, record }">
+                                        <template v-if="column.dataIndex === 'type'">
+                                            {{text}}
+                                            <template v-if="record.subType">[{{record.subType}}]</template>
+                                            <template v-if="record.format">({{record.format}})</template>
+                                        </template>
+                                    </template>
                                 </a-table>
                             </template>
                             <div v-else style="text-align: center;padding: 10px 0;">无参数说明</div>
@@ -35,7 +59,7 @@
             </a-form>
         </a-tab-pane>
         <a-tab-pane tab="在线调试" key="debug">
-            {{activePage}}
+            暂未开放
         </a-tab-pane>
     </a-tabs>
 </template>
@@ -47,6 +71,9 @@
     import { message } from 'ant-design-vue';
     import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
     import swaggerAnalysis from '../../assets/utils/SwaggerAnalysisV2'
+    import {markdownIt} from 'mavon-editor'
+    import 'mavon-editor/dist/markdown/github-markdown.min.css'
+    import 'mavon-editor/dist/css/index.css'
 
     export default {
         setup() {
@@ -98,9 +125,10 @@
                 if (docInfo.produces && docInfo.produces.length > 0) {
                     produces = docInfo.produces.join(' ');
                 }
+                let description = markdownIt.render(docInfo.description || docInfo.summary || '');
                 docInfoShow.value = {
                     url: docInfo.url,
-                    description: (docInfo.description || docInfo.summary),
+                    description: description,
                     method: docInfo.method || '',
                     consumes: consumes,
                     produces: produces,
@@ -122,41 +150,23 @@
                 requestParamList,
                 requestParamListColumns: [
                     {title: '参数名', dataIndex: 'name', width: 200},
+                    {title: '类型', dataIndex: 'type', width: 150},
+                    {title: '参数位置', dataIndex: 'in', width: 100},
+                    {title: '必填', dataIndex: 'required', width: 60},
                     {title: '说明', dataIndex: 'description'},
-                    {title: '类型', dataIndex: 'type'},
-                    {title: '参数位置', dataIndex: 'in'},
-                    {title: '是否必填', dataIndex: 'required'},
                 ],
                 responseParamList,
                 responseCodeListColumns: [
                     {title: '状态码', dataIndex: 'code', width: 100},
+                    {title: '类型', dataIndex: 'type', width: 250},
                     {title: '说明', dataIndex: 'desc'},
-                    {title: '类型', dataIndex: 'type'},
                 ],
                 responseParamListColumns: [
-                    {title: '参数名', dataIndex: 'name', width: 200},
+                    {title: '参数名', dataIndex: 'name', width: 250},
+                    {title: '类型', dataIndex: 'type', width: 250},
                     {title: '说明', dataIndex: 'description'},
-                    {title: '类型', dataIndex: 'type'},
                 ],
             };
         },
     };
 </script>
-
-<style>
-    /* S-JSON展示的样式 */
-    pre.json{margin-top:0px;margin-bottom:0px;}
-    pre.json .canvas{font:10pt georgia;background-color:#ececec;color:#000000;border:1px solid #cecece;}
-    pre.json .object-brace{color:#00aa00;font-weight:bold;}
-    pre.json .array-brace{color:#0033ff;font-weight:bold;}
-    pre.json .property-name{color:#cc0000;font-weight:bold;}
-    pre.json .string{color:#007777;}
-    pre.json .number{color:#aa00aa;}
-    pre.json .boolean{color:#0000ff;}
-    pre.json .function{color:#aa6633;text-decoration:italic;}
-    pre.json .null{color:#0000ff;}
-    pre.json .comma{color:#000000;font-weight:bold;}
-    pre.json .annotation{color:#aaa;}
-    pre img{cursor: pointer;}
-    /* E-JSON展示的样式 */
-</style>

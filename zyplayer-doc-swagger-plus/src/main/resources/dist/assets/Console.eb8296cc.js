@@ -1,1 +1,0 @@
-import{b as o,o as e}from"./vendor.0502eb24.js";const t={name:"About",components:{},data:()=>({}),computed:{},mounted(){},methods:{}};t.render=function(t,n,d,r,a,m){return e(),o("div",null," 控制台 ")};export{t as default};

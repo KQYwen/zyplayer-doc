@@ -159,7 +159,7 @@
                 },
                 docListColumns: [
                     {title: 'ID', dataIndex: 'id', width: 70},
-                    {title: '文档名称', dataIndex: 'name', width: 150},
+                    {title: '文档名称', dataIndex: 'name', width: 250},
                     {title: '文档类型', dataIndex: 'docType', width: 90},
                     {title: '开放访问', dataIndex: 'openVisit', width: 90},
                     {title: '状态', dataIndex: 'docStatus', width: 90},

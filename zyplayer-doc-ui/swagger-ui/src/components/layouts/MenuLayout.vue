@@ -12,7 +12,7 @@
                     </a-select>
                 </div>
                 <a-directory-tree :showIcon="false" :tree-data="treeData" v-model:expandedKeys="expandedKeys" @select="docChecked">
-                    <template #title="{ title, isLeaf, method }">
+                    <template #title="{ title, isLeaf, method, children, key }">
                         <template v-if="isLeaf">
                             <a-tag color="pink" v-if="method === 'get'">get</a-tag>
                             <a-tag color="red" v-else-if="method === 'post'">post</a-tag>
@@ -23,7 +23,8 @@
                             <a-tag color="purple" v-else-if="method === 'options'">options</a-tag>
                             <a-tag color="purple" v-else-if="method === 'trace'">trace</a-tag>
                         </template>
-                        {{title}}
+                        <span style="margin: 0 6px 0 3px;">{{title}}</span>
+                        <a-badge v-if="children" :count="children.length" :number-style="{backgroundColor: '#fff', color: '#999', boxShadow: '0 0 0 1px #d9d9d9 inset'}"/>
                     </template>
                 </a-directory-tree>
             </a-spin>
@@ -106,6 +107,7 @@
                 this.loadV2Doc(this.swaggerDocChoice);
             },
             loadV2Doc(url) {
+                this.expandedKeys = [];
                 this.treeDataLoading = true;
                 customApi.get(url).then(res => {
                     let v2Doc = this.toJsonObj(res);
@@ -119,6 +121,7 @@
                     let treeData = createTreeViewByTag(v2Doc, '');
                     this.treeData = getTreeDataForTag(v2Doc, treeData.pathData, metaInfo);
                     this.$store.commit('setSwaggerTreePathMap', treeData.pathDataMap);
+                    this.$store.commit('setMethodStatistic', treeData.methodStatistic);
                     setTimeout(() => this.treeDataLoading = false, 100);
                 });
             },
@@ -145,4 +148,7 @@
     .doc-tree .ant-tree-switcher{width: 15px;}
     .doc-tree .ant-tree-switcher-noop{width: 0;}
     .doc-tree .ant-tag{margin-right: 0;}
+    .ant-badge-not-a-wrapper:not(.ant-badge-status) {
+        vertical-align: text-top;
+    }
 </style>

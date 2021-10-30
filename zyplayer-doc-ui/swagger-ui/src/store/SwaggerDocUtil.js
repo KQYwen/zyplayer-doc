@@ -7,10 +7,10 @@ const methodArray = ["get", "head", "post", "put", "patch", "delete", "options",
  * @returns {{pathDataMap: {}, pathData: {}}}
  */
 export function createTreeViewByTag(swagger, keywords) {
-    let pathData = {}, pathDataMap = {};
+    let pathData = {}, pathDataMap = {}, methodStatistic = {};
     let swaggerPaths = swagger.paths;
     if (!swaggerPaths) {
-        return {pathDataMap, pathData};
+        return {pathDataMap, pathData, methodStatistic};
     }
     //console.log(swaggerPaths);
     Object.keys(swaggerPaths).forEach(url => {
@@ -20,6 +20,9 @@ export function createTreeViewByTag(swagger, keywords) {
             if (!pathMethods[method] || !pathMethods[method].tags) {
                 continue;
             }
+            let methodUp = method.toUpperCase();
+            methodStatistic[methodUp] = (methodStatistic[methodUp] || 0) + 1;
+            methodStatistic['TOTAL'] = (methodStatistic['TOTAL'] || 0) + 1;
             pathMethods[method].tags.forEach(tag => {
                 let pathTag = pathData[tag];
                 if (!pathTag) {
@@ -39,7 +42,7 @@ export function createTreeViewByTag(swagger, keywords) {
             });
         }
     });
-    return {pathData, pathDataMap};
+    return {pathData, pathDataMap, methodStatistic};
 }
 
 export function getTreeDataForTag(swagger, pathData, metaInfo) {

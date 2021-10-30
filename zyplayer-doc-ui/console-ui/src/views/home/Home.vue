@@ -8,9 +8,9 @@
                         <span>所有产品</span>
                     </div>
                     <div class="product-list">
-                        <div class="item" v-on:click="jumpToDocPage('doc-swagger')">
-                            <div class="logo-text text1">swagger</div>
-                            <div>swagger文档</div>
+                        <div class="item" v-on:click="jumpToDocPage('doc-swagger-plus')">
+                            <div class="logo-text text1">Swagger</div>
+                            <div>Swagger文档</div>
                         </div>
                         <div class="item" v-on:click="jumpToDocPage('doc-db')">
                             <div class="logo-text text2">DB</div>
@@ -22,15 +22,15 @@
                         </div>
                         <div class="item" v-on:click="jumpToDocPage('doc-dubbo')">
                             <div class="logo-img"><img src="../../assets/img/dubbo.png"></div>
-                            <div>dubbo文档</div>
+                            <div>Dubbo文档</div>
                         </div>
                         <div class="item" v-on:click="jumpToDocPage('doc-es')">
-                            <div class="logo-text text1">ES</div>
+                            <div class="logo-text text4">ES</div>
                             <div>es文档</div>
                         </div>
                         <el-tooltip effect="dark" content="不成熟，欢迎完善" placement="top-start">
                             <div class="item disabled">
-                                <div class="logo-text text4">GRPC</div>
+                                <div class="logo-text">GRPC</div>
                                 <div>GRPC文档</div>
                             </div>
                         </el-tooltip>
@@ -95,6 +95,8 @@
     .product-list .item .logo-text.text1{background: #67C23A;}
     .product-list .item .logo-text.text2{background: #E6A23C;}
     .product-list .item .logo-text.text3{background: #F56C6C;}
+    .product-list .item .logo-text.text4{background: #387BCD;}
+    .product-list .item .logo-text.text5{background: #298b8e;}
     .product-list .item .logo-img{width: 80px; height: 80px;margin: 0 auto;}
     .product-list .item .logo-img img{width: 65px; height: 65px; margin: 7px;}
 </style>

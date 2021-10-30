@@ -14,6 +14,17 @@
 			<a-form-item label="文档说明">
 				<span v-html="swaggerDocInfo.description"></span>
 			</a-form-item>
+			<a-form-item label="接口统计">
+				<a-row :gutter="[16, 16]">
+					<template v-for="method in ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'PATCH', 'OPTIONS', 'TRACE', 'TOTAL']">
+						<a-col :span="6" v-if="methodStatistic[method]">
+							<a-card size="small">
+								<a-statistic :title="method === 'TOTAL'?'总计':method + '方法'" :value="methodStatistic[method]" suffix="个"></a-statistic>
+							</a-card>
+						</a-col>
+					</template>
+				</a-row>
+			</a-form-item>
 		</a-form>
 		<div v-else style="text-align: center;">暂无文档信息，请先选择文档</div>
 	</a-card>
@@ -32,7 +43,10 @@
 			},
 			swaggerDocInfo () {
 				return this.$store.state.swaggerDoc.info;
-			}
+			},
+			methodStatistic () {
+				return this.$store.state.methodStatistic;
+			},
 		},
 		mounted() {
 		},

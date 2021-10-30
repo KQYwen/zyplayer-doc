@@ -22,3 +22,17 @@ app.component(ElCascader.name, ElCascader);
 app.component(ElCascaderPanel.name, ElCascaderPanel);
 app.component(ElConfigProvider.name, ElConfigProvider);
 app.mount('#app');
+
+// 注册一个全局自定义指令
+import hljs from 'highlight.js'
+import 'highlight.js/styles/googlecode.css'
+
+app.directive('highlight', {
+    updated(el) {
+        let blocks = el.querySelectorAll('pre code')
+        blocks.forEach((block) => {
+            hljs.highlightBlock(block);
+        });
+    }
+});
+
