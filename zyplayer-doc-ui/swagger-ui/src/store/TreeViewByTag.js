@@ -83,7 +83,9 @@ export function getTreeDataForTag(swagger, pathData, keywords, metaInfo) {
             });
             indexUrl++;
         });
-        treeData.push({title: tag.name, key: indexTag, children: urlTree});
+        if (urlTree.length > 0) {
+            treeData.push({title: tag.name, key: indexTag, children: urlTree});
+        }
         indexTag++;
     });
     return [
@@ -105,6 +107,6 @@ function searchInPathMethods(url, methodNode, keywords) {
     if (url.indexOf(keywords) >= 0) {
         return true;
     }
-    let searchData = methodNode.path + methodNode.summary + methodNode.description + methodNode.tags;
+    let searchData = methodNode.path + methodNode.method + methodNode.summary + methodNode.description + methodNode.tags;
     return (searchData && searchData.toLowerCase().indexOf(keywords) >= 0);
 }

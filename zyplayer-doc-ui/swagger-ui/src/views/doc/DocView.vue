@@ -1,67 +1,17 @@
 <template>
-    <a-tabs v-model:activeKey="activePage" closable @tab-click="changePage" style="padding: 5px 10px 0;">
-        <a-tab-pane tab="接口说明" key="doc">
-            <a-form :label-col="{span: 4}" :wrapper-col="{span: 20}">
-                <a-form-item label="接口地址">{{docInfoShow.url}}</a-form-item>
-                <a-form-item label="说明">
-                    <a-card size=small><div class="markdown-body" v-html="docInfoShow.description" v-highlight></div></a-card>
-                </a-form-item>
-                <a-form-item label="请求方式">{{docInfoShow.method}}</a-form-item>
-                <a-form-item label="请求数据类型">{{docInfoShow.consumes}}</a-form-item>
-                <a-form-item label="响应数据类型">{{docInfoShow.produces}}</a-form-item>
-                <a-form-item label="请求参数">
-                    <a-table :dataSource="requestParamList" :columns="requestParamListColumns" size="small" :pagination="false" defaultExpandAllRows>
-                        <template #bodyCell="{ column, text, record }">
-                            <template v-if="column.dataIndex === 'type'">
-                                {{text}}
-                                <template v-if="record.subType">[{{record.subType}}]</template>
-                                <template v-if="record.format">({{record.format}})</template>
-                            </template>
-                            <template v-if="column.dataIndex === 'in'">
-                                <a-tag color="pink" v-if="text === 'header'">header</a-tag>
-                                <a-tag color="red" v-else-if="text === 'body'">body</a-tag>
-                                <a-tag color="orange" v-else-if="text === 'query'">query</a-tag>
-                                <a-tag color="green" v-else-if="text === 'formData'">formData</a-tag>
-                                <template v-else-if="!text">-</template>
-                                <a-tag color="purple" v-else>{{text}}</a-tag>
-                            </template>
-                            <template v-if="column.dataIndex === 'required'">
-                                <span v-if="text === '是'" style="color: #f00;">是</span>
-                                <template v-else-if="text === '否'">否</template>
-                                <template v-else>-</template>
-                            </template>
-                        </template>
-                    </a-table>
-                </a-form-item>
-                <a-form-item label="返回结果">
-                    <a-table :dataSource="responseParamList" :columns="responseCodeListColumns" size="small" :pagination="false" defaultExpandAllRows>
-                        <template #bodyCell="{ column, text, record }">
-                            <template v-if="column.dataIndex === 'desc'">
-                                <div v-html="text"></div>
-                            </template>
-                        </template>
-                        <template #expandedRowRender="{ record }">
-                            <template v-if="record.schemas">
-                                <a-table :dataSource="record.schemas" :columns="responseParamListColumns" size="small" :pagination="false" defaultExpandAllRows>
-                                    <template #bodyCell="{ column, text, record }">
-                                        <template v-if="column.dataIndex === 'type'">
-                                            {{text}}
-                                            <template v-if="record.subType">[{{record.subType}}]</template>
-                                            <template v-if="record.format">({{record.format}})</template>
-                                        </template>
-                                    </template>
-                                </a-table>
-                            </template>
-                            <div v-else style="text-align: center;padding: 10px 0;">无参数说明</div>
-                        </template>
-                    </a-table>
-                </a-form-item>
-            </a-form>
-        </a-tab-pane>
-        <a-tab-pane tab="在线调试" key="debug">
-            暂未开放
-        </a-tab-pane>
-    </a-tabs>
+    <template v-if="isLoadSuccess">
+        <a-tabs v-model:activeKey="activePage" closable @tab-click="changePage" style="padding: 5px 10px 0;">
+            <a-tab-pane tab="接口说明" key="doc">
+                <DocContent :docInfoShow="docInfoShow" :requestParamList="requestParamList" :responseParamList="responseParamList"></DocContent>
+            </a-tab-pane>
+            <a-tab-pane tab="在线调试" key="debug">
+                <DocDebugger :docInfoShow="docInfoShow" :requestParamList="requestParamList" :responseParamList="responseParamList"></DocDebugger>
+            </a-tab-pane>
+        </a-tabs>
+    </template>
+    <a-spin v-else tip="文档数据加载中...">
+        <div style="padding: 20px 0;height: 100px;"></div>
+    </a-spin>
 </template>
 
 <script>
@@ -71,11 +21,14 @@
     import { message } from 'ant-design-vue';
     import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
     import swaggerAnalysis from '../../assets/utils/SwaggerAnalysisV2'
+    import DocContent from './docView/DocContent.vue'
+    import DocDebugger from './docView/DocDebugger.vue'
     import {markdownIt} from 'mavon-editor'
     import 'mavon-editor/dist/markdown/github-markdown.min.css'
     import 'mavon-editor/dist/css/index.css'
 
     export default {
+        components: { DocContent, DocDebugger },
         setup() {
             const route = useRoute();
             const store = useStore();
@@ -147,25 +100,9 @@
                 docInfoShow,
                 activePage,
                 changePage,
+                isLoadSuccess,
                 requestParamList,
-                requestParamListColumns: [
-                    {title: '参数名', dataIndex: 'name', width: 200},
-                    {title: '类型', dataIndex: 'type', width: 150},
-                    {title: '参数位置', dataIndex: 'in', width: 100},
-                    {title: '必填', dataIndex: 'required', width: 60},
-                    {title: '说明', dataIndex: 'description'},
-                ],
                 responseParamList,
-                responseCodeListColumns: [
-                    {title: '状态码', dataIndex: 'code', width: 100},
-                    {title: '类型', dataIndex: 'type', width: 250},
-                    {title: '说明', dataIndex: 'desc'},
-                ],
-                responseParamListColumns: [
-                    {title: '参数名', dataIndex: 'name', width: 250},
-                    {title: '类型', dataIndex: 'type', width: 250},
-                    {title: '说明', dataIndex: 'description'},
-                ],
             };
         },
     };

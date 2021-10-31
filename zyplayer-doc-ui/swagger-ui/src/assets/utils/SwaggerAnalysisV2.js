@@ -18,6 +18,7 @@ export default {
             let description = parameter.description || '';
             let type = parameter.type;
             let format = parameter.format;
+            let example = parameter['x-example'];
             let subType = undefined;
             let children = undefined;
             let additional = undefined;
@@ -83,6 +84,10 @@ export default {
                     this.logMessage('003', type, parameter);
                 }
             }
+            if (example) {
+                description = description ? (description + '，') : '';
+                description += '例：' + example;
+            }
             if (parameter.enum && parameter.enum.length > 0) {
                 description = description || '枚举类型';
                 description += '，可选值：' + parameter.enum.join('、');
@@ -96,6 +101,7 @@ export default {
                 required: parameter.required ? '是' : '否',
                 format: format,
                 enum: parameter.enum,
+                example: example,
                 collectionFormat: parameter.collectionFormat,// 枚举多选时=multi
                 description: description,
                 additional: additional,
@@ -149,6 +155,7 @@ export default {
                 let type = parameter.type;
                 let format = parameter.format;
                 let description = parameter.description || '';
+                let example = parameter['x-example'];
                 let subType = undefined;
                 let additional = undefined;
                 let enums = undefined;
@@ -190,6 +197,10 @@ export default {
                         this.logMessage('006', type, parameter);
                     }
                 }
+                if (example) {
+                    description = description ? (description + '，') : '';
+                    description += '例：' + example;
+                }
                 if (parameter.items && parameter.items.enum && parameter.items.enum.length > 0) {
                     enums = parameter.items.enum;
                     description = description || '枚举类型';
@@ -204,6 +215,7 @@ export default {
                     description: description,
                     enum: enums,
                     additional: additional,
+                    example: example,
                     children: children,
                 });
                 indexSub++;
