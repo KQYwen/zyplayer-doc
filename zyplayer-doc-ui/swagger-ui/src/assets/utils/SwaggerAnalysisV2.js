@@ -25,11 +25,13 @@ export default {
             if (type === 'array') {
                 // 解析parameter.items.$ref 或 parameter.items.originalRef {$ref: "#/definitions/Model", originalRef: "Model"}
                 // 解析parameter.items.type {type: 'file'}
-                if (parameter.items && parameter.items.originalRef) {
-                    children = this.getParamDefinitions(parameter.items.originalRef, definitionsDataMap, indexKey, {}, 0);
+                if (this.isSchemaRef(parameter.items)) {
+                    subType = this.getSchemaRef(parameter.schema);
+                    children = this.getParamDefinitions(subType, definitionsDataMap, indexKey, {}, 0);
                 } else if (parameter.schema) {
-                    if (parameter.schema.items && parameter.schema.items.originalRef) {
-                        children = this.getParamDefinitions(parameter.schema.items.originalRef, definitionsDataMap, indexKey, {}, 0);
+                    if (this.isSchemaRef(parameter.schema.items)) {
+                        subType = this.getSchemaRef(parameter.schema.items);
+                        children = this.getParamDefinitions(subType, definitionsDataMap, indexKey, {}, 0);
                     } else if (parameter.schema.type) {
                         subType = parameter.schema.type;
                     }
@@ -40,9 +42,9 @@ export default {
                 }
             } else if (!type) {
                 if (parameter.schema) {
-                    if (parameter.schema.originalRef) {
+                    if (this.isSchemaRef(parameter.schema)) {
                         // 解析parameter.schema {originalRef: "Model", $ref: "#/definitions/Model"}
-                        type = parameter.schema.originalRef;
+                        type = this.getSchemaRef(parameter.schema);
                         children = this.getParamDefinitions(type, definitionsDataMap, indexKey, {}, 0);
                     } else if (parameter.schema.type) {
                         type = parameter.schema.type;
@@ -51,8 +53,9 @@ export default {
                             children = this.getAdditionalProperties(parameter.schema.additionalProperties, additional, definitionsDataMap, indexKey, {}, 0);
                             format = additional.type;
                         } else if (parameter.schema.items) {
-                            if (parameter.schema.items.originalRef) {
-                                children = this.getParamDefinitions(parameter.schema.items.originalRef, definitionsDataMap, indexKey, {}, 0);
+                            if (this.isSchemaRef(parameter.schema.items)) {
+                                subType = this.getSchemaRef(parameter.schema.items);
+                                children = this.getParamDefinitions(subType, definitionsDataMap, indexKey, {}, 0);
                             } else if (parameter.schema.items.type) {
                                 subType = parameter.schema.items.type;
                             } else {
@@ -118,9 +121,9 @@ export default {
             let codeResponses = responses[code];
             let type = undefined;
             let children = undefined;
-            if (codeResponses.schema && codeResponses.schema.originalRef) {
-                type = codeResponses.schema.originalRef;
-                children = this.getParamDefinitions(codeResponses.schema.originalRef, definitionsDataMap, indexKey, {}, 0);
+            if (this.isSchemaRef(codeResponses.schema)) {
+                type = this.getSchemaRef(codeResponses.schema);
+                children = this.getParamDefinitions(type, definitionsDataMap, indexKey, {}, 0);
             }
             responsesList.push({
                 code: code,
@@ -132,6 +135,15 @@ export default {
             indexKey++;
         });
         return responsesList;
+    },
+    isSchemaRef(schema) {
+        return !!(schema && (schema.originalRef || schema['$ref']));
+    },
+    getSchemaRef(schema) {
+        if (schema.originalRef) return schema.originalRef;
+        if (schema['$ref'] && schema['$ref'].indexOf('#/definitions/') === 0) return schema['$ref'].replace('#/definitions/', '');
+        this.logMessage('9467', '', schema);
+        return '';
     },
     getParamDefinitions(ref, definitionsDataMap, indexKey, parentRef, deep) {
         let definition = definitionsDataMap[ref];
@@ -167,9 +179,9 @@ export default {
                 });
                 if (type === 'array') {
                     // 解析parameter.items {originalRef: "Model", $ref: "#/definitions/Model"}
-                    if (parameter.items && parameter.items.originalRef) {
-                        subType = parameter.items.originalRef;
-                        children = this.getParamDefinitions(parameter.items.originalRef, definitionsDataMap, keySub, parentRef, deep + 1);
+                    if (this.isSchemaRef(parameter.items)) {
+                        subType = this.getSchemaRef(parameter.items);
+                        children = this.getParamDefinitions(subType, definitionsDataMap, keySub, parentRef, deep + 1);
                     } else if (parameter.items && parameter.items.type) {
                         subType = parameter.items.type;
                     } else {
@@ -184,9 +196,9 @@ export default {
                         this.log('0041', type, parameter);
                     }
                 } else if (!type) {
-                    if (parameter.originalRef) {
-                        type = parameter.originalRef;
-                        children = this.getParamDefinitions(parameter.originalRef, definitionsDataMap, keySub, parentRef, deep + 1);
+                    if (this.isSchemaRef(parameter)) {
+                        type = this.getSchemaRef(parameter);
+                        children = this.getParamDefinitions(type, definitionsDataMap, keySub, parentRef, deep + 1);
                     } else {
                         this.logMessage('005', type, parameter);
                     }
@@ -225,9 +237,9 @@ export default {
         return paramList.length > 0 ? paramList : undefined;
     },
     getAdditionalProperties(additionalProperties, additional, definitionsDataMap, keySub, parentRef, deep) {
-        if (additionalProperties.originalRef) {
-            additional.type = additionalProperties.originalRef;
-            additional.children = this.getParamDefinitions(additionalProperties.originalRef, definitionsDataMap, keySub, parentRef, deep + 1);
+        if (this.isSchemaRef(additionalProperties)) {
+            additional.type = this.getSchemaRef(additionalProperties);
+            additional.children = this.getParamDefinitions(additional.type, definitionsDataMap, keySub, parentRef, deep + 1);
             return additional.additional;
         } else if (additionalProperties.additionalProperties) {
             additional.type = additionalProperties.type;
@@ -235,10 +247,11 @@ export default {
             return this.getAdditionalProperties(additionalProperties.additionalProperties, additional.additional, definitionsDataMap, keySub, parentRef, deep + 1);
         } else if (additionalProperties.type === 'array') {
             additional.type = additionalProperties.type;
-            if (additionalProperties.items && additionalProperties.items.originalRef) {
-                let children = this.getParamDefinitions(additionalProperties.items.originalRef, definitionsDataMap, keySub, parentRef, deep + 1);
+            if (this.isSchemaRef(additionalProperties.items)) {
+                let subType = this.getSchemaRef(additionalProperties.items);
+                let children = this.getParamDefinitions(subType, definitionsDataMap, keySub, parentRef, deep + 1);
                 additional.additional = {
-                    type: additionalProperties.items.originalRef,
+                    type: subType,
                     children: children
                 };
                 return children;
