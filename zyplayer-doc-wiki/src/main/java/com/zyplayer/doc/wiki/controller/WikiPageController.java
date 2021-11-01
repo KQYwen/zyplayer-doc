@@ -115,7 +115,15 @@ public class WikiPageController {
 	public ResponseJson<WikiPageContentVo> detail(WikiPage wikiPage) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
+		// 页面已删除
+		if (wikiPageSel == null || Objects.equals(wikiPageSel.getDelFlag(), 1)) {
+			return DocResponseJson.warn("该页面不存在或已删除！");
+		}
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 空间已删除
+		if (wikiSpaceSel == null || Objects.equals(wikiSpaceSel.getDelFlag(), 1)) {
+			return DocResponseJson.warn("该页面不存在或已删除！");
+		}
 		// 私人空间
 		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有权限查看该空间的文章详情！");

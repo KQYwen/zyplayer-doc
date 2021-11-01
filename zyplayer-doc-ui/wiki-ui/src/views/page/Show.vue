@@ -55,7 +55,7 @@
 						</el-table>
 					</div>
 					<div ref="pageContent" class="wiki-page-content">
-						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2"></div>
+						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2" v-highlight></div>
 						<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
 					</div>
 					<div style="margin-top: 40px; font-size: 14px;">

@@ -59,7 +59,15 @@ public class WikiPageCommentController {
 	public ResponseJson<List<WikiPageCommentVo>> list(WikiPageComment pageComment) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(pageComment.getPageId());
+		// 页面已删除
+		if (wikiPageSel == null || Objects.equals(wikiPageSel.getDelFlag(), 1)) {
+			return DocResponseJson.ok();
+		}
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 空间已删除
+		if (wikiSpaceSel == null || Objects.equals(wikiSpaceSel.getDelFlag(), 1)) {
+			return DocResponseJson.ok();
+		}
 		// 私人空间
 		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有查看该空间的评论权！");

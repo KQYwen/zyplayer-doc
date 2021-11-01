@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 文档控制器
@@ -48,7 +49,15 @@ public class WikiPageHistoryController {
 	public ResponseJson<List<WikiPageHistory>> list(Long pageId, Integer pageNum) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
+		// 私人空间
+		if (wikiPageSel == null || Objects.equals(wikiPageSel.getDelFlag(), 1)) {
+			return DocResponseJson.ok();
+		}
 		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 空间已删除
+		if (wikiSpaceSel == null || Objects.equals(wikiSpaceSel.getDelFlag(), 1)) {
+			return DocResponseJson.ok();
+		}
 		// 私人空间
 		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 			return DocResponseJson.warn("您没有权限查看该空间的文章详情！");

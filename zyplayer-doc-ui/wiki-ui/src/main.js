@@ -32,6 +32,18 @@ let vue = new Vue({
         return h(App);
     }
 });
+
+// 注册一个全局自定义指令
+import hljs from 'highlight.js'
+import 'highlight.js/styles/googlecode.css'
+
+Vue.directive('highlight', function (el) {
+	let blocks = el.querySelectorAll('pre code');
+	blocks.forEach((block) => {
+		hljs.highlightBlock(block);
+	})
+});
+
 export default vue;
 
 
