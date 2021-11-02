@@ -10,7 +10,7 @@
             <a-tab-pane tab="URL参数" key="urlParam">
                 <ParamTable v-model:selected="urlParamChecked" :paramList="urlParamList"></ParamTable>
             </a-tab-pane>
-            <a-tab-pane tab="请求参数" key="bodyParam">
+            <a-tab-pane tab="请求参数" key="bodyParam" v-if="docInfoShow.method !== 'get'">
                 <a-radio-group v-model:value="bodyParamType" style="margin-bottom: 5px;">
                     <a-radio value="none">none</a-radio>
                     <a-radio value="form">form-data</a-radio>
@@ -19,7 +19,7 @@
                     <a-radio value="binary">binary</a-radio>
                 </a-radio-group>
                 <div v-show="bodyParamType === 'form'">
-                    <ParamTable v-model:selected="formParamChecked" :paramList="formParamList"></ParamTable>
+                    <ParamTable v-model:selected="formParamChecked" :paramList="formParamList" showType></ParamTable>
                 </div>
                 <div v-show="bodyParamType === 'formUrlEncode'">
                     <ParamTable v-model:selected="formEncodeParamChecked" :paramList="formEncodeParamList"></ParamTable>

@@ -46,7 +46,7 @@ public class LoginController {
 	// TODO 域账号登录，待测试
 	@Value("${spring.ldap.domainName:}")
 	private String ldapDomainName;
-	@Value("${spring.ldap.enable:}")
+	@Value("${spring.ldap.enable:false}")
 	private boolean ldapLoginEnable;
 	
 	/**
