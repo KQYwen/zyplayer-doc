@@ -92,6 +92,19 @@
                     </a-popover>
                 </template>
             </a-form-item>
+            <a-form-item label="目标域名" name="rewriteDomain">
+                <a-input placeholder="请输入目标域名" v-model:value="docEdit.rewriteDomain"></a-input>
+                <template #extra>
+                    目标域名
+                    <a-popover title="目标域名说明">
+                        <template #content>
+                            <p>在文档的在线调试界面，访问的域名可以初始为此处录入的域名，而非文档本身的域名地址</p>
+                            <p>可便于不同环境间的接口测试，例：http://doc.zyplayer.com</p>
+                        </template>
+                        <a>说明</a>
+                    </a-popover>
+                </template>
+            </a-form-item>
             <a-form-item label="开放访问" required name="openVisit">
                 <a-radio-group v-model:value="docEdit.openVisit">
                     <a-radio :value="0">否</a-radio>

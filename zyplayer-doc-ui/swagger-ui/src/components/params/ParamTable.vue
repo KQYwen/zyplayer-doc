@@ -12,19 +12,24 @@
                 <a-select v-if="record.key >= 10000" v-model:value="record.type">
                     <a-select-option value="integer">Integer</a-select-option>
                     <a-select-option value="string">String</a-select-option>
+                    <a-select-option value="file">File</a-select-option>
                 </a-select>
                 <a-tag color="pink" v-else-if="text === 'integer'">Integer</a-tag>
                 <a-tag color="red" v-else-if="text === 'string'">String</a-tag>
                 <a-tag color="green" v-else>{{text||'-'}}</a-tag>
             </template>
             <template v-if="column.dataIndex === 'value'">
-                <a-select v-if="record.enum && record.type === 'array'" v-model:value="record.value" mode="multiple" style="width: 100%;">
+                <a-select v-if="record.enum && record.type === 'array'" v-model:value="record.value" mode="multiple" :placeholder="record.description || '请选择'" style="width: 100%;">
                     <a-select-option :value="enums" v-for="enums in record.enum">{{enums}}</a-select-option>
                 </a-select>
-                <a-select v-else-if="record.enum" v-model:value="record.value" style="width: 100%;">
+                <a-select v-else-if="record.enum" v-model:value="record.value" :placeholder="record.description || '请选择'" style="width: 100%;">
                     <a-select-option :value="enums" v-for="enums in record.enum">{{enums}}</a-select-option>
                 </a-select>
-                <a-upload v-else-if="record.type==='file'" v-model:file-list="record.value" name="file" :multiple="record.type === 'array'" :before-upload="file=>{return beforeUpload(file, record)}" action="https://www.mocky.io/v2/5cc8019d300000980a055e76">
+                <a-upload v-else-if="record.type==='file' || record.subType === 'file' || record.subType === 'MultipartFile'"
+                          :file-list="record.value" name="file" :multiple="record.type === 'array'"
+                          :before-upload="file=>{return beforeUpload(file, record)}"
+                          :remove="file=>{return handleRemove(file, record)}"
+                >
                     <a-button><upload-outlined></upload-outlined>选择文件</a-button>
                 </a-upload>
                 <a-input v-else :placeholder="record.description || '请输入参数值'" v-model:value="record.value" @change="queryParamChange(record)"></a-input>
@@ -64,26 +69,25 @@
             let queryParamList = ref(props.paramList);
             let nextIndex = 10000;
             // Query参数处理
-            queryParamList.value.push({name: '', value: '', type: 'integer', key: ++nextIndex, isLastRow: true});
+            if (queryParamList.value.length <= 0 || !queryParamList.value[queryParamList.value.length - 1].isLastRow) {
+                queryParamList.value.push({name: '', value: undefined, type: 'integer', key: ++nextIndex, isLastRow: true});
+            }
             let queryParamSelectedRowKeys = ref([]);
             queryParamList.value.forEach(item => {
-                item.value = item.example || '';
-                if ((item.enum && item.type === 'array') || item.type === 'file') {
+                item.value = item.example || undefined;
+                if ((item.enum && item.type === 'array') || item.type === 'file' || item.subType === 'MultipartFile') {
                     item.value = [];
                 }
                 queryParamSelectedRowKeys.value.push(item.key);
             });
-            emit('update:selected', queryParamSelectedRowKeys.value);
             const queryParamRowSelectionChange = (selectedRowKeys, selectedRows) => {
                 queryParamSelectedRowKeys.value = selectedRowKeys;
-                emit('update:selected', selectedRowKeys);
             };
             const queryParamChange = (record) => {
                 if (record.isLastRow) {
                     record.isLastRow = false;
-                    queryParamList.value.push({name: '', value: '', type: 'integer', key: ++nextIndex, isLastRow: true});
+                    queryParamList.value.push({name: '', value: undefined, type: 'integer', key: ++nextIndex, isLastRow: true});
                     queryParamSelectedRowKeys.value.push(nextIndex);
-                    emit('update:selected', queryParamSelectedRowKeys.value);
                 }
             };
             const queryParamRemove = (record) => {
@@ -99,8 +103,18 @@
             queryParamListColumns.value.push({title: '参数值', dataIndex: 'value'});
             queryParamListColumns.value.push({title: '', dataIndex: 'action', width: 40});
             const beforeUpload = (file, record) => {
-                console.log(record)
+                if (record.type !== 'array') {
+                    record.value = [file];
+                } else {
+                    record.value = [...record.value, file];
+                }
                 return false;
+            };
+            const handleRemove = (file, record) => {
+                record.value = record.value.filter(item => item !== file);
+            };
+            const getSelectedRowKeys = () => {
+                return queryParamSelectedRowKeys.value;
             };
             return {
                 queryParamList,
@@ -108,8 +122,11 @@
                 queryParamRowSelectionChange,
                 queryParamChange,
                 queryParamRemove,
-                queryParamListColumns,
                 beforeUpload,
+                handleRemove,
+                queryParamListColumns,
+                // 父组件调用
+                getSelectedRowKeys,
             };
         },
     };

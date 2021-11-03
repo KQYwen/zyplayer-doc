@@ -10,11 +10,16 @@ export default createStore({
             swaggerDefinitions: {},
             swaggerTreePathMap: {},
             methodStatistic: {},
+            // 数据库存储的地址信息
+            swaggerResource: {},
         }
     },
     mutations: {
         setUserInfo(state, userInfo) {
             state.userInfo = userInfo;
+        },
+        setSwaggerResource(state, swaggerResource) {
+            state.swaggerResource = swaggerResource;
         },
         addDocChangedNum(state) {
             state.docChangedNum++;

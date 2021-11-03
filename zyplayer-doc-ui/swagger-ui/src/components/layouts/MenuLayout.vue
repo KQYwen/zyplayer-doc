@@ -80,11 +80,6 @@
             if (matched.length >= 1) {
                 this.openKeys = [matched[1].path];
             }
-            // 加载初始化的地址
-            if (this.$route.path === '/doc/view' && this.$route.query.url) {
-                this.swaggerDocChoice = this.$route.query.url;
-                this.swaggerDocChoiceChange();
-            }
             this.getSwaggerResourceList();
         },
         methods: {
@@ -99,7 +94,12 @@
                     if (res instanceof Array) {
                         this.swaggerResourceList = res || [];
                         if (this.swaggerResourceList.length > 0 && !this.swaggerDocChoice) {
-                            this.swaggerDocChoice = this.swaggerResourceList[0].url;
+                            // 加载初始化的地址
+                            if (this.$route.path === '/doc/view' && this.$route.query.url) {
+                                this.swaggerDocChoice = this.$route.query.url;
+                            } else {
+                                this.swaggerDocChoice = this.swaggerResourceList[0].url;
+                            }
                             this.swaggerDocChoiceChange();
                         }
                     } else {
@@ -112,6 +112,12 @@
             },
             loadV2Doc() {
                 this.treeDataLoading = true;
+                let swaggerResource = this.swaggerResourceList.find(item => item.url === this.swaggerDocChoice);
+                if (!swaggerResource) {
+                    this.$message.error('未找到对应的文档地址信息');
+                    return;
+                }
+                this.$store.commit('setSwaggerResource', swaggerResource);
                 customApi.get(this.swaggerDocChoice).then(res => {
                     let v2Doc = this.toJsonObj(res);
                     if (typeof v2Doc !== 'object' || !v2Doc.swagger) {

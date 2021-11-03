@@ -9,6 +9,7 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerDoc;
 import com.zyplayer.doc.data.service.manage.SwaggerDocService;
+import com.zyplayer.doc.swaggerplus.controller.vo.SwaggerResourceVo;
 import com.zyplayer.doc.swaggerplus.service.SwaggerHttpRequestService;
 import io.swagger.models.Swagger;
 import org.springframework.http.HttpStatus;
@@ -47,16 +48,17 @@ public class SwaggerProxyController {
 	private SwaggerHttpRequestService swaggerHttpRequestService;
 	
 	@RequestMapping("/swagger-resources")
-	public List<SwaggerResource> swaggerResources() {
-		List<SwaggerResource> resourceList = new LinkedList<>();
+	public List<SwaggerResourceVo> swaggerResources() {
+		List<SwaggerResourceVo> resourceList = new LinkedList<>();
 		SwaggerDoc swaggerSearch = new SwaggerDoc();
 		swaggerSearch.setDocStatus(1);
 		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList(swaggerSearch);
 		for (SwaggerDoc swaggerDoc : docList) {
-			SwaggerResource resource = new SwaggerResource();
+			SwaggerResourceVo resource = new SwaggerResourceVo();
 			resource.setUrl("/v2/api-docs?id=" + swaggerDoc.getId());
 			resource.setName(swaggerDoc.getName());
 			resource.setSwaggerVersion("2.0");
+			resource.setRewriteDomain(swaggerDoc.getRewriteDomain());
 			resourceList.add(resource);
 		}
 		return resourceList;

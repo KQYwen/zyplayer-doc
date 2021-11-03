@@ -26,7 +26,7 @@ export default {
                 // 解析parameter.items.$ref 或 parameter.items.originalRef {$ref: "#/definitions/Model", originalRef: "Model"}
                 // 解析parameter.items.type {type: 'file'}
                 if (this.isSchemaRef(parameter.items)) {
-                    subType = this.getSchemaRef(parameter.schema);
+                    subType = this.getSchemaRef(parameter.items);
                     children = this.getParamDefinitions(subType, definitionsDataMap, indexKey, {}, 0);
                 } else if (parameter.schema) {
                     if (this.isSchemaRef(parameter.schema.items)) {

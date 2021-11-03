@@ -8,7 +8,7 @@
                 <a-menu-item @click="showConsole" key="1">控制台</a-menu-item>
                 <a-menu-divider />
                 <a-menu-item @click="showAbout" key="2">关于</a-menu-item>
-                <a-menu-item @click="showMyInfo" key="3">我的资料</a-menu-item>
+<!--                <a-menu-item @click="showMyInfo" key="3">我的资料</a-menu-item>-->
                 <a-menu-item @click="userSignOut" key="4">退出登录</a-menu-item>
             </a-menu>
         </template>
