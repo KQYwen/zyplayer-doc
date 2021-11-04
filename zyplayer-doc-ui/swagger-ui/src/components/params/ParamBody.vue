@@ -25,7 +25,7 @@
         emits: [],
         setup(props, { attrs, slots, emit, expose}) {
             let paramList = props.paramList;
-            let bodyParamObj = {};
+            let bodyParamObj = '';
             let getChildren = paramObj => {
                 if (paramObj.children) {
                     let bodyParamObj = {};
@@ -43,8 +43,15 @@
                     bodyParamObj[item.name] = getChildren(item);
                 });
             }
-            let bodyRowParam = ref(JSON.stringify(bodyParamObj, null, 4));
+            let bodyRowParam = ref('');
+            if (bodyParamObj) {
+                bodyRowParam.value = JSON.stringify(bodyParamObj, null, 4);
+            }
+            const getParam = () => {
+                return bodyRowParam.value;
+            }
             return {
+                getParam,
                 bodyRowParam,
             };
         },

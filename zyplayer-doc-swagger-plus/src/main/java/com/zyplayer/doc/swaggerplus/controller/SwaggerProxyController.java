@@ -1,17 +1,11 @@
 package com.zyplayer.doc.swaggerplus.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
-import com.zyplayer.doc.core.json.DocResponseJson;
-import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerDoc;
 import com.zyplayer.doc.data.service.manage.SwaggerDocService;
 import com.zyplayer.doc.swaggerplus.controller.vo.SwaggerResourceVo;
 import com.zyplayer.doc.swaggerplus.service.SwaggerHttpRequestService;
-import io.swagger.models.Swagger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
@@ -21,14 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.spring.web.json.Json;
 import springfox.documentation.swagger.web.ApiKeyVehicle;
 import springfox.documentation.swagger.web.SecurityConfiguration;
-import springfox.documentation.swagger.web.SwaggerResource;
 import springfox.documentation.swagger.web.UiConfiguration;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-
-import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 /**
  * 承接了所有的ApiResourceController的接口
@@ -72,7 +63,7 @@ public class SwaggerProxyController {
 			throw new ConfirmException("文档不存在");
 		}
 		if (Objects.equals(swaggerDoc.getDocType(), 1)) {
-			String contentStr = swaggerHttpRequestService.requestUrl(request, swaggerDoc.getDocUrl());
+			String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, swaggerDoc.getDocUrl());
 			return new ResponseEntity<>(new Json(contentStr), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(new Json(swaggerDoc.getJsonContent()), HttpStatus.OK);

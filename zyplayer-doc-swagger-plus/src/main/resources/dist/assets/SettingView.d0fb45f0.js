@@ -1,1 +1,0 @@
-import{b as e,o as t}from"./vendor.cbf1194d.js";const n={name:"SettingView",components:{},data:()=>({}),computed:{},mounted(){},methods:{}};n.render=function(n,o,d,r,a,m){return t(),e("div",null," 展示配置页面 ")};export{n as default};

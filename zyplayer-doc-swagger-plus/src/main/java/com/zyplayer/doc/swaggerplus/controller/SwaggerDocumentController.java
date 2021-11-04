@@ -75,7 +75,7 @@ public class SwaggerDocumentController {
 			// UI地址替换为文档json地址
 			String docUrl = SwaggerDocUtil.replaceSwaggerResources(swaggerDoc.getDocUrl());
 			if (SwaggerDocUtil.isSwaggerResources(docUrl)) {
-				String resourcesStr = swaggerHttpRequestService.requestUrl(request, docUrl);
+				String resourcesStr = swaggerHttpRequestService.requestSwaggerUrl(request, docUrl);
 				List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 				if (resourceList == null || resourceList.isEmpty()) {
 					return DocResponseJson.warn("该地址未找到文档");

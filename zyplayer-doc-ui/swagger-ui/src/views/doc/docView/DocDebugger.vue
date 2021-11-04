@@ -1,16 +1,15 @@
 <template>
     <div>
-        <a-input-search
-                :addon-before="docInfoShow.method.toUpperCase()"
-                v-model:value="docUrl"
-                enter-button="发送请求"
-                @search="sendRequest"
-        />
+        <a-input-search :addon-before="docInfoShow.method.toUpperCase()" v-model:value="docUrl" @search="sendRequest">
+            <template #enterButton>
+                <a-button type="primary" :loading="requestLoading">发送请求</a-button>
+            </template>
+        </a-input-search>
         <a-tabs v-model:activeKey="activePage" closable @tab-click="" style="padding: 5px 10px 0;">
-            <a-tab-pane tab="URL参数" key="urlParam">
-                <ParamTable ref="urlParamRef" v-model:selected="urlParamChecked" :paramList="urlParamList"></ParamTable>
+            <a-tab-pane tab="URL参数" key="urlParam" forceRender>
+                <ParamTable ref="urlParamRef" :paramList="urlParamList"></ParamTable>
             </a-tab-pane>
-            <a-tab-pane tab="请求参数" key="bodyParam" v-if="docInfoShow.method !== 'get'">
+            <a-tab-pane tab="请求参数" key="bodyParam" v-if="docInfoShow.method !== 'get'" forceRender>
                 <a-radio-group v-model:value="bodyParamType" style="margin-bottom: 5px;">
                     <a-radio value="none">none</a-radio>
                     <a-radio value="form">form-data</a-radio>
@@ -28,13 +27,14 @@
                     <ParamBody ref="bodyParamRef" :paramList="bodyRowParamList"></ParamBody>
                 </div>
             </a-tab-pane>
-            <a-tab-pane tab="Header参数" key="headerParam">
+            <a-tab-pane tab="Header参数" key="headerParam" forceRender>
                 <ParamTable ref="headerParamRef" :paramList="headerParamList"></ParamTable>
             </a-tab-pane>
-            <a-tab-pane tab="Cookie参数" key="cookieParam">
+            <a-tab-pane tab="Cookie参数" key="cookieParam" forceRender>
                 <ParamTable ref="cookieParamRef" :paramList="cookieParamList"></ParamTable>
             </a-tab-pane>
         </a-tabs>
+        <DocDebuggerResult :result="requestResult"></DocDebuggerResult>
     </div>
 </template>
 
@@ -44,6 +44,7 @@
     import {useStore} from 'vuex';
     import { message } from 'ant-design-vue';
     import {markdownIt} from 'mavon-editor'
+    import DocDebuggerResult from './DocDebuggerResult.vue'
     import ParamTable from '../../../components/params/ParamTable.vue'
     import ParamBody from '../../../components/params/ParamBody.vue'
     import {CloseOutlined} from '@ant-design/icons-vue';
@@ -67,7 +68,7 @@
             },
         },
         components: {
-            CloseOutlined, ParamTable, ParamBody
+            CloseOutlined, ParamTable, ParamBody, DocDebuggerResult,
         },
         setup(props) {
             const store = useStore();
@@ -78,22 +79,18 @@
             let activePage = ref('urlParam');
             // URL参数处理
             const urlParamRef = ref();
-            const urlParamChecked = ref([]);
             let urlParamListProp = props.requestParamList.filter(item => item.in === 'query');
             let urlParamList = ref([]);
             // Header参数处理
             const headerParamRef = ref();
-            const headerParamChecked = ref([]);
             let headerParamListProp = props.requestParamList.filter(item => item.in === 'header');
             let headerParamList = ref(JSON.parse(JSON.stringify(headerParamListProp)));
             // cookie参数处理
             const cookieParamRef = ref();
-            const cookieParamChecked = ref([]);
             let cookieParamListProp = props.requestParamList.filter(item => item.in === 'cookie');
             let cookieParamList = ref(JSON.parse(JSON.stringify(cookieParamListProp)));
             // form参数处理
             const formParamRef= ref();
-            const formParamChecked = ref([]);
             let formParamListProp = props.requestParamList.filter(item => item.in === 'formData');
             let formParamList = ref([]);
             if (props.docInfoShow.method === 'post') {
@@ -105,7 +102,6 @@
             }
             // form参数处理
             const formEncodeParamRef = ref();
-            const formEncodeParamChecked = ref([]);
             let formEncodeParamList = ref([]);
             // body 参数
             let bodyParamRef = ref();
@@ -136,45 +132,82 @@
                 activePage.value = 'headerParam';
             }
             // 发送请求
+            let requestResult = ref({});
+            let requestLoading = ref(false);
             const sendRequest = () => {
                 const formData = new FormData();
-                let selectedRowKeys = urlParamRef.value.getSelectedRowKeys();
-                let urlParamStr = urlParamList.value.filter(item => selectedRowKeys.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
+                let urlParamSelected = urlParamRef.value.getSelectedRowKeys();
+                let urlParamStr = urlParamList.value.filter(item => urlParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
                     return item.name + '=' + encodeURIComponent(item.value);
                 }).join('&');
-                console.log('urlParamStr', urlParamStr);
+                let headerParamSelected = headerParamRef.value.getSelectedRowKeys();
+                let headerParamArr = headerParamList.value.filter(item => headerParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
+                    return {code: item.name, value: item.value};
+                });
+                let cookieParamSelected = cookieParamRef.value.getSelectedRowKeys();
+                let cookieParamArr = cookieParamList.value.filter(item => cookieParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
+                    return {code: item.name, value: item.value};
+                });
+                let formParamArr = [];
+                if (formParamRef.value) {
+                    let formParamSelected = formParamRef.value.getSelectedRowKeys();
+                    formParamArr = formParamList.value.filter(item => formParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
+                        // todo 判断处理文件格式
+                        return {code: item.name, value: item.value};
+                    });
+                }
+                let formEncodeParamArr = [];
+                if (formEncodeParamRef.value) {
+                    let formEncodeParamSelected = formEncodeParamRef.value.getSelectedRowKeys();
+                    formEncodeParamArr = formEncodeParamList.value.filter(item => formEncodeParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
+                        // todo 判断处理文件格式
+                        return {code: item.name, value: item.value};
+                    });
+                }
+                let bodyParamStr = '';
+                if (bodyParamRef.value) {
+                    bodyParamStr = bodyParamRef.value.getParam();
+                }
                 // fileList.value.forEach(file => {
                 //     formData.append('files[]', file);
                 // });
-                formData.append('url', docUrl.value + '?' + urlParamStr);
+                let url = urlParamStr ? (docUrl.value + '?' + urlParamStr) : docUrl.value;
+                formData.append('url', url);
+                formData.append('method', props.docInfoShow.method);
+                formData.append('contentType', props.docInfoShow.consumes);
+                formData.append('headerParam', JSON.stringify(headerParamArr));
+                formData.append('cookieParam', JSON.stringify(cookieParamArr));
+                formData.append('formParam', JSON.stringify(formParamArr));
+                formData.append('formEncodeParam', JSON.stringify(formEncodeParamArr));
+                formData.append('bodyParam', bodyParamStr);
+                requestLoading.value = true;
                 zyplayerApi.requestUrl(formData).then(res => {
-                    debugger
+                    requestResult.value = res;
+                    requestLoading.value = false;
+                }).catch(e => {
+                    requestLoading.value = false;
                 });
-                message.info('暂未开放此功能，敬请期待');
             };
             return {
                 docUrl,
                 activePage,
+                requestLoading,
                 sendRequest,
+                requestResult,
                 // url参数
                 urlParamRef,
-                urlParamChecked,
                 urlParamList,
                 // header参数
                 headerParamRef,
-                headerParamChecked,
                 headerParamList,
                 // cookie参数
                 cookieParamRef,
-                cookieParamChecked,
                 cookieParamList,
                 // form参数
                 formParamRef,
-                formParamChecked,
                 formParamList,
                 // form-encode参数
                 formEncodeParamRef,
-                formEncodeParamChecked,
                 formEncodeParamList,
                 // body参数
                 bodyParamRef,

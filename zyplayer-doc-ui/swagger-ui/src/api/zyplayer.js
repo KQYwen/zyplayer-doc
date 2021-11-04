@@ -9,6 +9,6 @@ export const zyplayerApi = {
     swaggerDocUpdate: data => apiClient({url: '/doc-swagger/doc/update', method: 'post', data: data}),
     docSwaggerGlobalParamList: data => apiClient({url: '/doc-swagger/global-param/list', method: 'post', data: data}),
     docSwaggerGlobalParamUpdate: data => apiClient({url: '/doc-swagger/global-param/update', method: 'post', data: data}),
-    requestUrl: data => apiClient({url: '/doc-swagger/proxy/query', method: 'post', data: data}),
+    requestUrl: data => apiClient({url: '/doc-swagger/proxy/request', method: 'post', data: data}),
 };
 
