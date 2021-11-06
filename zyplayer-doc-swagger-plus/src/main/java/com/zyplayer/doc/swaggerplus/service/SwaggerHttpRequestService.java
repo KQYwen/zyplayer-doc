@@ -2,6 +2,7 @@ package com.zyplayer.doc.swaggerplus.service;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerGlobalParam;
@@ -10,9 +11,9 @@ import com.zyplayer.doc.swaggerplus.controller.param.ProxyRequestParam;
 import com.zyplayer.doc.swaggerplus.controller.vo.HttpCookieVo;
 import com.zyplayer.doc.swaggerplus.controller.vo.HttpHeaderVo;
 import com.zyplayer.doc.swaggerplus.controller.vo.ProxyRequestResultVo;
+import com.zyplayer.doc.swaggerplus.framework.utils.SwaggerDocUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +33,16 @@ public class SwaggerHttpRequestService {
 	
 	private static final Map<String, Method> requestMethodMap = Stream.of(Method.values()).collect(Collectors.toMap(val -> val.name().toLowerCase(), val -> val));
 	
+	List<String> domainHeaderKeys = Arrays.asList("referer", "origin");
+	List<String> needRequestHeaderKeys = Arrays.asList("user-agent");
+	
 	/**
 	 * 请求真实的swagger文档内容
 	 *
 	 * @author 暮光：城中城
 	 * @since 2021-11-04
 	 */
-	public String requestSwaggerUrl(HttpServletRequest request, String docUrl) {
+	public String requestSwaggerUrl(HttpServletRequest request, String docUrl, String docDomain) {
 		List<SwaggerGlobalParam> globalParamList = swaggerGlobalParamService.getGlobalParamList();
 		Map<String, Object> globalFormParamMap = globalParamList.stream().filter(item -> Objects.equals(item.getParamType(), 1))
 				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue));
@@ -46,10 +50,15 @@ public class SwaggerHttpRequestService {
 				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue));
 		Map<String, String> globalCookieParamMap = globalParamList.stream().filter(item -> Objects.equals(item.getParamType(), 3))
 				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue));
+		Map<String, String> requestHeaders = this.getHttpHeader(request, globalHeaderParamMap);
+		if (StringUtils.isNotBlank(docDomain)) {
+			domainHeaderKeys.forEach(key -> requestHeaders.put(key, docDomain));
+			requestHeaders.put("host", SwaggerDocUtil.getDomainHost(docDomain));
+		}
 		// 执行请求
 		String resultStr = HttpRequest.get(docUrl)
 				.form(globalFormParamMap)
-				.addHeaders(this.getHttpHeader(request, globalHeaderParamMap))
+				.addHeaders(requestHeaders)
 				.header("Accept", "application/json, text/javascript, */*; q=0.01")
 				.cookie(this.getHttpCookie(request, globalCookieParamMap))
 				.timeout(10000).execute().body();
@@ -71,9 +80,15 @@ public class SwaggerHttpRequestService {
 			if (method == null) {
 				throw new ConfirmException("不支持的请求方式：" + requestParam.getMethod());
 			}
-			HttpRequest httpRequest = new HttpRequest(requestParam.getUrl()).setMethod(method);
+			HttpRequest httpRequest = HttpUtil.createRequest(method, requestParam.getUrl());
+			// header获取
+			Map<String, String> requestHeaders = this.getHttpHeader(request, Collections.emptyMap());
+			if (StringUtils.isNotBlank(requestParam.getHost())) {
+				domainHeaderKeys.forEach(key -> requestHeaders.put(key, requestParam.getHost()));
+				requestHeaders.put("host", SwaggerDocUtil.getDomainHost(requestParam.getHost()));
+			}
 			// http自带参数
-			httpRequest.addHeaders(this.getHttpHeader(request, Collections.emptyMap()));
+			httpRequest.addHeaders(requestHeaders);
 			httpRequest.cookie(this.getHttpCookie(request, Collections.emptyMap()));
 			// 用户输入的参数
 			requestParam.getFormParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
@@ -90,6 +105,7 @@ public class SwaggerHttpRequestService {
 			HttpResponse httpResponse = httpRequest.timeout(10000).execute();
 			resultVo.setData(httpResponse.body());
 			resultVo.setStatus(httpResponse.getStatus());
+			resultVo.setBodyLength(httpResponse.bodyBytes().length);
 			// 设置返回的cookies
 			List<HttpCookie> responseCookies = httpResponse.getCookies();
 			if (CollectionUtils.isNotEmpty(responseCookies)) {
@@ -141,13 +157,11 @@ public class SwaggerHttpRequestService {
 	private Map<String, String> getHttpHeader(HttpServletRequest request, Map<String, String> globalHeaderParamMap) {
 		Map<String, String> headerParamMap = new HashMap<>();
 		Enumeration<String> headerNames = request.getHeaderNames();
-		String[] notNeedHeaders = new String[]{"referer", "origin", "host"};
 		while (headerNames.hasMoreElements()) {
-			String headerName = headerNames.nextElement();
-			if (ArrayUtils.contains(notNeedHeaders, headerName)) {
-				continue;
+			String headerName = StringUtils.lowerCase(headerNames.nextElement());
+			if (needRequestHeaderKeys.contains(headerName)) {
+				headerParamMap.put(headerName, request.getHeader(headerName));
 			}
-//			headerParamMap.put(headerName, request.getHeader(headerName));
 		}
 		if (MapUtils.isNotEmpty(globalHeaderParamMap)) {
 			headerParamMap.putAll(globalHeaderParamMap);

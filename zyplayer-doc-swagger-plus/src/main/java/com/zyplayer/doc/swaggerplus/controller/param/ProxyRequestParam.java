@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class ProxyRequestParam {
 	private String url;
+	private String host;
 	private String method;
 	private String contentType;
 	private String headerParam;
@@ -98,5 +99,13 @@ public class ProxyRequestParam {
 	
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
+	}
+	
+	public String getHost() {
+		return host;
+	}
+	
+	public void setHost(String host) {
+		this.host = host;
 	}
 }

@@ -8,6 +8,7 @@ public class ProxyRequestResultVo {
 	private List<HttpHeaderVo> headers;
 	private Integer status;
 	private Long useTime;
+	private Integer bodyLength;
 	private String data;
 	private String errorMsg;
 	
@@ -57,5 +58,13 @@ public class ProxyRequestResultVo {
 	
 	public void setErrorMsg(String errorMsg) {
 		this.errorMsg = errorMsg;
+	}
+	
+	public Integer getBodyLength() {
+		return bodyLength;
+	}
+	
+	public void setBodyLength(Integer bodyLength) {
+		this.bodyLength = bodyLength;
 	}
 }

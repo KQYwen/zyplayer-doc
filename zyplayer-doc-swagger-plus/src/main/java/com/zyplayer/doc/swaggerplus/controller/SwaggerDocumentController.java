@@ -75,7 +75,8 @@ public class SwaggerDocumentController {
 			// UI地址替换为文档json地址
 			String docUrl = SwaggerDocUtil.replaceSwaggerResources(swaggerDoc.getDocUrl());
 			if (SwaggerDocUtil.isSwaggerResources(docUrl)) {
-				String resourcesStr = swaggerHttpRequestService.requestSwaggerUrl(request, docUrl);
+				String swaggerDomain = SwaggerDocUtil.getSwaggerResourceDomain(docUrl);
+				String resourcesStr = swaggerHttpRequestService.requestSwaggerUrl(request, docUrl, swaggerDomain);
 				List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 				if (resourceList == null || resourceList.isEmpty()) {
 					return DocResponseJson.warn("该地址未找到文档");
@@ -85,7 +86,6 @@ public class SwaggerDocumentController {
 					swaggerDocService.removeById(swaggerDoc.getId());
 				}
 				// 存明细地址
-				String swaggerDomain = SwaggerDocUtil.getSwaggerResourceDomain(docUrl);
 				for (SwaggerResource resource : resourceList) {
 					swaggerDoc.setId(null);
 					swaggerDoc.setDocUrl(swaggerDomain + resource.getUrl());

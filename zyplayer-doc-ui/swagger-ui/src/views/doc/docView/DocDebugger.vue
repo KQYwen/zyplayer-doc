@@ -5,34 +5,46 @@
                 <a-button type="primary" :loading="requestLoading">发送请求</a-button>
             </template>
         </a-input-search>
-        <a-tabs v-model:activeKey="activePage" closable @tab-click="" style="padding: 5px 10px 0;">
+        <a-tabs v-model:activeKey="activePage" closable @tab-click="activePageChange" style="padding: 5px 10px 0;">
             <a-tab-pane tab="URL参数" key="urlParam" forceRender>
-                <ParamTable ref="urlParamRef" :paramList="urlParamList"></ParamTable>
+                <div v-show="queryParamVisible">
+                    <ParamTable ref="urlParamRef" :paramList="urlParamList"></ParamTable>
+                </div>
             </a-tab-pane>
             <a-tab-pane tab="请求参数" key="bodyParam" v-if="docInfoShow.method !== 'get'" forceRender>
-                <a-radio-group v-model:value="bodyParamType" style="margin-bottom: 5px;">
-                    <a-radio value="none">none</a-radio>
-                    <a-radio value="form">form-data</a-radio>
-                    <a-radio value="formUrlEncode">x-www-form-urlencoded</a-radio>
-                    <a-radio value="row">row</a-radio>
-                    <a-radio value="binary">binary</a-radio>
-                </a-radio-group>
-                <div v-show="bodyParamType === 'form'">
-                    <ParamTable ref="formParamRef" :paramList="formParamList" showType></ParamTable>
-                </div>
-                <div v-show="bodyParamType === 'formUrlEncode'">
-                    <ParamTable ref="formEncodeParamRef" :paramList="formEncodeParamList"></ParamTable>
-                </div>
-                <div v-show="bodyParamType === 'row'">
-                    <ParamBody ref="bodyParamRef" :paramList="bodyRowParamList"></ParamBody>
+                <div v-show="queryParamVisible">
+                    <a-radio-group v-model:value="bodyParamType" style="margin-bottom: 5px;">
+                        <a-radio value="none">none</a-radio>
+                        <a-radio value="form">form-data</a-radio>
+                        <a-radio value="formUrlEncode">x-www-form-urlencoded</a-radio>
+                        <a-radio value="row">row</a-radio>
+                        <a-radio value="binary">binary</a-radio>
+                    </a-radio-group>
+                    <div v-show="bodyParamType === 'form'">
+                        <ParamTable ref="formParamRef" :paramList="formParamList" showType></ParamTable>
+                    </div>
+                    <div v-show="bodyParamType === 'formUrlEncode'">
+                        <ParamTable ref="formEncodeParamRef" :paramList="formEncodeParamList"></ParamTable>
+                    </div>
+                    <div v-show="bodyParamType === 'row'">
+                        <ParamBody ref="bodyParamRef" :paramList="bodyRowParamList"></ParamBody>
+                    </div>
                 </div>
             </a-tab-pane>
             <a-tab-pane tab="Header参数" key="headerParam" forceRender>
-                <ParamTable ref="headerParamRef" :paramList="headerParamList"></ParamTable>
+                <div v-show="queryParamVisible">
+                    <ParamTable ref="headerParamRef" :paramList="headerParamList"></ParamTable>
+                </div>
             </a-tab-pane>
             <a-tab-pane tab="Cookie参数" key="cookieParam" forceRender>
-                <ParamTable ref="cookieParamRef" :paramList="cookieParamList"></ParamTable>
+                <div v-show="queryParamVisible">
+                    <ParamTable ref="cookieParamRef" :paramList="cookieParamList"></ParamTable>
+                </div>
             </a-tab-pane>
+            <template #rightExtra>
+                <a-button v-if="queryParamVisible" @click="hideQueryParam" type="link">收起参数</a-button>
+                <a-button v-else @click="showQueryParam" type="link">展开参数</a-button>
+            </template>
         </a-tabs>
         <DocDebuggerResult :result="requestResult"></DocDebuggerResult>
     </div>
@@ -47,7 +59,7 @@
     import DocDebuggerResult from './DocDebuggerResult.vue'
     import ParamTable from '../../../components/params/ParamTable.vue'
     import ParamBody from '../../../components/params/ParamBody.vue'
-    import {CloseOutlined} from '@ant-design/icons-vue';
+    import {CloseOutlined, VerticalAlignTopOutlined, VerticalAlignBottomOutlined} from '@ant-design/icons-vue';
     import 'mavon-editor/dist/markdown/github-markdown.min.css'
     import 'mavon-editor/dist/css/index.css'
     import {zyplayerApi} from "../../../api";
@@ -68,7 +80,7 @@
             },
         },
         components: {
-            CloseOutlined, ParamTable, ParamBody, DocDebuggerResult,
+            VerticalAlignTopOutlined, VerticalAlignBottomOutlined, CloseOutlined, ParamTable, ParamBody, DocDebuggerResult,
         },
         setup(props) {
             const store = useStore();
@@ -173,6 +185,7 @@
                 // });
                 let url = urlParamStr ? (docUrl.value + '?' + urlParamStr) : docUrl.value;
                 formData.append('url', url);
+                formData.append('host', urlDomain);
                 formData.append('method', props.docInfoShow.method);
                 formData.append('contentType', props.docInfoShow.consumes);
                 formData.append('headerParam', JSON.stringify(headerParamArr));
@@ -181,6 +194,7 @@
                 formData.append('formEncodeParam', JSON.stringify(formEncodeParamArr));
                 formData.append('bodyParam', bodyParamStr);
                 requestLoading.value = true;
+                requestResult.value = {};
                 zyplayerApi.requestUrl(formData).then(res => {
                     requestResult.value = res;
                     requestLoading.value = false;
@@ -188,9 +202,20 @@
                     requestLoading.value = false;
                 });
             };
+            let queryParamVisible = ref(true);
+            const hideQueryParam = () => {
+                queryParamVisible.value = false;
+            }
+            const showQueryParam = () => {
+                queryParamVisible.value = true;
+            }
+            const activePageChange = () => {
+                queryParamVisible.value = true;
+            }
             return {
                 docUrl,
                 activePage,
+                activePageChange,
                 requestLoading,
                 sendRequest,
                 requestResult,
@@ -223,6 +248,10 @@
                     {title: '类型', dataIndex: 'type', width: 250},
                     {title: '说明', dataIndex: 'description'},
                 ],
+                // 界面控制
+                queryParamVisible,
+                hideQueryParam,
+                showQueryParam,
             };
         },
     };

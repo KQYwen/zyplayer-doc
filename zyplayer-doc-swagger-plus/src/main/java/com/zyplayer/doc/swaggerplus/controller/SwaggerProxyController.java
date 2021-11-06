@@ -5,6 +5,7 @@ import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerDoc;
 import com.zyplayer.doc.data.service.manage.SwaggerDocService;
 import com.zyplayer.doc.swaggerplus.controller.vo.SwaggerResourceVo;
+import com.zyplayer.doc.swaggerplus.framework.utils.SwaggerDocUtil;
 import com.zyplayer.doc.swaggerplus.service.SwaggerHttpRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +64,8 @@ public class SwaggerProxyController {
 			throw new ConfirmException("文档不存在");
 		}
 		if (Objects.equals(swaggerDoc.getDocType(), 1)) {
-			String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, swaggerDoc.getDocUrl());
+			String docsDomain = SwaggerDocUtil.getV2ApiDocsDomain(swaggerDoc.getDocUrl());
+			String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, swaggerDoc.getDocUrl(), docsDomain);
 			return new ResponseEntity<>(new Json(contentStr), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(new Json(swaggerDoc.getJsonContent()), HttpStatus.OK);

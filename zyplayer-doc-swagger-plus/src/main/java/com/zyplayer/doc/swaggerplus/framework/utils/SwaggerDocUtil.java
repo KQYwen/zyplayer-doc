@@ -22,6 +22,24 @@ public class SwaggerDocUtil {
 		return "";
 	}
 	
+	public static String getV2ApiDocsDomain(String docUrl) {
+		int index = docUrl.indexOf("/v2/api-docs");
+		if (index >= 0) {
+			return docUrl.substring(0, index);
+		}
+		return "";
+	}
+	
+	public static String getDomainHost(String domain) {
+		domain = domain.replace("http://", "");
+		domain = domain.replace("https://", "");
+		int index = domain.indexOf("/");
+		if (index >= 0) {
+			return domain.substring(0, index);
+		}
+		return domain;
+	}
+	
 	public static boolean isSwaggerLocation(String docUrl) {
 		return docUrl.contains("/v2/api-docs");
 	}

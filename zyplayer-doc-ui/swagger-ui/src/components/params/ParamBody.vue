@@ -1,5 +1,6 @@
 <template>
-    <a-textarea placeholder="" v-model:value="bodyRowParam" :auto-size="{ minRows: 15, maxRows: 15 }"></a-textarea>
+<!--    <a-textarea placeholder="" v-model:value="bodyRowParam" :auto-size="{ minRows: 15, maxRows: 15 }"></a-textarea>-->
+    <ace-editor v-model:value="bodyRowParam" @init="rowParamInit" lang="json" theme="monokai" width="100%" height="100" :options="rowParamConfig"></ace-editor>
 </template>
 
 <script>
@@ -11,6 +12,7 @@
     import {CloseOutlined, UploadOutlined} from '@ant-design/icons-vue';
     import 'mavon-editor/dist/markdown/github-markdown.min.css'
     import 'mavon-editor/dist/css/index.css'
+    import aceEditor from "../../assets/ace-editor";
 
     export default {
         props: {
@@ -20,7 +22,7 @@
             },
         },
         components: {
-            CloseOutlined, UploadOutlined
+            CloseOutlined, UploadOutlined, aceEditor
         },
         emits: [],
         setup(props, { attrs, slots, emit, expose}) {
@@ -50,9 +52,26 @@
             const getParam = () => {
                 return bodyRowParam.value;
             }
+            // 编辑器
+            let rowParamEditor = ref();
+            const rowParamInit = editor => {
+                rowParamEditor.value = editor;
+                rowParamEditor.value.setFontSize(16);
+            }
             return {
                 getParam,
+                // 编辑器
+                rowParamInit,
                 bodyRowParam,
+                rowParamConfig: {
+                    wrap: true,
+                    autoScrollEditorIntoView: true,
+                    enableBasicAutocompletion: true,
+                    enableSnippets: true,
+                    enableLiveAutocompletion: true,
+                    minLines: 18,
+                    maxLines: 18,
+                },
             };
         },
     };
