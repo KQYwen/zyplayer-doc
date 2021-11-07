@@ -13,6 +13,7 @@
     "brace": "^0.11.1",
     "element-plus": "^1.0.2-beta.71",
     "highlight.js": "^11.3.1",
+    "jsontoxml": "^1.0.1",
     "less": "^2.7.3",
     "less-loader": "^4.1.0",
     "mavon-editor": "^2.9.0",
@@ -21,7 +22,8 @@
     "sass": "^1.43.4",
     "vue": "^3.2.21",
     "vue-router": "^4.0.12",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "xml-formatter": "^2.5.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.9.4",

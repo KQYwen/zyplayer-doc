@@ -8,6 +8,8 @@ import 'brace/mode/xml';
 import 'brace/snippets/xml';
 import 'brace/mode/html';
 import 'brace/snippets/html';
+import 'brace/mode/javascript';
+import 'brace/snippets/javascript';
 import 'brace/mode/text';
 import 'brace/snippets/text';
 import 'brace/theme/monokai';

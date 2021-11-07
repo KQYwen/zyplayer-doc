@@ -8,20 +8,21 @@
                         <a-radio-button value="row">原始值</a-radio-button>
                         <a-radio-button value="preview">预览</a-radio-button>
                     </a-radio-group>
-                    <a-select v-if="bodyShowType === 'format'" placeholder="格式化" v-model:value="bodyShowFormatType" size="small" style="margin-left: 10px;">
+                    <a-select v-if="bodyShowType === 'format'" v-model:value="bodyShowFormatType" size="small" style="margin-left: 10px;">
                         <a-select-option value="json">JSON</a-select-option>
                         <a-select-option value="html">HTML</a-select-option>
                         <a-select-option value="xml">XML</a-select-option>
+                        <a-select-option value="javascript">JavaScript</a-select-option>
                         <a-select-option value="text">TEXT</a-select-option>
                     </a-select>
                 </div>
-                <ace-editor v-if="bodyShowType === 'format'" v-model:value="resultDataContent" @init="resultDataInit" :lang="bodyShowFormatType" theme="monokai" width="100%" height="100" :options="resultDataConfig"></ace-editor>
-                <ace-editor v-else-if="bodyShowType === 'row'" v-model:value="resultDataContent" @init="resultDataInit" lang="text" theme="chrome" width="100%" height="100" :options="resultDataConfig"></ace-editor>
+                <ace-editor v-if="bodyShowType === 'format'" v-model:value="resultDataContentFormat" @init="resultDataInit" :lang="bodyShowFormatType" theme="monokai" width="100%" height="100" :options="resultDataConfig"></ace-editor>
+                <ace-editor v-else-if="bodyShowType === 'row'" v-model:value="resultDataContentOrigin" @init="resultDataInit" lang="text" theme="chrome" width="100%" height="100" :options="resultDataConfig"></ace-editor>
                 <div v-else-if="bodyShowType === 'preview'">
                     <template v-if="bodyShowFormatPreview === 'html'">
                         <iframe ref="previewHtmlRef" width="100%" height="570px" style="border: 0;"></iframe>
                     </template>
-                    <template v-else>{{resultDataContent}}</template>
+                    <template v-else>{{resultDataContentOrigin}}</template>
                 </div>
             </a-tab-pane>
             <a-tab-pane tab="Headers" key="headers" forceRender>
@@ -51,6 +52,7 @@
     import {useStore} from 'vuex';
     import {message} from 'ant-design-vue';
     import {markdownIt} from 'mavon-editor'
+    import xmlFormatter from 'xml-formatter'
     import ParamTable from '../../../components/params/ParamTable.vue'
     import ParamBody from '../../../components/params/ParamBody.vue'
     import {CloseOutlined} from '@ant-design/icons-vue';
@@ -73,26 +75,28 @@
             const { result } = toRefs(props);
             let activePage = ref('body');
             let bodyShowType = ref('format');
+            // 格式化展示的类型，用户可以修改
             let bodyShowFormatType = ref('json');
+            // 预览格式，依据返回值的content-type得出，不可修改
             let bodyShowFormatPreview = ref('');
             let resultHeaders = ref([]);
             let resultCookies = ref([]);
-            let resultDataContent = ref('');
+            let resultDataContentOrigin = ref('');
+            let resultDataContentFormat = ref('');
             let resultData = ref({});
             let previewHtmlRef = ref();
+            const bodyShowTypeChange = () => {
+                if (bodyShowType.value === 'preview') {
+                    setTimeout(() => {
+                        if (previewHtmlRef.value) {
+                            previewHtmlRef.value.contentDocument.write(resultDataContentOrigin.value);
+                        }
+                    }, 0);
+                }
+            }
             const initData = () => {
                 if (props.result.data) {
                     resultData.value = props.result.data;
-                    if (props.result.data.data) {
-                        try {
-                            let realData = JSON.parse(props.result.data.data);
-                            resultDataContent.value = JSON.stringify(realData, null, 4);
-                        } catch (e) {
-                            resultDataContent.value = props.result.data.data;
-                        }
-                    } else {
-                        resultDataContent.value = JSON.stringify(props.result.data, null, 4);
-                    }
                     if (props.result.data.headers) {
                         resultHeaders.value = props.result.data.headers;
                         // 依据返回值header判断类型
@@ -100,16 +104,38 @@
                         if (contentType && contentType.value) {
                             if (contentType.value.indexOf('text/html') >= 0) {
                                 bodyShowFormatType.value = 'html';
-                                bodyShowFormatPreview.value = 'html';
-                            } else if (contentType.value.indexOf('json') >= 0) {
+                            } else if (contentType.value.indexOf('application/json') >= 0) {
                                 bodyShowFormatType.value = 'json';
-                                bodyShowFormatPreview.value = 'json';
+                            } else if (contentType.value.indexOf('application/xml') >= 0 || contentType.value.indexOf('text/xml') >= 0) {
+                                bodyShowFormatType.value = 'xml';
+                            } else if (contentType.value.indexOf('application/javascript') >= 0) {
+                                bodyShowFormatType.value = 'javascript';
                             }
+                            bodyShowFormatPreview.value = bodyShowFormatType.value;
                         }
                     }
                     if (props.result.data.cookies) {
                         resultCookies.value = props.result.data.cookies;
                     }
+                    if (props.result.data.data) {
+                        resultDataContentOrigin.value = props.result.data.data;
+                        try {
+                            if (bodyShowFormatType.value === 'xml') {
+                                resultDataContentFormat.value = xmlFormatter(resultDataContentOrigin.value);
+                            } else if (bodyShowFormatType.value === 'json') {
+                                resultDataContentFormat.value = JSON.stringify(JSON.parse(resultDataContentOrigin.value), null, 4);
+                            } else if (bodyShowFormatType.value === 'javascript') {
+                                // TODO 暂未测试
+                                resultDataContentFormat.value = JSON.stringify(resultDataContentOrigin.value, null, 4);
+                            }
+                        } catch (e) {
+                            resultDataContentFormat.value = props.result.data.data;
+                        }
+                    } else {
+                        resultDataContentOrigin.value = JSON.stringify(props.result.data);
+                        resultDataContentFormat.value = JSON.stringify(props.result.data, null, 4);
+                    }
+                    bodyShowTypeChange();
                 }
             };
             initData();
@@ -117,13 +143,6 @@
             // 编辑器
             const resultDataInit = editor => {
                 editor.setFontSize(16);
-            }
-            const bodyShowTypeChange = () => {
-                if (bodyShowType.value === 'preview') {
-                    setTimeout(() => {
-                        previewHtmlRef.value.contentDocument.write(resultDataContent.value);
-                    }, 0);
-                }
             }
             return {
                 activePage,
@@ -145,7 +164,8 @@
                 ],
                 // 编辑器
                 resultDataInit,
-                resultDataContent,
+                resultDataContentOrigin,
+                resultDataContentFormat,
                 resultDataConfig: {
                     wrap: true,
                     readOnly: true,

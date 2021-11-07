@@ -13,13 +13,22 @@
             </a-tab-pane>
             <a-tab-pane tab="请求参数" key="bodyParam" v-if="docInfoShow.method !== 'get'" forceRender>
                 <div v-show="queryParamVisible">
-                    <a-radio-group v-model:value="bodyParamType" style="margin-bottom: 5px;">
-                        <a-radio value="none">none</a-radio>
-                        <a-radio value="form">form-data</a-radio>
-                        <a-radio value="formUrlEncode">x-www-form-urlencoded</a-radio>
-                        <a-radio value="row">row</a-radio>
-                        <a-radio value="binary">binary</a-radio>
-                    </a-radio-group>
+                    <div style="margin-bottom: 6px;">
+                        <a-radio-group v-model:value="bodyParamType">
+                            <a-radio value="none">none</a-radio>
+                            <a-radio value="form">form-data</a-radio>
+                            <a-radio value="formUrlEncode">x-www-form-urlencoded</a-radio>
+                            <a-radio value="row">row</a-radio>
+                            <a-radio value="binary">binary</a-radio>
+                        </a-radio-group>
+                        <a-select v-if="bodyParamType === 'row'" v-model:value="consumesParamType" size="small" style="margin-left: 10px;vertical-align: top;width: 90px;">
+                            <a-select-option value="json">JSON</a-select-option>
+                            <a-select-option value="html">HTML</a-select-option>
+                            <a-select-option value="xml">XML</a-select-option>
+                            <a-select-option value="javascript">JavaScript</a-select-option>
+                            <a-select-option value="text">TEXT</a-select-option>
+                        </a-select>
+                    </div>
                     <div v-show="bodyParamType === 'form'">
                         <ParamTable ref="formParamRef" :paramList="formParamList" showType></ParamTable>
                     </div>
@@ -27,7 +36,7 @@
                         <ParamTable ref="formEncodeParamRef" :paramList="formEncodeParamList"></ParamTable>
                     </div>
                     <div v-show="bodyParamType === 'row'">
-                        <ParamBody ref="bodyParamRef" :paramList="bodyRowParamList"></ParamBody>
+                        <ParamBody ref="bodyParamRef" :rowLang="consumesParamType" :paramList="bodyRowParamList"></ParamBody>
                     </div>
                 </div>
             </a-tab-pane>
@@ -118,6 +127,7 @@
             // body 参数
             let bodyParamRef = ref();
             let bodyParamType = ref('form');
+            let consumesParamType = ref('json');
             let bodyRowListProp = props.requestParamList.filter(item => item.in === 'body');
             let bodyRowParamList = ref(JSON.parse(JSON.stringify(bodyRowListProp)));
             // x-www-form-urlencoded
@@ -129,6 +139,14 @@
                 formParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
             } else if (props.docInfoShow.consumes.indexOf('application/json') >= 0) {
                 bodyParamType.value = 'row';
+                consumesParamType.value = 'json';
+                formEncodeParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
+                if (formParamListProp.length > 0) {
+                    bodyParamType.value = 'formUrlEncode';
+                }
+            } else if (props.docInfoShow.consumes.indexOf('application/xml') >= 0 || props.docInfoShow.consumes.indexOf('text/xml') >= 0) {
+                bodyParamType.value = 'row';
+                consumesParamType.value = 'xml';
                 formEncodeParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
                 if (formParamListProp.length > 0) {
                     bodyParamType.value = 'formUrlEncode';
@@ -219,6 +237,7 @@
                 requestLoading,
                 sendRequest,
                 requestResult,
+                consumesParamType,
                 // url参数
                 urlParamRef,
                 urlParamList,

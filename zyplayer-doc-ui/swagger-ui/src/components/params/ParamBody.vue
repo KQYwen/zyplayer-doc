@@ -1,6 +1,5 @@
 <template>
-<!--    <a-textarea placeholder="" v-model:value="bodyRowParam" :auto-size="{ minRows: 15, maxRows: 15 }"></a-textarea>-->
-    <ace-editor v-model:value="bodyRowParam" @init="rowParamInit" lang="json" theme="monokai" width="100%" height="100" :options="rowParamConfig"></ace-editor>
+    <ace-editor v-model:value="bodyRowParam" @init="rowParamInit" :lang="rowLang" theme="monokai" width="100%" height="100" :options="rowParamConfig"></ace-editor>
 </template>
 
 <script>
@@ -9,6 +8,7 @@
     import {useStore} from 'vuex';
     import { message } from 'ant-design-vue';
     import {markdownIt} from 'mavon-editor'
+    import jsontoxml from 'jsontoxml';
     import {CloseOutlined, UploadOutlined} from '@ant-design/icons-vue';
     import 'mavon-editor/dist/markdown/github-markdown.min.css'
     import 'mavon-editor/dist/css/index.css'
@@ -18,6 +18,10 @@
         props: {
             paramList: {
                 type: Array,
+                required: true
+            },
+            rowLang: {
+                type: String,
                 required: true
             },
         },
@@ -36,7 +40,7 @@
                     });
                     return bodyParamObj;
                 }
-                return '';
+                return paramObj.example || '';
             }
             if (paramList.length === 1) {
                 bodyParamObj = getChildren(paramList[0]);
@@ -47,7 +51,15 @@
             }
             let bodyRowParam = ref('');
             if (bodyParamObj) {
-                bodyRowParam.value = JSON.stringify(bodyParamObj, null, 4);
+                if (props.rowLang === 'json') {
+                    bodyRowParam.value = JSON.stringify(bodyParamObj, null, 4);
+                } else if (props.rowLang === 'xml') {
+                    bodyRowParam.value = jsontoxml(bodyParamObj, {
+                        html: true,
+                        prettyPrint: true,
+                        xmlHeader: true,
+                    });
+                }
             }
             const getParam = () => {
                 return bodyRowParam.value;

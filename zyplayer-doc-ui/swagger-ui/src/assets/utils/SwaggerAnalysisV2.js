@@ -167,7 +167,7 @@ export default {
                 let type = parameter.type;
                 let format = parameter.format;
                 let description = parameter.description || '';
-                let example = parameter['x-example'];
+                let example = parameter['example'] || parameter['x-example'];
                 let subType = undefined;
                 let additional = undefined;
                 let enums = undefined;
