@@ -7,6 +7,7 @@ import cn.hutool.http.Method;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerGlobalParam;
 import com.zyplayer.doc.data.service.manage.SwaggerGlobalParamService;
+import com.zyplayer.doc.swaggerplus.controller.param.ParamData;
 import com.zyplayer.doc.swaggerplus.controller.param.ProxyRequestParam;
 import com.zyplayer.doc.swaggerplus.controller.vo.HttpCookieVo;
 import com.zyplayer.doc.swaggerplus.controller.vo.HttpHeaderVo;
@@ -60,7 +61,7 @@ public class SwaggerHttpRequestService {
 				.form(globalFormParamMap)
 				.addHeaders(requestHeaders)
 				.header("Accept", "application/json, text/javascript, */*; q=0.01")
-				.cookie(this.getHttpCookie(request, globalCookieParamMap))
+				.cookie(this.getHttpCookie(request, globalCookieParamMap, null))
 				.timeout(10000).execute().body();
 		return resultStr;
 	}
@@ -82,25 +83,30 @@ public class SwaggerHttpRequestService {
 			}
 			HttpRequest httpRequest = HttpUtil.createRequest(method, requestParam.getUrl());
 			// header获取
-			Map<String, String> requestHeaders = this.getHttpHeader(request, Collections.emptyMap());
+			Map<String, String> headerParam = new HashMap<>();
+			requestParam.getHeaderParamData().forEach(item -> headerParam.put(item.getCode(), item.getValue()));
+			Map<String, String> requestHeaders = this.getHttpHeader(request, headerParam);
 			if (StringUtils.isNotBlank(requestParam.getHost())) {
 				domainHeaderKeys.forEach(key -> requestHeaders.put(key, requestParam.getHost()));
 				requestHeaders.put("host", SwaggerDocUtil.getDomainHost(requestParam.getHost()));
 			}
 			// http自带参数
 			httpRequest.addHeaders(requestHeaders);
-			httpRequest.cookie(this.getHttpCookie(request, Collections.emptyMap()));
 			// 用户输入的参数
 			requestParam.getFormParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
 			requestParam.getFormEncodeParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
-			requestParam.getHeaderParamData().forEach(data -> httpRequest.header(data.getCode(), data.getValue()));
+			// cookie参数
+			Map<String, String> cookieParam = new HashMap<>();
+			String headerCookie = headerParam.getOrDefault("Cookie", headerParam.get("cookie"));
+			requestParam.getCookieParamData().forEach(item -> cookieParam.put(item.getCode(), item.getValue()));
+			httpRequest.cookie(this.getHttpCookie(request, cookieParam, headerCookie));
 			if (StringUtils.isNotBlank(requestParam.getBodyParam())) {
 				httpRequest.body(requestParam.getBodyParam());
 			}
-			// 强制设置类型
-			if (StringUtils.isNotBlank(requestParam.getContentType())) {
-				httpRequest.contentType(requestParam.getContentType());
-			}
+			// 强制设置类型，貌似不用刻意设置，如果写的application/json，参数是表单，传过去收不到值，先注释这个
+//			if (StringUtils.isNotBlank(requestParam.getContentType())) {
+//				httpRequest.contentType(requestParam.getContentType());
+//			}
 			// 执行请求
 			HttpResponse httpResponse = httpRequest.timeout(10000).execute();
 			resultVo.setData(httpResponse.body());
@@ -137,10 +143,17 @@ public class SwaggerHttpRequestService {
 	 * @author 暮光：城中城
 	 * @since 2021-11-04
 	 */
-	private List<HttpCookie> getHttpCookie(HttpServletRequest request, Map<String, String> globalCookieParamMap) {
+	private List<HttpCookie> getHttpCookie(HttpServletRequest request, Map<String, String> globalCookieParamMap, String headerCookie) {
 		List<HttpCookie> httpCookies = new LinkedList<>();
 		for (Cookie cookie : request.getCookies()) {
 			httpCookies.add(new HttpCookie(cookie.getName(), cookie.getValue()));
+		}
+		if (StringUtils.isNotBlank(headerCookie)) {
+			for (String cookie : headerCookie.split(";")) {
+				cookie = cookie.trim();
+				int index = cookie.indexOf("=");
+				httpCookies.add(new HttpCookie(cookie.substring(0, index), cookie.substring(index + 1)));
+			}
 		}
 		if (MapUtils.isNotEmpty(globalCookieParamMap)) {
 			globalCookieParamMap.forEach((key, value) -> httpCookies.add(new HttpCookie(key, value)));

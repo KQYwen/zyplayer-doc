@@ -35,12 +35,17 @@
             let getChildren = paramObj => {
                 if (paramObj.children) {
                     let bodyParamObj = {};
-                    paramObj.children.forEach(item => {
-                        bodyParamObj[item.name] = getChildren(item);
-                    });
+                    paramObj.children.forEach(item => bodyParamObj[item.name] = getChildren(item));
+                    if (paramObj.type === 'array') {
+                        return [bodyParamObj];
+                    }
                     return bodyParamObj;
                 }
-                return paramObj.example || '';
+                let example = paramObj.example || '';
+                if (paramObj.type === 'array') {
+                    return example ? [example] : [];
+                }
+                return example;
             }
             if (paramList.length === 1) {
                 bodyParamObj = getChildren(paramList[0]);
