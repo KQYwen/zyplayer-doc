@@ -62,6 +62,7 @@
                 zyplayerApi.docSwaggerGlobalParamList().then(res => {
                     setTimeout(() => docListLoading.value = false, 500);
                     docList.value = res.data || [];
+                    store.commit('setGlobalParam', docList.value);
                 });
             };
             let docEdit = ref({});

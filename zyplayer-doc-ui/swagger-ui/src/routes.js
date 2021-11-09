@@ -1,5 +1,5 @@
 import PageLayout from './components/layouts/PageLayout.vue'
-import EmptyLayout from './components/layouts/EmptyLayout.vue'
+import EmptyKeepAliveLayout from './components/layouts/EmptyKeepAliveLayout.vue'
 
 let routers = [
     {
@@ -35,7 +35,7 @@ let routers = [
                         meta: {
                             icon: 'SettingOutlined'
                         },
-                        component: EmptyLayout,
+                        component: EmptyKeepAliveLayout,
                         children: [
                             {
                                 path: '/doc/setting/globalParam',

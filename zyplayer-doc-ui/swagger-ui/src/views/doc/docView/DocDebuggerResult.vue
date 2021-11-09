@@ -8,7 +8,7 @@
                         <a-radio-button value="row">原始值</a-radio-button>
                         <a-radio-button value="preview">预览</a-radio-button>
                     </a-radio-group>
-                    <a-select v-if="bodyShowType === 'format'" v-model:value="bodyShowFormatType" size="small" style="margin-left: 10px;">
+                    <a-select v-if="bodyShowType === 'format'" v-model:value="bodyShowFormatType" size="small" style="margin-left: 10px;width: 100px;">
                         <a-select-option value="json">JSON</a-select-option>
                         <a-select-option value="html">HTML</a-select-option>
                         <a-select-option value="xml">XML</a-select-option>
@@ -40,7 +40,11 @@
                 </a-table>
             </a-tab-pane>
             <template #rightExtra>
-                <span class="status-info-box">状态码：<span>{{resultData.status||'200'}}</span>耗时：<span>{{resultData.useTime||0}} ms</span>大小：<span>{{resultData.bodyLength||0}} B</span></span>
+                <span class="status-info-box">
+                    状态码：<span>{{resultData.status||'200'}}</span>
+                    耗时：<span>{{unitConvert.formatSeconds(resultData.useTime||0)}}</span>
+                    大小：<span>{{unitConvert.formatFileSize(resultData.bodyLength||0)}}</span>
+                </span>
             </template>
         </a-tabs>
     </div>
@@ -60,6 +64,7 @@
     import 'mavon-editor/dist/css/index.css'
     import {zyplayerApi} from "../../../api";
     import aceEditor from "../../../assets/ace-editor";
+    import unitConvert from "../../../assets/utils/unitConvert.js";
 
     export default {
         props: {
@@ -132,8 +137,9 @@
                             resultDataContentFormat.value = props.result.data.data;
                         }
                     } else {
-                        resultDataContentOrigin.value = JSON.stringify(props.result.data);
-                        resultDataContentFormat.value = JSON.stringify(props.result.data, null, 4);
+                        let errorSuffix = '\n// 请求失败，以下为封装的返回值对象，仅供参考\n\n';
+                        resultDataContentOrigin.value = errorSuffix + JSON.stringify(props.result.data);
+                        resultDataContentFormat.value = errorSuffix + JSON.stringify(props.result.data, null, 4);
                     }
                     bodyShowTypeChange();
                 }
@@ -148,6 +154,7 @@
                 activePage,
                 bodyShowType,
                 bodyShowTypeChange,
+                unitConvert,
                 bodyShowFormatType,
                 bodyShowFormatPreview,
                 previewHtmlRef,

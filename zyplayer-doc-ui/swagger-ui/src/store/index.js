@@ -12,11 +12,16 @@ export default createStore({
             methodStatistic: {},
             // 数据库存储的地址信息
             swaggerResource: {},
+            // 全局参数
+            globalParam: [],
         }
     },
     mutations: {
         setUserInfo(state, userInfo) {
             state.userInfo = userInfo;
+        },
+        setGlobalParam(state, globalParam) {
+            state.globalParam = globalParam;
         },
         setSwaggerResource(state, swaggerResource) {
             state.swaggerResource = swaggerResource;

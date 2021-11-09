@@ -7,7 +7,6 @@ import cn.hutool.http.Method;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerGlobalParam;
 import com.zyplayer.doc.data.service.manage.SwaggerGlobalParamService;
-import com.zyplayer.doc.swaggerplus.controller.param.ParamData;
 import com.zyplayer.doc.swaggerplus.controller.param.ProxyRequestParam;
 import com.zyplayer.doc.swaggerplus.controller.vo.HttpCookieVo;
 import com.zyplayer.doc.swaggerplus.controller.vo.HttpHeaderVo;
@@ -15,6 +14,7 @@ import com.zyplayer.doc.swaggerplus.controller.vo.ProxyRequestResultVo;
 import com.zyplayer.doc.swaggerplus.framework.utils.SwaggerDocUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -149,11 +149,12 @@ public class SwaggerHttpRequestService {
 			httpCookies.add(new HttpCookie(cookie.getName(), cookie.getValue()));
 		}
 		if (StringUtils.isNotBlank(headerCookie)) {
-			for (String cookie : headerCookie.split(";")) {
-				cookie = cookie.trim();
-				int index = cookie.indexOf("=");
-				httpCookies.add(new HttpCookie(cookie.substring(0, index), cookie.substring(index + 1)));
-			}
+			Arrays.stream(headerCookie.split(";")).map(String::trim).forEach(cookie -> {
+				String[] cookieArr = StringUtils.split(cookie, "=", 2);
+				if (ArrayUtils.getLength(cookieArr) == 2) {
+					httpCookies.add(new HttpCookie(cookieArr[0], cookieArr[1]));
+				}
+			});
 		}
 		if (MapUtils.isNotEmpty(globalCookieParamMap)) {
 			globalCookieParamMap.forEach((key, value) -> httpCookies.add(new HttpCookie(key, value)));

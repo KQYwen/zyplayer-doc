@@ -35,7 +35,7 @@
 
 <script>
     import MenuChildrenLayout from './MenuChildrenLayout.vue'
-    import {customApi} from '../../api'
+    import {customApi, zyplayerApi} from '../../api'
     import {createTreeViewByTag, getTreeDataForTag} from '../../store/TreeViewByTag'
 
     export default {
@@ -81,6 +81,7 @@
                 this.openKeys = [matched[1].path];
             }
             this.getSwaggerResourceList();
+            this.getGlobalParamList();
         },
         methods: {
             docChecked(val, node) {
@@ -88,6 +89,12 @@
                     let dataRef = node.node.dataRef;
                     this.$router.push({path: '/doc/view', query: dataRef.query});
                 }
+            },
+            getGlobalParamList() {
+                zyplayerApi.docSwaggerGlobalParamList().then(res => {
+                    let globalParam = res.data || [];
+                    this.$store.commit('setGlobalParam', globalParam);
+                });
             },
             getSwaggerResourceList() {
                 customApi.get('./swagger-resources').then(res => {

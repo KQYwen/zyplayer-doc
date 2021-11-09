@@ -21,7 +21,7 @@
                             <a-radio value="row">row</a-radio>
                             <a-radio value="binary">binary</a-radio>
                         </a-radio-group>
-                        <a-select v-if="bodyParamType === 'row'" v-model:value="consumesParamType" size="small" style="margin-left: 10px;vertical-align: top;width: 90px;">
+                        <a-select v-if="bodyParamType === 'row'" v-model:value="consumesParamType" size="small" style="margin-left: 10px;vertical-align: top;width: 100px;">
                             <a-select-option value="json">JSON</a-select-option>
                             <a-select-option value="html">HTML</a-select-option>
                             <a-select-option value="xml">XML</a-select-option>
@@ -94,6 +94,7 @@
         setup(props) {
             const store = useStore();
             let swaggerResource = store.state.swaggerResource || {};
+            let globalParam = store.state.globalParam || [];
             let swaggerDoc = store.state.swaggerDoc || {};
             let urlDomain = swaggerResource.rewriteDomain || swaggerDoc.host;
             let docUrl = ref(urlDomain + props.docInfoShow.url);
@@ -104,15 +105,28 @@
             let urlParamList = ref([]);
             // Header参数处理
             const headerParamRef = ref();
+            let headerParamListGlobal = globalParam.filter(item => item.paramType === 2);
             let headerParamListProp = props.requestParamList.filter(item => item.in === 'header');
+            let nextIndex = 1;
+            headerParamListGlobal.forEach(item => {
+                headerParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+            });
             let headerParamList = ref(JSON.parse(JSON.stringify(headerParamListProp)));
             // cookie参数处理
             const cookieParamRef = ref();
+            let cookieParamListGlobal = globalParam.filter(item => item.paramType === 3);
             let cookieParamListProp = props.requestParamList.filter(item => item.in === 'cookie');
+            cookieParamListGlobal.forEach(item => {
+                cookieParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+            });
             let cookieParamList = ref(JSON.parse(JSON.stringify(cookieParamListProp)));
             // form参数处理
             const formParamRef= ref();
+            let formParamListGlobal = globalParam.filter(item => item.paramType === 1);
             let formParamListProp = props.requestParamList.filter(item => item.in === 'formData');
+            formParamListGlobal.forEach(item => {
+                formParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+            });
             let formParamList = ref([]);
             if (props.docInfoShow.method === 'post') {
                 // post的时候参数否放到form里面
