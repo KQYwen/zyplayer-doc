@@ -2,7 +2,7 @@
     <a-form :label-col="{span: 4}" :wrapper-col="{span: 20}">
         <a-form-item label="接口地址">{{docInfoShow.url}}</a-form-item>
         <a-form-item label="说明">
-            <a-card size=small><div class="markdown-body" v-html="docInfoShow.description" v-highlight></div></a-card>
+            <div class="markdown-body" v-html="docInfoShow.description" v-highlight></div>
         </a-form-item>
         <a-form-item label="请求方式">{{docInfoShow.method}}</a-form-item>
         <a-form-item label="请求数据类型">{{docInfoShow.consumes}}</a-form-item>

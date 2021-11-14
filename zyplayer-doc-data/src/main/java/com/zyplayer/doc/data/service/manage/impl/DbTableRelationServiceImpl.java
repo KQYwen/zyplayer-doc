@@ -1,24 +1,20 @@
 package com.zyplayer.doc.data.service.manage.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.sun.jersey.server.impl.wadl.WadlResource;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbTableRelation;
 import com.zyplayer.doc.data.repository.manage.mapper.DbTableRelationMapper;
 import com.zyplayer.doc.data.repository.manage.param.TableRelationParam;
-import com.zyplayer.doc.data.repository.manage.vo.TableRelationVo;
 import com.zyplayer.doc.data.service.manage.DbTableRelationService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 /**
  * <p>

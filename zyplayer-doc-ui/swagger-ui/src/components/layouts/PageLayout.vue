@@ -1,6 +1,6 @@
 <template>
 	<div class="page-layout">
-		<a-tabs type="editable-card" hide-add v-model:activeKey="activePage" @tab-click="changePage" @edit="removePageTab" style="padding: 5px 10px 0;">
+		<a-tabs type="editable-card" v-model:activeKey="activePage" @tab-click="changePage" @edit="editPageTab" style="padding: 5px 10px 0;">
 			<a-tab-pane closable :tab="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)" :fullPath="item.fullPath" :key="item.fullPath" v-for="item in pageList"/>
 		</a-tabs>
 		<div class="page-body">
@@ -26,6 +26,7 @@
 				ignoreParamPath: [
 					"/data/export",
 				],
+				apiRequestIndex: 1,
 			}
 		},
 		computed: {
@@ -68,6 +69,16 @@
 			},
 			editPage(key, action) {
 				this[action](key);
+			},
+			editPageTab(key, action) {
+				if (action === 'add') {
+					this.addPageTab();
+				} else {
+					this.removePageTab(key);
+				}
+			},
+			addPageTab() {
+				this.$router.push({path: '/doc/apiRequest', query: {id: this.apiRequestIndex++}});
 			},
 			removePageTab(key) {
 				if (this.pageList.length === 1) {

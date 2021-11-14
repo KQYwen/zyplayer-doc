@@ -1,6 +1,11 @@
 <template>
     <div>
-        <a-input-search :addon-before="docInfoShow.method.toUpperCase()" v-model:value="docUrl" @search="sendRequest">
+        <a-input-search v-model:value="docUrl" @search="sendRequest">
+            <template #addonBefore>
+                <a-select v-model:value="docInfoShow.method" style="width: 100px;">
+                    <a-select-option :value="method" v-for="method in methodList">{{method.toUpperCase()}}</a-select-option>
+                </a-select>
+            </template>
             <template #enterButton>
                 <a-button type="primary" :loading="requestLoading">发送请求</a-button>
             </template>
@@ -55,7 +60,7 @@
                 <a-button v-else @click="showQueryParam" type="link">展开参数</a-button>
             </template>
         </a-tabs>
-        <DocDebuggerResult :result="requestResult" :loading="requestLoading"></DocDebuggerResult>
+        <ApiRequestResult :result="requestResult" :loading="requestLoading"></ApiRequestResult>
     </div>
 </template>
 
@@ -65,76 +70,36 @@
     import {useStore} from 'vuex';
     import { message } from 'ant-design-vue';
     import {markdownIt} from 'mavon-editor'
-    import DocDebuggerResult from './DocDebuggerResult.vue'
-    import ParamTable from '../../../components/params/ParamTable.vue'
-    import ParamBody from '../../../components/params/ParamBody.vue'
+    import ApiRequestResult from './ApiRequestResult.vue'
+    import ParamTable from '../../components/params/ParamTable.vue'
+    import ParamBody from '../../components/params/ParamBody.vue'
     import {CloseOutlined, VerticalAlignTopOutlined, VerticalAlignBottomOutlined} from '@ant-design/icons-vue';
     import 'mavon-editor/dist/markdown/github-markdown.min.css'
     import 'mavon-editor/dist/css/index.css'
-    import {zyplayerApi} from "../../../api";
+    import {zyplayerApi} from "../../api";
 
     export default {
-        props: {
-            docInfoShow: {
-                type: Object,
-                required: true
-            },
-            requestParamList: {
-                type: Array,
-                required: true
-            },
-            responseParamList: {
-                type: Array,
-                required: true
-            },
-        },
         components: {
-            VerticalAlignTopOutlined, VerticalAlignBottomOutlined, CloseOutlined, ParamTable, ParamBody, DocDebuggerResult,
+            VerticalAlignTopOutlined, VerticalAlignBottomOutlined, CloseOutlined, ParamTable, ParamBody, ApiRequestResult,
         },
         setup(props) {
-            const store = useStore();
-            let swaggerResource = store.state.swaggerResource || {};
-            let globalParam = store.state.globalParam || [];
-            let swaggerDoc = store.state.swaggerDoc || {};
-            let urlDomain = swaggerResource.rewriteDomain || swaggerDoc.host;
-            let docUrl = ref(urlDomain + props.docInfoShow.url);
+            let docUrl = ref('http://baidu.com');
             let activePage = ref('urlParam');
+            const route = useRoute();
+            const store = useStore();
+            store.commit('addTableName', {key: route.fullPath, val: '接口请求' + route.query.id});
             // URL参数处理
             const urlParamRef = ref();
-            let urlParamListProp = props.requestParamList.filter(item => item.in === 'query');
             let urlParamList = ref([]);
             // Header参数处理
             const headerParamRef = ref();
-            let headerParamListGlobal = globalParam.filter(item => item.paramType === 2);
-            let headerParamListProp = props.requestParamList.filter(item => item.in === 'header');
-            let nextIndex = 1;
-            headerParamListGlobal.forEach(item => {
-                headerParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
-            });
-            let headerParamList = ref(JSON.parse(JSON.stringify(headerParamListProp)));
+            let headerParamList = ref([]);
             // cookie参数处理
             const cookieParamRef = ref();
-            let cookieParamListGlobal = globalParam.filter(item => item.paramType === 3);
-            let cookieParamListProp = props.requestParamList.filter(item => item.in === 'cookie');
-            cookieParamListGlobal.forEach(item => {
-                cookieParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
-            });
-            let cookieParamList = ref(JSON.parse(JSON.stringify(cookieParamListProp)));
+            let cookieParamList = ref([]);
             // form参数处理
             const formParamRef= ref();
-            let formParamListGlobal = globalParam.filter(item => item.paramType === 1);
-            let formParamListProp = props.requestParamList.filter(item => item.in === 'formData');
-            formParamListGlobal.forEach(item => {
-                formParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
-            });
             let formParamList = ref([]);
-            if (props.docInfoShow.method === 'post') {
-                // post的时候参数否放到form里面
-                formParamListProp = formParamListProp.concat(urlParamListProp);
-            } else {
-                // 否则放到URL参数里面
-                urlParamList = ref(JSON.parse(JSON.stringify(urlParamListProp)));
-            }
             // form参数处理
             const formEncodeParamRef = ref();
             let formEncodeParamList = ref([]);
@@ -142,39 +107,9 @@
             let bodyParamRef = ref();
             let bodyParamType = ref('form');
             let consumesParamType = ref('json');
-            let bodyRowListProp = props.requestParamList.filter(item => item.in === 'body');
-            let bodyRowParamList = ref(JSON.parse(JSON.stringify(bodyRowListProp)));
-            // x-www-form-urlencoded
-            if (props.docInfoShow.consumes.indexOf('application/x-www-form-urlencoded') >= 0) {
-                bodyParamType.value = 'formUrlEncode';
-                formEncodeParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
-            } else if (props.docInfoShow.consumes.indexOf('multipart/form-data') >= 0) {
-                bodyParamType.value = 'form';
-                formParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
-            } else if (props.docInfoShow.consumes.indexOf('application/json') >= 0) {
-                bodyParamType.value = 'row';
-                consumesParamType.value = 'json';
-                formEncodeParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
-                if (formParamListProp.length > 0) {
-                    bodyParamType.value = 'formUrlEncode';
-                }
-            } else if (props.docInfoShow.consumes.indexOf('application/xml') >= 0 || props.docInfoShow.consumes.indexOf('text/xml') >= 0) {
-                bodyParamType.value = 'row';
-                consumesParamType.value = 'xml';
-                formEncodeParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
-                if (formParamListProp.length > 0) {
-                    bodyParamType.value = 'formUrlEncode';
-                }
-            } else {
-                formParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
-            }
-            if (formParamList.value.length > 0) {
-                activePage.value = 'urlParam';
-            } else if (formParamListProp.length > 0 || bodyRowListProp.length > 0) {
-                activePage.value = 'bodyParam';
-            } else if (headerParamListProp.length > 0) {
-                activePage.value = 'headerParam';
-            }
+            let bodyRowParamList = ref({});
+            // 配置信息
+            let docInfoShow = ref({method: 'get'});
             // 发送请求
             let requestResult = ref({});
             let requestLoading = ref(false);
@@ -212,14 +147,11 @@
                 if (bodyParamRef.value) {
                     bodyParamStr = bodyParamRef.value.getParam();
                 }
-                // fileList.value.forEach(file => {
-                //     formData.append('files[]', file);
-                // });
                 let url = urlParamStr ? (docUrl.value + '?' + urlParamStr) : docUrl.value;
                 formData.append('url', url);
-                formData.append('host', urlDomain);
-                formData.append('method', props.docInfoShow.method);
-                formData.append('contentType', props.docInfoShow.consumes);
+                formData.append('host', '');
+                formData.append('method', docInfoShow.value.method);
+                formData.append('contentType', '');
                 formData.append('headerParam', JSON.stringify(headerParamArr));
                 formData.append('cookieParam', JSON.stringify(cookieParamArr));
                 formData.append('formParam', JSON.stringify(formParamArr));
@@ -271,20 +203,12 @@
                 bodyParamRef,
                 bodyParamType,
                 bodyRowParamList,
-                responseCodeListColumns: [
-                    {title: '状态码', dataIndex: 'code', width: 100},
-                    {title: '类型', dataIndex: 'type', width: 250},
-                    {title: '说明', dataIndex: 'desc'},
-                ],
-                responseParamListColumns: [
-                    {title: '参数名', dataIndex: 'name', width: 250},
-                    {title: '类型', dataIndex: 'type', width: 250},
-                    {title: '说明', dataIndex: 'description'},
-                ],
                 // 界面控制
                 queryParamVisible,
+                docInfoShow,
                 hideQueryParam,
                 showQueryParam,
+                methodList: ["get", "post", "put", "patch", "head", "delete", "options", "trace"],
             };
         },
     };

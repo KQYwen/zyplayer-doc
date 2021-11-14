@@ -60,6 +60,14 @@ let routers = [
                         },
                         component: () => import('./views/doc/DocView.vue')
                     },
+                    {
+                        path: '/doc/apiRequest',
+                        name: '接口请求',
+                        meta: {
+                            hidden: true,
+                        },
+                        component: () => import('./views/apiRequest/ApiRequest.vue')
+                    },
                 ]
             },
         ]

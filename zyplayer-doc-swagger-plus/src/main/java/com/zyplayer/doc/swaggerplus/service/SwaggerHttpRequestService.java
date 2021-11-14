@@ -111,7 +111,7 @@ public class SwaggerHttpRequestService {
 			HttpResponse httpResponse = httpRequest.timeout(10000).execute();
 			resultVo.setData(httpResponse.body());
 			resultVo.setStatus(httpResponse.getStatus());
-			resultVo.setBodyLength(httpResponse.bodyBytes().length);
+			resultVo.setContentLength(httpResponse.bodyBytes().length);
 			// 设置返回的cookies
 			List<HttpCookie> responseCookies = httpResponse.getCookies();
 			if (CollectionUtils.isNotEmpty(responseCookies)) {

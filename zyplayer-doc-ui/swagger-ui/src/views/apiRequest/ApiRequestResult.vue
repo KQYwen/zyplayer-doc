@@ -79,14 +79,14 @@
     import {message} from 'ant-design-vue';
     import {markdownIt} from 'mavon-editor'
     import xmlFormatter from 'xml-formatter'
-    import ParamTable from '../../../components/params/ParamTable.vue'
-    import ParamBody from '../../../components/params/ParamBody.vue'
+    import ParamTable from '../../components/params/ParamTable.vue'
+    import ParamBody from '../../components/params/ParamBody.vue'
     import {CloseOutlined} from '@ant-design/icons-vue';
     import 'mavon-editor/dist/markdown/github-markdown.min.css'
     import 'mavon-editor/dist/css/index.css'
-    import {zyplayerApi} from "../../../api";
-    import aceEditor from "../../../assets/ace-editor";
-    import unitConvert from "../../../assets/utils/unitConvert.js";
+    import {zyplayerApi} from "../../api";
+    import aceEditor from "../../assets/ace-editor";
+    import unitConvert from "../../assets/utils/unitConvert.js";
 
     export default {
         props: {
@@ -152,6 +152,7 @@
                     }
                     if (props.result.data.data) {
                         resultDataContentOrigin.value = props.result.data.data;
+                        resultDataContentFormat.value = props.result.data.data;
                         try {
                             if (bodyShowFormatType.value === 'xml') {
                                 resultDataContentFormat.value = xmlFormatter(resultDataContentOrigin.value);

@@ -31,11 +31,15 @@
                     <a-tag color="green" v-else>{{text||'-'}}</a-tag>
                 </template>
                 <template v-if="column.dataIndex === 'value'">
-                    <a-select v-if="record.enum && record.type === 'array'" v-model:value="record.value" mode="multiple" :placeholder="record.description || '请选择'" style="width: 100%;">
+                    <a-select v-if="record.enum && record.type === 'array'" v-model:value="record.value" mode="multiple" :placeholder="record.description || '请选择枚举值'" style="width: 100%;">
                         <a-select-option :value="enums" v-for="enums in record.enum">{{enums}}</a-select-option>
                     </a-select>
-                    <a-select v-else-if="record.enum" v-model:value="record.value" :placeholder="record.description || '请选择'" style="width: 100%;">
+                    <a-select v-else-if="record.enum" v-model:value="record.value" :placeholder="record.description || '请选择枚举值'" style="width: 100%;">
                         <a-select-option :value="enums" v-for="enums in record.enum">{{enums}}</a-select-option>
+                    </a-select>
+                    <a-select v-else-if="record.type==='boolean'" v-model:value="record.value" :placeholder="record.description || '请选择参数值'" style="width: 100%;">
+                        <a-select-option value="true">TRUE</a-select-option>
+                        <a-select-option value="false">FALSE</a-select-option>
                     </a-select>
                     <a-upload v-else-if="record.type==='file' || record.subType === 'file' || record.subType === 'MultipartFile'"
                               :file-list="record.value" name="file" :multiple="record.type === 'array'"
