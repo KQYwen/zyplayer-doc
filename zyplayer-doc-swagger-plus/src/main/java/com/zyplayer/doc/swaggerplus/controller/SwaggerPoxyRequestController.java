@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 /**
  * 请求参数控制器
@@ -43,5 +45,19 @@ public class SwaggerPoxyRequestController {
 	public ResponseJson<ProxyRequestResultVo> request(HttpServletRequest request, ProxyRequestParam requestParam) {
 		ProxyRequestResultVo requestResult = swaggerHttpRequestService.proxyRequest(request, requestParam);
 		return DocResponseJson.ok(requestResult);
+	}
+	
+	/**
+	 * 代理接口下载请求
+	 *
+	 * @return 请求参数
+	 * @author 暮光：城中城
+	 * @since 2021年10月16日
+	 */
+	@ResponseBody
+	@PostMapping(value = "/download")
+	public ResponseJson<ProxyRequestResultVo> download(HttpServletRequest request, HttpServletResponse response, ProxyRequestParam requestParam) {
+		swaggerHttpRequestService.proxyDownload(request, response, requestParam);
+		return DocResponseJson.ok();
 	}
 }

@@ -126,6 +126,8 @@
                 }
             }
             const initData = () => {
+                resultDataContentOrigin.value = '';
+                resultDataContentFormat.value = '';
                 if (props.result.data) {
                     resultData.value = props.result.data;
                     if (props.result.data.headers) {

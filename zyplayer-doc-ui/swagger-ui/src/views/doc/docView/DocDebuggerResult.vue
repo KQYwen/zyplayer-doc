@@ -1,6 +1,6 @@
 <template>
     <div v-if="result.data" style="margin-bottom: 30px;">
-        <div v-if="result.data.data" style="margin-bottom: 30px;">
+        <div v-if="result.data.data || result.data.status === 200" style="margin-bottom: 30px;">
             <a-tabs v-model:activeKey="activePage" @tab-click="" style="padding: 5px 10px 0;">
                 <a-tab-pane tab="Body" key="body" forceRender>
                     <div style="margin-bottom: 10px;">
@@ -126,6 +126,8 @@
                 }
             }
             const initData = () => {
+                resultDataContentOrigin.value = '';
+                resultDataContentFormat.value = '';
                 if (props.result.data) {
                     resultData.value = props.result.data;
                     if (props.result.data.headers) {
@@ -150,7 +152,8 @@
                     if (props.result.data.cookies) {
                         resultCookies.value = props.result.data.cookies;
                     }
-                    if (props.result.data.data) {
+                    if (props.result.data.data || props.result.data.status === 200) {
+                        resultDataContentFormat.value = props.result.data.data;
                         resultDataContentOrigin.value = props.result.data.data;
                         try {
                             if (bodyShowFormatType.value === 'xml') {

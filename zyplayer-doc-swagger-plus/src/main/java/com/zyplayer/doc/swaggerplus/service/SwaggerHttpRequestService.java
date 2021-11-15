@@ -1,9 +1,8 @@
 package com.zyplayer.doc.swaggerplus.service;
 
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.http.*;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerGlobalParam;
 import com.zyplayer.doc.data.service.manage.SwaggerGlobalParamService;
@@ -21,7 +20,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.HttpCookie;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -72,43 +73,32 @@ public class SwaggerHttpRequestService {
 	 * @author 暮光：城中城
 	 * @since 2021-11-04
 	 */
+	public void proxyDownload(HttpServletRequest request, HttpServletResponse response, ProxyRequestParam requestParam) {
+		try {
+			HttpResponse httpResponse = this.getHttpResponse(request, requestParam);
+			Map<String, List<String>> responseHeaders = httpResponse.headers();
+			if (MapUtils.isNotEmpty(responseHeaders)) {
+				for (Map.Entry<String, List<String>> httpHeader : responseHeaders.entrySet()) {
+					response.addHeader(httpHeader.getKey(), String.join(";", httpHeader.getValue()));
+				}
+			}
+			httpResponse.writeBody(response.getOutputStream(), true, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 执行代理请求
+	 *
+	 * @author 暮光：城中城
+	 * @since 2021-11-04
+	 */
 	public ProxyRequestResultVo proxyRequest(HttpServletRequest request, ProxyRequestParam requestParam) {
 		ProxyRequestResultVo resultVo = new ProxyRequestResultVo();
 		long startTime = System.currentTimeMillis();
 		try {
-			// 执行请求
-			Method method = requestMethodMap.get(requestParam.getMethod());
-			if (method == null) {
-				throw new ConfirmException("不支持的请求方式：" + requestParam.getMethod());
-			}
-			HttpRequest httpRequest = HttpUtil.createRequest(method, requestParam.getUrl());
-			// header获取
-			Map<String, String> headerParam = new HashMap<>();
-			requestParam.getHeaderParamData().forEach(item -> headerParam.put(item.getCode(), item.getValue()));
-			Map<String, String> requestHeaders = this.getHttpHeader(request, headerParam);
-			if (StringUtils.isNotBlank(requestParam.getHost())) {
-				domainHeaderKeys.forEach(key -> requestHeaders.put(key, requestParam.getHost()));
-				requestHeaders.put("host", SwaggerDocUtil.getDomainHost(requestParam.getHost()));
-			}
-			// http自带参数
-			httpRequest.addHeaders(requestHeaders);
-			// 用户输入的参数
-			requestParam.getFormParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
-			requestParam.getFormEncodeParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
-			// cookie参数
-			Map<String, String> cookieParam = new HashMap<>();
-			String headerCookie = headerParam.getOrDefault("Cookie", headerParam.get("cookie"));
-			requestParam.getCookieParamData().forEach(item -> cookieParam.put(item.getCode(), item.getValue()));
-			httpRequest.cookie(this.getHttpCookie(request, cookieParam, headerCookie));
-			if (StringUtils.isNotBlank(requestParam.getBodyParam())) {
-				httpRequest.body(requestParam.getBodyParam());
-			}
-			// 强制设置类型，貌似不用刻意设置，如果写的application/json，参数是表单，传过去收不到值，先注释这个
-//			if (StringUtils.isNotBlank(requestParam.getContentType())) {
-//				httpRequest.contentType(requestParam.getContentType());
-//			}
-			// 执行请求
-			HttpResponse httpResponse = httpRequest.timeout(10000).execute();
+			HttpResponse httpResponse = getHttpResponse(request, requestParam);
 			resultVo.setData(httpResponse.body());
 			resultVo.setStatus(httpResponse.getStatus());
 			resultVo.setContentLength(httpResponse.bodyBytes().length);
@@ -135,6 +125,42 @@ public class SwaggerHttpRequestService {
 		}
 		resultVo.setUseTime(System.currentTimeMillis() - startTime);
 		return resultVo;
+	}
+	
+	private HttpResponse getHttpResponse(HttpServletRequest request, ProxyRequestParam requestParam){
+		// 执行请求
+		Method method = requestMethodMap.get(requestParam.getMethod());
+		if (method == null) {
+			throw new ConfirmException("不支持的请求方式：" + requestParam.getMethod());
+		}
+		HttpRequest httpRequest = HttpUtil.createRequest(method, requestParam.getUrl());
+		// header获取
+		Map<String, String> headerParam = new HashMap<>();
+		requestParam.getHeaderParamData().forEach(item -> headerParam.put(item.getCode(), item.getValue()));
+		Map<String, String> requestHeaders = this.getHttpHeader(request, headerParam);
+		if (StringUtils.isNotBlank(requestParam.getHost())) {
+			domainHeaderKeys.forEach(key -> requestHeaders.put(key, requestParam.getHost()));
+			requestHeaders.put("host", SwaggerDocUtil.getDomainHost(requestParam.getHost()));
+		}
+		// http自带参数
+		httpRequest.addHeaders(requestHeaders);
+		// 用户输入的参数
+		requestParam.getFormParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
+		requestParam.getFormEncodeParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
+		// cookie参数
+		Map<String, String> cookieParam = new HashMap<>();
+		String headerCookie = headerParam.getOrDefault("Cookie", headerParam.get("cookie"));
+		requestParam.getCookieParamData().forEach(item -> cookieParam.put(item.getCode(), item.getValue()));
+		httpRequest.cookie(this.getHttpCookie(request, cookieParam, headerCookie));
+		if (StringUtils.isNotBlank(requestParam.getBodyParam())) {
+			httpRequest.body(requestParam.getBodyParam());
+		}
+		// 强制设置类型，貌似不用刻意设置，如果写的application/json，参数是表单，传过去收不到值，先注释这个
+//			if (StringUtils.isNotBlank(requestParam.getContentType())) {
+//				httpRequest.contentType(requestParam.getContentType());
+//			}
+		// 执行请求
+		return httpRequest.timeout(10000).execute();
 	}
 	
 	/**

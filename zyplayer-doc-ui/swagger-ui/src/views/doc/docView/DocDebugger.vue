@@ -1,8 +1,8 @@
 <template>
     <div>
-        <a-input-search :addon-before="docInfoShow.method.toUpperCase()" v-model:value="docUrl" @search="sendRequest">
+        <a-input-search :addon-before="docInfoShow.method.toUpperCase()" v-model:value="docUrl" @search="sendRequest" placeholder="请输入目标URL地址">
             <template #enterButton>
-                <a-button type="primary" :loading="requestLoading">发送请求</a-button>
+                <a-button type="primary" :loading="requestLoading">{{isDownloadRequest?'下载文件':'发送请求'}}</a-button>
             </template>
         </a-input-search>
         <a-tabs v-model:activeKey="activePage" closable @tab-click="activePageChange" style="padding: 5px 10px 0;">
@@ -19,7 +19,7 @@
                             <a-radio value="form">form-data</a-radio>
                             <a-radio value="formUrlEncode">x-www-form-urlencoded</a-radio>
                             <a-radio value="row">row</a-radio>
-                            <a-radio value="binary">binary</a-radio>
+<!--                            <a-radio value="binary">binary</a-radio>-->
                         </a-radio-group>
                         <a-select v-if="bodyParamType === 'row'" v-model:value="consumesParamType" size="small" style="margin-left: 10px;vertical-align: top;width: 100px;">
                             <a-select-option value="json">JSON</a-select-option>
@@ -55,7 +55,10 @@
                 <a-button v-else @click="showQueryParam" type="link">展开参数</a-button>
             </template>
         </a-tabs>
-        <DocDebuggerResult :result="requestResult" :loading="requestLoading"></DocDebuggerResult>
+        <DocDebuggerResult v-if="!isDownloadRequest" :result="requestResult" :loading="requestLoading"></DocDebuggerResult>
+        <form method="post" ref="downloadFormRef" :action="downloadFormParam.url" target="_blank">
+            <input type="hidden" :name="key" :value="val" v-for="(val,key) in downloadFormParam.param">
+        </form>
     </div>
 </template>
 
@@ -72,6 +75,7 @@
     import 'mavon-editor/dist/markdown/github-markdown.min.css'
     import 'mavon-editor/dist/css/index.css'
     import {zyplayerApi} from "../../../api";
+    import {getZyplayerApiBaseUrl} from "../../../api/request/utils.js";
 
     export default {
         props: {
@@ -178,7 +182,14 @@
             // 发送请求
             let requestResult = ref({});
             let requestLoading = ref(false);
+            let downloadFormParam = ref({url: getZyplayerApiBaseUrl() + '/doc-swagger/proxy/download', param: {}});
+            let downloadFormRef = ref();
+            let isDownloadRequest = (props.docInfoShow.produces === 'application/octet-stream');
             const sendRequest = () => {
+                if (!docUrl.value) {
+                    message.error('请输入请求的目标URL地址');
+                    return;
+                }
                 const formData = new FormData();
                 let urlParamSelected = urlParamRef.value.getSelectedRowKeys();
                 let urlParamStr = urlParamList.value.filter(item => urlParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
@@ -216,23 +227,40 @@
                 //     formData.append('files[]', file);
                 // });
                 let url = urlParamStr ? (docUrl.value + '?' + urlParamStr) : docUrl.value;
-                formData.append('url', url);
-                formData.append('host', urlDomain);
-                formData.append('method', props.docInfoShow.method);
-                formData.append('contentType', props.docInfoShow.consumes);
-                formData.append('headerParam', JSON.stringify(headerParamArr));
-                formData.append('cookieParam', JSON.stringify(cookieParamArr));
-                formData.append('formParam', JSON.stringify(formParamArr));
-                formData.append('formEncodeParam', JSON.stringify(formEncodeParamArr));
-                formData.append('bodyParam', bodyParamStr);
-                requestLoading.value = true;
-                requestResult.value = {};
-                zyplayerApi.requestUrl(formData).then(res => {
-                    requestResult.value = res;
-                    requestLoading.value = false;
-                }).catch(e => {
-                    requestLoading.value = false;
-                });
+                // 下载请求
+                if (isDownloadRequest) {
+                    downloadFormParam.value.param = {
+                        url: url,
+                        host: urlDomain,
+                        method: props.docInfoShow.method,
+                        contentType: props.docInfoShow.consumes,
+                        headerParam: JSON.stringify(headerParamArr),
+                        cookieParam: JSON.stringify(cookieParamArr),
+                        formParam: JSON.stringify(formParamArr),
+                        formEncodeParam: JSON.stringify(formEncodeParamArr),
+                        bodyParam: bodyParamStr,
+                    };
+                    setTimeout(() => downloadFormRef.value.submit(), 0);
+                } else {
+                    // 正常请求
+                    formData.append('url', url);
+                    formData.append('host', urlDomain);
+                    formData.append('method', props.docInfoShow.method);
+                    formData.append('contentType', props.docInfoShow.consumes);
+                    formData.append('headerParam', JSON.stringify(headerParamArr));
+                    formData.append('cookieParam', JSON.stringify(cookieParamArr));
+                    formData.append('formParam', JSON.stringify(formParamArr));
+                    formData.append('formEncodeParam', JSON.stringify(formEncodeParamArr));
+                    formData.append('bodyParam', bodyParamStr);
+                    requestLoading.value = true;
+                    requestResult.value = {};
+                    zyplayerApi.requestUrl(formData).then(res => {
+                        requestResult.value = res;
+                        requestLoading.value = false;
+                    }).catch(e => {
+                        requestLoading.value = false;
+                    });
+                }
             };
             let queryParamVisible = ref(true);
             const hideQueryParam = () => {
@@ -252,6 +280,9 @@
                 sendRequest,
                 requestResult,
                 consumesParamType,
+                downloadFormParam,
+                downloadFormRef,
+                isDownloadRequest,
                 // url参数
                 urlParamRef,
                 urlParamList,

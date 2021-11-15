@@ -1,6 +1,6 @@
 <template>
     <div>
-        <a-input-search v-model:value="docUrl" @search="sendRequest">
+        <a-input-search v-model:value="docUrl" @search="sendRequest" placeholder="请输入目标URL地址">
             <template #addonBefore>
                 <a-select v-model:value="docInfoShow.method" style="width: 100px;">
                     <a-select-option :value="method" v-for="method in methodList">{{method.toUpperCase()}}</a-select-option>
@@ -83,23 +83,40 @@
             VerticalAlignTopOutlined, VerticalAlignBottomOutlined, CloseOutlined, ParamTable, ParamBody, ApiRequestResult,
         },
         setup(props) {
-            let docUrl = ref('http://baidu.com');
+            let docUrl = ref('');
             let activePage = ref('urlParam');
             const route = useRoute();
             const store = useStore();
             store.commit('addTableName', {key: route.fullPath, val: '接口请求' + route.query.id});
+            let globalParam = store.state.globalParam || [];
+            let nextIndex = 1;
             // URL参数处理
             const urlParamRef = ref();
             let urlParamList = ref([]);
             // Header参数处理
             const headerParamRef = ref();
-            let headerParamList = ref([]);
+            let headerParamListProp = [];
+            let headerParamListGlobal = globalParam.filter(item => item.paramType === 2);
+            headerParamListGlobal.forEach(item => {
+                headerParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+            });
+            let headerParamList = ref(JSON.parse(JSON.stringify(headerParamListProp)));
             // cookie参数处理
             const cookieParamRef = ref();
-            let cookieParamList = ref([]);
+            let cookieParamListProp = [];
+            let cookieParamListGlobal = globalParam.filter(item => item.paramType === 3);
+            cookieParamListGlobal.forEach(item => {
+                cookieParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+            });
+            let cookieParamList = ref(JSON.parse(JSON.stringify(cookieParamListProp)));
             // form参数处理
             const formParamRef= ref();
-            let formParamList = ref([]);
+            let formParamListProp = [];
+            let formParamListGlobal = globalParam.filter(item => item.paramType === 1);
+            formParamListGlobal.forEach(item => {
+                formParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+            });
+            let formParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
             // form参数处理
             const formEncodeParamRef = ref();
             let formEncodeParamList = ref([]);
@@ -114,6 +131,10 @@
             let requestResult = ref({});
             let requestLoading = ref(false);
             const sendRequest = () => {
+                if (!docUrl.value) {
+                    message.error('请输入请求的目标URL地址');
+                    return;
+                }
                 const formData = new FormData();
                 let urlParamSelected = urlParamRef.value.getSelectedRowKeys();
                 let urlParamStr = urlParamList.value.filter(item => urlParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
