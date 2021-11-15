@@ -1,1 +1,0 @@
-import{_ as e}from"./main.b56be4d7.js";import{o as t,b as o}from"./vendor.d375296a.js";const n={name:"SettingView",components:{},data(){return{}},computed:{},mounted(){},methods:{}};function r(a,s,c,d,m,i){return t(),o("div",null," \u5C55\u793A\u914D\u7F6E\u9875\u9762 ")}var u=e(n,[["render",r]]);export{u as default};
