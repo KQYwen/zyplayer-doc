@@ -1,6 +1,7 @@
 package com.zyplayer.doc.swaggerplus.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
@@ -10,6 +11,7 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerDoc;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerGlobalParam;
 import com.zyplayer.doc.data.service.manage.SwaggerGlobalParamService;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,8 +50,11 @@ public class SwaggerGlobalParamController {
 	@ResponseBody
 	@PostMapping(value = "/list")
 	public ResponseJson<List<SwaggerGlobalParam>> list() {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		QueryWrapper<SwaggerGlobalParam> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("yn", 1);
+		queryWrapper.eq("create_user_id", currentUser.getUserId());
+		queryWrapper.orderByDesc("id");
 		List<SwaggerGlobalParam> globalParamList = swaggerGlobalParamService.list(queryWrapper);
 		return DocResponseJson.ok(globalParamList);
 	}
@@ -64,12 +69,27 @@ public class SwaggerGlobalParamController {
 	@ResponseBody
 	@PostMapping(value = "/update")
 	public ResponseJson<List<SwaggerDoc>> update(SwaggerGlobalParam globalParam) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		if (globalParam.getId() == null) {
-			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 			globalParam.setYn(1);
 			globalParam.setCreateTime(new Date());
 			globalParam.setCreateUserId(currentUser.getUserId());
 			globalParam.setCreateUserName(currentUser.getUsername());
+		} else {
+			SwaggerGlobalParam param = swaggerGlobalParamService.getById(globalParam.getId());
+			if (param == null || !Objects.equals(param.getCreateUserId(), currentUser.getUserId())) {
+				return DocResponseJson.warn("目标全局参数不存在");
+			}
+		}
+		QueryWrapper<SwaggerGlobalParam> wrapper = new QueryWrapper<>();
+		wrapper.eq("yn", 1);
+		wrapper.eq("param_key", globalParam.getParamKey());
+		wrapper.eq("create_user_id", currentUser.getUserId());
+		List<SwaggerGlobalParam> paramList = swaggerGlobalParamService.list(wrapper);
+		if (CollectionUtils.isNotEmpty(paramList)) {
+			if (paramList.size() > 1 || !Objects.equals(paramList.get(0).getId(), globalParam.getId())) {
+				return DocResponseJson.warn("全局参数名称不能重复");
+			}
 		}
 		swaggerGlobalParamService.saveOrUpdate(globalParam);
 		return DocResponseJson.ok();

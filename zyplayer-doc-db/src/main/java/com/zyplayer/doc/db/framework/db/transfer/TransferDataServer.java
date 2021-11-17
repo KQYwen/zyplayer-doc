@@ -1,6 +1,7 @@
 package com.zyplayer.doc.db.framework.db.transfer;
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
@@ -103,7 +104,7 @@ public class TransferDataServer {
 		ThreadPoolUtil.getThreadPool().submit(() -> {
 			String executeInfo = String.format("[%s] 任务开始执行", DateTime.now().toString());
 			dbTransferTaskService.addExecuteInfo(taskId, TransferTaskStatus.EXECUTING.getCode(), executeInfo);
-			String executeId = RandomUtil.simpleUUID();
+			String executeId = IdUtil.simpleUUID();
 			taskExecuteMap.put(taskId, executeId);
 			this.transferData(transferTask, executeId);
 		});
@@ -188,7 +189,7 @@ public class TransferDataServer {
 		List<ExecuteParam> executeParamList = SqlParseUtil.getExecuteParamList(storageSql, selectResultList);
 		for (ExecuteParam executeParam : executeParamList) {
 			executeParam.setDatasourceId(storageSourceId);
-			executeParam.setExecuteId(RandomUtil.simpleUUID());
+			executeParam.setExecuteId(IdUtil.simpleUUID());
 			sqlExecutor.execute(executeParam);
 		}
 		selectResultList.clear();

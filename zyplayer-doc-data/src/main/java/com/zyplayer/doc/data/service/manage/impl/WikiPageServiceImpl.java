@@ -1,5 +1,6 @@
 package com.zyplayer.doc.data.service.manage.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
@@ -11,7 +12,6 @@ import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -80,7 +80,7 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 		wrapper.eq("del_flag", 0);
 		wrapper.eq("parent_id", wikiPage.getId());
 		List<WikiPage> wikiPageList = this.list(wrapper);
-		if (CollectionUtils.isEmpty(wikiPageList)) {
+		if (CollectionUtil.isEmpty(wikiPageList)) {
 			return;
 		}
 		// 递归删除子页面

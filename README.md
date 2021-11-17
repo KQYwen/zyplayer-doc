@@ -1,7 +1,7 @@
 # zyplayer-doc
 
 ## 项目介绍
-zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、数据库文档、WIKI文档、ElasticSearch文档等，管理端具有人员管理、权限管理功能等功能。项目后端使用spring-boot、mybatis-plus等框架，前端使用zui、Vue、element-ui等框架。为开发者服务，欢迎有想法的一起来写，给个Star鼓励下呗！（您的一个Star是快速迭代的动力源泉！）
+zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、数据库文档、WIKI文档等，管理端具有人员管理、权限管理功能等功能。项目后端使用spring-boot、mybatis-plus等框架，前端使用zui、Vue、element-ui等框架。为开发者服务，欢迎有想法的一起来写，给个Star鼓励下呗！（您的一个Star是快速迭代的动力源泉！）
 欢迎加群讨论，QQ群号：466363173
 
 体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/) 账号：zyplayer 密码：123456
@@ -18,7 +18,7 @@ zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、�
 一款在线管理数据库的工具，你可以将所有的数据源统一管理到这里面，团队间的各成员就不必每人在自己电脑上装一个数据库管理软件，
 然后再添加数据源，修改账号密码也可以统一进行修改，新员工进入后对他关心的数据源进行授权即可查看。
 
-1. 支持MySQL、SQLServer、Oracle、PostgreSQL、Hive、Impala数据源。
+1. 支持MySQL、Doris（MySQL协议）、SQLServer、Oracle、PostgreSQL、Hive、Impala数据源。
 2. 支持数据库表、字段文档查看修改，表文档导出、建表语句DDL导出、表数据导出。
 3. 支持SQL执行、表数据预览、不同数据库之间的数据互导，支持多数据源管理。
 4. 支持按人员、按数据源对用户授权，可给用户 库表注释查看、注释修改、SQL执行、函数修改等粒度的授权。
@@ -41,10 +41,7 @@ zyplayer-doc是一款在线文档工具，现有swagger 文档、dubbo文档、�
 ### 五、zyplayer-doc-dubbo 将dubbo的文档在线化管理
 1. 支持zookeeper、nacos的注册中心文档获取，支持在线调试接口
 
-### 六、zyplayer-doc-es ElasticSearch文档工具
-1. 支持ElasticSearch的文档查看和执行DSL查询的功能
-
-### 七、其他
+### 六、其他
 1. zyplayer-doc-ui 前面各模块的前端UI源码
 2. zyplayer-doc-core 一些核心、公用的类
 3. zyplayer-doc-data 数据库层面的交互

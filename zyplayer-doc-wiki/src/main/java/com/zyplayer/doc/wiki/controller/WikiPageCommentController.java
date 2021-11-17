@@ -18,7 +18,6 @@ import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageCommentVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
-import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,9 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 文档控制器
@@ -52,8 +49,6 @@ public class WikiPageCommentController {
 	WikiPageService wikiPageService;
 	@Resource
 	UserMessageService userMessageService;
-	@Resource
-	Mapper mapper;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPageCommentVo>> list(WikiPageComment pageComment) {

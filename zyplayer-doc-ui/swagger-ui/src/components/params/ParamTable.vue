@@ -41,12 +41,12 @@
                         <a-select-option value="true">TRUE</a-select-option>
                         <a-select-option value="false">FALSE</a-select-option>
                     </a-select>
-                    <a-upload v-else-if="record.type==='file' || record.subType === 'file' || record.subType === 'MultipartFile'"
+                    <a-upload v-else-if="isFileType(record.type)"
                               :file-list="record.value" name="file" :multiple="record.type === 'array'"
                               :before-upload="file=>{return beforeUpload(file, record)}"
                               :remove="file=>{return handleRemove(file, record)}"
                     >
-                        <a-button><upload-outlined></upload-outlined>选择文件</a-button>
+                        <a-button><upload-outlined/>选择文件</a-button>
                     </a-upload>
                     <a-input v-else :placeholder="record.description || '请输入参数值'" v-model:value="record.value" @change="queryParamChange(record)"></a-input>
                 </template>
@@ -131,13 +131,21 @@
             const handleRemove = (file, record) => {
                 record.value = record.value.filter(item => item !== file);
             };
+            const isFileType = record => {
+                return record.type === 'file' || record.subType === 'file' || record.subType === 'MultipartFile';
+            };
             let multilineEdit = ref(false);
             let multilineEditValue = ref('');
             const toMultilineEdit = () => {
                 multilineEdit.value = true;
                 multilineEditValue.value = paramListRef.value.filter(item => item.name || item.value)
-                    .map(item => (item.name || '') + ':' + (item.value || ''))
-                    .join('\n');
+                    .map(item => {
+                        // 文件类型多行编辑时不支持值的展示
+                        if (isFileType(item)) {
+                            return (item.name || '') + ':';
+                        }
+                        return (item.name || '') + ':' + (item.value || '');
+                    }).join('\n');
             };
             const toKeyValueEdit = () => {
                 convertKeyValueEdit();
@@ -188,6 +196,7 @@
                 beforeUpload,
                 handleRemove,
                 paramListColumns,
+                isFileType,
                 // 父组件调用
                 getSelectedRowKeys,
                 // 多行编辑

@@ -24,38 +24,6 @@
                             <div class="logo-img"><img src="../../assets/img/dubbo.png"></div>
                             <div>Dubbo文档</div>
                         </div>
-                        <div class="item" v-on:click="jumpToDocPage('doc-es')">
-                            <div class="logo-text text4">ES</div>
-                            <div>es文档</div>
-                        </div>
-                        <el-tooltip effect="dark" content="不成熟，欢迎完善" placement="top-start">
-                            <div class="item disabled">
-                                <div class="logo-text">GRPC</div>
-                                <div>GRPC文档</div>
-                            </div>
-                        </el-tooltip>
-                    </div>
-                </el-card>
-            </div>
-            <div style="padding: 20px;">
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span>二方库-集成代理版</span>
-                        <a target="_blank" href="http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=76&space=23f3f59a60824d21af9f7c3bbc9bc3cb"><i class="el-icon-info" style="color: #999;"></i></a>
-                    </div>
-                    <div class="product-list">
-                        <el-tooltip effect="dark" content="swagger的原生官方文档" placement="top-start">
-                            <div class="item" v-on:click="jumpToDocPage('swagger-ui.html')">
-                                <div class="logo-text text1">swagger</div>
-                                <div>原生文档</div>
-                            </div>
-                        </el-tooltip>
-                        <el-tooltip effect="dark" content="swagger-bootstrap-ui文档" placement="top-start">
-                            <div class="item" v-on:click="jumpToDocPage('doc.html')">
-                                <div class="logo-text text2">swagger</div>
-                                <div>二方文档</div>
-                            </div>
-                        </el-tooltip>
                     </div>
                 </el-card>
             </div>

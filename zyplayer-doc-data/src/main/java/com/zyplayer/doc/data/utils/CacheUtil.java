@@ -88,6 +88,7 @@ public class CacheUtil {
 	 * 获取缓存
 	 * @param key
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T get(String key) {
 		if (StringUtils.isBlank(key)) {
 			return null;

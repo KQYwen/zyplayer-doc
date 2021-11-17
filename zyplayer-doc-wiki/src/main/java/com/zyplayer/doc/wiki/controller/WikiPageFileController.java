@@ -1,6 +1,7 @@
 package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
@@ -158,7 +159,7 @@ public class WikiPageFileController {
 		if (!newFile.exists() && !newFile.mkdirs()) {
 			return DocResponseJson.warn("创建文件夹失败");
 		}
-		String simpleUUID = RandomUtil.simpleUUID();
+		String simpleUUID = IdUtil.simpleUUID();
 		path += simpleUUID + fileSuffix;
 		newFile = new File(path);
 		try {

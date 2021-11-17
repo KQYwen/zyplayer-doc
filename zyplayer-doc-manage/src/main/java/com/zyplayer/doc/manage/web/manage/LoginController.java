@@ -1,5 +1,6 @@
 package com.zyplayer.doc.manage.web.manage;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
@@ -77,7 +78,7 @@ public class LoginController {
 			}
 		}
 		Set<String> userAuthSet = userAuthService.getUserAuthSet(userInfo.getId());
-		String accessToken = RandomUtil.simpleUUID();
+		String accessToken = IdUtil.simpleUUID();
 		DocUserDetails userDetails = new DocUserDetails(userInfo.getId(), userInfo.getUserName(), userInfo.getPassword(), true, userAuthSet);
 		DocUserUtil.setCurrentUser(accessToken, userDetails);
 		// 放入cookie，过期时间：24小时

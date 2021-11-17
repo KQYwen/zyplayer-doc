@@ -1,5 +1,6 @@
 package com.zyplayer.doc.db.service.database;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.framework.db.dto.ColumnInfoDto;
@@ -113,7 +114,7 @@ public class MysqlServiceImpl extends DbBaseService {
 		// 执行创建SQL
 		ExecuteParam executeParam = new ExecuteParam();
 		executeParam.setDatasourceId(sourceId);
-		executeParam.setExecuteId(RandomUtil.randomUUID());
+		executeParam.setExecuteId(IdUtil.randomUUID());
 		executeParam.setExecuteType(ExecuteType.ALL);
 		executeParam.setSql(procSql);
 		executeParam.setMaxRows(1000);

@@ -2,31 +2,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.zyplayer</groupId>
 	<artifactId>zyplayer-doc-manage</artifactId>
-	<version>1.0.9</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<name>zyplayer-doc-manage</name>
 	<description>定位为所有文档的管理项目，swagger文档、dubbo文档、数据库文档、、、、等</description>
 
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.6.RELEASE</version>
+		<groupId>com.zyplayer</groupId>
+		<artifactId>zyplayer-doc</artifactId>
+		<version>1.0.9</version>
 	</parent>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<springfox.swagger.ui.version>2.9.2</springfox.swagger.ui.version>
-		<swagger.bootstrap.ui.version>1.9.4</swagger.bootstrap.ui.version>
-		<zyplayer.doc.version>1.0.9</zyplayer.doc.version>
-		<elasticsearch.version>7.2.0</elasticsearch.version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
@@ -37,81 +35,35 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-ldap</artifactId>
 		</dependency>
-		<!-- 在线文档解析页面 -->
-		<!--zyplayer-doc-core-->
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-core</artifactId>
-			<version>${zyplayer.doc.version}</version>
 		</dependency>
-		<!--zyplayer-doc-db-->
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-db</artifactId>
-			<version>${zyplayer.doc.version}</version>
 		</dependency>
-		<!--zyplayer-doc-dubbo-->
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-dubbo</artifactId>
-			<version>${zyplayer.doc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-wiki</artifactId>
-			<version>${zyplayer.doc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-data</artifactId>
-			<version>${zyplayer.doc.version}</version>
-		</dependency>
-        <!--zyplayer-doc-grpc 默认不加载进来-->
-<!--		<dependency>-->
-<!--			<groupId>com.zyplayer</groupId>-->
-<!--			<artifactId>zyplayer-doc-grpc</artifactId>-->
-<!--			<version>${zyplayer.doc.version}</version>-->
-<!--		</dependency>-->
-		<!--zyplayer-doc-swagger-->
-		<dependency>
-			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-doc-swagger</artifactId>
-			<version>${zyplayer.doc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-swagger-plus</artifactId>
-			<version>${zyplayer.doc.version}</version>
-		</dependency>
-		<!--zyplayer-doc-es-->
-		<dependency>
-			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-doc-es</artifactId>
-			<version>${zyplayer.doc.version}</version>
-		</dependency>
-		<!--springfox-swagger-ui-->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>${springfox.swagger.ui.version}</version>
-		</dependency>
-		<!--swagger-bootstrap-ui-->
-		<dependency>
-			<groupId>com.github.xiaoymin</groupId>
-			<artifactId>swagger-bootstrap-ui</artifactId>
-			<version>${swagger.bootstrap.ui.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.47</version>
 		</dependency>
 	</dependencies>
 
@@ -125,7 +77,8 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<includes>
-					<include>**/*</include>
+					<include>application.yml</include>
+					<include>logback.xml</include>
 				</includes>
 				<filtering>false</filtering>
 			</resource>
@@ -134,6 +87,23 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.zyplayer.doc.manage.Application</mainClass>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

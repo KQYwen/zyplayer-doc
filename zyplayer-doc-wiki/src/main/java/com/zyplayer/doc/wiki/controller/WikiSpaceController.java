@@ -1,6 +1,6 @@
 package com.zyplayer.doc.wiki.controller;
 
-import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -23,7 +23,7 @@ import com.zyplayer.doc.wiki.controller.vo.UserSpaceAuthVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiSpaceVo;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import org.apache.commons.collections.CollectionUtils;
-import org.dozer.Mapper;
+import com.github.dozermapper.core.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -104,7 +104,7 @@ public class WikiSpaceController {
 			wikiSpace.setEditType(null);
 			wikiSpaceService.updateById(wikiSpace);
 		} else {
-			wikiSpace.setUuid(RandomUtil.simpleUUID());
+			wikiSpace.setUuid(IdUtil.simpleUUID());
 			wikiSpace.setCreateTime(new Date());
 			wikiSpace.setCreateUserId(currentUser.getUserId());
 			wikiSpace.setCreateUserName(currentUser.getUsername());
@@ -188,7 +188,6 @@ public class WikiSpaceController {
 		for (UserSpaceAuthVo authVo : authVoList) {
 			List<UserGroupAuth> userAuthList = new LinkedList<>();
 			this.createUserAuth(userAuthList, authVo.getEditPage(), spaceId, WikiAuthType.EDIT_PAGE, authVo.getGroupId());
-			this.createUserAuth(userAuthList, authVo.getCommentPage(), spaceId, WikiAuthType.COMMENT_PAGE, authVo.getGroupId());
 			this.createUserAuth(userAuthList, authVo.getDeletePage(), spaceId, WikiAuthType.DELETE_PAGE, authVo.getGroupId());
 			this.createUserAuth(userAuthList, authVo.getPageFileUpload(), spaceId, WikiAuthType.PAGE_FILE_UPLOAD, authVo.getGroupId());
 			this.createUserAuth(userAuthList, authVo.getPageFileDelete(), spaceId, WikiAuthType.PAGE_FILE_DELETE, authVo.getGroupId());
@@ -224,7 +223,6 @@ public class WikiSpaceController {
 			Set<Integer> authNameSet = value.stream().map(UserGroupAuth::getAuthType).collect(Collectors.toSet());
 			UserSpaceAuthVo authVo = new UserSpaceAuthVo();
 			authVo.setEditPage(this.haveAuth(authNameSet, WikiAuthType.EDIT_PAGE));
-			authVo.setCommentPage(this.haveAuth(authNameSet, WikiAuthType.COMMENT_PAGE));
 			authVo.setDeletePage(this.haveAuth(authNameSet, WikiAuthType.DELETE_PAGE));
 			authVo.setPageFileUpload(this.haveAuth(authNameSet, WikiAuthType.PAGE_FILE_UPLOAD));
 			authVo.setPageFileDelete(this.haveAuth(authNameSet, WikiAuthType.PAGE_FILE_DELETE));

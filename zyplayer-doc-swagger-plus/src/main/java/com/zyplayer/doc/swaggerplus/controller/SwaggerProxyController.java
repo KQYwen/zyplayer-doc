@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.spring.web.json.Json;
-import springfox.documentation.swagger.web.ApiKeyVehicle;
-import springfox.documentation.swagger.web.SecurityConfiguration;
-import springfox.documentation.swagger.web.UiConfiguration;
+import springfox.documentation.swagger.web.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +41,7 @@ public class SwaggerProxyController {
 	public List<SwaggerResourceVo> swaggerResources() {
 		List<SwaggerResourceVo> resourceList = new LinkedList<>();
 		SwaggerDoc swaggerSearch = new SwaggerDoc();
+		swaggerSearch.setYn(1);
 		swaggerSearch.setDocStatus(1);
 		List<SwaggerDoc> docList = swaggerDocService.getSwaggerDocList(swaggerSearch);
 		for (SwaggerDoc swaggerDoc : docList) {
@@ -74,14 +73,14 @@ public class SwaggerProxyController {
 	@ResponseBody
 	@RequestMapping(value = "/swagger-resources/configuration/security")
 	public ResponseEntity<SecurityConfiguration> securityConfiguration() {
-		SecurityConfiguration securityConfiguration = new SecurityConfiguration(null, null, null, null, null, ApiKeyVehicle.HEADER, "api_key", ",");
+		SecurityConfiguration securityConfiguration = SecurityConfigurationBuilder.builder().build();
 		return new ResponseEntity<>(securityConfiguration, HttpStatus.OK);
 	}
 	
 	@ResponseBody
 	@RequestMapping(value = "/swagger-resources/configuration/ui")
 	public ResponseEntity<UiConfiguration> uiConfiguration() {
-		UiConfiguration uiConfiguration = new UiConfiguration(null);
+		UiConfiguration uiConfiguration = UiConfigurationBuilder.builder().build();
 		return new ResponseEntity<>(uiConfiguration, HttpStatus.OK);
 	}
 }

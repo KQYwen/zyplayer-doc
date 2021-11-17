@@ -1,8 +1,10 @@
 package com.zyplayer.doc.data.config;
 
-import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInterceptor;
 import com.zyplayer.doc.data.repository.support.interceptor.SqlLogInterceptor;
 import com.zyplayer.doc.data.utils.DruidDataSourceUtil;
 import org.apache.ibatis.plugin.Interceptor;
@@ -30,14 +32,7 @@ public class MybatisPlusConfig {
 	/**
 	 * MYSQL 分页
 	 **/
-	private static final PageHelper MYSQL_PAGE_HELPER;
-	
-	static {
-		MYSQL_PAGE_HELPER = new PageHelper();
-		Properties properties = new Properties();
-		properties.setProperty("dialect", "mysql");
-		MYSQL_PAGE_HELPER.setProperties(properties);
-	}
+	private static final PageInterceptor MYSQL_PAGE_HELPER = new PageInterceptor();
 	
 	/**
 	 * 数据库配置
@@ -56,7 +51,7 @@ public class MybatisPlusConfig {
 		@Value("${zyplayer.doc.manage.datasource.password}")
 		private String password;
 		@Resource
-		private PaginationInterceptor paginationInterceptor;
+		private MybatisPlusInterceptor paginationInterceptor;
 		
 		@Bean(name = "manageDatasource")
 		public DataSource manageDatasource() throws Exception {
@@ -67,7 +62,7 @@ public class MybatisPlusConfig {
 		public MybatisSqlSessionFactoryBean manageSqlSessionFactory() throws Exception {
 			MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
 			sqlSessionFactoryBean.setDataSource(manageDatasource());
-			sqlSessionFactoryBean.setPlugins(new Interceptor[]{SQL_LOG_INTERCEPTOR, MYSQL_PAGE_HELPER, paginationInterceptor});
+			sqlSessionFactoryBean.setPlugins(SQL_LOG_INTERCEPTOR, MYSQL_PAGE_HELPER, paginationInterceptor);
 			
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 			sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/manage/*Mapper.xml"));
@@ -76,7 +71,9 @@ public class MybatisPlusConfig {
 	}
 	
 	@Bean
-	public PaginationInterceptor paginationInterceptor() {
-		return new PaginationInterceptor();
+	public MybatisPlusInterceptor paginationInterceptor() {
+		MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
+		mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+		return mybatisPlusInterceptor;
 	}
 }

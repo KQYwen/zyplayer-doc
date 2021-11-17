@@ -6,44 +6,36 @@ let routers = [
         path: '/',
         name: '主页',
         component: () => import('./components/layouts/GlobalLayout.vue'),
-        redirect: '/doc/info',
+        redirect: '/manage',
         children: [
             {
                 path: '/doc',
-                name: '系统配置',
+                name: '文档管理',
                 component: PageLayout,
                 children: [
                     {
-                        path: '/doc/info',
-                        name: '文档信息',
-                        meta: {
-                            icon: 'InfoCircleOutlined',
-                        },
-                        component: () => import('./views/doc/DocInfo.vue')
-                    },
-                    {
-                        path: '/doc/manage',
+                        path: '/manage',
                         name: '文档地址管理',
                         meta: {
                             icon: 'FileTextOutlined'
                         },
-                        component: () => import('./views/doc/DocManage.vue')
+                        component: () => import('./views/manage/DocManage.vue')
                     },
                     {
-                        path: '/doc/setting',
-                        name: '系统配置',
+                        path: '/setting',
+                        name: '系统设置',
                         meta: {
                             icon: 'SettingOutlined'
                         },
                         component: EmptyKeepAliveLayout,
                         children: [
                             {
-                                path: '/doc/setting/globalParam',
+                                path: '/setting/globalParam',
                                 name: '全局参数',
-                                component: () => import('./views/doc/GlobalParam.vue')
+                                component: () => import('./views/manage/GlobalParam.vue')
                             },
                             {
-                                path: '/doc/setting/view',
+                                path: '/setting/view',
                                 name: '展示配置',
                                 meta: {
                                     hidden: true,
@@ -52,21 +44,42 @@ let routers = [
                             },
                         ]
                     },
+                    // 以下是隐藏的菜单路由
                     {
-                        path: '/doc/view',
-                        name: '文档展示',
+                        path: '/swagger',
+                        name: 'swagger文档',
                         meta: {
                             hidden: true,
+                            icon: 'SettingOutlined'
                         },
-                        component: () => import('./views/doc/DocView.vue')
+                        component: EmptyKeepAliveLayout,
+                        children: [
+                            {
+                                path: '/swagger/info',
+                                name: '文档信息',
+                                component: () => import('./views/swagger/DocInfo.vue')
+                            },
+                            {
+                                path: '/swagger/view',
+                                name: '文档展示',
+                                component: () => import('./views/swagger/DocView.vue')
+                            },
+                        ]
                     },
                     {
-                        path: '/doc/apiRequest',
-                        name: '接口请求',
+                        path: '/api',
+                        name: 'API请求',
                         meta: {
                             hidden: true,
                         },
-                        component: () => import('./views/apiRequest/ApiRequest.vue')
+                        component: EmptyKeepAliveLayout,
+                        children: [
+                            {
+                                path: '/api/request',
+                                name: '接口请求',
+                                component: () => import('./views/apiRequest/ApiRequest.vue')
+                            },
+                        ]
                     },
                 ]
             },

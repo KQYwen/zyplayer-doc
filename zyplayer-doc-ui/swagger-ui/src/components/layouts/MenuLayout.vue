@@ -85,9 +85,11 @@
         },
         methods: {
             docChecked(val, node) {
-                if (node.node.isLeaf) {
+                if (node.node.key === 'main') {
+                    this.$router.push({path: '/swagger/info'});
+                } else if (node.node.isLeaf) {
                     let dataRef = node.node.dataRef;
-                    this.$router.push({path: '/doc/view', query: dataRef.query});
+                    this.$router.push({path: '/swagger/view', query: dataRef.query});
                 }
             },
             getGlobalParamList() {
@@ -102,12 +104,14 @@
                         this.swaggerResourceList = res || [];
                         if (this.swaggerResourceList.length > 0 && !this.swaggerDocChoice) {
                             // 加载初始化的地址
-                            if (this.$route.path === '/doc/view' && this.$route.query.url) {
+                            let showSwaggerInfo = false;
+                            if (this.$route.path === '/swagger/view' && this.$route.query.url) {
                                 this.swaggerDocChoice = this.$route.query.url;
                             } else {
+                                showSwaggerInfo = true;
                                 this.swaggerDocChoice = this.swaggerResourceList[0].url;
                             }
-                            this.swaggerDocChoiceChange();
+                            this.loadV2Doc(showSwaggerInfo);
                         }
                     } else {
                         this.$message.error('获取文档列表请求失败');
@@ -115,9 +119,9 @@
                 });
             },
             swaggerDocChoiceChange() {
-                this.loadV2Doc();
+                this.loadV2Doc(true);
             },
-            loadV2Doc() {
+            loadV2Doc(showSwaggerInfo) {
                 this.treeDataLoading = true;
                 let swaggerResource = this.swaggerResourceList.find(item => item.url === this.swaggerDocChoice);
                 if (!swaggerResource) {
@@ -139,7 +143,12 @@
                     this.$store.commit('setMethodStatistic', treeData.methodStatistic);
                     this.pathData = treeData.pathData;
                     this.loadTreeData();
-                    setTimeout(() => this.treeDataLoading = false, 100);
+                    setTimeout(() => {
+                        this.treeDataLoading = false;
+                        if (showSwaggerInfo) {
+                            this.$router.push({path: '/swagger/info'});
+                        }
+                    }, 100);
                 });
             },
             loadTreeData() {

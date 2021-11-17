@@ -47,11 +47,11 @@ public class SwaggerHttpRequestService {
 	public String requestSwaggerUrl(HttpServletRequest request, String docUrl, String docDomain) {
 		List<SwaggerGlobalParam> globalParamList = swaggerGlobalParamService.getGlobalParamList();
 		Map<String, Object> globalFormParamMap = globalParamList.stream().filter(item -> Objects.equals(item.getParamType(), 1))
-				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue));
+				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue, (val1, val2) -> val1));
 		Map<String, String> globalHeaderParamMap = globalParamList.stream().filter(item -> Objects.equals(item.getParamType(), 2))
-				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue));
+				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue, (val1, val2) -> val1));
 		Map<String, String> globalCookieParamMap = globalParamList.stream().filter(item -> Objects.equals(item.getParamType(), 3))
-				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue));
+				.collect(Collectors.toMap(SwaggerGlobalParam::getParamKey, SwaggerGlobalParam::getParamValue, (val1, val2) -> val1));
 		Map<String, String> requestHeaders = this.getHttpHeader(request, globalHeaderParamMap);
 		if (StringUtils.isNotBlank(docDomain)) {
 			domainHeaderKeys.forEach(key -> requestHeaders.put(key, docDomain));

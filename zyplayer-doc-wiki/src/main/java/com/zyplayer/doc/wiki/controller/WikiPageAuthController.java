@@ -88,11 +88,6 @@ public class WikiPageAuthController {
 				UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
 				userAuthList.add(userAuth);
 			}
-			if (Objects.equals(authVo.getCommentPage(), 1)) {
-				Long authId = authInfoMap.get(WikiAuthType.COMMENT_PAGE.getName());
-				UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
-				userAuthList.add(userAuth);
-			}
 			if (Objects.equals(authVo.getDeletePage(), 1)) {
 				Long authId = authInfoMap.get(WikiAuthType.DELETE_PAGE.getName());
 				UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
@@ -160,7 +155,6 @@ public class WikiPageAuthController {
 			Set<String> authNameSet = value.stream().map(auth -> authInfoMap.get(auth.getAuthId())).collect(Collectors.toSet());
 			UserPageAuthVo authVo = new UserPageAuthVo();
 			authVo.setEditPage(this.haveAuth(authNameSet, WikiAuthType.EDIT_PAGE));
-			authVo.setCommentPage(this.haveAuth(authNameSet, WikiAuthType.COMMENT_PAGE));
 			authVo.setDeletePage(this.haveAuth(authNameSet, WikiAuthType.DELETE_PAGE));
 			authVo.setPageFileUpload(this.haveAuth(authNameSet, WikiAuthType.PAGE_FILE_UPLOAD));
 			authVo.setPageFileDelete(this.haveAuth(authNameSet, WikiAuthType.PAGE_FILE_DELETE));

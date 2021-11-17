@@ -1,13 +1,17 @@
+
+# 端口和根路劲，jar启动时依此处配置，放tomcat后以tomcat的配置为准
+server:
+  port: 8083
+  servlet:
+    context-path: /zyplayer-doc-manage
+
 spring:
   application:
     name: zyplayer-doc-manage
-#  mvc:
-#    static-path-pattern: /**
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
-
   datasource:
     continue-on-error: true
   ldap:
@@ -18,23 +22,11 @@ spring:
     password: MKDSHYDNIS
     anonymousReadOnly: true
 
-# 端口和根路劲，main方法启动时需要，放tomcat后以tomcat的配置为准
-server:
-  port: 8083
-  servlet:
-    context-path: /zyplayer-doc-manage
-
 # 整个文档项目的配置
 zyplayer:
   doc:
     # ------zyplayer_doc_manage相关配置------
     manage:
-      elasticsearch:
-        # 是否开启es，true或false，现在主要用在wiki文档的搜索，使用的es是6.8.0及以上版本
-        open: false
-        # es地址配置ip:port，多个使用英文逗号分割，例：127.0.0.1:9200,127.0.0.1:9201
-        hostPort: 127.0.0.1:9200
-        scheme: http
       # 版本和升级信息获取地址
       upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
       # 系统根域名，调试UI时需要使用，同时需要在host文件里配置：127.0.0.1 local.zyplayer.com
@@ -48,11 +40,11 @@ zyplayer:
     # ------WIKI文档相关------
     wiki:
       # WIKI文档的文件上传后的存储目录，！！截图或文件还是很重要的，建议您还要定期备份此目录的文件呢！！
-      upload-path: d:/zyplayerDoc/wikiFiles
+      upload-path: c:/zyplayerDoc/wikiFiles
       # 是否检查目录有被系统定期清理的风险，强烈建议开启
       upload-path-check: true
       # git本地仓库地址，用于管理WIKI的历史版本
-      git-local-path: d:/zyplayerDoc/wikiGitFiles
+      git-local-path: c:/zyplayerDoc/wikiGitFiles
       # git远程仓库地址，可选配置项，如果存在则会每次修改后push到此仓库，必须先创建远程仓库，项目初始化时会去拉取
       # 如果没有配置此项，则只会在维护一个本地的git仓库，使用简单
       # 例：https://gitee.com/zyplayer/zyplayer-doc-wiki-files.git

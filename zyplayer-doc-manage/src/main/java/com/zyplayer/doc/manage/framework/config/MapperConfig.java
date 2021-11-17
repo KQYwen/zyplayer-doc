@@ -1,8 +1,8 @@
 package com.zyplayer.doc.manage.framework.config;
 
-import org.dozer.DozerBeanMapperBuilder;
-import org.dozer.DozerConverter;
-import org.dozer.Mapper;
+import com.github.dozermapper.core.Mapper;
+import com.github.dozermapper.core.DozerBeanMapperBuilder;
+import com.github.dozermapper.core.DozerConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

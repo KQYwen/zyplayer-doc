@@ -17,9 +17,6 @@ import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
 import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
-import com.zyplayer.doc.data.service.elasticsearch.entity.EsWikiPage;
-import com.zyplayer.doc.data.service.elasticsearch.service.EsWikiPageService;
-import com.zyplayer.doc.data.service.elasticsearch.support.EsPage;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.data.utils.CachePrefix;
 import com.zyplayer.doc.data.utils.CacheUtil;
@@ -30,12 +27,9 @@ import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import com.zyplayer.doc.wiki.service.git.GitService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dozer.Mapper;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import com.github.dozermapper.core.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,8 +72,6 @@ public class WikiPageController {
 	GitService gitService;
 	@Resource
 	Mapper mapper;
-	@Autowired(required = false)
-	EsWikiPageService esWikiPageService;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPageVo>> list(WikiPage wikiPage) {
@@ -289,16 +281,6 @@ public class WikiPageController {
 			UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_CREATE);
 			userMessageService.addWikiMessage(userMessage);
 		}
-		// 保存到es
-		if (esWikiPageService.isOpen()) {
-			WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
-			EsWikiPage esWikiPage = mapper.map(wikiPageSel, EsWikiPage.class);
-			esWikiPage.setContent(content);
-			esWikiPage.setPreview(preview);
-			esWikiPageService.upsert(esWikiPage);
-		} else {
-			logger.warn("未开启elasticsearch服务，建议开启");
-		}
 		try {
 			// 提交历史版本记录
 			gitService.commitAndAddHistory(wikiPage.getId(), content);
@@ -337,50 +319,8 @@ public class WikiPageController {
 	
 	@PostMapping("/searchByEs")
 	public ResponseJson<Object> searchByEs(SearchByEsParam param) {
-		if (esWikiPageService.isOpen()) {
-			Map<Long, WikiSpace> wikiSpaceMap = this.getCanVisitWikiSpace(param.getSpaceId());
-			if (wikiSpaceMap.isEmpty()) {
-				return DocResponseJson.ok();
-			}
-			String[] fields = {
-					"id", "preview", "createTime", "updateTime", "createUserId", "createUserName",
-					"updateUserId", "updateUserName", "spaceId", "name", "zanNum", "viewNum",
-			};
-			BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-			if (StringUtils.isNotBlank(param.getKeywords())) {
-				boolQueryBuilder.must(QueryBuilders.multiMatchQuery(param.getKeywords(), "name", "preview"));
-			}
-			boolQueryBuilder.must(QueryBuilders.termQuery("delFlag", "0"));
-			boolQueryBuilder.must(QueryBuilders.termsQuery("spaceId", wikiSpaceMap.keySet().toArray()));
-			EsPage<EsWikiPage> wikiPageEsPage = esWikiPageService.getDataByQuery(boolQueryBuilder, fields, param.getStartIndex(), param.getPageSize());
-			if (wikiPageEsPage == null || wikiPageEsPage.getTotal() == null) {
-				return DocResponseJson.ok();
-			}
-			// 组装数据
-			List<EsWikiPage> esWikiPageList = wikiPageEsPage.getData();
-			List<SpaceNewsVo> pageVoList = new LinkedList<>();
-			esWikiPageList.forEach(val -> {
-				String preview = val.getPreview();
-				if (preview != null && preview.length() > 200) {
-					preview = preview.substring(0, 200);
-				}
-				SpaceNewsVo spaceNewsVo = mapper.map(val, SpaceNewsVo.class);
-				spaceNewsVo.setSpaceName(wikiSpaceMap.get(val.getSpaceId()).getName());
-				spaceNewsVo.setPreviewContent(preview);
-				spaceNewsVo.setPageTitle(val.getName());
-				spaceNewsVo.setPageId(val.getId());
-				pageVoList.add(spaceNewsVo);
-			});
-			// 组装数据返回
-			PageInfo<SpaceNewsVo> pageInfo = new PageInfo<>();
-			pageInfo.setTotal(wikiPageEsPage.getTotal());
-			pageInfo.setList(pageVoList);
-			return DocResponseJson.ok(pageInfo);
-		} else {
-			logger.warn("未开启elasticsearch服务，使用数据库查询匹配，建议开启");
-			param.setNewsType(1);
-			return this.news(param);
-		}
+		param.setNewsType(1);
+		return this.news(param);
 	}
 	
 	@PostMapping("/news")

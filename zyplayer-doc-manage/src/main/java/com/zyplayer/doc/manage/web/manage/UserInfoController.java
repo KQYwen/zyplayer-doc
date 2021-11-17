@@ -23,7 +23,7 @@ import com.zyplayer.doc.manage.web.manage.vo.AuthInfoVo;
 import com.zyplayer.doc.manage.web.manage.vo.UserAuthVo;
 import com.zyplayer.doc.manage.web.manage.vo.UserInfoAuthVo;
 import org.apache.commons.lang.StringUtils;
-import org.dozer.Mapper;
+import com.github.dozermapper.core.Mapper;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -120,7 +120,7 @@ public class UserInfoController {
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("user_no", userInfo.getUserNo());
 		queryWrapper.ne(userId > 0, "id", userInfo.getId());
-		int count = userInfoService.count(queryWrapper);
+		long count = userInfoService.count(queryWrapper);
 		if (count > 0) {
 			return DocResponseJson.warn("改用户账号已存在");
 		}
