@@ -43,7 +43,9 @@
                 <template #rightExtra>
                     <span class="status-info-box">
                         状态码：<span>{{resultData.status||'200'}}</span>
+				        <a-divider type="vertical" />
                         耗时：<span>{{unitConvert.formatSeconds(resultData.useTime||0)}}</span>
+				        <a-divider type="vertical" />
                         大小：<span>{{unitConvert.formatFileSize(resultData.contentLength||0)}}</span>
                     </span>
                 </template>
@@ -220,6 +222,6 @@
 </script>
 <style>
     .status-info-box{color: #888;}
-    .status-info-box span{color: #00aa00; margin-right: 15px;}
+    .status-info-box span{color: #00aa00;}
     .status-info-box span:last-child{margin-right: 0;}
 </style>

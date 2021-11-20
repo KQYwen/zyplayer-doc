@@ -6,10 +6,23 @@
 			<a-form-item label="作者" v-if="swaggerDocInfo.contact">
 				{{swaggerDocInfo.contact.name}} {{swaggerDocInfo.contact.email}}
 				<a :href="swaggerDocInfo.contact.url" target="_blank" v-if="swaggerDocInfo.contact.url">{{swaggerDocInfo.contact.url}}</a>
+				<template v-if="swaggerDocInfo.contact.name">
+					{{swaggerDocInfo.contact.name}}
+				</template>
+				<template v-if="swaggerDocInfo.contact.email">
+					<a-divider type="vertical" />{{swaggerDocInfo.contact.email}}
+				</template>
+				<template v-if="swaggerDocInfo.contact.url">
+					<a-divider type="vertical" />
+					<a :href="swaggerDocInfo.contact.url" target="_blank">{{swaggerDocInfo.contact.url}}</a>
+				</template>
 			</a-form-item>
 			<a-form-item label="host">{{swaggerDoc.host}}</a-form-item>
 			<a-form-item label="许可证" v-if="swaggerDocInfo.license">
 				<a :href="swaggerDocInfo.license.url" target="_blank">{{swaggerDocInfo.license.name}}</a>
+			</a-form-item>
+			<a-form-item label="服务条款" v-if="swaggerDocInfo.termsOfService">
+				<a :href="swaggerDocInfo.termsOfService" target="_blank">{{swaggerDocInfo.termsOfService}}</a>
 			</a-form-item>
 			<a-form-item label="文档说明">
 				<span v-html="swaggerDocInfo.description"></span>
