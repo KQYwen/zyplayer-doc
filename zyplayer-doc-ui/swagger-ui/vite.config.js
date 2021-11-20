@@ -13,22 +13,6 @@ export default defineConfig({
     base: '',
     plugins: [
         vue(),
-        styleImport({
-            libs: [
-                // 使用element-plus的一些组件
-                {
-                    libraryName: 'element-plus',
-                    esModule: true,
-                    ensureStyleFile: true,
-                    resolveStyle: (name) => {
-                        return `element-plus/lib/theme-chalk/${name}.css`;
-                    },
-                    resolveComponent: (name) => {
-                        return `element-plus/lib/${name}`;
-                    },
-                }
-            ]
-        })
     ],
     build: {
         emptyOutDir: true,

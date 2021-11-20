@@ -1,0 +1,1 @@
+import{_ as e}from"./main.dfeb60bb.js";import{o as t,b as o}from"./vendor.81c025df.js";const n={name:"SettingView",components:{},data(){return{}},computed:{},mounted(){},methods:{}};function r(a,s,c,d,m,i){return t(),o("div",null," \u5C55\u793A\u914D\u7F6E\u9875\u9762 ")}var _=e(n,[["render",r]]);export{_ as default};

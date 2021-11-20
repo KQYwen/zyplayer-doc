@@ -105,7 +105,7 @@
             let activePage = ref('urlParam');
             // URL参数处理
             const urlParamRef = ref();
-            let urlParamListProp = props.requestParamList.filter(item => item.in === 'query');
+            let urlParamListProp = props.requestParamList.filter(item => item.in === 'query' || item.in === 'path');
             let urlParamList = ref([]);
             // Header参数处理
             const headerParamRef = ref();
@@ -190,9 +190,11 @@
                     message.error('请输入请求的目标URL地址');
                     return;
                 }
+                let formObjData = {};
                 const formData = new FormData();
                 let urlParamSelected = urlParamRef.value.getSelectedRowKeys();
                 let urlParamStr = urlParamList.value.filter(item => urlParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
+                    formObjData[item.name] = item.value;
                     return item.name + '=' + encodeURIComponent(item.value);
                 }).join('&');
                 let headerParamSelected = headerParamRef.value.getSelectedRowKeys();
@@ -208,6 +210,7 @@
                     let formParamSelected = formParamRef.value.getSelectedRowKeys();
                     formParamArr = formParamList.value.filter(item => formParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
                         // todo 判断处理文件格式
+                        formObjData[item.name] = item.value;
                         return {code: item.name, value: item.value};
                     });
                 }
@@ -216,6 +219,7 @@
                     let formEncodeParamSelected = formEncodeParamRef.value.getSelectedRowKeys();
                     formEncodeParamArr = formEncodeParamList.value.filter(item => formEncodeParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
                         // todo 判断处理文件格式
+                        formObjData[item.name] = item.value;
                         return {code: item.name, value: item.value};
                     });
                 }
@@ -227,6 +231,10 @@
                 //     formData.append('files[]', file);
                 // });
                 let url = urlParamStr ? (docUrl.value + '?' + urlParamStr) : docUrl.value;
+                // 替换path参数
+                Object.keys(formObjData).forEach((key) => {
+                    url = url.replace("{" + key + "}", formObjData[key]);
+                });
                 // 下载请求
                 if (isDownloadRequest) {
                     downloadFormParam.value.param = {

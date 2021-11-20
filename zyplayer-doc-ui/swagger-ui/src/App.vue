@@ -1,14 +1,11 @@
 <template>
-    <el-config-provider :locale="localeEl">
-        <a-config-provider :locale="locale">
-            <router-view></router-view>
-        </a-config-provider>
-    </el-config-provider>
+    <a-config-provider :locale="locale">
+        <router-view></router-view>
+    </a-config-provider>
 </template>
 
 <script>
     import zhCN from 'ant-design-vue/es/locale/zh_CN';
-    import zhCnEl from 'element-plus/lib/locale/lang/zh-cn';
     import 'moment/dist/locale/zh-cn';
     export default {
         name: 'app',
@@ -17,7 +14,6 @@
         data() {
             return {
                 locale: zhCN,
-                localeEl: zhCnEl,
             };
         },
         methods: {}

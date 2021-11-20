@@ -160,7 +160,7 @@ export default {
         let type = definition.type;
         let properties = definition.properties;
         let indexSub = 1;
-        if (type === 'object') {
+        if (type === 'object' && properties) {
             let currentLevelTypes = {};
             Object.keys(properties).forEach(key => {
                 let parameter = properties[key];
