@@ -20,7 +20,7 @@
     import {useStore} from 'vuex';
     import { message } from 'ant-design-vue';
     import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
-    import swaggerAnalysis from '../../assets/utils/SwaggerAnalysisV2'
+    import swaggerAnalysis from '../../assets/core/SwaggerAnalysis.js'
     import DocContent from './docView/DocContent.vue'
     import DocDebugger from './docView/DocDebugger.vue'
     import {markdownIt} from 'mavon-editor'
@@ -47,7 +47,7 @@
             let intervalTimer = undefined;
             const initLoadDocument = () => {
                 let path = route.query.path + '.' + route.query.method;
-                if (Object.keys(store.state.swaggerTreePathMap).length <= 0) {
+                if (Object.keys(store.state.urlMethodMap).length <= 0) {
                     console.log('文档尚未加载，等待加载完成');
                     if (!intervalTimer) {
                         intervalTimer = setInterval(() => {
@@ -55,7 +55,7 @@
                                 clearInterval(intervalTimer);
                                 return;
                             }
-                            if (Object.keys(store.state.swaggerTreePathMap).length > 0) {
+                            if (Object.keys(store.state.urlMethodMap).length > 0) {
                                 console.log('文档内容改变，重新加载文档');
                                 initLoadDocument();
                             }
@@ -63,7 +63,7 @@
                     }
                     return;
                 }
-                let docInfo = store.state.swaggerTreePathMap[path];
+                let docInfo = store.state.urlMethodMap[path];
                 if (!docInfo) {
                     message.error('没有找到对应的文档');
                     return;

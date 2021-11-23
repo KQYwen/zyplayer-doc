@@ -4,8 +4,6 @@
 			<a-form-item label="标题">{{swaggerDocInfo.title}}</a-form-item>
 			<a-form-item label="版本">{{swaggerDocInfo.version}}</a-form-item>
 			<a-form-item label="作者" v-if="swaggerDocInfo.contact">
-				{{swaggerDocInfo.contact.name}} {{swaggerDocInfo.contact.email}}
-				<a :href="swaggerDocInfo.contact.url" target="_blank" v-if="swaggerDocInfo.contact.url">{{swaggerDocInfo.contact.url}}</a>
 				<template v-if="swaggerDocInfo.contact.name">
 					{{swaggerDocInfo.contact.name}}
 				</template>
@@ -25,14 +23,14 @@
 				<a :href="swaggerDocInfo.termsOfService" target="_blank">{{swaggerDocInfo.termsOfService}}</a>
 			</a-form-item>
 			<a-form-item label="文档说明">
-				<span v-html="swaggerDocInfo.description"></span>
+				<div class="markdown-body" v-html="getDescription(swaggerDocInfo.description)"></div>
 			</a-form-item>
 			<a-form-item label="接口统计">
 				<a-row :gutter="[16, 16]">
-					<template v-for="method in ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'PATCH', 'OPTIONS', 'TRACE', 'TOTAL']">
+					<template v-for="method in ['get', 'post', 'put', 'delete', 'head', 'patch', 'options', 'trace', 'total']">
 						<a-col :span="6" v-if="methodStatistic[method]">
 							<a-card size="small">
-								<a-statistic :title="method === 'TOTAL'?'总计':method + '方法'" :value="methodStatistic[method]" suffix="个"></a-statistic>
+								<a-statistic :title="method === 'total'?'总计':method.toUpperCase() + '方法'" :value="methodStatistic[method]" suffix="个"></a-statistic>
 							</a-card>
 						</a-col>
 					</template>
@@ -46,6 +44,9 @@
 <script>
 	import { toRefs, ref, reactive, onMounted, computed } from 'vue';
 	import {useStore} from 'vuex';
+	import {markdownIt} from 'mavon-editor'
+	import 'mavon-editor/dist/markdown/github-markdown.min.css'
+	import 'mavon-editor/dist/css/index.css'
 
 	export default {
 		setup() {
@@ -53,10 +54,14 @@
 			const swaggerDoc = computed(() => store.state.swaggerDoc);
 			const swaggerDocInfo = computed(() => store.state.swaggerDoc.info);
 			const methodStatistic = computed(() => store.state.methodStatistic);
+			const getDescription = description => {
+				return markdownIt.render(description || '');
+			};
 			return {
 				swaggerDoc,
 				swaggerDocInfo,
-				methodStatistic
+				methodStatistic,
+				getDescription,
 			};
 		},
 	};

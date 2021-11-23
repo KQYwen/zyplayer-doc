@@ -1,12 +1,33 @@
-import {message} from 'ant-design-vue';
+import logUtil from '../utils/logUtil.js';
 // 无需特殊处理的参数类型
 let notNeedHandleTypeArr = ['file', 'string', 'integer', 'long', 'double', 'object', 'number', 'boolean', 'ref'];
+
 /**
- * 参数解析
+ * swagger格式的参数解析参数解析
  * @author 暮光：城中城
  * @since 2017年5月7日
  */
 export default {
+    /**
+     * 解析请求的参数
+     * @param parameters swagger.parameters
+     * @param definitionsDataMap 解析的path里对应的数据map，{url + "." + method: swagger.paths.post}
+     * @returns [] 参数列表：[{
+     *     type: '',
+     *     key: '',
+     *     in: '',
+     *     name: '',
+     *     subType: '',
+     *     required: '否',
+     *     format: '',
+     *     enum: '',
+     *     example: '',
+     *     collectionFormat: 'multi',
+     *     description: '',
+     *     additional: '',
+     *     children: [],
+     * }]
+     */
     getRequestParamList(parameters, definitionsDataMap) {
         if (!parameters) {
             return [];
@@ -23,7 +44,7 @@ export default {
             let children = undefined;
             let additional = undefined;
             if (type === 'array') {
-                // 解析parameter.items.$ref 或 parameter.items.originalRef {$ref: "#/definitions/Model", originalRef: "Model"}
+                // 解析parameter.items.$ref 或 parameter.items.$ref {$ref: "#/definitions/Model"}
                 // 解析parameter.items.type {type: 'file'}
                 if (this.isSchemaRef(parameter.items)) {
                     subType = this.getSchemaRef(parameter.items);
@@ -38,12 +59,12 @@ export default {
                 } else if (parameter.items && parameter.items.type) {
                     subType = parameter.items.type;
                 } else {
-                    this.logMessage('001', type, parameter);
+                    logUtil.logMessage('001', type, parameter);
                 }
             } else if (!type) {
                 if (parameter.schema) {
                     if (this.isSchemaRef(parameter.schema)) {
-                        // 解析parameter.schema {originalRef: "Model", $ref: "#/definitions/Model"}
+                        // 解析parameter.schema {$ref: "#/definitions/Model"}
                         type = this.getSchemaRef(parameter.schema);
                         children = this.getParamDefinitions(type, definitionsDataMap, indexKey, {}, 0);
                     } else if (parameter.schema.type) {
@@ -59,13 +80,13 @@ export default {
                             } else if (parameter.schema.items.type) {
                                 subType = parameter.schema.items.type;
                             } else {
-                                this.log('0014', type, parameter);
+                                logUtil.log('0014', type, parameter);
                             }
                         } else {
-                            this.log('0011', type, parameter);
+                            logUtil.log('0011', type, parameter);
                         }
                     } else {
-                        this.logMessage('0013', type, parameter);
+                        logUtil.logMessage('0013', type, parameter);
                     }
                 } else if (parameter.items && parameter.items.type) {
                     // 解析parameter.items {type: "object", $ref: "#/definitions/Model"}
@@ -75,16 +96,16 @@ export default {
                         children = this.getAdditionalProperties(parameter.items.additionalProperties, additional, definitionsDataMap, indexKey, {}, 0);
                         format = additional.type;
                     } else {
-                        this.logMessage('0012', type, parameter);
+                        logUtil.logMessage('0012', type, parameter);
                     }
                 } else {
-                    this.logMessage('002', type, parameter);
+                    logUtil.logMessage('002', type, parameter);
                 }
             } else {
                 if (notNeedHandleTypeArr.indexOf(type) >= 0) {
                     // 无需特殊处理的类型
                 } else {
-                    this.logMessage('003', type, parameter);
+                    logUtil.logMessage('003', type, parameter);
                 }
             }
             if (example) {
@@ -114,6 +135,18 @@ export default {
         }
         return requestParamList;
     },
+    /**
+     * 解析请求返回的结果集
+     * @param responses swagger.parameters
+     * @param definitionsDataMap 解析的path里对应的数据map，{url + "." + method: swagger.paths.post}
+     * @returns [] 参数列表：[{
+     *     code: '',
+     *     type: '',
+     *     key: '',
+     *     desc: '',
+     *     schemas: [],
+     * }]
+     */
     getResponseParamList(responses, definitionsDataMap) {
         let responsesList = [];
         let indexKey = 1;
@@ -136,15 +169,46 @@ export default {
         });
         return responsesList;
     },
+    /**
+     * 判断是否包含$ref属性
+     * @param schema
+     * @returns {boolean}
+     */
     isSchemaRef(schema) {
-        return !!(schema && (schema.originalRef || schema['$ref']));
+        return !!(schema && schema['$ref']);
     },
+    /**
+     * 获取对象的$ref属性
+     * @param schema
+     * @returns {string}
+     */
     getSchemaRef(schema) {
-        if (schema.originalRef) return schema.originalRef;
         if (schema['$ref'] && schema['$ref'].indexOf('#/definitions/') === 0) return schema['$ref'].replace('#/definitions/', '');
-        this.logMessage('9467', '', schema);
+        logUtil.logMessage('9467', '', schema);
         return '';
     },
+    /**
+     * 获取swagger.definitions里的对象信息
+     * @param ref 对象名
+     * @param definitionsDataMap 解析的path里对应的数据map，{url + "." + method: swagger.paths.post}
+     * @param indexKey 层级key
+     * @param parentRef 父级已用过的ref，防止无限递归
+     * @param deep 层级深度，大于10层则不再解析，防止层级太深或无线递归
+     * @returns {undefined|
+     * {
+     *      type: '',
+     *      name: '',
+     *      key: '',
+     *      subType: '',
+     *      format: '',
+     *      description: '',
+     *      enum: '',
+     *      additional: '',
+     *      example: '',
+     *      children: [],
+     * }
+     * }
+     */
     getParamDefinitions(ref, definitionsDataMap, indexKey, parentRef, deep) {
         let definition = definitionsDataMap[ref];
         // 层级大于5层 或者 没有类型定义
@@ -178,14 +242,14 @@ export default {
                     parentRef[currentLevelType] = undefined;
                 });
                 if (type === 'array') {
-                    // 解析parameter.items {originalRef: "Model", $ref: "#/definitions/Model"}
+                    // 解析parameter.items {$ref: "#/definitions/Model"}
                     if (this.isSchemaRef(parameter.items)) {
                         subType = this.getSchemaRef(parameter.items);
                         children = this.getParamDefinitions(subType, definitionsDataMap, keySub, parentRef, deep + 1);
                     } else if (parameter.items && parameter.items.type) {
                         subType = parameter.items.type;
                     } else {
-                        this.logMessage('004', type, parameter);
+                        logUtil.logMessage('004', type, parameter);
                     }
                 } else if (type === 'object') {
                     if (parameter.additionalProperties) {
@@ -193,20 +257,20 @@ export default {
                         children = this.getAdditionalProperties(parameter.additionalProperties, additional, definitionsDataMap, keySub, parentRef, deep + 1);
                         format = additional.type;
                     } else {
-                        this.log('0041', type, parameter);
+                        logUtil.log('0041', type, parameter);
                     }
                 } else if (!type) {
                     if (this.isSchemaRef(parameter)) {
                         type = this.getSchemaRef(parameter);
                         children = this.getParamDefinitions(type, definitionsDataMap, keySub, parentRef, deep + 1);
                     } else {
-                        this.logMessage('005', type, parameter);
+                        logUtil.logMessage('005', type, parameter);
                     }
                 } else {
                     if (notNeedHandleTypeArr.indexOf(type) >= 0) {
                         // 无需特殊处理的类型
                     } else {
-                        this.logMessage('006', type, parameter);
+                        logUtil.logMessage('006', type, parameter);
                     }
                 }
                 if (example) {
@@ -236,6 +300,21 @@ export default {
         }
         return paramList.length > 0 ? paramList : undefined;
     },
+    /**
+     * parameter.schema.additionalProperties 类型的参数值处理
+     * @param additionalProperties
+     * @param additional
+     * @param definitionsDataMap
+     * @param keySub
+     * @param parentRef
+     * @param deep
+     * @returns {
+     *     undefined
+     *     |{type: "", name: "", key: "", subType: "", format: "", description: "", enum: "", additional: "", example: "", children: *[]}
+     *     |{}
+     *     |{children: (undefined|{type: "", name: "", key: "", subType: "", format: "", description: "", enum: "", additional: "", example: "", children: *[]}), type: string}
+     * }
+     */
     getAdditionalProperties(additionalProperties, additional, definitionsDataMap, keySub, parentRef, deep) {
         if (this.isSchemaRef(additionalProperties)) {
             additional.type = this.getSchemaRef(additionalProperties);
@@ -256,24 +335,17 @@ export default {
                 };
                 return children;
             } else {
-                this.logMessage('007', '', additionalProperties);
+                logUtil.logMessage('007', '', additionalProperties);
             }
         } else {
             additional.type = additionalProperties.type;
             if (notNeedHandleTypeArr.indexOf(additional.type) >= 0) {
                 // 无需特殊处理的类型
             } else {
-                this.logMessage('008', '', additionalProperties);
+                logUtil.logMessage('008', '', additionalProperties);
             }
         }
         return undefined;
     },
-    log(code, type, parameter) {
-        console.log(code + '-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-    },
-    logMessage(code, type, parameter) {
-        console.log(code + '-遇到未处理的类型，请联系开发人员修改：' + type, parameter);
-        message.error(code + '-遇到未处理的类型，请联系开发人员修改：' + type);
-    }
 }
 

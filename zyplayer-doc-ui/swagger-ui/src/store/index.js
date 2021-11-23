@@ -8,7 +8,7 @@ export default createStore({
             pageTabNameMap: {},
             swaggerDoc: {},
             swaggerDefinitions: {},
-            swaggerTreePathMap: {},
+            urlMethodMap: {},
             methodStatistic: {},
             // 数据库存储的地址信息
             swaggerResource: {},
@@ -33,8 +33,8 @@ export default createStore({
             state.swaggerDoc = swaggerDoc;
             state.swaggerDefinitions = swaggerDoc.definitions || {};
         },
-        setSwaggerTreePathMap(state, swaggerTreePathMap) {
-            state.swaggerTreePathMap = swaggerTreePathMap;
+        setUrlMethodMap(state, urlMethodMap) {
+            state.urlMethodMap = urlMethodMap;
         },
         setMethodStatistic(state, methodStatistic) {
             state.methodStatistic = methodStatistic;

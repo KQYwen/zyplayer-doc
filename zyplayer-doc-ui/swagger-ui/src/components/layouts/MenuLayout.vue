@@ -36,7 +36,7 @@
 <script>
     import MenuChildrenLayout from './MenuChildrenLayout.vue'
     import {customApi, zyplayerApi} from '../../api'
-    import {createTreeViewByTag, getTreeDataForTag} from '../../store/TreeViewByTag'
+    import {analysisSwaggerData, getTreeDataForTag} from '../../assets/core/SwaggerTreeAnalysis.js'
 
     export default {
         name: 'MenuLayout',
@@ -53,7 +53,7 @@
                 openKeys: [],
                 // 文档树
                 treeDataLoading: false,
-                pathData: {},
+                tagPathMap: {},
                 swaggerDoc: {},
                 treeData: [],
                 expandedKeys: [],
@@ -138,10 +138,10 @@
                     }
                     this.swaggerDoc = v2Doc;
                     this.$store.commit('setSwaggerDoc', this.swaggerDoc);
-                    let treeData = createTreeViewByTag(this.swaggerDoc);
-                    this.$store.commit('setSwaggerTreePathMap', treeData.pathDataMap);
+                    let treeData = analysisSwaggerData(this.swaggerDoc);
+                    this.$store.commit('setUrlMethodMap', treeData.urlMethodMap);
                     this.$store.commit('setMethodStatistic', treeData.methodStatistic);
-                    this.pathData = treeData.pathData;
+                    this.tagPathMap = treeData.tagPathMap;
                     this.loadTreeData();
                     setTimeout(() => {
                         this.treeDataLoading = false;
@@ -154,7 +154,7 @@
             loadTreeData() {
                 this.expandedKeys = ['main'];
                 let metaInfo = {url: this.swaggerDocChoice};
-                this.treeData = getTreeDataForTag(this.swaggerDoc, this.pathData, this.searchKeywords, metaInfo);
+                this.treeData = getTreeDataForTag(this.swaggerDoc, this.tagPathMap, this.searchKeywords, metaInfo);
             },
             toJsonObj(value) {
                 if (typeof value !== 'string') {
