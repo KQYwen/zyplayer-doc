@@ -2,6 +2,7 @@ package com.zyplayer.doc.swaggerplus.controller;
 
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
+import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerDoc;
 import com.zyplayer.doc.data.service.manage.SwaggerDocService;
 import com.zyplayer.doc.swaggerplus.controller.vo.SwaggerResourceVo;
@@ -37,6 +38,7 @@ public class SwaggerProxyController {
 	@Resource
 	private SwaggerHttpRequestService swaggerHttpRequestService;
 	
+	@ResponseBody
 	@RequestMapping("/swagger-resources")
 	public List<SwaggerResourceVo> swaggerResources() {
 		List<SwaggerResourceVo> resourceList = new LinkedList<>();
@@ -57,15 +59,19 @@ public class SwaggerProxyController {
 	
 	@ResponseBody
 	@RequestMapping(value = "/v2/api-docs", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, HAL_MEDIA_TYPE})
-	public ResponseEntity<Json> content(HttpServletRequest request, Long id) {
+	public ResponseEntity<Object> content(HttpServletRequest request, Long id) {
 		SwaggerDoc swaggerDoc = swaggerDocService.getById(id);
 		if (swaggerDoc == null) {
 			throw new ConfirmException("文档不存在");
 		}
 		if (Objects.equals(swaggerDoc.getDocType(), 1)) {
-			String docsDomain = SwaggerDocUtil.getV2ApiDocsDomain(swaggerDoc.getDocUrl());
-			String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, swaggerDoc.getDocUrl(), docsDomain);
-			return new ResponseEntity<>(new Json(contentStr), HttpStatus.OK);
+			try {
+				String docsDomain = SwaggerDocUtil.getV2ApiDocsDomain(swaggerDoc.getDocUrl());
+				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, swaggerDoc.getDocUrl(), docsDomain);
+				return new ResponseEntity<>(new Json(contentStr), HttpStatus.OK);
+			} catch (Exception e) {
+				return new ResponseEntity<>(DocResponseJson.warn("请求文档失败"), HttpStatus.OK);
+			}
 		}
 		return new ResponseEntity<>(new Json(swaggerDoc.getJsonContent()), HttpStatus.OK);
 	}

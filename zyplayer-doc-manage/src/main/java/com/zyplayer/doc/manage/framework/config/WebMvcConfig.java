@@ -3,8 +3,7 @@ package com.zyplayer.doc.manage.framework.config;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
-import com.zyplayer.doc.data.config.DocLoginOriginInterceptor;
-import com.zyplayer.doc.manage.framework.interceptor.RequestInfoInterceptor;
+import com.zyplayer.doc.manage.framework.interceptor.UserLoginInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -13,11 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.Resource;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +24,10 @@ import java.util.List;
 @Component
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
-
+	
 	@Resource
-	RequestInfoInterceptor requestInfoInterceptor;
-	@Resource
-	DocLoginOriginInterceptor docLoginOriginInterceptor;
-
+	UserLoginInterceptor userLoginInterceptor;
+	
 	@Override
 	public void addFormatters(FormatterRegistry registry) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -40,12 +37,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		dateFormatter.setLenient(true);
 		registry.addFormatter(dateFormatter);
 	}
-
+	
 	@Bean
 	public FastJsonHttpMessageConverter fastJsonHttpMessageConverter() {
 		FastJsonHttpMessageConverter fastJsonHttpMessageConverter = new FastJsonHttpMessageConverter();
 		List<MediaType> supportedMediaTypes = new ArrayList<>();
-		supportedMediaTypes.add(new MediaType("application", "json", Charset.forName("UTF-8")));
+		supportedMediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8));
 		fastJsonHttpMessageConverter.setSupportedMediaTypes(supportedMediaTypes);
 		FastJsonConfig fastJsonConfig = new FastJsonConfig();
 		fastJsonConfig.setSerializerFeatures(SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.WriteDateUseDateFormat);
@@ -57,12 +54,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
 		converters.add(0, fastJsonHttpMessageConverter());
 	}
-
+	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(docLoginOriginInterceptor);
-		registry.addInterceptor(requestInfoInterceptor).excludePathPatterns("/**/*.js", "/**/*.css", "/**/*.png",
-				"/**/*.gif", "/**/*.jpg", "/**/*.jpeg", "/**/fonts/*");
+		registry.addInterceptor(userLoginInterceptor).excludePathPatterns("/**/*.js", "/**/*.css", "/**/*.png", "/**/*.gif", "/**/*.jpg", "/**/*.jpeg", "/**/fonts/*");
 	}
-
+	
 }

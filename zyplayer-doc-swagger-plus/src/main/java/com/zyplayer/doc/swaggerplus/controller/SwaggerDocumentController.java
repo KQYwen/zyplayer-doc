@@ -20,6 +20,7 @@ import springfox.documentation.swagger.web.SwaggerResource;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -76,8 +77,13 @@ public class SwaggerDocumentController {
 			String docUrl = SwaggerDocUtil.replaceSwaggerResources(swaggerDoc.getDocUrl());
 			if (SwaggerDocUtil.isSwaggerResources(docUrl)) {
 				String swaggerDomain = SwaggerDocUtil.getSwaggerResourceDomain(docUrl);
-				String resourcesStr = swaggerHttpRequestService.requestSwaggerUrl(request, docUrl, swaggerDomain);
-				List<SwaggerResource> resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
+				List<SwaggerResource> resourceList;
+				try {
+					String resourcesStr = swaggerHttpRequestService.requestSwaggerUrl(request, docUrl, swaggerDomain);
+					resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
+				} catch (Exception e) {
+					return DocResponseJson.warn("解析文档地址失败：" + e.getMessage());
+				}
 				if (resourceList == null || resourceList.isEmpty()) {
 					return DocResponseJson.warn("该地址未找到文档");
 				}

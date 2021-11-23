@@ -1,6 +1,7 @@
 package com.zyplayer.doc.core.json;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -20,9 +21,11 @@ import java.util.Objects;
  */
 public class DocResponseJson<T> implements ResponseJson<T> {
 	private static SerializeConfig mapping = new SerializeConfig();
+	
 	static {
 		mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
 	}
+	
 	@ApiModelProperty(value = "状态码")
 	private Integer errCode;
 	@ApiModelProperty(value = "返回值说明")
@@ -37,46 +40,46 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	private Integer pageSize;
 	@ApiModelProperty(value = "总页数")
 	private Integer totalPage;
-
+	
 	public DocResponseJson() {
 		this.errCode = 200;
 	}
-
+	
 	public DocResponseJson(Object data) {
 		this.setData(data);
 		this.errCode = 200;
 	}
-
+	
 	public DocResponseJson(int errCode, String errMsg) {
 		super();
 		this.errCode = errCode;
 		this.errMsg = errMsg;
 	}
-
+	
 	public DocResponseJson(int errCode, String errMsg, Object data) {
 		super();
 		this.setData(data);
 		this.errCode = errCode;
 		this.errMsg = errMsg;
 	}
-
+	
 	public DocResponseJson(Integer errCode) {
 		super();
 		this.errCode = errCode;
 	}
-
+	
 	public Integer getErrCode() {
 		return errCode;
 	}
-
+	
 	public void setErrCode(Integer errCode) {
 		this.errCode = errCode;
 	}
-
+	
 	public String getErrMsg() {
 		return errMsg;
 	}
-
+	
 	public void setErrMsg(String errMsg) {
 		this.errMsg = errMsg;
 	}
@@ -138,13 +141,13 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 			}
 		}
 	}
-
+	
 	/**
 	 * 提示语
 	 *
+	 * @return
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
 	 */
 	public static <T> DocResponseJson<T> warn(String errMsg) {
 		return new DocResponseJson<T>(300, errMsg);
@@ -153,9 +156,9 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	/**
 	 * 错误
 	 *
+	 * @return
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
 	 */
 	public static <T> DocResponseJson<T> error(String errMsg) {
 		return new DocResponseJson<T>(500, errMsg);
@@ -164,31 +167,31 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	/**
 	 * 失败
 	 *
+	 * @return
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
 	 */
 	public static <T> DocResponseJson<T> failure(int errCode, String errMsg) {
 		return new DocResponseJson<T>(errCode, errMsg);
 	}
-
+	
 	/**
 	 * 成功的返回方法
 	 *
+	 * @return
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
 	 */
 	public static <T> DocResponseJson<T> ok() {
 		return new DocResponseJson<>();
 	}
-
+	
 	/**
 	 * 成功的返回方法
 	 *
+	 * @return
 	 * @author 暮光：城中城
 	 * @since 2018年8月7日
-	 * @return
 	 */
 	public static <T> DocResponseJson<T> ok(Object data) {
 		if (data == null) {
@@ -198,7 +201,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 		responseJson.setData(data);
 		return responseJson;
 	}
-
+	
 	public String toJson() {
 		return JSON.toJSONString(this, mapping);
 	}
@@ -215,6 +218,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 		}
 	}
 	
+	@JSONField(serialize = false)
 	public boolean isOk() {
 		return Objects.equals(this.errCode, 200);
 	}
@@ -223,5 +227,5 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	public String toString() {
 		return "DefaultResponseJson [errCode=" + errCode + ", errMsg=" + errMsg + ", data=" + data + "]";
 	}
-
+	
 }
