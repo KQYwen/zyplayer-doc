@@ -1,5 +1,11 @@
 package com.zyplayer.doc.data.repository.support.consts;
 
+/**
+ * 用户消息类型
+ *
+ * @author 暮光：城中城
+ * @since 2020-06-26
+ */
 public enum UserMsgType {
 	// 消息类型 1=普通文本消息 2=wiki文档创建 3=wiki文档删除 4=wiki文档编辑 5=wiki文档权限修改
 	// 6=wiki文档评论 7=wiki文档删除评论 8=wiki文档上传附件 9=wiki文档修改了父级 10=wiki文档点赞 11=wiki文档附件删除

@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * 后台存储服务控制器
- * 
+ *
  * @author 暮光：城中城
  * @since 2018年8月21日
  */
@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/swagger-mg-ui/storage")
 public class MgStorageController {
 
-	@Autowired
+	@Resource
 	private MgStorageService storageService;
 
 	@PostMapping(value = "/checkConfig")

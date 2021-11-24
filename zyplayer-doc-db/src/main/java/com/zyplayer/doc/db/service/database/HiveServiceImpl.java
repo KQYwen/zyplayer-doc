@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * hive数据查询服务实现类
+ *
+ * @author 暮光：城中城
+ * @since 2021-05-11
+ */
 @Service
 public class HiveServiceImpl extends DbBaseService {
 	

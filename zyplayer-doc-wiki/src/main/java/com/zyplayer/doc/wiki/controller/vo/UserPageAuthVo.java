@@ -1,5 +1,11 @@
 package com.zyplayer.doc.wiki.controller.vo;
 
+/**
+ * 用户页面权限信息
+ *
+ * @author 暮光：城中城
+ * @since 2019-06-05
+ */
 public class UserPageAuthVo {
 	private String userName;
 	private Long userId;

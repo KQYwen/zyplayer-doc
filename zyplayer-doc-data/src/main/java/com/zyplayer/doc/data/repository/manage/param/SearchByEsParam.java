@@ -2,6 +2,12 @@ package com.zyplayer.doc.data.repository.manage.param;
 
 import java.util.List;
 
+/**
+ * 文档搜索参数
+ *
+ * @author 暮光：城中城
+ * @since 2019-07-10
+ */
 public class SearchByEsParam {
 	private Long spaceId;
 	private String keywords;

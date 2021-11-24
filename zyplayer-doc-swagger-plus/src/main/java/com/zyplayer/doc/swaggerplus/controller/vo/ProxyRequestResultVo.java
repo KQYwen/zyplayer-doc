@@ -3,6 +3,12 @@ package com.zyplayer.doc.swaggerplus.controller.vo;
 
 import java.util.List;
 
+/**
+ * 代理请求结果
+ *
+ * @author 暮光：城中城
+ * @since 2021-11-04
+ */
 public class ProxyRequestResultVo {
 	private List<HttpCookieVo> cookies;
 	private List<HttpHeaderVo> headers;

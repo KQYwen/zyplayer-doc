@@ -1,4 +1,4 @@
-package com.zyplayer.doc.manage.web.manage;
+package com.zyplayer.doc.manage.web;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
@@ -22,10 +22,16 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 用户分组控制器
+ *
+ * @author 暮光：城中城
+ * @since 2021-02-09
+ */
 @RestController
 @RequestMapping("/user/group")
 public class UserGroupController {
-
+	
 	@Resource
 	UserGroupService userGroupService;
 	@Resource

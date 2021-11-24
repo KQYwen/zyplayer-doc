@@ -1,5 +1,11 @@
 package com.zyplayer.doc.db.controller.vo;
 
+/**
+ * 用户数据库授权信息
+ *
+ * @author 暮光：城中城
+ * @since 2019-08-22
+ */
 public class UserDbAuthVo {
 	private String userName;
 	private Long userId;

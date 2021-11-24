@@ -1,6 +1,5 @@
 package com.zyplayer.doc.manage.framework.exception;
 
-import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import org.slf4j.Logger;
@@ -17,6 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 全局异常处理器
+ *
+ * @author 暮光：城中城
+ * @since 2018年12月8日
  */
 @Component
 public class GlobalHandlerExceptionResolver extends SimpleMappingExceptionResolver {
@@ -41,12 +43,7 @@ public class GlobalHandlerExceptionResolver extends SimpleMappingExceptionResolv
 				responseJson = DocResponseJson.warn("系统错误");
 			}
 		}
-		try {
-			String jsonStr = JSON.toJSONString(responseJson);
-			response.getWriter().write(jsonStr);
-		} catch (Exception e) {
-			logger.warn("write error：" + e.getMessage());
-		}
+		responseJson.send(response);
 		return new ModelAndView();
 	}
 }

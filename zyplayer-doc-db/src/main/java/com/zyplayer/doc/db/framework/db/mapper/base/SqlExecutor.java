@@ -2,7 +2,6 @@ package com.zyplayer.doc.db.framework.db.mapper.base;
 
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
-import com.zyplayer.doc.core.util.StringUtil;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;

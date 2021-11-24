@@ -34,7 +34,7 @@ public class ZyplayerProxyFilter implements Filter {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ZyplayerProxyFilter.class);
 	
-	@Autowired
+	@Resource
 	private MgStorageService mgStorageService;
 	
 	@Override

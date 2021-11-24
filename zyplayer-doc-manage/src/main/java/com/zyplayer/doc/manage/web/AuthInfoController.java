@@ -1,35 +1,41 @@
-package com.zyplayer.doc.manage.web.manage;
+package com.zyplayer.doc.manage.web;
 
+import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 用户授权信息控制器
+ *
+ * @author 暮光：城中城
+ * @since 2018-12-08
+ */
 @RestController
 @RequestMapping("/auth/info")
 @AuthMan(DocAuthConst.AUTH_MANAGE)
 public class AuthInfoController {
-
-	@Autowired
+	
+	@Resource
 	AuthInfoService authInfoService;
-
+	
 	@PostMapping("/list")
 	public ResponseJson<Object> list() {
 		List<AuthInfo> authList = authInfoService.list();
 		return DocResponseJson.ok(authList);
 	}
-
+	
 	@PostMapping("/delete")
 	public ResponseJson<Object> delete(Long id) {
 		AuthInfo authInfo = authInfoService.getById(id);
@@ -39,7 +45,7 @@ public class AuthInfoController {
 		authInfoService.removeById(id);
 		return DocResponseJson.ok();
 	}
-
+	
 	@PostMapping("/update")
 	public ResponseJson<Object> update(Long id, String authName, String authDesc) {
 		AuthInfo authInfo = new AuthInfo();

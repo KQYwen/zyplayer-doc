@@ -1,5 +1,11 @@
 package com.zyplayer.doc.db.framework.db.dto;
 
+/**
+ * 表信息
+ *
+ * @author 暮光：城中城
+ * @since 2018-11-27
+ */
 public class TableInfoDto {
 	private String dbName;
 	private String tableName;

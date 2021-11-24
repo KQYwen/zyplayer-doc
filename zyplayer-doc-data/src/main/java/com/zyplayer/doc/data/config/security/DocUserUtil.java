@@ -7,12 +7,13 @@ import java.util.Set;
 
 /**
  * 用户工具类
+ *
  * @author 暮光：城中城
  * @since 2019年05月25日
  */
 public class DocUserUtil {
-	private static ThreadLocal<DocUserDetails> DOC_USER_DETAILS = new ThreadLocal<>();
-	private static ThreadLocal<String> ACCESS_TOKEN = new ThreadLocal<>();
+	private static final ThreadLocal<DocUserDetails> DOC_USER_DETAILS = new ThreadLocal<>();
+	private static final ThreadLocal<String> ACCESS_TOKEN = new ThreadLocal<>();
 	
 	public static void setAccessToken(String accessToken) {
 		DocUserUtil.ACCESS_TOKEN.set(accessToken);

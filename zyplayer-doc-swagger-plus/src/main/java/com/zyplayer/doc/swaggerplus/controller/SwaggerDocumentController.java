@@ -82,6 +82,7 @@ public class SwaggerDocumentController {
 					String resourcesStr = swaggerHttpRequestService.requestSwaggerUrl(request, docUrl, swaggerDomain);
 					resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 				} catch (Exception e) {
+					e.printStackTrace();
 					return DocResponseJson.warn("解析文档地址失败：" + e.getMessage());
 				}
 				if (resourceList == null || resourceList.isEmpty()) {
@@ -98,10 +99,8 @@ public class SwaggerDocumentController {
 					swaggerDoc.setName(resource.getName());
 					swaggerDocService.save(swaggerDoc);
 				}
-			} else if (SwaggerDocUtil.isSwaggerLocation(docUrl)) {
-				swaggerDocService.saveOrUpdate(swaggerDoc);
 			} else {
-				return DocResponseJson.warn("不支持的地址：" + docUrl);
+				swaggerDocService.saveOrUpdate(swaggerDoc);
 			}
 		} else {
 			swaggerDocService.saveOrUpdate(swaggerDoc);

@@ -1,7 +1,10 @@
-package com.zyplayer.doc.manage.utils.bean;
+package com.zyplayer.doc.manage.task;
 
 /**
  * 升级信息对象
+ *
+ * @author 暮光：城中城
+ * @since 2019年4月27日
  */
 public class UpgradeInfo {
 	private String nowVersion;

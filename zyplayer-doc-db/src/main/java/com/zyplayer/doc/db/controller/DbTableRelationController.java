@@ -66,7 +66,7 @@ public class DbTableRelationController {
 				relationVoChildren.setTableName(param.getTableName());
 				relationVoChildren.setName(columnDto.getName());
 				relationVoChildren.setColumnName(columnDto.getName());
-				relationVoChildren.setChildren(this.getRelation(param.getSourceId(), param.getDbName(), param.getTableName(), columnDto.getName(), drillPath,1));
+				relationVoChildren.setChildren(this.getRelation(param.getSourceId(), param.getDbName(), param.getTableName(), columnDto.getName(), drillPath, 1));
 				childrenRelationList.add(relationVoChildren);
 			}
 			relationVo.setChildren(childrenRelationList);

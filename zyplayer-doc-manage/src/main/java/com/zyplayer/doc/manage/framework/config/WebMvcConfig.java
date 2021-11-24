@@ -15,12 +15,17 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.Resource;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * WEB控制相关配置
+ *
+ * @author 暮光：城中城
+ * @since 2018年11月27日
+ */
 @Component
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -57,7 +62,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(userLoginInterceptor).excludePathPatterns("/**/*.js", "/**/*.css", "/**/*.png", "/**/*.gif", "/**/*.jpg", "/**/*.jpeg", "/**/fonts/*");
+		registry.addInterceptor(userLoginInterceptor)
+				.excludePathPatterns("/", "/doc-wiki", "/doc-db", "/doc-swagger-plus", "/doc-dubbo")
+				.excludePathPatterns("/**/*.js", "/**/*.css", "/**/*.png", "/**/*.gif", "/**/*.jpg", "/**/*.jpeg", "/**/fonts/*");
 	}
 	
 }

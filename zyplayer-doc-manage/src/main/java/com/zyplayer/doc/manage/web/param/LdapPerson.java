@@ -17,9 +17,14 @@
  *
  */
 
-package com.zyplayer.doc.manage.web.manage.param;
+package com.zyplayer.doc.manage.web.param;
 
-
+/**
+ * 域账号用户信息
+ *
+ * @author 暮光：城中城
+ * @since 2021年8月2日
+ */
 public class LdapPerson {
 	
 	/**

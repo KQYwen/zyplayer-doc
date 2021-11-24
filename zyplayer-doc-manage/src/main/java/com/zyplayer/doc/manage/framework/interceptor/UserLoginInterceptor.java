@@ -1,14 +1,11 @@
 package com.zyplayer.doc.manage.framework.interceptor;
 
 import cn.hutool.extra.servlet.ServletUtil;
-import cn.hutool.http.HttpUtil;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.HttpConst;
-import com.zyplayer.doc.core.util.ThreadLocalUtil;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
-import org.apache.catalina.util.RequestUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +22,9 @@ import java.util.Optional;
 
 /**
  * 用户登录拦截
+ *
+ * @author 暮光：城中城
+ * @since 2021年11月21日
  */
 @Component
 public class UserLoginInterceptor implements HandlerInterceptor {
@@ -42,7 +42,6 @@ public class UserLoginInterceptor implements HandlerInterceptor {
 		long totalTime = System.currentTimeMillis() - startTime;
 		String clientIP = ServletUtil.getClientIP(request);
 		logger.info("IP：{}，总耗时：{}ms，URI：{}", clientIP, totalTime, request.getRequestURI());
-		ThreadLocalUtil.clean();
 		startTimeThreadLocal.remove();
 		// 清理用户信息
 		DocUserUtil.clean();
@@ -55,7 +54,6 @@ public class UserLoginInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 		startTimeThreadLocal.set(System.currentTimeMillis());
-		ThreadLocalUtil.setHttpServletRequest(request);
 		// 指定域名可跨域访问
 		if (StringUtils.isNotBlank(originDomainRegex)) {
 			String origin = request.getHeader("Origin");

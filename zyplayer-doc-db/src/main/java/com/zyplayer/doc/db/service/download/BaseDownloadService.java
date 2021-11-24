@@ -30,6 +30,9 @@ import java.util.regex.Pattern;
 
 /**
  * 基础的数据导出服务类，按照MySQL规范写的，不满足的可新增类来实现
+ *
+ * @author 暮光：城中城
+ * @since 2021-06-05
  */
 @Service
 public class BaseDownloadService implements DownloadService {

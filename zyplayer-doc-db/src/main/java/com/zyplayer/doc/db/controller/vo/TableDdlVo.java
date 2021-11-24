@@ -4,6 +4,12 @@ import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 
 import java.util.Objects;
 
+/**
+ * 表ddl信息
+ *
+ * @author 暮光：城中城
+ * @since 2021-04-23
+ */
 public class TableDdlVo {
 	private String current;
 	private String mysql;

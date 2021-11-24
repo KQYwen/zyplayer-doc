@@ -16,14 +16,18 @@ import org.springframework.context.annotation.Configuration;
 public class ZyplayerDocConfig {
 	
 	@EnableDocWiki
-	public class enableDocWiki{}
+	public class enableDocWiki {
+	}
 	
 	@EnableDocDubbo
-	public class enableDocDubbo{}
+	public class enableDocDubbo {
+	}
 	
 	@EnableDocDb
-	public class enableDocDb{}
+	public class enableDocDb {
+	}
 	
 	@EnableDocSwaggerPlus
-	public class enableDocSwaggerPlus{}
+	public class enableDocSwaggerPlus {
+	}
 }

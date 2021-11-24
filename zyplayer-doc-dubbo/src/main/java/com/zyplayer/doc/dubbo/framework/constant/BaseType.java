@@ -5,6 +5,12 @@ import org.apache.commons.lang.StringUtils;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 基本数据类型
+ *
+ * @author 暮光：城中城
+ * @since 2020年10月31日
+ **/
 public class BaseType {
 	
 	private static final Set<String> baseType = new HashSet<String>() {{

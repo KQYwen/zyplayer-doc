@@ -53,6 +53,7 @@ public class CacheUtil {
 	
 	/**
 	 * 放入缓存，默认12小时，按最后一次访问的12小时
+	 *
 	 * @param key
 	 * @param value
 	 */
@@ -62,6 +63,7 @@ public class CacheUtil {
 	
 	/**
 	 * 放入缓存，有访问则继续有效
+	 *
 	 * @param key
 	 * @param value
 	 * @param seconds 缓存时长 秒
@@ -75,6 +77,7 @@ public class CacheUtil {
 	
 	/**
 	 * 删除缓存
+	 *
 	 * @param key
 	 */
 	public static void remove(String key) {
@@ -86,6 +89,7 @@ public class CacheUtil {
 	
 	/**
 	 * 获取缓存
+	 *
 	 * @param key
 	 */
 	@SuppressWarnings("unchecked")
@@ -102,7 +106,9 @@ public class CacheUtil {
 	}
 	
 	private static class CacheData {
-		/**缓存时长 秒*/
+		/**
+		 * 缓存时长 秒
+		 */
 		private Long seconds;
 		private Long lastVisitTime;
 		private Object data;

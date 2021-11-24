@@ -2,6 +2,12 @@ package com.zyplayer.doc.dubbo.controller.vo;
 
 import java.util.List;
 
+/**
+ * nacos服务信息对象
+ *
+ * @author 暮光：城中城
+ * @since 2019年1月10日
+ **/
 public class NacosServiceInfoVo {
 	
 	private int count;

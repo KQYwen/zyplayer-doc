@@ -3,6 +3,12 @@ package com.zyplayer.doc.db.framework.db.dto;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 
+/**
+ * 表字段注释信息
+ *
+ * @author 暮光：城中城
+ * @since 2018-11-27
+ */
 public class TableColumnDescDto {
 	@ColumnWidth(20)
 	@ExcelProperty("表名")

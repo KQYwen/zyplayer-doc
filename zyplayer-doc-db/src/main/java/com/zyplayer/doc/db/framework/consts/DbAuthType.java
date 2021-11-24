@@ -1,5 +1,11 @@
 package com.zyplayer.doc.db.framework.consts;
 
+/**
+ * 数据库授权前缀
+ *
+ * @author 暮光：城中城
+ * @since 2019-08-22
+ */
 public enum DbAuthType {
 	NO_AUTH(0, "DB_NO_AUTH_"),
 	VIEW(1, "DB_VIEW_"),

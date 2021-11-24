@@ -2,6 +2,12 @@ package com.zyplayer.doc.data.repository.manage.vo;
 
 import java.util.Date;
 
+/**
+ * 最新文档信息
+ *
+ * @author 暮光：城中城
+ * @since 2019-06-14
+ */
 public class SpaceNewsVo {
 	private String space;
 	private Long spaceId;

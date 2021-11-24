@@ -12,6 +12,12 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Objects;
 
+/**
+ * wiki页面权限服务
+ *
+ * @author 暮光：城中城
+ * @since 2020-06-16
+ */
 @Service
 public class WikiPageAuthService {
 	
@@ -20,6 +26,7 @@ public class WikiPageAuthService {
 	
 	/**
 	 * 是否具有编辑权限
+	 *
 	 * @param wikiSpaceSel
 	 * @param editType
 	 * @param pageId
@@ -50,6 +57,7 @@ public class WikiPageAuthService {
 	
 	/**
 	 * 是否具有权限编辑权限
+	 *
 	 * @param wikiSpaceSel
 	 * @param pageId
 	 * @param currentUserId
@@ -73,6 +81,7 @@ public class WikiPageAuthService {
 	
 	/**
 	 * 是否具有附件上传权限
+	 *
 	 * @param wikiSpaceSel
 	 * @param pageId
 	 * @param currentUserId
@@ -99,6 +108,7 @@ public class WikiPageAuthService {
 	
 	/**
 	 * 是否具有附件删除权限
+	 *
 	 * @param wikiSpaceSel
 	 * @param pageId
 	 * @param currentUserId
@@ -125,6 +135,7 @@ public class WikiPageAuthService {
 	
 	/**
 	 * 是否具有删除权限
+	 *
 	 * @param wikiSpaceSel
 	 * @param editType
 	 * @param pageId

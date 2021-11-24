@@ -1,7 +1,6 @@
-package com.zyplayer.doc.manage.web.manage;
+package com.zyplayer.doc.manage.web;
 
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
@@ -9,7 +8,7 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
-import com.zyplayer.doc.manage.web.manage.param.LdapPerson;
+import com.zyplayer.doc.manage.web.param.LdapPerson;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +32,9 @@ import java.util.Set;
 
 /**
  * 用户登录控制器
+ *
+ * @author 暮光：城中城
+ * @since 2018-12-08
  */
 @RestController
 public class LoginController {

@@ -7,6 +7,12 @@ import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import org.springframework.stereotype.Service;
 
+/**
+ * 执行权限判断类
+ *
+ * @author 暮光：城中城
+ * @since 2021-08-14
+ */
 @Service
 public class ExecuteAuthService {
 	

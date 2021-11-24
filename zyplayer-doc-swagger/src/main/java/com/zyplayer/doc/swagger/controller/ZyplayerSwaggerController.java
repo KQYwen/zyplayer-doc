@@ -31,7 +31,7 @@ import java.util.*;
 @RestController
 public class ZyplayerSwaggerController {
 	
-	@Autowired
+	@Resource
 	private MgStorageService storageService;
 	
 	@RequestMapping("/swagger-resources")

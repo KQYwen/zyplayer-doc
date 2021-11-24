@@ -7,7 +7,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.core.util.StringUtil;
 import com.zyplayer.doc.db.controller.download.FormatDownloadConst;
 import com.zyplayer.doc.db.controller.download.FormatDownloadService;
 import com.zyplayer.doc.db.controller.param.DataViewParam;
@@ -23,6 +22,7 @@ import com.zyplayer.doc.db.service.database.DbBaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -170,7 +170,7 @@ public class DbDataViewController {
 			return sqlExecutor.execute(executeParam);
 		} catch (Exception e) {
 			logger.error("执行出错", e);
-			return ExecuteResult.error(StringUtil.getException(e), executeSql);
+			return ExecuteResult.error(ExceptionUtils.getFullStackTrace(e), executeSql);
 		}
 	}
 }

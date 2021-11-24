@@ -1,5 +1,11 @@
 package com.zyplayer.doc.swaggerplus.framework.utils;
 
+/**
+ * swagger文档工具类
+ *
+ * @author 暮光：城中城
+ * @since 2021-11-04
+ */
 public class SwaggerDocUtil {
 	
 	public static String replaceSwaggerResources(String docUrl) {

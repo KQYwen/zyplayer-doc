@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * dubbo信息对象
+ *
  * @author 暮光：城中城
  * @since 2019年1月10日
  **/

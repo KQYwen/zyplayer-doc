@@ -1,5 +1,6 @@
 package com.zyplayer.doc.db.framework.db.interceptor;
 
+import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -19,9 +20,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+/**
+ * 日志拦截
+ *
+ * @author 暮光：城中城
+ * @since 2019-02-26
+ */
 @Intercepts({
-	@Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }),
-	@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class })
+		@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
+		@Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
+		@Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
 })
 public class SqlLogInterceptor implements Interceptor {
 	

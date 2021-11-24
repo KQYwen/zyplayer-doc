@@ -5,6 +5,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 import java.util.List;
 
 /**
+ * nacos中dubbo的信息
+ *
  * @author 暮光：城中城
  * @since 2019年1月10日
  **/

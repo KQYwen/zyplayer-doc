@@ -5,6 +5,12 @@ import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+/**
+ * mysql链接url解析
+ *
+ * @author 暮光：城中城
+ * @since 2021-05-13
+ */
 public class MysqlAnalysis implements AnalysisApi {
 	
 	@Override

@@ -3,6 +3,12 @@ package com.zyplayer.doc.wiki.framework.consts;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 静态类
+ *
+ * @author 暮光：城中城
+ * @since 2019-03-22
+ */
 public class Const {
 	//如果有多个相同的charset类型，可以使用""代替或者指定统一的文件类型，指定的语句需要放在所有相同的语句的第一个位置
 	//更多类型可以访问  http://tool.oschina.net/commons

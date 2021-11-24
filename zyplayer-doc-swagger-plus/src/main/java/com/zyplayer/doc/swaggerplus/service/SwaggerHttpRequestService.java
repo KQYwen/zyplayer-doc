@@ -1,8 +1,9 @@
 package com.zyplayer.doc.swaggerplus.service;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.http.*;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.repository.manage.entity.SwaggerGlobalParam;
 import com.zyplayer.doc.data.service.manage.SwaggerGlobalParamService;
@@ -22,11 +23,16 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.HttpCookie;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * swagger请求服务
+ *
+ * @author 暮光：城中城
+ * @since 2021-11-04
+ */
 @Service
 public class SwaggerHttpRequestService {
 	
@@ -127,7 +133,7 @@ public class SwaggerHttpRequestService {
 		return resultVo;
 	}
 	
-	private HttpResponse getHttpResponse(HttpServletRequest request, ProxyRequestParam requestParam){
+	private HttpResponse getHttpResponse(HttpServletRequest request, ProxyRequestParam requestParam) {
 		// 执行请求
 		Method method = requestMethodMap.get(requestParam.getMethod());
 		if (method == null) {

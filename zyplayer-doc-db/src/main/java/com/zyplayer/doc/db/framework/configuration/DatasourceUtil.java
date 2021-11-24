@@ -16,6 +16,12 @@ import org.springframework.core.io.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 数据库连接工具类
+ *
+ * @author 暮光：城中城
+ * @since 2019-07-04
+ */
 public class DatasourceUtil {
 	private static final SqlLogInterceptor sqlLogInterceptor = new SqlLogInterceptor();
 	// url解析

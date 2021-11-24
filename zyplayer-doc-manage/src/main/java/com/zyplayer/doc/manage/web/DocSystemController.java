@@ -1,4 +1,4 @@
-package com.zyplayer.doc.manage.web.manage;
+package com.zyplayer.doc.manage.web;
 
 import com.zyplayer.doc.core.annotation.AuthMan;
 import org.springframework.http.HttpStatus;
@@ -8,6 +8,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 使用路劲的方式访问页面
+ *
+ * @author 暮光：城中城
+ * @since 2019-06-05
  */
 @Controller
 public class DocSystemController {
@@ -46,14 +49,6 @@ public class DocSystemController {
 	@GetMapping("/doc-dubbo")
 	public ModelAndView dubbo() {
 		ModelAndView modelAndView = new ModelAndView("/doc-dubbo.html");
-		modelAndView.setStatus(HttpStatus.OK);
-		return modelAndView;
-	}
-	
-	@AuthMan
-	@GetMapping("/doc-es")
-	public ModelAndView es() {
-		ModelAndView modelAndView = new ModelAndView("/doc-es.html");
 		modelAndView.setStatus(HttpStatus.OK);
 		return modelAndView;
 	}

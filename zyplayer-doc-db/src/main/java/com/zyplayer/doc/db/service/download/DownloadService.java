@@ -9,6 +9,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 下载服务
+ *
+ * @author 暮光：城中城
+ * @since 2021-06-17
+ */
 @Service
 public interface DownloadService {
 	

@@ -1,7 +1,7 @@
 package com.zyplayer.doc.dubbo.framework.service;
 
 /**
- *
+ * classloader回调接口类
  *
  * @author 暮光：城中城
  * @since 2018年8月19日

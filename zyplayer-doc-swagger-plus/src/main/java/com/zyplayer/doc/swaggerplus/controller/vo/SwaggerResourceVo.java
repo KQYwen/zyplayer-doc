@@ -3,6 +3,12 @@ package com.zyplayer.doc.swaggerplus.controller.vo;
 
 import com.google.common.collect.ComparisonChain;
 
+/**
+ * swagger资源信息
+ *
+ * @author 暮光：城中城
+ * @since 2021-11-04
+ */
 public class SwaggerResourceVo implements Comparable<SwaggerResourceVo> {
 	private String name;
 	private String url;

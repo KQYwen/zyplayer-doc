@@ -14,6 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 数据库服务工厂类
+ *
+ * @author 暮光：城中城
+ * @since 2021-02-01
+ */
 @Service
 public class DatabaseServiceFactory {
 	
@@ -45,6 +51,7 @@ public class DatabaseServiceFactory {
 	
 	/**
 	 * 获取下载服务
+	 *
 	 * @param databaseProductEnum 数据库类型
 	 * @return 下载服务
 	 */

@@ -2,6 +2,12 @@ package com.zyplayer.doc.data.config.security;
 
 import java.util.Set;
 
+/**
+ * 登录用户信息
+ *
+ * @author 暮光：城中城
+ * @since 2018-12-02
+ */
 public class DocUserDetails {
 	private Long userId;
 	private String username;

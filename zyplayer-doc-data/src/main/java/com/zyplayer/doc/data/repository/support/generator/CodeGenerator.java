@@ -7,6 +7,12 @@ import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 
 import java.util.Collections;
 
+/**
+ * 代码生成器
+ *
+ * @author 暮光：城中城
+ * @since 2019-02-26
+ */
 public class CodeGenerator {
 	
 	public static void main(String[] args) {

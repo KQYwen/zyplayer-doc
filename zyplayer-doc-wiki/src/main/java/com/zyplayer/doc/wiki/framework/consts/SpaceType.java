@@ -2,6 +2,12 @@ package com.zyplayer.doc.wiki.framework.consts;
 
 import java.util.Objects;
 
+/**
+ * 空间类型
+ *
+ * @author 暮光：城中城
+ * @since 2019-06-01
+ */
 public class SpaceType {
 	public static final Integer publicSpace = 1;
 	public static final Integer personalSpace = 2;

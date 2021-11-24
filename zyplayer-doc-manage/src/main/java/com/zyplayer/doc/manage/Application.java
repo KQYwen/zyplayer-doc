@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -17,6 +16,9 @@ import java.util.Optional;
 
 /**
  * 程序启动器
+ *
+ * @author 暮光：城中城
+ * @since 2018-11-27
  */
 @EnableScheduling
 @SpringBootApplication
@@ -39,11 +41,13 @@ public class Application extends SpringBootServletInitializer {
 		String hostAddress = InetAddress.getLocalHost().getHostAddress();
 		String serverPort = env.getProperty("server.port");
 		String urlCtx = hostAddress + ":" + serverPort + "/" + contextPath;
+		String localCtx = "local.zyplayer.com:" + serverPort + "/" + contextPath;
 		logger.info("\n----------------------------------------------------------\n\t" +
-						"\t\t地址列表\n\t" +
-						"管理地址：http://{}\n" +
+						"\t\t地址列表\n" +
+						"\t管理地址：http://{}\n" +
+						"\t域名访问：http://{}\n" +
 						"----------------------------------------------------------",
-				urlCtx
+				urlCtx, localCtx
 		);
 	}
 }

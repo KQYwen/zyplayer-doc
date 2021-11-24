@@ -70,6 +70,7 @@ public class SwaggerProxyController {
 				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, swaggerDoc.getDocUrl(), docsDomain);
 				return new ResponseEntity<>(new Json(contentStr), HttpStatus.OK);
 			} catch (Exception e) {
+				e.printStackTrace();
 				return new ResponseEntity<>(DocResponseJson.warn("请求文档失败"), HttpStatus.OK);
 			}
 		}

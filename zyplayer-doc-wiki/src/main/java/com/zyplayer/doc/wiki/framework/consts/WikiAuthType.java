@@ -1,5 +1,11 @@
 package com.zyplayer.doc.wiki.framework.consts;
 
+/**
+ * wiki权限类型
+ *
+ * @author 暮光：城中城
+ * @since 2019-06-01
+ */
 public enum WikiAuthType {
 	@Deprecated
 	CREATE_PAGE(1, "WIKI_CREATE_PAGE_"),

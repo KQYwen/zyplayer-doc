@@ -1,8 +1,10 @@
 package com.zyplayer.doc.dubbo.framework.constant;
 
 /**
+ * dubbo静态类
+ *
  * @author 暮光：城中城
- * @since 2020年11月08日
+ * @since 2020年11月18日
  */
 public class DubboDocConst {
 	/**上传的文档jar文件名*/

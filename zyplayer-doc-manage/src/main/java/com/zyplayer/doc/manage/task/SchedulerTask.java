@@ -3,9 +3,9 @@ package com.zyplayer.doc.manage.task;
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.util.ZyplayerDocVersion;
-import com.zyplayer.doc.manage.utils.UpgradeUtil;
-import com.zyplayer.doc.manage.utils.bean.UpgradeInfo;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -15,8 +15,15 @@ import java.io.StringReader;
 import java.util.Objects;
 import java.util.Properties;
 
+/**
+ * 定时器，用于访问gitee获取最新版本和升级内容
+ *
+ * @author 暮光：城中城
+ * @since 2019年4月27日
+ */
 @Component
 public class SchedulerTask {
+	private static Logger logger = LoggerFactory.getLogger(SchedulerTask.class);
 	
 	@Value("${zyplayer.doc.manage.upgradePropertiesUrl:}")
 	private String upgradePropertiesUrl;
@@ -45,7 +52,7 @@ public class SchedulerTask {
 			UpgradeUtil.upgradeInfo = JSON.parseObject(jsonString, UpgradeInfo.class);
 			UpgradeUtil.upgradeInfo.setNowVersion(ZyplayerDocVersion.version);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("获取升级内容失败");
 		}
 	}
 }

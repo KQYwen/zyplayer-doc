@@ -7,6 +7,12 @@ import com.zyplayer.doc.core.exception.ConfirmException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Druid连接池工具类
+ *
+ * @author 暮光：城中城
+ * @since 2020-04-08
+ */
 public class DruidDataSourceUtil {
 	
 	private static AtomicLong nameId = new AtomicLong(0);

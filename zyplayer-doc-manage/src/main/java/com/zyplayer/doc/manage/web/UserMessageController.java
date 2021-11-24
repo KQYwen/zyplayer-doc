@@ -1,4 +1,4 @@
-package com.zyplayer.doc.manage.web.manage;
+package com.zyplayer.doc.manage.web;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;

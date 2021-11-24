@@ -2,6 +2,9 @@ package com.zyplayer.doc.db.framework.db.enums;
 
 /**
  * 数据库类型枚举
+ *
+ * @author 暮光：城中城
+ * @since 2021-05-13
  */
 public enum DatabaseProductEnum {
 	MYSQL("com.mysql.jdbc.Driver"),

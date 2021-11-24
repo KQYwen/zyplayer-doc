@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Sqlserver数据查询服务实现类
+ *
+ * @author 暮光：城中城
+ * @since 2021-02-01
+ */
 @Service
 public class SqlserverServiceImpl extends DbBaseService {
 	

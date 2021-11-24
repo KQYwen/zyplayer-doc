@@ -2,6 +2,8 @@ package com.zyplayer.doc.db.controller.download;
 
 /**
  * 下载类型枚举
+ * @author 暮光：城中城
+ * @since 2021-08-14
  */
 public class FormatDownloadConst {
 	/**

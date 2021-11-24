@@ -82,6 +82,7 @@ public class DatabaseDocController {
 	
 	/**
 	 * 获取数据源基本信息
+	 *
 	 * @param sourceId 数据源ID
 	 * @return 基本信息
 	 */

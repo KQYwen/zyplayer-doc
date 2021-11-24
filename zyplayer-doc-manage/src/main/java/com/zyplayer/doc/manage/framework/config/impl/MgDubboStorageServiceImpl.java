@@ -2,10 +2,10 @@ package com.zyplayer.doc.manage.framework.config.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.zyplayer.doc.dubbo.framework.service.MgDubboStorage;
-import com.zyplayer.doc.dubbo.framework.service.MgDubboStorageService;
 import com.zyplayer.doc.data.repository.manage.entity.ZyplayerStorage;
 import com.zyplayer.doc.data.service.manage.ZyplayerStorageService;
+import com.zyplayer.doc.dubbo.framework.service.MgDubboStorage;
+import com.zyplayer.doc.dubbo.framework.service.MgDubboStorageService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 /**
  * dubbo相关的文档存储服务
+ *
  * @author 暮光：城中城
  * @since 2018年8月19日
  */
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 public class MgDubboStorageServiceImpl implements MgDubboStorageService {
 	@Resource
 	ZyplayerStorageService zyplayerStorageService;
-
+	
 	/**
 	 * 使用数据库来存储，例： storageMapper.select(key);
 	 */
@@ -37,7 +38,7 @@ public class MgDubboStorageServiceImpl implements MgDubboStorageService {
 		}
 		return zyplayerStorage.getDocValue();
 	}
-
+	
 	@Override
 	public List<MgDubboStorage> like(String key, String value) {
 		QueryWrapper<ZyplayerStorage> wrapper = new QueryWrapper<>();
@@ -49,7 +50,7 @@ public class MgDubboStorageServiceImpl implements MgDubboStorageService {
 		}
 		return storageList.stream().map(val -> new MgDubboStorage(val.getDocKey(), val.getDocValue())).collect(Collectors.toList());
 	}
-
+	
 	/**
 	 * 使用数据库来存储，例： storageMapper.updateOrInsert(key, value);
 	 */

@@ -9,7 +9,6 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
-import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.DbDatasourceService;
 import com.zyplayer.doc.db.framework.configuration.DatasourceUtil;
@@ -37,12 +36,12 @@ import java.util.stream.Collectors;
 @AuthMan(DocAuthConst.DB_DATASOURCE_MANAGE)
 @RequestMapping("/zyplayer-doc-db/datasource")
 public class DbDatasourceController {
-
+	
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
 	@Resource
 	DbDatasourceService dbDatasourceService;
-
+	
 	@PostMapping(value = "/list")
 	public ResponseJson list(Integer pageNum, Integer pageSize, String name, String groupName) {
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
@@ -56,7 +55,7 @@ public class DbDatasourceController {
 		}
 		return DocDbResponseJson.ok(page);
 	}
-
+	
 	@PostMapping(value = "/groups")
 	public ResponseJson groups() {
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
@@ -93,7 +92,7 @@ public class DbDatasourceController {
 		}
 		return DocDbResponseJson.ok();
 	}
-
+	
 	@PostMapping(value = "/update")
 	public ResponseJson update(DbDatasource dbDatasource) {
 		if (StringUtils.isBlank(dbDatasource.getName())) {

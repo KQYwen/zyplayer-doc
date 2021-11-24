@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 引用配置信息
+ *
  * @author 暮光：城中城
  * @since 2019年1月10日
  **/

@@ -30,12 +30,12 @@ import com.zyplayer.doc.swagger.framework.service.MgStorageService;
 //@Component
 public class ZyplayerApiTestFilter implements Filter {
 	
-	@Autowired
+	@Resource
 	private MgStorageService mgStorageService;
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		
+	
 	}
 	
 	@Override

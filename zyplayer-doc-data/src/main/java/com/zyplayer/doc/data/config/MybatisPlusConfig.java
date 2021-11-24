@@ -3,11 +3,9 @@ package com.zyplayer.doc.data.config;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInterceptor;
 import com.zyplayer.doc.data.repository.support.interceptor.SqlLogInterceptor;
 import com.zyplayer.doc.data.utils.DruidDataSourceUtil;
-import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +15,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import java.util.Properties;
 
 /**
  * mybatis plus数据库配置
+ *
+ * @author 暮光：城中城
+ * @since 2019-02-16
  */
 @Configuration
 public class MybatisPlusConfig {

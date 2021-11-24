@@ -2,6 +2,9 @@ package com.zyplayer.doc.db.framework.db.dto;
 
 /**
  * 存储过程信息
+ *
+ * @author 暮光：城中城
+ * @since 2021-04-25
  */
 public class ProcedureDto {
 	private String db;

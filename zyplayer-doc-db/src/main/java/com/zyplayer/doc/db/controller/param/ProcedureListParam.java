@@ -1,5 +1,11 @@
 package com.zyplayer.doc.db.controller.param;
 
+/**
+ * 存储过程列表查询参数
+ *
+ * @author 暮光：城中城
+ * @since 2021-04-25
+ */
 public class ProcedureListParam {
 	private Long sourceId;
 	private String dbName;

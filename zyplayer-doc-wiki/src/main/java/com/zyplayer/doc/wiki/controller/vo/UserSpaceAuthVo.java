@@ -1,5 +1,11 @@
 package com.zyplayer.doc.wiki.controller.vo;
 
+/**
+ * 用户空间权限信息
+ *
+ * @author 暮光：城中城
+ * @since 2021-02-09
+ */
 public class UserSpaceAuthVo {
 	private Long groupId;
 	private Integer editPage;

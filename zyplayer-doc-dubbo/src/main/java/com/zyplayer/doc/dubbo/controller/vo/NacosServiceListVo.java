@@ -1,5 +1,11 @@
 package com.zyplayer.doc.dubbo.controller.vo;
 
+/**
+ * nacos服务列表信息
+ *
+ * @author 暮光：城中城
+ * @since 2019年1月10日
+ **/
 public class NacosServiceListVo {
 		private String name;
 		private int clusterCount;

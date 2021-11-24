@@ -1,5 +1,11 @@
 package com.zyplayer.doc.data.repository.support.consts;
 
+/**
+ * 授权信息静态类
+ *
+ * @author 暮光：城中城
+ * @since 2019-08-22
+ */
 public class DocAuthConst {
 	public static final String DB = "DB_";
 	public static final String WIKI = "WIKI_";

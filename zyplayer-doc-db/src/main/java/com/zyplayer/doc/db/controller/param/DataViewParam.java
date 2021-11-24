@@ -1,5 +1,11 @@
 package com.zyplayer.doc.db.controller.param;
 
+/**
+ * 数据预览查询参数
+ *
+ * @author 暮光：城中城
+ * @since 2021-05-20
+ */
 public class DataViewParam {
 	// 基本信息
 	private String executeId;
