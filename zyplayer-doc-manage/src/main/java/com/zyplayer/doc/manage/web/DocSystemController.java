@@ -38,9 +38,9 @@ public class DocSystemController {
 	}
 	
 	@AuthMan
-	@GetMapping("/doc-swagger-plus")
+	@GetMapping("/doc-api")
 	public ModelAndView swaggerPlus() {
-		ModelAndView modelAndView = new ModelAndView("/doc-swagger-plus.html");
+		ModelAndView modelAndView = new ModelAndView("/doc-api.html");
 		modelAndView.setStatus(HttpStatus.OK);
 		return modelAndView;
 	}

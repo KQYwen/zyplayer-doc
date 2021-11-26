@@ -8,9 +8,9 @@
                         <span>所有产品</span>
                     </div>
                     <div class="product-list">
-                        <div class="item" v-on:click="jumpToDocPage('doc-swagger-plus')">
-                            <div class="logo-text text1">Swagger</div>
-                            <div>Swagger文档</div>
+                        <div class="item" v-on:click="jumpToDocPage('doc-api')">
+                            <div class="logo-text text1">API</div>
+                            <div>API接口文档</div>
                         </div>
                         <div class="item" v-on:click="jumpToDocPage('doc-db')">
                             <div class="logo-text text2">DB</div>

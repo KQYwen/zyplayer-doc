@@ -59,7 +59,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-doc-swagger-plus</artifactId>
+			<artifactId>zyplayer-doc-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>

@@ -5,23 +5,6 @@ server:
   servlet:
     context-path: /zyplayer-doc-manage
 
-spring:
-  application:
-    name: zyplayer-doc-manage
-  servlet:
-    multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
-  datasource:
-    continue-on-error: true
-  ldap:
-    enable: false
-    urls: ['ldap://10.0.1.1:10389']
-    base: dc=xx,dc=net
-    username: cn=Manager,dc=xx,dc=net
-    password: MKDSHYDNIS
-    anonymousReadOnly: true
-
 # 整个文档项目的配置
 zyplayer:
   doc:
@@ -75,6 +58,23 @@ zyplayer:
         # 服务名称，多个使用 ; 分割，nacos没办法获取所有的服务列表，所以需要指定，好像通过后端接口可以获取，不知道后续版本会不会登录后才可以访问
 #        service: "com.zyplayer.dubbo.service.UserService;\
 #                  com.zyplayer.dubbo.service.AnnotateService;"
+
+spring:
+  application:
+    name: zyplayer-doc-manage
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    continue-on-error: true
+  ldap:
+    enable: false
+    urls: ['ldap://10.0.1.1:10389']
+    base: dc=xx,dc=net
+    username: cn=Manager,dc=xx,dc=net
+    password: MKDSHYDNIS
+    anonymousReadOnly: true
 
 # 下面的配置可以不用管了
 mybatis-plus:

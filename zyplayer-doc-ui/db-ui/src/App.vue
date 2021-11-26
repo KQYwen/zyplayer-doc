@@ -285,6 +285,9 @@
 						if ((moveLen < 0 && this.rightAsideWidth < 600) || (moveLen > 0 && this.rightAsideWidth > 200)) {
 							startX = endX;
 							this.rightAsideWidth -= moveLen;
+							if (this.rightAsideWidth < 200) {
+								this.rightAsideWidth = 200;
+							}
 						}
 					};
 					document.onmouseup = () => {

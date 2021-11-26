@@ -25,7 +25,7 @@
 	<modules>
 		<module>zyplayer-doc-manage</module>
 		<module>zyplayer-doc-db</module>
-		<module>zyplayer-doc-swagger-plus</module>
+		<module>zyplayer-doc-api</module>
 		<module>zyplayer-doc-wiki</module>
 		<module>zyplayer-doc-dubbo</module>
 		<module>zyplayer-doc-core</module>
@@ -208,12 +208,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.zyplayer</groupId>
-				<artifactId>zyplayer-doc-wiki</artifactId>
+				<artifactId>zyplayer-doc-api</artifactId>
 				<version>${zyplayer.doc.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.zyplayer</groupId>
-				<artifactId>zyplayer-doc-swagger-plus</artifactId>
+				<artifactId>zyplayer-doc-wiki</artifactId>
 				<version>${zyplayer.doc.version}</version>
 			</dependency>
 		</dependencies>

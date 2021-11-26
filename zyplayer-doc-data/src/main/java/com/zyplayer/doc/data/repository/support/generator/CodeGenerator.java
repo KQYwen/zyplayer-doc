@@ -16,7 +16,7 @@ import java.util.Collections;
 public class CodeGenerator {
 	
 	public static void main(String[] args) {
-		final String[] tableName = {"swagger_doc"};
+		final String[] tableName = {"api_doc", "api_request_param", "api_global_param"};
 		String url = "jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&useSSL=false&characterEncoding=utf8";
 		String projectPath = System.getProperty("user.dir") + "/zyplayer-doc-data";
 		String outputDir = projectPath + "/src/main/java";
