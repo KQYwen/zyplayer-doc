@@ -28,9 +28,9 @@
 			<a-form-item label="接口统计">
 				<a-row :gutter="[16, 16]">
 					<template v-for="method in ['get', 'post', 'put', 'delete', 'head', 'patch', 'options', 'trace', 'total']">
-						<a-col :span="6" v-if="methodStatistic[method]">
+						<a-col :span="6" v-if="swaggerMethodStatistic[method]">
 							<a-card size="small">
-								<a-statistic :title="method === 'total'?'总计':method.toUpperCase() + '方法'" :value="methodStatistic[method]" suffix="个"></a-statistic>
+								<a-statistic :title="method === 'total'?'总计':method.toUpperCase() + '方法'" :value="swaggerMethodStatistic[method]" suffix="个"></a-statistic>
 							</a-card>
 						</a-col>
 					</template>
@@ -53,14 +53,14 @@
 			const store = useStore()
 			const swaggerDoc = computed(() => store.state.swaggerDoc);
 			const swaggerDocInfo = computed(() => store.state.swaggerDoc.info);
-			const methodStatistic = computed(() => store.state.methodStatistic);
+			const swaggerMethodStatistic = computed(() => store.state.swaggerMethodStatistic);
 			const getDescription = description => {
 				return markdownIt.render(description || '');
 			};
 			return {
 				swaggerDoc,
 				swaggerDocInfo,
-				methodStatistic,
+				swaggerMethodStatistic,
 				getDescription,
 			};
 		},

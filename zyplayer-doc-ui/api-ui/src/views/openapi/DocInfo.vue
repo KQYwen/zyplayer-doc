@@ -1,36 +1,36 @@
 <template>
 	<a-card>
-		<a-form :label-col="{span: 4}" :wrapper-col="{span: 20}" v-if="swaggerDocInfo">
-			<a-form-item label="标题">{{swaggerDocInfo.title}}</a-form-item>
-			<a-form-item label="版本">{{swaggerDocInfo.version}}</a-form-item>
-			<a-form-item label="作者" v-if="swaggerDocInfo.contact">
-				<template v-if="swaggerDocInfo.contact.name">
-					{{swaggerDocInfo.contact.name}}
+		<a-form :label-col="{span: 4}" :wrapper-col="{span: 20}" v-if="openApiDocInfo">
+			<a-form-item label="标题">{{openApiDocInfo.title}}</a-form-item>
+			<a-form-item label="版本">{{openApiDocInfo.version}}</a-form-item>
+			<a-form-item label="作者" v-if="openApiDocInfo.contact">
+				<template v-if="openApiDocInfo.contact.name">
+					{{openApiDocInfo.contact.name}}
 				</template>
-				<template v-if="swaggerDocInfo.contact.email">
-					<a-divider type="vertical" />{{swaggerDocInfo.contact.email}}
+				<template v-if="openApiDocInfo.contact.email">
+					<a-divider type="vertical" />{{openApiDocInfo.contact.email}}
 				</template>
-				<template v-if="swaggerDocInfo.contact.url">
+				<template v-if="openApiDocInfo.contact.url">
 					<a-divider type="vertical" />
-					<a :href="swaggerDocInfo.contact.url" target="_blank">{{swaggerDocInfo.contact.url}}</a>
+					<a :href="openApiDocInfo.contact.url" target="_blank">{{openApiDocInfo.contact.url}}</a>
 				</template>
 			</a-form-item>
-			<a-form-item label="host">{{swaggerDoc.host}}</a-form-item>
-			<a-form-item label="许可证" v-if="swaggerDocInfo.license">
-				<a :href="swaggerDocInfo.license.url" target="_blank">{{swaggerDocInfo.license.name}}</a>
+			<a-form-item label="host">{{openApiDoc.host}}</a-form-item>
+			<a-form-item label="许可证" v-if="openApiDocInfo.license">
+				<a :href="openApiDocInfo.license.url" target="_blank">{{openApiDocInfo.license.name}}</a>
 			</a-form-item>
-			<a-form-item label="服务条款" v-if="swaggerDocInfo.termsOfService">
-				<a :href="swaggerDocInfo.termsOfService" target="_blank">{{swaggerDocInfo.termsOfService}}</a>
+			<a-form-item label="服务条款" v-if="openApiDocInfo.termsOfService">
+				<a :href="openApiDocInfo.termsOfService" target="_blank">{{openApiDocInfo.termsOfService}}</a>
 			</a-form-item>
 			<a-form-item label="文档说明">
-				<div class="markdown-body" v-html="getDescription(swaggerDocInfo.description)"></div>
+				<div class="markdown-body" v-html="getDescription(openApiDocInfo.description)"></div>
 			</a-form-item>
 			<a-form-item label="接口统计">
 				<a-row :gutter="[16, 16]">
 					<template v-for="method in ['get', 'post', 'put', 'delete', 'head', 'patch', 'options', 'trace', 'total']">
-						<a-col :span="6" v-if="methodStatistic[method]">
+						<a-col :span="6" v-if="openApiMethodStatistic[method]">
 							<a-card size="small">
-								<a-statistic :title="method === 'total'?'总计':method.toUpperCase() + '方法'" :value="methodStatistic[method]" suffix="个"></a-statistic>
+								<a-statistic :title="method === 'total'?'总计':method.toUpperCase() + '方法'" :value="openApiMethodStatistic[method]" suffix="个"></a-statistic>
 							</a-card>
 						</a-col>
 					</template>
@@ -51,16 +51,16 @@
 	export default {
 		setup() {
 			const store = useStore()
-			const swaggerDoc = computed(() => store.state.swaggerDoc);
-			const swaggerDocInfo = computed(() => store.state.swaggerDoc.info);
-			const methodStatistic = computed(() => store.state.methodStatistic);
+			const openApiDoc = computed(() => store.state.openApiDoc);
+			const openApiDocInfo = computed(() => store.state.openApiDoc.info);
+			const openApiMethodStatistic = computed(() => store.state.openApiMethodStatistic);
 			const getDescription = description => {
 				return markdownIt.render(description || '');
 			};
 			return {
-				swaggerDoc,
-				swaggerDocInfo,
-				methodStatistic,
+				openApiDoc,
+				openApiDocInfo,
+				openApiMethodStatistic,
 				getDescription,
 			};
 		},

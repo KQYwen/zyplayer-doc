@@ -9,8 +9,6 @@ export default createStore({
             userInfo: {},
             // tab多标签的标签名map{xxx: 'val'}
             pageTabNameMap: {},
-            // 方法统计{post: 10, total: 20}
-            methodStatistic: {},
             // 数据库存储的文档信息
             apiDoc: {},
             // 全局参数
@@ -22,6 +20,17 @@ export default createStore({
             swaggerDefinitions: {},
             // url对应的map信息 {'url + "." + method': {swagger.paths.url.method对象信息}}
             swaggerUrlMethodMap: {},
+            // 方法统计{post: 10, total: 20}
+            swaggerMethodStatistic: {},
+
+            // openApi原始文档
+            openApiDoc: {},
+            // openApi原始definitions
+            openApiDefinitions: {},
+            // url对应的map信息 {'url + "." + method': {swagger.paths.url.method对象信息}}
+            openApiUrlMethodMap: {},
+            // 方法统计{post: 10, total: 20}
+            openApiMethodStatistic: {},
         }
     },
     getters: {
@@ -42,6 +51,7 @@ export default createStore({
         addDocChangedNum(state) {
             state.docChangedNum++;
         },
+        // swagger
         setSwaggerDoc(state, swaggerDoc) {
             state.swaggerDoc = swaggerDoc;
             state.swaggerDefinitions = swaggerDoc.definitions || {};
@@ -49,8 +59,19 @@ export default createStore({
         setSwaggerUrlMethodMap(state, swaggerUrlMethodMap) {
             state.swaggerUrlMethodMap = swaggerUrlMethodMap;
         },
-        setMethodStatistic(state, methodStatistic) {
-            state.methodStatistic = methodStatistic;
+        setSwaggerMethodStatistic(state, swaggerMethodStatistic) {
+            state.swaggerMethodStatistic = swaggerMethodStatistic;
+        },
+        // openApi
+        setOpenApiDoc(state, openApiDoc) {
+            state.openApiDoc = openApiDoc;
+            state.openApiDefinitions = openApiDoc.definitions || {};
+        },
+        setOpenApiUrlMethodMap(state, openApiUrlMethodMap) {
+            state.openApiUrlMethodMap = openApiUrlMethodMap;
+        },
+        setOpenApiMethodStatistic(state, openApiMethodStatistic) {
+            state.openApiMethodStatistic = openApiMethodStatistic;
         },
         addTableName(state, item) {
             let sameObj = Object.assign({}, state.pageTabNameMap);

@@ -23,7 +23,7 @@
     import {useStore} from 'vuex';
     import { message } from 'ant-design-vue';
     import {zyplayerApi} from '../../../api'
-    import {analysisSwaggerData, getTreeDataForTag} from '../../../assets/core/SwaggerTreeAnalysis.js'
+    import {analysisOpenApiData, getTreeDataForTag} from '../../../assets/core/OpenApiTreeAnalysis.js'
 
     export default {
         setup() {
@@ -32,7 +32,7 @@
             const router = useRouter();
 
             let tagPathMap = ref({});
-            let swaggerDoc = ref({});
+            let openApiDoc = ref({});
             let treeData = ref([]);
             let expandedKeys = ref([]);
             let choiceDocId = ref('');
@@ -40,10 +40,10 @@
 
             const docChecked = (val, node) => {
                 if (node.node.key === 'main') {
-                    router.push({path: '/swagger/info'});
+                    router.push({path: '/openapi/info'});
                 } else if (node.node.isLeaf) {
                     let dataRef = node.node.dataRef;
-                    router.push({path: '/swagger/view', query: dataRef.query});
+                    router.push({path: '/openapi/view', query: dataRef.query});
                 }
             };
             const loadDoc = (docId, keyword, callback) => {
@@ -51,22 +51,22 @@
                 searchKeywords.value = keyword;
                 zyplayerApi.apiDocApisDetail({id: docId}).then(res => {
                     let v2Doc = toJsonObj(res.data);
-                    if (typeof v2Doc !== 'object' || !v2Doc.swagger) {
+                    if (typeof v2Doc !== 'object' || !v2Doc.openapi) {
                         message.error('获取文档数据请求失败');
                         return;
                     }
-                    swaggerDoc.value = v2Doc;
-                    store.commit('setSwaggerDoc', v2Doc);
-                    let treeData = analysisSwaggerData(v2Doc);
-                    store.commit('setSwaggerUrlMethodMap', treeData.urlMethodMap);
-                    store.commit('setMethodStatistic', treeData.methodStatistic);
+                    openApiDoc.value = v2Doc;
+                    store.commit('setOpenApiDoc', v2Doc);
+                    let treeData = analysisOpenApiData(v2Doc);
+                    store.commit('setOpenApiUrlMethodMap', treeData.urlMethodMap);
+                    store.commit('setOpenApiMethodStatistic', treeData.methodStatistic);
                     tagPathMap.value = treeData.tagPathMap;
                     loadTreeData();
                     callback();
                     setTimeout(() => {
-                        let isViewPage = (route.path === '/swagger/view' && route.query.id);
+                        let isViewPage = (route.path === '/openapi/view' && route.query.id);
                         if (!isViewPage) {
-                            router.push({path: '/swagger/info'});
+                            router.push({path: '/openapi/info'});
                         }
                     }, 0);
                 });
@@ -74,7 +74,7 @@
             const loadTreeData = () => {
                 expandedKeys.value = ['main'];
                 let metaInfo = {id: choiceDocId.value};
-                treeData.value = getTreeDataForTag(swaggerDoc.value, tagPathMap.value, searchKeywords.value, metaInfo);
+                treeData.value = getTreeDataForTag(openApiDoc.value, tagPathMap.value, searchKeywords.value, metaInfo);
             };
             const toJsonObj = (value) => {
                 if (typeof value !== 'string') {

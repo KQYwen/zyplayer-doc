@@ -18,7 +18,7 @@ const methodArray = ["get", "head", "post", "put", "patch", "delete", "options",
  *   }
  * }
  */
-export function analysisSwaggerData(swagger) {
+export function analysisOpenApiData(swagger) {
     let tagPathMap = {}, urlMethodMap = {}, methodStatistic = {};
     let swaggerPaths = swagger.paths;
     if (!swaggerPaths) {

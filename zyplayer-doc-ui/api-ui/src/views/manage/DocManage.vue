@@ -61,8 +61,8 @@
                 <a-radio-group v-model:value="docEdit.docType">
                     <a-radio :value="1">Swagger URL</a-radio>
                     <a-radio :value="2">Swagger JSON</a-radio>
-                    <a-radio :value="3" disabled>OpenApi URL</a-radio>
-                    <a-radio :value="4" disabled>OpenApi JSON</a-radio>
+                    <a-radio :value="3">OpenApi URL</a-radio>
+                    <a-radio :value="4">OpenApi JSON</a-radio>
                     <a-radio :value="5" disabled>自建API</a-radio>
                 </a-radio-group>
             </a-form-item>

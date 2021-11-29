@@ -56,13 +56,35 @@ let routers = [
                         children: [
                             {
                                 path: '/swagger/info',
-                                name: '文档信息',
+                                name: 'swagger文档信息',
                                 component: () => import('./views/swagger/DocInfo.vue')
                             },
                             {
                                 path: '/swagger/view',
-                                name: '文档展示',
+                                name: 'swagger文档展示',
                                 component: () => import('./views/swagger/DocView.vue')
+                            },
+                        ]
+                    },
+                    // 以下是OpenApi的菜单路由
+                    {
+                        path: '/openapi',
+                        name: 'openApi文档',
+                        meta: {
+                            hidden: true,
+                            icon: 'SettingOutlined'
+                        },
+                        component: EmptyKeepAliveLayout,
+                        children: [
+                            {
+                                path: '/openapi/info',
+                                name: 'openApi文档信息',
+                                component: () => import('./views/openapi/DocInfo.vue')
+                            },
+                            {
+                                path: '/openapi/view',
+                                name: 'openApi文档展示',
+                                component: () => import('./views/openapi/DocView.vue')
                             },
                         ]
                     },

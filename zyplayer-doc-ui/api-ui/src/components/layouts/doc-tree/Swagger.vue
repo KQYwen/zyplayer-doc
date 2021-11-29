@@ -60,7 +60,7 @@
                     store.commit('setSwaggerDoc', v2Doc);
                     let treeData = analysisSwaggerData(v2Doc);
                     store.commit('setSwaggerUrlMethodMap', treeData.urlMethodMap);
-                    store.commit('setMethodStatistic', treeData.methodStatistic);
+                    store.commit('setSwaggerMethodStatistic', treeData.methodStatistic);
                     tagPathMap.value = treeData.tagPathMap;
                     loadTreeData();
                     callback(true);

@@ -99,8 +99,8 @@
             const store = useStore();
             let apiDoc = store.state.apiDoc || {};
             let globalParam = store.state.globalParam || [];
-            let swaggerDoc = store.state.swaggerDoc || {};
-            let urlDomain = apiDoc.rewriteDomain || swaggerDoc.host;
+            let openApiDoc = store.state.openApiDoc || {};
+            let urlDomain = apiDoc.rewriteDomain || openApiDoc.host;
             let docUrl = ref(urlDomain + props.docInfoShow.url);
             let activePage = ref('urlParam');
             // URL参数处理
