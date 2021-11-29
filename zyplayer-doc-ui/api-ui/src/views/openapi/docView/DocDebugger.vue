@@ -100,7 +100,12 @@
             let apiDoc = store.state.apiDoc || {};
             let globalParam = store.state.globalParam || [];
             let openApiDoc = store.state.openApiDoc || {};
-            let urlDomain = apiDoc.rewriteDomain || openApiDoc.host;
+            let urlDomain = apiDoc.rewriteDomain || '';
+            // os：取服务地址不一样 todo 多服务地址的情况处理
+            let servers = openApiDoc.servers || [];
+            if (!urlDomain && servers.length > 0 && servers[0].url) {
+                urlDomain = servers[0].url;
+            }
             let docUrl = ref(urlDomain + props.docInfoShow.url);
             let activePage = ref('urlParam');
             // URL参数处理

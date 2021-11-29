@@ -50,7 +50,7 @@
 
 	export default {
 		setup() {
-			const store = useStore()
+			const store = useStore();
 			const swaggerDoc = computed(() => store.state.swaggerDoc);
 			const swaggerDocInfo = computed(() => store.state.swaggerDoc.info);
 			const swaggerMethodStatistic = computed(() => store.state.swaggerMethodStatistic);

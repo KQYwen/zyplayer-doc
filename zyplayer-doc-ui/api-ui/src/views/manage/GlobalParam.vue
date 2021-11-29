@@ -53,7 +53,7 @@
 
     export default {
         setup() {
-            const store = useStore()
+            const store = useStore();
             let docList = ref([]);
             let docListLoading = ref(false);
             const searchDocList = async () => {

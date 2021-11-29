@@ -50,7 +50,7 @@
 
 	export default {
 		setup() {
-			const store = useStore()
+			const store = useStore();
 			const openApiDoc = computed(() => store.state.openApiDoc);
 			const openApiDocInfo = computed(() => store.state.openApiDoc.info);
 			const openApiMethodStatistic = computed(() => store.state.openApiMethodStatistic);
