@@ -51,6 +51,7 @@
                 searchKeywords.value = keyword;
                 zyplayerApi.apiDocApisDetail({id: docId}).then(res => {
                     let v2Doc = toJsonObj(res.data);
+                    // os：doc.swagger 和 doc.openapi 的区别
                     if (typeof v2Doc !== 'object' || !v2Doc.openapi) {
                         message.error('获取文档数据请求失败');
                         return;
