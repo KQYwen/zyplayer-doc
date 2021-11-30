@@ -81,13 +81,13 @@
 						this.upgradeInfo = json.data;
 						if (!!this.upgradeInfo.upgradeContent) {
 							this.upgradeInfo.upgradeContent = this.upgradeInfo.upgradeContent.replaceAll('；', '\n');
+							console.log("zyplayer-doc发现新版本："
+									+ "\n升级地址：" + json.data.upgradeUrl
+									+ "\n当前版本：" + json.data.nowVersion
+									+ "\n最新版本：" + json.data.lastVersion
+									+ "\n升级内容：" + json.data.upgradeContent
+							);
 						}
-						console.log("zyplayer-doc发现新版本："
-								+ "\n升级地址：" + json.data.upgradeUrl
-								+ "\n当前版本：" + json.data.nowVersion
-								+ "\n最新版本：" + json.data.lastVersion
-								+ "\n升级内容：" + json.data.upgradeContent
-						);
 					}
 				});
 			},

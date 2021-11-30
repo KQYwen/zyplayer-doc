@@ -55,6 +55,13 @@
 						</el-table>
 					</div>
 					<div ref="pageContent" class="wiki-page-content">
+<!--						<mavon-editor v-if="wikiPage.editorType == 2" ref="mavonEditor" :editable="false"-->
+<!--									  :subfield="false" defaultOpen="preview" v-model="pageShowDetail"-->
+<!--									  :toolbars="markdownToolbars"-->
+<!--									  :externalLink="false" v-highlight-->
+<!--									  :boxShadow="false"-->
+<!--									  class="page-content-editor wang-editor-body"-->
+<!--						/>-->
 						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2" v-highlight></div>
 						<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
 					</div>
@@ -74,39 +81,6 @@
 						</span>
 					</div>
 				</div>
-<!--				<div v-show="commentList.length > 0" class="comment-box" style="margin-top: 20px;">-->
-<!--					<div style="border-bottom: 1px solid #67C23A;padding-bottom: 10px;">评论列表：</div>-->
-<!--					<div v-for="(comment,index) in commentList" :key="comment.id" :data-id="comment.id" :data-index="index" style="border-bottom: 1px solid #eee;padding: 10px;">-->
-<!--						<div>-->
-<!--							<div :style="'background-color: '+comment.color" class="head">{{comment.createUserName.substr(0,1)}}</div>-->
-<!--						</div>-->
-<!--						<div style="padding-left: 55px;">-->
-<!--							{{comment.createUserName}}-->
-<!--							<span style="color: #888;font-size: 13px;padding-left: 10px;">{{comment.createTime}}</span>-->
-<!--							<span style="color: #888;font-size: 13px;margin-left: 10px;cursor: pointer;" @click="recommentUser(comment.id, index)">回复</span>-->
-<!--							<span style="color: #888;font-size: 13px;margin-left: 10px;cursor: pointer;" @click="deleteComment(comment.id)" v-if="canDeleteComment(comment)">删除</span>-->
-<!--						</div>-->
-<!--						<pre style="padding: 10px 0 0 55px;">{{comment.content}}</pre>-->
-<!--						<div v-for="(commentSub,indexSub) in comment.commentList" :key="commentSub.id" :data-id="commentSub.id" :data-index="indexSub" style="border-bottom: 1px solid #eee;padding: 10px;margin-left: 40px;">-->
-<!--							<div>-->
-<!--								<div :style="'background-color: '+commentSub.color" class="head">{{commentSub.createUserName.substr(0,1)}}</div>-->
-<!--							</div>-->
-<!--							<div style="padding-left: 55px;">-->
-<!--								{{commentSub.createUserName}}-->
-<!--								<span style="color: #888;font-size: 13px;padding-left: 10px;">{{commentSub.createTime}}</span>-->
-<!--								<span style="color: #888;font-size: 13px;margin-left: 10px;cursor: pointer;" @click="deleteComment(commentSub.id)" v-if="canDeleteComment(commentSub)">删除</span>-->
-<!--							</div>-->
-<!--							<pre style="padding: 10px 0 0 55px;">{{commentSub.content}}</pre>-->
-<!--						</div>-->
-<!--					</div>-->
-<!--				</div>-->
-<!--				<div style="margin: 20px 0 50px 0;">-->
-<!--					<el-input type="textarea" v-model="commentTextInput" :rows="5" :placeholder="recommentInfo.placeholder || '请输入评论内容'"></el-input>-->
-<!--					<div align="right" style="margin-top: 5px;">-->
-<!--						<el-button type="primary" v-on:click="submitPageComment">提交评论</el-button>-->
-<!--						<el-button v-on:click="cancelCommentUser" v-show="recommentInfo.id > 0">取消回复</el-button>-->
-<!--					</div>-->
-<!--				</div>-->
 			</el-col>
 			<el-col :span="6" style="height: 100%;" v-show="actionTabVisible">
 				<i class="el-icon-close close-action-tab" @click="closeActionTab"></i>
@@ -227,7 +201,7 @@
 	};
 	export default {
 		props: ['spaceInfo'],
-		components: {'el-image-viewer': ElImageViewer},
+		components: {'el-image-viewer': ElImageViewer, mavonEditor},
 		data() {
 			return {
 				// 页面展示相关
@@ -266,6 +240,10 @@
 				previewInitialIndex: 0,
 				showImagePreview: false,
 				showImagePreviewList: [],
+				markdownToolbars: {
+					fullscreen: true,
+					readmodel: true,
+				},
 			};
 		},
 		beforeRouteUpdate(to, from, next) {
@@ -522,6 +500,12 @@
 					};
 					if (this.wikiPage.editorType === 2) {
 						this.pageContent.content = markdownIt.render(this.pageContent.content);
+						// setTimeout(() => {
+						// 	// if (this.$refs.mavonEditor) {
+						// 	// 	this.$refs.mavonEditor.toolbar_right_click('read');
+						// 	// }
+						// 	this.createHeading();
+						// }, 0);
 					}
 					this.pageShowDetail = this.pageContent.content;
 					// 修改标题
@@ -541,6 +525,112 @@
 			},
 			closeImagePreview() {
 				this.showImagePreview = false;
+			},
+			/**
+			 * 生成目录树
+			 * ========================================================
+			 * 说明：代码修改至 yaohaixiao 的 autoc.js
+			 * 项目 gitee 地址：https://gitee.com/yaohaixiao/AutocJS
+			 * ========================================================
+			 */
+			createHeading() {
+				let headArr = [];
+				let headNodeArr = document.querySelector('.wiki-page-content').querySelectorAll('h1,h2,h3,h4,h5,h6,h7,h8,h9');
+				headNodeArr.forEach(node => {
+					headArr.push({
+						node: node,
+						level: parseInt(node.tagName.replace(/[h]/i, ''), 10)
+					});
+				});
+				let chapters = []
+				let previous = 1
+				let level = 0
+				headArr.forEach((heading, i) => {
+					let current = heading.level
+					let pid = -1
+					// 当前标题的（标题标签）序号 > 前一个标题的序号：两个相连的标题是父标题 -> 子标题关系；
+					// h2 （前一个标题）
+					// h3 （当前标题）
+					if (current > previous) {
+						level += 1
+						// 第一层级的 pid 是 -1
+						if (level === 1) {
+							pid = -1
+						} else {
+							pid = i - 1
+						}
+					}
+					// 当前标题的（标题标签）序号 = 前一个标题的序号
+					// h2 （前一个标题）
+					// h2 （当前标题）
+					// 当前标题的（标题标签）序号 < 前一个标题的序号，并且当前标题序号 > 当前的级别
+					// h2
+					// h4 （前一个标题）
+					// h3 （当前标题：这种情况我们还是任务 h3 是 h2 的下一级章节）
+					else if (current === previous || (current < previous && current > level)) {
+						// H1 的层级肯定是 1
+						if (current === 1) {
+							level = 1
+							pid = -1
+						} else {
+							pid = chapters[i - 1].pid
+						}
+					} else if (current <= level) {
+						// H1 的层级肯定是 1
+						if (current === 1) {
+							level = 1
+						} else {
+							level = level - (previous - current)
+
+							if (level <= 1) {
+								level = 1
+							}
+						}
+						// 第一级的标题
+						if (level === 1) {
+							pid = -1
+						} else {
+							// 虽然看上去差点，不过能工作啊
+							pid = this.generatePid(chapters, previous - current, i)
+						}
+					}
+					previous = current
+					chapters.push({
+						id: i,
+						pid: pid,
+						level: level,
+						text: this.stripTags(this.trim(heading.node.innerHTML))
+					});
+				})
+				console.log(chapters)
+			},
+			trim: (str) => {
+				return str.replace(/^\s+/g, '').replace(/\s+$/g, '')
+			},
+			stripTags: (str) => {
+				return str.replace(/<\/?[^>]+(>|$)/g, '')
+			},
+			generatePid(chapters, differ, index) {
+				let pid
+				// 最大只有 5 级的差距
+				switch (differ) {
+					case 2:
+						pid = chapters[chapters[chapters[index - 1].pid].pid].pid
+						break
+					case 3:
+						pid = chapters[chapters[chapters[chapters[index - 1].pid].pid].pid].pid
+						break
+					case 4:
+						pid = chapters[chapters[chapters[chapters[chapters[index - 1].pid].pid].pid].pid].pid
+						break
+					case 5:
+						pid = chapters[chapters[chapters[chapters[chapters[chapters[index - 1].pid].pid].pid].pid].pid].pid
+						break
+					default:
+						pid = chapters[chapters[index - 1].pid].pid
+						break
+				}
+				return pid
 			},
 			previewPageImage() {
 				const imgArr = [];
