@@ -4,7 +4,7 @@
 			<el-col :span="actionTabVisible?18:24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
 				<el-row>
 					<el-col :xs="0" :sm="4" :md="4" :lg="6" :xl="6" v-if="navigationList.length > 0">
-						<Navigation :heading="navigationList"></Navigation>
+						<Navigation ref="navigation" :heading="navigationList"></Navigation>
 					</el-col>
 					<el-col :xs="24" :sm="navigationList.length > 0?20:24" :md="navigationList.length > 0?20:24" :lg="navigationList.length > 0?18:24" :xl="navigationList.length > 0?18:24">
 						<div style="max-width: 1000px;margin: 0 auto;padding-left: 10px;">
@@ -398,16 +398,27 @@
 			closeActionTab() {
 				this.actionTabVisible = false;
 				this.clearHistory();
+				this.computeNavigationWidth();
 			},
 			showCommentWiki() {
 				this.actionTabVisible = true;
 				this.actionTabActiveName = 'comment';
 				this.scrollActionTabComment();
+				this.computeNavigationWidth();
 			},
 			showPageHistory() {
 				this.actionTabVisible = true;
 				this.actionTabActiveName = 'history';
 				this.clearHistory();
+				this.computeNavigationWidth();
+			},
+			computeNavigationWidth() {
+				setTimeout(() => {
+					console.log(this.$refs.navigation)
+					if (this.$refs.navigation) {
+						this.$refs.navigation.computeNavigationWidth();
+					}
+				}, 100);
 			},
 			getPageHistoryByScroll() {
 				if (this.pageHistoryPageNum <= 0) {
