@@ -158,6 +158,13 @@
 			},
 			turnLeftCollapse() {
 				this.leftCollapse = !this.leftCollapse;
+				setTimeout(() => {
+					if (this.leftCollapse) {
+						this.rightAsideWidthChange(this.rightAsideWidth + 1);
+					} else {
+						this.rightAsideWidthChange(1);
+					}
+				}, 100);
 			},
             createWiki() {
                 if (this.choiceSpace > 0) {
