@@ -19,8 +19,13 @@
 		},
 		data() {
 			return {
-				navigationWidth: '100px'
+				navigationWidth: '100px',
 			};
+		},
+		watch: {
+			'$store.state.global.rightAsideWidth'() {
+				this.computeNavigationWidth();
+			}
 		},
 		mounted() {
 			window.onresize = () => {

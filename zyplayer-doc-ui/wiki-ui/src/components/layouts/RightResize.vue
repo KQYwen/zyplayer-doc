@@ -36,6 +36,7 @@
 								this.rightAsideWidth = 300;
 							}
 							this.$emit('input', this.rightAsideWidth);
+							this.$emit('change', this.rightAsideWidth);
 						}
 					};
 					document.onmouseup = () => {

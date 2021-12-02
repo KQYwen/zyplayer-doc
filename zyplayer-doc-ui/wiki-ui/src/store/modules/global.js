@@ -2,6 +2,7 @@ export default {
     namespaced: true,
     state: {
         pageTabNameMap: {},
+		rightAsideWidth: 0,
     },
     getters: {
         getPageTabNameMap(state) {
@@ -13,6 +14,9 @@ export default {
 			let sameObj = Object.assign({}, state.pageTabNameMap);
 			sameObj[item.key] = item.val;
 			state.pageTabNameMap = sameObj;
+		},
+		setRightAsideWidth(state, rightAsideWidth) {
+			state.rightAsideWidth = rightAsideWidth;
 		},
     }
 }

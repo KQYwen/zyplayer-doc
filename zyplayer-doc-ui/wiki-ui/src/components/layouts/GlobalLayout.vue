@@ -31,7 +31,7 @@
 					</div>
                 </div>
             </el-aside>
-			<RightResize v-model="rightAsideWidth" v-show="leftCollapse"></RightResize>
+			<RightResize v-model="rightAsideWidth" @change="rightAsideWidthChange" v-show="leftCollapse"></RightResize>
             <el-container>
                 <el-header>
                     <i class="el-icon-fold el-icon-s-fold" v-if="leftCollapse" @click="turnLeftCollapse"></i>
@@ -359,6 +359,9 @@
                 }
 				this.choiceSpace = spaceId;
                 this.doGetPageList(null);
+            },
+			rightAsideWidthChange(width) {
+				this.$store.commit('global/setRightAsideWidth', width);
             },
         }
     }
