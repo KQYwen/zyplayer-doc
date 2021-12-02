@@ -6,8 +6,8 @@
 					<template v-if="pageId">
 						<span>编辑方式：</span>
 						<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId">
-							<el-option label="HTML" :value="1"></el-option>
 							<el-option label="Markdown" :value="2"></el-option>
+							<el-option label="HTML" :value="1"></el-option>
 						</el-select>
 					</template>
 					<template v-else>
@@ -17,8 +17,8 @@
 						</el-tooltip>
 						<span style="margin-left: 50px;">编辑方式：</span>
 						<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId">
-							<el-option label="HTML" :value="1"></el-option>
 							<el-option label="Markdown" :value="2"></el-option>
+							<el-option label="HTML" :value="1"></el-option>
 						</el-select>
 					</template>
 				</el-col>
@@ -54,7 +54,7 @@
 				editor: {},
 				// 编辑相关
 				wikiPageEdit: {
-					editorType: 1,
+					editorType: 2,
 					pageTitle: "",
 				},
 				wikiPage: {},

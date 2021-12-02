@@ -1,7 +1,7 @@
 <template>
 	<div style="height: 100%;">
 		<el-container>
-			<el-aside width="300px" style="background-color: #fafafa;" v-show="leftCollapse">
+			<el-aside width="300px" style="background-color: #fafafa;" :style="{ width: rightAsideWidth + 'px' }" v-show="leftCollapse">
 				<div class="logo">{{nowSpaceShow.name}}</div>
 				<div style="padding: 10px;box-sizing: border-box;background: #fafafa;">
 					<el-input v-model="searchKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
@@ -17,6 +17,7 @@
 					<div class="build-info">本文档使用<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>构建</div>
 				</div>
 			</el-aside>
+			<RightResize v-model="rightAsideWidth" v-show="leftCollapse"></RightResize>
 			<el-container>
 				<el-main class="doc-body-box">
 					<router-view></router-view>
@@ -28,6 +29,7 @@
 
 <script>
 	import pageApi from '../../common/api/page'
+	import RightResize from './RightResize.vue'
 
 	export default {
 		data() {
@@ -46,8 +48,10 @@
 				// 页面展示相关
 				wikiPageList:[],
 				wikiPageExpandedKeys: [],
+				rightAsideWidth: 300,
 			}
 		},
+		components: {RightResize},
 		mounted: function () {
 			this.spaceUuid = this.$route.query.space || '';
 			this.getSpaceInfo();

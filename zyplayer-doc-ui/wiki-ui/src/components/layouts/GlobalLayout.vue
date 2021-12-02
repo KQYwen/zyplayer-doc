@@ -1,7 +1,7 @@
 <template>
     <div class="global-layout-vue">
         <el-container>
-            <el-aside v-show="leftCollapse">
+            <el-aside v-show="leftCollapse" :style="{ width: rightAsideWidth + 'px' }">
                 <div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
                     <div style="margin-bottom: 10px;">
                         <el-select :value="choiceSpace" @change="spaceChangeEvents" filterable placeholder="选择空间" style="width: 100%;">
@@ -31,10 +31,11 @@
 					</div>
                 </div>
             </el-aside>
+			<RightResize v-model="rightAsideWidth" v-show="leftCollapse"></RightResize>
             <el-container>
                 <el-header>
-                    <i class="el-icon-upload2" v-if="leftCollapse" @click="turnLeftCollapse"></i>
-                    <i class="el-icon-download" v-else @click="turnLeftCollapse"></i>
+                    <i class="el-icon-fold el-icon-s-fold" v-if="leftCollapse" @click="turnLeftCollapse"></i>
+                    <i class="el-icon-fold el-icon-s-unfold" v-else @click="turnLeftCollapse"></i>
 					<span class="header-right-user-name">{{userSelfInfo.userName}}</span>
 					<el-popover placement="bottom" width="600" trigger="click" v-model="userMessagePopVisible">
 						<el-badge :is-dot="haveNotReadUserMessage" slot="reference" style="line-height: 20px;margin: 0 15px;">
@@ -98,6 +99,7 @@
     import userApi from '../../common/api/user'
     import pageApi from '../../common/api/page'
 	import CreateSpace from '../space/CreateSpace'
+	import RightResize from './RightResize.vue'
 	import aboutDialog from "../../views/common/AboutDialog";
 
     export default {
@@ -134,9 +136,11 @@
 					pageNum: 1,
 					pageSize: 20,
 				},
+				rightAsideWidth: 300,
             }
         },
 		components: {
+			RightResize,
 			"create-space": CreateSpace,
 			'about-dialog': aboutDialog
 		},
@@ -376,8 +380,8 @@
 	}
 	.header-right-user-name{color: #fff;padding-right: 5px;}
     .el-header {color: #333; line-height: 40px; text-align: right;height: 40px !important;}
-    .el-icon-download,.el-icon-upload2{transform: rotate(-90deg);float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
-    .el-icon-download:hover,.el-icon-upload2:hover{color: #eee;}
+    .el-icon-fold{float: left;font-size: 25px;color: #aaa;margin-top: 8px;cursor: pointer;}
+    .el-icon-fold:hover{color: #eee;}
 	.head-icon{margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;}
 	.header-user-message .page-info-box{text-align: right;margin-top: 10px;}
 	.upgrade-info{max-height: 150px;overflow-y: auto;word-break: break-all; white-space: pre-wrap; line-height: 26px;}

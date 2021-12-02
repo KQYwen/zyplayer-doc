@@ -2,85 +2,89 @@
 	<div class="page-show-vue">
 		<el-row type="border-card" style="height: 100%;">
 			<el-col :span="actionTabVisible?18:24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
-				<div style="max-width: 1000px;margin: 0 auto;">
-					<div class="wiki-title">{{wikiPage.name}}</div>
-					<div class="wiki-author">
-						<div>
-							<span v-if="wikiPage.updateUserName">{{wikiPage.updateUserName}}　于　{{wikiPage.updateTime}}　修改</span>
-							<span v-else class="create-user-time">{{wikiPage.createUserName}}　于　{{wikiPage.createTime}}　创建</span>
-							<div style="float: right;">
-								<el-button type="text" icon="el-icon-chat-line-round" @click="showCommentWiki" style="margin-right: 10px;">评论</el-button>
-								<el-upload v-if="wikiPageAuth.canUploadFile==1"
-										   class="upload-page-file" :action="uploadFileUrl"
-										   :with-credentials="true"
-										   :on-success="uploadFileSuccess" :on-error="uploadFileError"
-										   name="files" show-file-list multiple :data="uploadFormData" :limit="999"
-										   style="display: inline;margin-right: 10px;">
-									<el-button type="text" icon="el-icon-upload">上传附件</el-button>
-								</el-upload>
-								<el-button v-if="wikiPageAuth.canEdit==1" type="text" icon="el-icon-edit" @click="editWiki">编辑</el-button>
-								<el-dropdown style="margin-left: 10px;" @command="handleMoreCommand">
-									<el-button type="text">
-										更多<i class="el-icon-arrow-down el-icon--right"></i>
-									</el-button>
-									<el-dropdown-menu slot="dropdown">
-										<el-dropdown-item command="showPageHistory" icon="el-icon-time">查看历史版本</el-dropdown-item>
-										<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete==1" icon="el-icon-delete">删除</el-dropdown-item>
-										<el-dropdown-item command="editAuth" v-if="wikiPageAuth.canConfigAuth==1" icon="el-icon-s-check">权限设置</el-dropdown-item>
-										<el-dropdown-item command="showOpenPage" v-if="spaceInfo.openDoc == 1" icon="el-icon-share">查看开放文档</el-dropdown-item>
-										<el-dropdown-item command="showMobileView" v-if="spaceInfo.openDoc == 1" icon="el-icon-mobile-phone">手机端查看</el-dropdown-item>
-									</el-dropdown-menu>
-								</el-dropdown>
+				<el-row>
+					<el-col :xs="0" :sm="4" :md="4" :lg="6" :xl="6" v-if="navigationList.length > 0">
+						<Navigation :heading="navigationList"></Navigation>
+					</el-col>
+					<el-col :xs="24" :sm="navigationList.length > 0?20:24" :md="navigationList.length > 0?20:24" :lg="navigationList.length > 0?18:24" :xl="navigationList.length > 0?18:24">
+						<div style="max-width: 1000px;margin: 0 auto;padding-left: 10px;">
+							<div class="wiki-title" ref="wikiTitle">{{wikiPage.name}}</div>
+							<div class="wiki-author">
+								<div>
+									<span v-if="wikiPage.updateUserName">{{wikiPage.updateUserName}}　于　{{wikiPage.updateTime}}　修改</span>
+									<span v-else class="create-user-time">{{wikiPage.createUserName}}　于　{{wikiPage.createTime}}　创建</span>
+									<div style="float: right;">
+										<el-button type="text" icon="el-icon-chat-line-round" @click="showCommentWiki" style="margin-right: 10px;">评论</el-button>
+										<el-upload v-if="wikiPageAuth.canUploadFile==1"
+												   class="upload-page-file" :action="uploadFileUrl"
+												   :with-credentials="true"
+												   :on-success="uploadFileSuccess" :on-error="uploadFileError"
+												   name="files" show-file-list multiple :data="uploadFormData" :limit="999"
+												   style="display: inline;margin-right: 10px;">
+											<el-button type="text" icon="el-icon-upload">上传附件</el-button>
+										</el-upload>
+										<el-button v-if="wikiPageAuth.canEdit==1" type="text" icon="el-icon-edit" @click="editWiki">编辑</el-button>
+										<el-dropdown style="margin-left: 10px;" @command="handleMoreCommand">
+											<el-button type="text">
+												更多<i class="el-icon-arrow-down el-icon--right"></i>
+											</el-button>
+											<el-dropdown-menu slot="dropdown">
+												<el-dropdown-item command="showPageHistory" icon="el-icon-time">查看历史版本</el-dropdown-item>
+												<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete==1" icon="el-icon-delete">删除</el-dropdown-item>
+												<el-dropdown-item command="editAuth" v-if="wikiPageAuth.canConfigAuth==1" icon="el-icon-s-check">权限设置</el-dropdown-item>
+												<el-dropdown-item command="showOpenPage" v-if="spaceInfo.openDoc == 1" icon="el-icon-share">查看开放文档</el-dropdown-item>
+												<el-dropdown-item command="showMobileView" v-if="spaceInfo.openDoc == 1" icon="el-icon-mobile-phone">手机端查看</el-dropdown-item>
+											</el-dropdown-menu>
+										</el-dropdown>
+									</div>
+								</div>
+							</div>
+							<div class="wiki-files">
+								<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px;">
+									<el-table-column label="文件名">
+										<template slot-scope="scope">
+											<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName}}</a>
+										</template>
+									</el-table-column>
+									<el-table-column prop="createUserName" label="创建人"></el-table-column>
+									<el-table-column label="文件大小">
+										<template slot-scope="scope">{{computeFileSize(scope.row.fileSize)}}</template>
+									</el-table-column>
+									<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
+									<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
+									<el-table-column label="操作" width="100px" v-if="wikiPageAuth.canDeleteFile==1">
+										<template slot-scope="scope">
+											<el-button size="small" v-on:click="deletePageFile(scope.row)">删除</el-button>
+										</template>
+									</el-table-column>
+								</el-table>
+							</div>
+							<div ref="pageContent" class="wiki-page-content">
+								<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2" v-highlight></div>
+								<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
+							</div>
+							<div style="margin-top: 40px; font-size: 14px;">
+								<span style="vertical-align: top;" class="is-link">
+									<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle;"> 赞</span>
+									<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle;transform: rotateX(180deg);"> 踩</span>
+								</span>
+								<span style="margin-left: 10px;vertical-align: top;">
+									<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
+									<span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0">
+										<span class="is-link" v-on:click="showZanPageUser">{{wikiPage.zanNum}}人</span>赞了它
+									</span>
+									<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
+									<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1">
+										<span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它
+									</span>
+								</span>
+								<span style="margin-left: 10px;">
+									<i class="el-icon-view" style="font-size: 16px;color: #666;"></i> {{wikiPage.viewNum}}次阅读
+								</span>
 							</div>
 						</div>
-					</div>
-					<div class="wiki-files">
-						<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px;">
-							<el-table-column label="文件名">
-								<template slot-scope="scope">
-									<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName}}</a>
-								</template>
-							</el-table-column>
-							<el-table-column prop="createUserName" label="创建人"></el-table-column>
-							<el-table-column label="文件大小">
-								<template slot-scope="scope">{{computeFileSize(scope.row.fileSize)}}</template>
-							</el-table-column>
-							<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
-							<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
-							<el-table-column label="操作" width="100px" v-if="wikiPageAuth.canDeleteFile==1">
-								<template slot-scope="scope">
-									<el-button size="small" v-on:click="deletePageFile(scope.row)">删除</el-button>
-								</template>
-							</el-table-column>
-						</el-table>
-					</div>
-					<div ref="pageContent" class="wiki-page-content">
-<!--						<mavon-editor v-if="wikiPage.editorType == 2" ref="mavonEditor" :editable="false"-->
-<!--									  :subfield="false" defaultOpen="preview" v-model="pageShowDetail"-->
-<!--									  :toolbars="markdownToolbars"-->
-<!--									  :externalLink="false" v-highlight-->
-<!--									  :boxShadow="false"-->
-<!--									  class="page-content-editor wang-editor-body"-->
-<!--						/>-->
-						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2" v-highlight></div>
-						<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
-					</div>
-					<div style="margin-top: 40px; font-size: 14px;">
-						<span style="vertical-align: top;" class="is-link">
-							<span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle;"> 赞</span>
-							<span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle;transform: rotateX(180deg);"> 踩</span>
-						</span>
-						<span style="margin-left: 10px;vertical-align: top;">
-							<span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
-							<span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0"><span class="is-link" v-on:click="showZanPageUser">{{wikiPage.zanNum}}人</span>赞了它</span>
-							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
-							<span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1"><span class="is-link" v-on:click="showZanPageUser">我和{{wikiPage.zanNum-1}}个其他人</span>赞了它</span>
-						</span>
-						<span style="margin-left: 10px;">
-							<i class="el-icon-view" style="font-size: 16px;color: #666;"></i> {{wikiPage.viewNum}}次阅读
-						</span>
-					</div>
-				</div>
+					</el-col>
+				</el-row>
 			</el-col>
 			<el-col :span="6" style="height: 100%;" v-show="actionTabVisible">
 				<i class="el-icon-close close-action-tab" @click="closeActionTab"></i>
@@ -187,13 +191,16 @@
 
 <script>
 	import QRCode from 'qrcodejs2'
-	import common from '../../common/lib/common'
+	import unitUtil from '../../common/lib/UnitUtil.js'
+	import htmlUtil from '../../common/lib/HtmlUtil.js'
 	import pageApi from '../../common/api/page'
 	import userApi from '../../common/api/user'
+	import Navigation from './components/Navigation.vue'
 	import {mavonEditor, markdownIt} from 'mavon-editor'
 	import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
 	import 'mavon-editor/dist/markdown/github-markdown.min.css'
 	import 'mavon-editor/dist/css/index.css'
+	import vue from "../../main";
 
 	var page = {
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
@@ -201,7 +208,7 @@
 	};
 	export default {
 		props: ['spaceInfo'],
-		components: {'el-image-viewer': ElImageViewer, mavonEditor},
+		components: {'el-image-viewer': ElImageViewer, mavonEditor, Navigation},
 		data() {
 			return {
 				// 页面展示相关
@@ -236,6 +243,8 @@
 				pageHistoryChoice: {},
 				pageHistoryList: [],
 				pageHistoryPageNum: 1,
+				// 左侧导航菜单
+				navigationList: [],
 				// 大图预览
 				previewInitialIndex: 0,
 				showImagePreview: false,
@@ -459,26 +468,7 @@
 				this.pageShowDetail = this.pageContent.content;
 			},
 			computeFileSize(fileSize) {
-				if (!fileSize) {
-					return '-';
-				}
-				let size = "";
-				if (fileSize < 0.1 * 1024) {
-					size = fileSize.toFixed(2) + "B"
-				} else if (fileSize < 0.1 * 1024 * 1024) {
-					size = (fileSize / 1024).toFixed(2) + "KB"
-				} else if (fileSize < 0.1 * 1024 * 1024 * 1024) {
-					size = (fileSize / (1024 * 1024)).toFixed(2) + "MB"
-				} else {
-					size = (fileSize / (1024 * 1024 * 1024)).toFixed(2) + "GB"
-				}
-				let sizeStr = size + "";
-				let index = sizeStr.indexOf(".");
-				let dou = sizeStr.substr(index + 1, 2);
-				if (dou == "00") {
-					return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
-				}
-				return size;
+				return unitUtil.computeFileSize(fileSize);
 			},
 			loadPageDetail(pageId) {
 				this.clearHistory();
@@ -500,16 +490,11 @@
 					};
 					if (this.wikiPage.editorType === 2) {
 						this.pageContent.content = markdownIt.render(this.pageContent.content);
-						// setTimeout(() => {
-						// 	// if (this.$refs.mavonEditor) {
-						// 	// 	this.$refs.mavonEditor.toolbar_right_click('read');
-						// 	// }
-						// 	this.createHeading();
-						// }, 0);
 					}
 					this.pageShowDetail = this.pageContent.content;
 					// 修改标题
-					document.title = wikiPage.name || 'WIKI-内容展示';
+					let wikiTile = wikiPage.name || 'WIKI-内容展示';
+					document.title = wikiTile;
 					// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
 					// if (!this.lastClickNode.id) {
 					// 	this.lastClickNode = {id: wikiPage.id, nodePath: wikiPage.name};
@@ -518,119 +503,25 @@
 					this.$emit('switchSpace', this.wikiPage.spaceId);
 					// 调用父方法展开目录树
 					this.$emit('changeExpandedKeys', pageId);
-					setTimeout(() => this.previewPageImage(), 500);
+					setTimeout(() => {
+						this.previewPageImage();
+						let navigationList = htmlUtil.createNavigationHeading();
+						// 标题加到导航里面去
+						if (navigationList.length > 0) {
+							navigationList.unshift({
+								level: 1,
+								node: this.$refs.wikiTitle,
+								text: wikiTile
+							});
+						}
+						this.navigationList = navigationList;
+					}, 500);
 				});
 				this.loadCommentList(pageId);
 				this.getPageHistory(pageId, 1);
 			},
 			closeImagePreview() {
 				this.showImagePreview = false;
-			},
-			/**
-			 * 生成目录树
-			 * ========================================================
-			 * 说明：代码修改至 yaohaixiao 的 autoc.js
-			 * 项目 gitee 地址：https://gitee.com/yaohaixiao/AutocJS
-			 * ========================================================
-			 */
-			createHeading() {
-				let headArr = [];
-				let headNodeArr = document.querySelector('.wiki-page-content').querySelectorAll('h1,h2,h3,h4,h5,h6,h7,h8,h9');
-				headNodeArr.forEach(node => {
-					headArr.push({
-						node: node,
-						level: parseInt(node.tagName.replace(/[h]/i, ''), 10)
-					});
-				});
-				let chapters = []
-				let previous = 1
-				let level = 0
-				headArr.forEach((heading, i) => {
-					let current = heading.level
-					let pid = -1
-					// 当前标题的（标题标签）序号 > 前一个标题的序号：两个相连的标题是父标题 -> 子标题关系；
-					// h2 （前一个标题）
-					// h3 （当前标题）
-					if (current > previous) {
-						level += 1
-						// 第一层级的 pid 是 -1
-						if (level === 1) {
-							pid = -1
-						} else {
-							pid = i - 1
-						}
-					}
-					// 当前标题的（标题标签）序号 = 前一个标题的序号
-					// h2 （前一个标题）
-					// h2 （当前标题）
-					// 当前标题的（标题标签）序号 < 前一个标题的序号，并且当前标题序号 > 当前的级别
-					// h2
-					// h4 （前一个标题）
-					// h3 （当前标题：这种情况我们还是任务 h3 是 h2 的下一级章节）
-					else if (current === previous || (current < previous && current > level)) {
-						// H1 的层级肯定是 1
-						if (current === 1) {
-							level = 1
-							pid = -1
-						} else {
-							pid = chapters[i - 1].pid
-						}
-					} else if (current <= level) {
-						// H1 的层级肯定是 1
-						if (current === 1) {
-							level = 1
-						} else {
-							level = level - (previous - current)
-
-							if (level <= 1) {
-								level = 1
-							}
-						}
-						// 第一级的标题
-						if (level === 1) {
-							pid = -1
-						} else {
-							// 虽然看上去差点，不过能工作啊
-							pid = this.generatePid(chapters, previous - current, i)
-						}
-					}
-					previous = current
-					chapters.push({
-						id: i,
-						pid: pid,
-						level: level,
-						text: this.stripTags(this.trim(heading.node.innerHTML))
-					});
-				})
-				console.log(chapters)
-			},
-			trim: (str) => {
-				return str.replace(/^\s+/g, '').replace(/\s+$/g, '')
-			},
-			stripTags: (str) => {
-				return str.replace(/<\/?[^>]+(>|$)/g, '')
-			},
-			generatePid(chapters, differ, index) {
-				let pid
-				// 最大只有 5 级的差距
-				switch (differ) {
-					case 2:
-						pid = chapters[chapters[chapters[index - 1].pid].pid].pid
-						break
-					case 3:
-						pid = chapters[chapters[chapters[chapters[index - 1].pid].pid].pid].pid
-						break
-					case 4:
-						pid = chapters[chapters[chapters[chapters[chapters[index - 1].pid].pid].pid].pid].pid
-						break
-					case 5:
-						pid = chapters[chapters[chapters[chapters[chapters[chapters[index - 1].pid].pid].pid].pid].pid].pid
-						break
-					default:
-						pid = chapters[chapters[index - 1].pid].pid
-						break
-				}
-				return pid
 			},
 			previewPageImage() {
 				const imgArr = [];
@@ -728,10 +619,12 @@
 				this.$message.error("上传失败，" + err);
 			},
 			uploadFileSuccess(response) {
-				common.validateResult({data: response}).then(() => {
+				if (response.errCode == 200) {
 					this.pageFileList.push(response.data);
 					this.$message.success("上传成功！");
-				});
+				} else {
+					vue.$message('上传失败：' + (response.errMsg || "未知错误"));
+				}
 			},
 			deletePageFile(row) {
 				this.$confirm('确定要删除此文件吗？', '提示', {
