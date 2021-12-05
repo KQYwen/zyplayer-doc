@@ -32,10 +32,19 @@
              :scroll="{ x: 1400, y: 'calc(100vh - 300px)' }">
         <template #bodyCell="{ column, text, record }">
             <template v-if="column.dataIndex === 'operation'">
-                <a-button type="link" @click="editDoc(record)">编辑</a-button>
+                <a-button size="small" type="link" @click="editDoc(record)">编辑</a-button>
                 <a-popconfirm title="确定要删除吗？" @confirm="deleteDoc(record)">
-                    <a-button type="link" danger>删除</a-button>
+                    <a-button size="small" type="link" danger>删除</a-button>
                 </a-popconfirm>
+                <a-dropdown :trigger="['click']">
+                    <template #overlay>
+                        <a-menu @click="handleActionMenuClick($event, record)">
+                            <a-menu-item key="shareView"><link-outlined /> 查看开放文档</a-menu-item>
+                            <a-menu-item key="shareInstruction"><edit-outlined /> 编辑开放文档说明</a-menu-item>
+                        </a-menu>
+                    </template>
+                    <a-button type="link" size="small">更多<DownOutlined /></a-button>
+                </a-dropdown>
             </template>
             <template v-if="column.dataIndex === 'docType'">
                 <a-tag color="red" v-if="text === 1">Swagger URL</a-tag>
@@ -81,7 +90,9 @@
                 </template>
             </a-form-item>
             <a-form-item label="文档内容" required name="jsonContent" v-else-if="docEdit.docType === 2">
-                <a-textarea placeholder="请输入JSON格式的swagger文档内容" v-model:value="docEdit.jsonContent"></a-textarea>
+<!--                尝试使用ace编辑器，但感觉除了卡顿意义不大，不会在这里编辑json内容，暂时用textarea代替-->
+<!--                <ace-editor v-model:value="docEdit.jsonContent" lang="json" theme="monokai" width="100%" height="100" :options="aceEditorConfig"></ace-editor>-->
+                <a-textarea placeholder="请输入JSON格式的Swagger文档内容" v-model:value="docEdit.jsonContent" :auto-size="{ minRows: 5, maxRows: 10 }"></a-textarea>
                 <template #extra>
                     查看文档内容
                     <a-popover title="文档内容说明">
@@ -108,7 +119,8 @@
                 </template>
             </a-form-item>
             <a-form-item label="文档内容" required name="jsonContent" v-else-if="docEdit.docType === 4">
-                <a-textarea placeholder="请输入JSON格式的openapi文档内容" v-model:value="docEdit.jsonContent"></a-textarea>
+<!--                <ace-editor v-model:value="docEdit.jsonContent" lang="json" theme="monokai" width="100%" height="100" :options="aceEditorConfig"></ace-editor>-->
+                <a-textarea placeholder="请输入JSON格式的OpenApi文档内容" v-model:value="docEdit.jsonContent" :auto-size="{ minRows: 5, maxRows: 10 }"></a-textarea>
                 <template #extra>
                     查看文档内容
                     <a-popover title="文档内容说明">
@@ -135,12 +147,15 @@
                     </a-popover>
                 </template>
             </a-form-item>
-<!--            <a-form-item label="开放访问" required name="openVisit">-->
-<!--                <a-radio-group v-model:value="docEdit.openVisit">-->
-<!--                    <a-radio :value="0">否</a-radio>-->
-<!--                    <a-radio :value="1">开放</a-radio>-->
-<!--                </a-radio-group>-->
-<!--            </a-form-item>-->
+            <a-form-item label="开放访问" required name="openVisit">
+                <a-radio-group v-model:value="docEdit.openVisit">
+                    <a-radio :value="0">否</a-radio>
+                    <a-radio :value="1">开放</a-radio>
+                </a-radio-group>
+                <template #extra>
+                    开放访问后无需登录即可通过<a @click="openShareViewWindow(docEdit)">开放文档URL</a>访问改文档信息
+                </template>
+            </a-form-item>
             <a-form-item label="状态" required name="docStatus">
                 <a-radio-group v-model:value="docEdit.docStatus">
                     <a-radio :value="1">启用</a-radio>
@@ -149,14 +164,21 @@
             </a-form-item>
         </a-form>
     </a-modal>
+    <EditShareInstruction ref="instruction"></EditShareInstruction>
 </template>
 
 <script>
     import { toRefs, ref, reactive, onMounted } from 'vue';
     import {zyplayerApi} from '../../api';
     import {useStore} from 'vuex';
+    import aceEditor from "../../assets/ace-editor";
+    import EditShareInstruction from "./components/EditShareInstruction.vue";
+    import {getZyplayerApiBaseUrl} from "../../api/request/utils";
+    import {DownOutlined, LinkOutlined, EditOutlined} from '@ant-design/icons-vue';
+    import { message } from 'ant-design-vue';
 
     export default {
+        components: {aceEditor, EditShareInstruction, DownOutlined, LinkOutlined, EditOutlined},
         setup() {
             const store = useStore();
             let docList = ref([]);
@@ -218,6 +240,25 @@
                 });
             };
             const deleteDoc = async (row) => updateDoc(row.id, null, 0);
+
+            const openShareViewWindow = record => {
+                if (!record.shareUuid) {
+                    message.warning('请先保存文档后再试');
+                } else if (record.openVisit === 1) {
+                    window.open(getZyplayerApiBaseUrl() + '/doc-api#/share/home?uuid=' + record.shareUuid);
+                } else {
+                    message.warning('改文档尚未开启开放访问功能，请在编辑页选择开放后再试');
+                }
+            };
+
+            const handleActionMenuClick = (item, record) => {
+                if (item.key === 'shareView') {
+                    openShareViewWindow(record);
+                } else if (item.key === 'shareInstruction') {
+                    instruction.value.editDoc(record.id);
+                }
+            }
+            let instruction = ref();
             onMounted(() => {
                 searchDocList();
             });
@@ -234,7 +275,10 @@
                 deleteDoc,
                 editDoc,
                 handleTableChange,
+                openShareViewWindow,
+                handleActionMenuClick,
                 pagination,
+                instruction,
                 newDocRules: {
                     name: [{required: true, message: '请输入文档名称', trigger: 'change'}],
                     docUrl: [{required: true, message: '请输入文档地址', trigger: 'change'}],
@@ -247,12 +291,21 @@
                     {title: 'ID', dataIndex: 'id', width: 70},
                     {title: '文档名称', dataIndex: 'name', width: 250},
                     {title: '文档类型', dataIndex: 'docType', width: 120},
-                    // {title: '开放访问', dataIndex: 'openVisit', width: 90},
+                    {title: '开放访问', dataIndex: 'openVisit', width: 90},
                     {title: '状态', dataIndex: 'docStatus', width: 90},
                     {title: '文档地址', dataIndex: 'docUrl'},
                     {title: '目标域名', dataIndex: 'rewriteDomain', width: 250},
-                    {title: '操作', dataIndex: 'operation', fixed: 'right', width: 170},
+                    {title: '操作', dataIndex: 'operation', fixed: 'right', width: 200},
                 ],
+                aceEditorConfig: {
+                    wrap: true,
+                    autoScrollEditorIntoView: true,
+                    enableBasicAutocompletion: true,
+                    enableSnippets: true,
+                    enableLiveAutocompletion: true,
+                    minLines: 10,
+                    maxLines: 15,
+                },
                 swaggerDocDemo:
                     '{\n'
                     + '    "swagger": "2.0",\n'

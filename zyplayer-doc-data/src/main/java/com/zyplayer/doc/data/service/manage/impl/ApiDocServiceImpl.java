@@ -28,8 +28,18 @@ public class ApiDocServiceImpl extends ServiceImpl<ApiDocMapper, ApiDoc> impleme
 		queryWrapper.eq(apiDoc.getOpenVisit() != null, "open_visit", apiDoc.getOpenVisit());
 		queryWrapper.eq(apiDoc.getDocStatus() != null, "doc_status", apiDoc.getDocStatus());
 		queryWrapper.orderByAsc("id");
-		queryWrapper.select("id", "name", "doc_type", "doc_url", "rewrite_domain", "open_visit", "doc_status", "create_user_id", "create_user_name", "create_time");
+		queryWrapper.select("id", "name", "doc_type", "doc_url", "share_uuid", "rewrite_domain", "open_visit", "doc_status", "create_user_id", "create_user_name", "create_time");
 		IPage<ApiDoc> page = new Page<>(pageNum, pageSize);
 		return this.page(page, queryWrapper);
+	}
+	
+	@Override
+	public ApiDoc getByShareUuid(String shareUuid) {
+		QueryWrapper<ApiDoc> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("yn", 1);
+		queryWrapper.eq("open_visit", 1);
+		queryWrapper.eq("share_uuid", shareUuid);
+		queryWrapper.select("name", "doc_type", "doc_url", "share_uuid", "json_content", "share_instruction");
+		return this.getOne(queryWrapper);
 	}
 }

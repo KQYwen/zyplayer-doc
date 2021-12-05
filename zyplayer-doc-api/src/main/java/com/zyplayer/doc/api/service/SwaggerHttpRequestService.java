@@ -177,8 +177,10 @@ public class SwaggerHttpRequestService {
 	 */
 	private List<HttpCookie> getHttpCookie(HttpServletRequest request, Map<String, String> globalCookieParamMap, String headerCookie) {
 		List<HttpCookie> httpCookies = new LinkedList<>();
-		for (Cookie cookie : request.getCookies()) {
-			httpCookies.add(new HttpCookie(cookie.getName(), cookie.getValue()));
+		if (request.getCookies() != null) {
+			for (Cookie cookie : request.getCookies()) {
+				httpCookies.add(new HttpCookie(cookie.getName(), cookie.getValue()));
+			}
 		}
 		if (StringUtils.isNotBlank(headerCookie)) {
 			Arrays.stream(headerCookie.split(";")).map(String::trim).forEach(cookie -> {

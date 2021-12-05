@@ -18,7 +18,7 @@
 </template>
 
 <script>
-    import {toRefs, ref, reactive, onMounted, watch} from 'vue';
+    import {toRefs, ref, reactive, onMounted, watch, nextTick} from 'vue';
     import { useRouter, useRoute } from "vue-router";
     import {useStore} from 'vuex';
     import { message } from 'ant-design-vue';
@@ -53,7 +53,7 @@
                     let v2Doc = toJsonObj(res.data);
                     if (typeof v2Doc !== 'object' || !v2Doc.swagger) {
                         callback(false);
-                        message.error('获取文档数据请求失败');
+                        message.error('获取文档数据失败，请检查文档是否为标准的Swagger文档格式');
                         return;
                     }
                     swaggerDoc.value = v2Doc;
@@ -72,10 +72,11 @@
                     }, 0);
                 });
             };
-            const loadTreeData = () => {
-                expandedKeys.value = ['main'];
+            const loadTreeData = async () => {
                 let metaInfo = {id: choiceDocId.value};
                 treeData.value = getTreeDataForTag(swaggerDoc.value, tagPathMap.value, searchKeywords.value, metaInfo);
+                await nextTick();
+                expandedKeys.value = ['main'];
             };
             const toJsonObj = (value) => {
                 if (typeof value !== 'string') {

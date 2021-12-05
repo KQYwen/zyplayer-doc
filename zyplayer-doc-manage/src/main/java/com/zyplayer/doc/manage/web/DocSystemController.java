@@ -29,7 +29,6 @@ public class DocSystemController {
 		return modelAndView;
 	}
 	
-	@AuthMan
 	@GetMapping("/doc-db")
 	public ModelAndView db() {
 		ModelAndView modelAndView = new ModelAndView("/doc-db.html");
@@ -37,7 +36,6 @@ public class DocSystemController {
 		return modelAndView;
 	}
 	
-	@AuthMan
 	@GetMapping("/doc-api")
 	public ModelAndView swaggerPlus() {
 		ModelAndView modelAndView = new ModelAndView("/doc-api.html");
@@ -45,7 +43,6 @@ public class DocSystemController {
 		return modelAndView;
 	}
 	
-	@AuthMan
 	@GetMapping("/doc-dubbo")
 	public ModelAndView dubbo() {
 		ModelAndView modelAndView = new ModelAndView("/doc-dubbo.html");

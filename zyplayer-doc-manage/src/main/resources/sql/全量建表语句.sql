@@ -523,6 +523,8 @@ CREATE TABLE `api_doc` (
   `rewrite_domain` varchar(100) DEFAULT NULL COMMENT '重写的域名',
   `open_visit` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否开放访问 0=否 1=是',
   `doc_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态 1=启用 2=禁用',
+  `share_uuid` varchar(50) DEFAULT NULL COMMENT '开放文档UUID',
+  `share_instruction` mediumtext DEFAULT NULL COMMENT '开放文档使用说明',
   `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
   `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',

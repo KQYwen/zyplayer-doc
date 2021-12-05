@@ -3,7 +3,7 @@
         <a-layout-sider theme="light" :trigger="null" collapsible v-model:collapsed="appMenuCollapsed" :width="rightAsideWidth" style="height: 100vh;overflow: auto;">
             <div class="logo">
                 <img src="../../assets/api-logo.png">
-                <h1>API接口文档管理</h1>
+                <h1>API开放文档</h1>
             </div>
             <menu-layout :collapsed="appMenuCollapsed"></menu-layout>
         </a-layout-sider>
@@ -18,7 +18,6 @@
                         <MenuFoldOutlined class="trigger" v-else @click="appMenuCollapsed = !appMenuCollapsed"/>
                     </a-col>
                     <a-col flex="400px" style="text-align: right;padding-right: 20px;">
-                        <header-avatar></header-avatar>
                     </a-col>
                 </a-row>
             </a-layout-header>
@@ -30,15 +29,12 @@
 </template>
 
 <script>
-    import HeaderAvatar from './HeaderAvatar.vue'
     import MenuLayout from './MenuLayout.vue'
-    import GlobalFooter from './GlobalFooter.vue'
     import {BarChartOutlined, MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons-vue';
 
     const minHeight = window.innerHeight - 64 - 122;
     export default {
-        name: 'GlobalLayout',
-        components: {HeaderAvatar, MenuLayout, GlobalFooter, BarChartOutlined, MenuFoldOutlined, MenuUnfoldOutlined},
+        components: {MenuLayout, BarChartOutlined, MenuFoldOutlined, MenuUnfoldOutlined},
         data() {
             return {
                 minHeight: minHeight + 'px',

@@ -14,4 +14,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ApiDocService extends IService<ApiDoc> {
 	IPage<ApiDoc> getApiDocList(ApiDoc apiDoc, Integer pageNum, Integer pageSize);
+	
+	ApiDoc getByShareUuid(String shareUuid);
 }

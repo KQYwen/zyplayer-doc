@@ -39,17 +39,15 @@
             let searchKeywords = ref('');
 
             const docChecked = (val, node) => {
-                if (node.node.key === 'main') {
-                    router.push({path: '/openapi/info'});
-                } else if (node.node.isLeaf) {
+                if (node.node.isLeaf) {
                     let dataRef = node.node.dataRef;
-                    router.push({path: '/openapi/view', query: dataRef.query});
+                    router.push({path: '/share/openapi/view', query: dataRef.query});
                 }
             };
             const loadDoc = (docId, keyword, callback) => {
                 choiceDocId.value = docId;
                 searchKeywords.value = keyword;
-                zyplayerApi.apiDocApisDetail({id: docId}).then(res => {
+                zyplayerApi.apiShareDocApisDetail({shareUuid: docId}).then(res => {
                     let v2Doc = toJsonObj(res.data);
                     // os：doc.swagger 和 doc.openapi 的区别
                     if (typeof v2Doc !== 'object' || !v2Doc.openapi) {
@@ -64,16 +62,10 @@
                     tagPathMap.value = treeData.tagPathMap;
                     loadTreeData();
                     callback();
-                    setTimeout(() => {
-                        let isViewPage = (route.path === '/openapi/view' && route.query.id);
-                        if (!isViewPage) {
-                            router.push({path: '/openapi/info'});
-                        }
-                    }, 0);
                 });
             };
             const loadTreeData = async () => {
-                let metaInfo = {id: choiceDocId.value};
+                let metaInfo = {uuid: choiceDocId.value};
                 treeData.value = getTreeDataForTag(openApiDoc.value, tagPathMap.value, searchKeywords.value, metaInfo);
                 await nextTick();
                 expandedKeys.value = ['main'];

@@ -61,6 +61,16 @@ public class ApiDoc implements Serializable {
     private Integer docStatus;
 
     /**
+     * 开放文档UUID
+     */
+    private String shareUuid;
+    
+    /**
+     * 开放文档使用说明
+     */
+    private String shareInstruction;
+
+    /**
      * 创建人ID
      */
     private Long createUserId;
@@ -181,5 +191,21 @@ public class ApiDoc implements Serializable {
             ", createTime=" + createTime +
             ", yn=" + yn +
         "}";
+    }
+    
+    public String getShareUuid() {
+        return shareUuid;
+    }
+    
+    public void setShareUuid(String shareUuid) {
+        this.shareUuid = shareUuid;
+    }
+    
+    public String getShareInstruction() {
+        return shareInstruction;
+    }
+    
+    public void setShareInstruction(String shareInstruction) {
+        this.shareInstruction = shareInstruction;
     }
 }

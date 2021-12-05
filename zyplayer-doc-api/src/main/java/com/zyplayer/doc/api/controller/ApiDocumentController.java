@@ -1,5 +1,6 @@
 package com.zyplayer.doc.api.controller;
 
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -12,6 +13,7 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -86,6 +88,17 @@ public class ApiDocumentController {
 		apiDoc.setCreateTime(new Date());
 		apiDoc.setCreateUserId(currentUser.getUserId());
 		apiDoc.setCreateUserName(currentUser.getUsername());
+		if (apiDoc.getId() == null) {
+			apiDoc.setShareUuid(IdUtil.simpleUUID());
+		} else {
+			ApiDoc apiDocSel = swaggerDocService.getById(apiDoc.getId());
+			if (apiDocSel == null) {
+				return DocResponseJson.warn("未找到指定的文档记录信息");
+			}
+			if (StringUtils.isBlank(apiDocSel.getShareUuid())) {
+				apiDoc.setShareUuid(IdUtil.simpleUUID());
+			}
+		}
 		// url类型
 		if (Objects.equals(apiDoc.getDocType(), 1)) {
 			// UI地址替换为文档json地址
@@ -112,6 +125,7 @@ public class ApiDocumentController {
 					apiDoc.setId(null);
 					apiDoc.setDocUrl(swaggerDomain + resource.getUrl());
 					apiDoc.setName(resource.getName());
+					apiDoc.setShareUuid(IdUtil.simpleUUID());
 					swaggerDocService.save(apiDoc);
 				}
 			} else {
@@ -141,11 +155,7 @@ public class ApiDocumentController {
 		ApiDoc swaggerDocUp = new ApiDoc();
 		swaggerDocUp.setId(apiDoc.getId());
 		swaggerDocUp.setDocStatus(apiDoc.getDocStatus());
-		swaggerDocUp.setDocUrl(apiDoc.getDocUrl());
-		swaggerDocUp.setJsonContent(apiDoc.getJsonContent());
-		swaggerDocUp.setName(apiDoc.getName());
-		swaggerDocUp.setOpenVisit(apiDoc.getOpenVisit());
-		swaggerDocUp.setRewriteDomain(apiDoc.getRewriteDomain());
+		swaggerDocUp.setShareInstruction(apiDoc.getShareInstruction());
 		swaggerDocUp.setYn(apiDoc.getYn());
 		swaggerDocService.updateById(swaggerDocUp);
 		return DocResponseJson.ok();

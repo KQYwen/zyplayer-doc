@@ -13,5 +13,7 @@ export const zyplayerApi = {
     docApiGlobalParamList: data => apiClient({url: '/doc-api/global-param/list', method: 'post', data: data}),
     docApiGlobalParamUpdate: data => apiClient({url: '/doc-api/global-param/update', method: 'post', data: data}),
     requestUrl: data => apiClient({url: '/doc-api/proxy/request', method: 'post', data: data}),
+    apiShareDocDetail: data => apiClient({url: '/doc-api/share/detail', method: 'post', data: data}),
+    apiShareDocApisDetail: data => apiClient({url: '/doc-api/share/apis/detail', method: 'post', data: data}),
 };
 

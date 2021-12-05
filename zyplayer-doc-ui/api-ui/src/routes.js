@@ -1,4 +1,5 @@
 import PageLayout from './components/layouts/PageLayout.vue'
+import SharePageLayout from './components/share/PageLayout.vue'
 import EmptyKeepAliveLayout from './components/layouts/EmptyKeepAliveLayout.vue'
 
 let routers = [
@@ -56,12 +57,12 @@ let routers = [
                         children: [
                             {
                                 path: '/swagger/info',
-                                name: 'swagger文档信息',
+                                name: 'Swagger文档信息',
                                 component: () => import('./views/swagger/DocInfo.vue')
                             },
                             {
                                 path: '/swagger/view',
-                                name: 'swagger文档展示',
+                                name: 'Swagger文档展示',
                                 component: () => import('./views/swagger/DocView.vue')
                             },
                         ]
@@ -78,12 +79,12 @@ let routers = [
                         children: [
                             {
                                 path: '/openapi/info',
-                                name: 'openApi文档信息',
+                                name: 'OpenApi文档信息',
                                 component: () => import('./views/openapi/DocInfo.vue')
                             },
                             {
                                 path: '/openapi/view',
-                                name: 'openApi文档展示',
+                                name: 'OpenApi文档展示',
                                 component: () => import('./views/openapi/DocView.vue')
                             },
                         ]
@@ -105,6 +106,48 @@ let routers = [
                     },
                 ]
             },
+        ]
+    },
+    {
+        path: '/share',
+        name: '开放文档',
+        component: () => import('./components/share/GlobalLayout.vue'),
+        children: [
+            {
+                path: '/doc',
+                name: '开放文档管理',
+                component: SharePageLayout,
+                children: [
+                    {
+                        path: '/share/home',
+                        name: '开放文档使用说明',
+                        meta: {
+                            icon: 'FileTextOutlined'
+                        },
+                        component: () => import('./views/share/ShareHome.vue')
+                    },
+                    {
+                        path: '/doc',
+                        name: '开放文档查看',
+                        meta: {
+                            hidden: true,
+                        },
+                        component: EmptyKeepAliveLayout,
+                        children: [
+                            {
+                                path: '/share/swagger/view',
+                                name: 'Swagger开放文档展示',
+                                component: () => import('./views/swagger/share/DocView.vue')
+                            },
+                            {
+                                path: '/share/openapi/view',
+                                name: 'OpenApi开放文档展示',
+                                component: () => import('./views/openapi/share/DocView.vue')
+                            },
+                        ]
+                    },
+                ]
+            }
         ]
     },
 ]
