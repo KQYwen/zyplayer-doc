@@ -9,9 +9,9 @@
             </a-tooltip>
         </template>
         <mavon-editor ref="mavonEditor" v-model="shareInstruction" :toolbars="toolbars"
-                      :externalLink="false"
+                      :externalLink="false" @imgAdd="addMarkdownImage" :imageFilter="imageFilter"
                       style="height: 100%;"
-                      placeholder="请录入文档内容"/>
+                      placeholder="请录入开放文档说明"/>
     </a-modal>
 </template>
 
@@ -39,6 +39,7 @@
                 }
                 zyplayerApi.apiDocUpdate({id: docEdit.value.id, shareInstruction: shareInstruction.value}).then(res => {
                     editShareInstructionVisible.value = false;
+                    message.success('保存成功！');
                 });
             };
             const editDoc = async (id) => {
@@ -48,6 +49,12 @@
                     shareInstruction.value = res.data.shareInstruction;
                 });
             };
+            const addMarkdownImage = (pos, file) => {
+            };
+            const imageFilter = (pos, file) => {
+                message.error('暂不支持图片上传');
+                return false;
+            };
             onMounted(() => {
             });
             return {
@@ -56,6 +63,8 @@
                 shareInstruction,
                 handleNewDocOk,
                 editDoc,
+                imageFilter,
+                addMarkdownImage,
                 toolbars: {
                     bold: true, // 粗体
                     italic: true, // 斜体
@@ -69,7 +78,7 @@
                     ol: true, // 有序列表
                     ul: true, // 无序列表
                     link: true, // 链接
-                    imagelink: true, // 图片链接
+                    imagelink: false, // 图片链接
                     code: true, // code
                     table: true, // 表格
                     fullscreen: true, // 全屏编辑

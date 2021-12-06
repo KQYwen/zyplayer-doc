@@ -13,6 +13,8 @@ export default createStore({
             apiDoc: {},
             // 全局参数
             globalParam: [],
+            // 左侧菜单栏宽度
+            leftAsideWidth: 0,
 
             // swagger原始文档
             swaggerDoc: {},
@@ -36,7 +38,13 @@ export default createStore({
     getters: {
         getDocChangedNum: (state) => () => {
             return state.docChangedNum;
-        }
+        },
+        getLeftAsideWidth: (state) => () => {
+            return state.leftAsideWidth;
+        },
+        getApiDoc: (state) => () => {
+            return state.apiDoc;
+        },
     },
     mutations: {
         setUserInfo(state, userInfo) {
@@ -50,6 +58,9 @@ export default createStore({
         },
         addDocChangedNum(state) {
             state.docChangedNum++;
+        },
+        setLeftAsideWidth(state, leftAsideWidth) {
+            state.leftAsideWidth = leftAsideWidth;
         },
         // swagger
         setSwaggerDoc(state, swaggerDoc) {

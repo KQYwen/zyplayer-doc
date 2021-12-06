@@ -1,6 +1,6 @@
 <template>
     <a-layout class="api-menu-trigger">
-        <a-layout-sider theme="light" :trigger="null" collapsible v-model:collapsed="appMenuCollapsed" :width="rightAsideWidth" style="height: 100vh;overflow: auto;">
+        <a-layout-sider theme="light" :trigger="null" collapsible v-model:collapsed="appMenuCollapsed" :width="leftAsideWidth" style="height: 100vh;overflow: auto;">
             <div class="logo">
                 <img src="../../assets/api-logo.png">
                 <h1>API开放文档</h1>
@@ -14,8 +14,8 @@
             <a-layout-header style="border-bottom: 2px solid #eee;background: #fff; padding: 0; box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);-webkit-box-shadow:0 1px 4px rgba(0, 21, 41, 0.08);">
                 <a-row type="flex">
                     <a-col flex="auto">
-                        <MenuUnfoldOutlined class="trigger" v-if="appMenuCollapsed" @click="appMenuCollapsed = !appMenuCollapsed"/>
-                        <MenuFoldOutlined class="trigger" v-else @click="appMenuCollapsed = !appMenuCollapsed"/>
+                        <MenuUnfoldOutlined class="trigger" v-if="appMenuCollapsed" @click="turnLeftCollapse"/>
+                        <MenuFoldOutlined class="trigger" v-else @click="turnLeftCollapse"/>
                     </a-col>
                     <a-col flex="400px" style="text-align: right;padding-right: 20px;">
                     </a-col>
@@ -39,15 +39,28 @@
             return {
                 minHeight: minHeight + 'px',
                 appMenuCollapsed: false,
-                rightAsideWidth: 300
+                leftAsideWidth: 300
             }
         },
         computed: {},
         mounted() {
-            this.dragChangeRightAsideWidth();
+            this.dragChangeLeftAsideWidth();
         },
         methods: {
-            dragChangeRightAsideWidth: function() {
+            turnLeftCollapse() {
+                this.appMenuCollapsed = !this.appMenuCollapsed;
+                setTimeout(() => {
+                    if (this.appMenuCollapsed) {
+                        this.leftAsideWidthChange(this.leftAsideWidth + 1);
+                    } else {
+                        this.leftAsideWidthChange(1);
+                    }
+                }, 100);
+            },
+            leftAsideWidthChange(width) {
+                this.$store.commit('setLeftAsideWidth', width);
+            },
+            dragChangeLeftAsideWidth: function() {
                 // 保留this引用
                 let resize = this.$refs.rightResize;
                 let resizeBar = this.$refs.rightResizeBar;
@@ -61,12 +74,13 @@
                         // 计算并应用位移量
                         let endX = e2.clientX;
                         let moveLen = startX - endX;
-                        if ((moveLen < 0 && this.rightAsideWidth < 600) || (moveLen > 0 && this.rightAsideWidth > 280)) {
+                        if ((moveLen < 0 && this.leftAsideWidth < 600) || (moveLen > 0 && this.leftAsideWidth > 280)) {
                             startX = endX;
-                            this.rightAsideWidth -= moveLen;
-                            if (this.rightAsideWidth < 280) {
-                                this.rightAsideWidth = 280;
+                            this.leftAsideWidth -= moveLen;
+                            if (this.leftAsideWidth < 280) {
+                                this.leftAsideWidth = 280;
                             }
+                            this.leftAsideWidthChange(this.leftAsideWidth);
                         }
                     };
                     document.onmouseup = () => {

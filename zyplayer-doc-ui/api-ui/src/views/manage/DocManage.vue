@@ -90,9 +90,9 @@
                 </template>
             </a-form-item>
             <a-form-item label="文档内容" required name="jsonContent" v-else-if="docEdit.docType === 2">
-<!--                尝试使用ace编辑器，但感觉除了卡顿意义不大，不会在这里编辑json内容，暂时用textarea代替-->
-<!--                <ace-editor v-model:value="docEdit.jsonContent" lang="json" theme="monokai" width="100%" height="100" :options="aceEditorConfig"></ace-editor>-->
-                <a-textarea placeholder="请输入JSON格式的Swagger文档内容" v-model:value="docEdit.jsonContent" :auto-size="{ minRows: 5, maxRows: 10 }"></a-textarea>
+<!--                textarea在内容很多的时候（>300KB）会卡顿，ace不会-->
+                <ace-editor v-model:value="docEdit.jsonContent" lang="json" theme="monokai" width="100%" height="100" :options="aceEditorConfig"></ace-editor>
+<!--                <a-textarea placeholder="请输入JSON格式的Swagger文档内容" v-model:value="docEdit.jsonContent" :auto-size="{ minRows: 5, maxRows: 10 }"></a-textarea>-->
                 <template #extra>
                     查看文档内容
                     <a-popover title="文档内容说明">
@@ -119,8 +119,8 @@
                 </template>
             </a-form-item>
             <a-form-item label="文档内容" required name="jsonContent" v-else-if="docEdit.docType === 4">
-<!--                <ace-editor v-model:value="docEdit.jsonContent" lang="json" theme="monokai" width="100%" height="100" :options="aceEditorConfig"></ace-editor>-->
-                <a-textarea placeholder="请输入JSON格式的OpenApi文档内容" v-model:value="docEdit.jsonContent" :auto-size="{ minRows: 5, maxRows: 10 }"></a-textarea>
+                <ace-editor v-model:value="docEdit.jsonContent" lang="json" theme="monokai" width="100%" height="100" :options="aceEditorConfig"></ace-editor>
+<!--                <a-textarea placeholder="请输入JSON格式的OpenApi文档内容" v-model:value="docEdit.jsonContent" :auto-size="{ minRows: 5, maxRows: 10 }"></a-textarea>-->
                 <template #extra>
                     查看文档内容
                     <a-popover title="文档内容说明">
@@ -150,10 +150,10 @@
             <a-form-item label="开放访问" required name="openVisit">
                 <a-radio-group v-model:value="docEdit.openVisit">
                     <a-radio :value="0">否</a-radio>
-                    <a-radio :value="1">开放</a-radio>
+                    <a-radio :value="1">开放访问</a-radio>
                 </a-radio-group>
                 <template #extra>
-                    开放访问后无需登录即可通过<a @click="openShareViewWindow(docEdit)">开放文档URL</a>访问改文档信息
+                    开放访问后无需登录即可通过<a @click="openShareViewWindow(docEdit)">开放文档URL</a>访问该文档信息
                 </template>
             </a-form-item>
             <a-form-item label="状态" required name="docStatus">
@@ -240,17 +240,16 @@
                 });
             };
             const deleteDoc = async (row) => updateDoc(row.id, null, 0);
-
+            // 打开开放文档新窗口
             const openShareViewWindow = record => {
                 if (!record.shareUuid) {
                     message.warning('请先保存文档后再试');
-                } else if (record.openVisit === 1) {
-                    window.open(getZyplayerApiBaseUrl() + '/doc-api#/share/home?uuid=' + record.shareUuid);
+                } else if (record.openVisit !== 1) {
+                    message.warning('该文档尚未开启开放访问功能，请在编辑页选择开放后再试');
                 } else {
-                    message.warning('改文档尚未开启开放访问功能，请在编辑页选择开放后再试');
+                    window.open(getZyplayerApiBaseUrl() + '/doc-api#/share/home?uuid=' + record.shareUuid);
                 }
             };
-
             const handleActionMenuClick = (item, record) => {
                 if (item.key === 'shareView') {
                     openShareViewWindow(record);
