@@ -1,17 +1,15 @@
 <template>
     <a-layout class="api-menu-trigger">
-        <a-layout-sider theme="light" :trigger="null" collapsible v-model:collapsed="appMenuCollapsed" :width="rightAsideWidth" style="height: 100vh;overflow: auto;">
-            <div class="logo">
+        <a-layout-sider theme="light" :trigger="null" collapsible v-model:collapsed="appMenuCollapsed" :width="leftAsideWidth" style="height: 100vh;overflow: auto;">
+            <div class="header-border logo">
                 <img src="../../assets/api-logo.png">
                 <h1>API接口文档管理</h1>
             </div>
             <menu-layout :collapsed="appMenuCollapsed"></menu-layout>
         </a-layout-sider>
-        <div ref="rightResize" class="right-resize" v-show="!appMenuCollapsed">
-            <i ref="rightResizeBar">...</i>
-        </div>
+        <LeftResize v-model:value="leftAsideWidth" v-show="!appMenuCollapsed"></LeftResize>
         <a-layout>
-            <a-layout-header style="border-bottom: 2px solid #eee;background: #fff; padding: 0; box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);-webkit-box-shadow:0 1px 4px rgba(0, 21, 41, 0.08);">
+            <a-layout-header class="header-border">
                 <a-row type="flex">
                     <a-col flex="auto">
                         <MenuUnfoldOutlined class="trigger" v-if="appMenuCollapsed" @click="appMenuCollapsed = !appMenuCollapsed"/>
@@ -33,57 +31,32 @@
     import HeaderAvatar from './HeaderAvatar.vue'
     import MenuLayout from './MenuLayout.vue'
     import GlobalFooter from './GlobalFooter.vue'
+    import LeftResize from './components/LeftResize.vue'
     import {BarChartOutlined, MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons-vue';
 
     const minHeight = window.innerHeight - 64 - 122;
     export default {
         name: 'GlobalLayout',
-        components: {HeaderAvatar, MenuLayout, GlobalFooter, BarChartOutlined, MenuFoldOutlined, MenuUnfoldOutlined},
+        components: {
+            LeftResize,
+            HeaderAvatar,
+            MenuLayout,
+            GlobalFooter,
+            BarChartOutlined,
+            MenuFoldOutlined,
+            MenuUnfoldOutlined
+        },
         data() {
             return {
                 minHeight: minHeight + 'px',
                 appMenuCollapsed: false,
-                rightAsideWidth: 300
+                leftAsideWidth: 300
             }
         },
         computed: {},
         mounted() {
-            this.dragChangeRightAsideWidth();
         },
-        methods: {
-            dragChangeRightAsideWidth: function() {
-                // 保留this引用
-                let resize = this.$refs.rightResize;
-                let resizeBar = this.$refs.rightResizeBar;
-                resize.onmousedown = e => {
-                    let startX = e.clientX;
-                    // 颜色改变提醒
-                    resize.style.background = "#ccc";
-                    resizeBar.style.background = "#aaa";
-                    resize.left = resize.offsetLeft;
-                    document.onmousemove = e2 => {
-                        // 计算并应用位移量
-                        let endX = e2.clientX;
-                        let moveLen = startX - endX;
-                        if ((moveLen < 0 && this.rightAsideWidth < 600) || (moveLen > 0 && this.rightAsideWidth > 280)) {
-                            startX = endX;
-                            this.rightAsideWidth -= moveLen;
-                            if (this.rightAsideWidth < 280) {
-                                this.rightAsideWidth = 280;
-                            }
-                        }
-                    };
-                    document.onmouseup = () => {
-                        // 颜色恢复
-                        resize.style.background = "#fafafa";
-                        resizeBar.style.background = "#ccc";
-                        document.onmousemove = null;
-                        document.onmouseup = null;
-                    };
-                    return false;
-                };
-            }
-        },
+        methods: {},
     }
 </script>
 
@@ -100,6 +73,14 @@
         color: #1890ff;
     }
 
+    .header-border {
+        border-bottom: 2px solid #eee;
+        background: #fff;
+        padding: 0;
+        box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+        -webkit-box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    }
+
     .logo {
         height: 64px;
         position: relative;
@@ -108,11 +89,13 @@
         -webkit-transition: all .3s;
         transition: all .3s;
         overflow: hidden;
+        /*background: #fff;*/
         background: #1d4e89;
     }
 
     .logo h1 {
         color: #fff;
+        /*color: #2c3e50;*/
         font-size: 20px;
         margin: 0 0 0 12px;
         font-family: "Myriad Pro", "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -132,27 +115,5 @@
     .api-menu-trigger {
         min-height: 100%;
     }
-    .right-resize {
-        width: 5px;
-        cursor: w-resize;
-        background: #fafafa;
-    }
-    .right-resize i{
-        margin-top: 300px;
-        width: 5px;
-        height: 35px;
-        display: inline-block;
-        word-wrap: break-word;
-        word-break: break-all;
-        line-height: 8px;
-        border-radius: 5px;
-        background: #ccc;
-        color: #888;
-    }
 </style>
 
-<style>
-    .ant-layout-sider {
-        transition: none;
-    }
-</style>
