@@ -8,7 +8,7 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
@@ -54,7 +54,7 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 		// 给相关人发送消息
 		WikiPage wikiPageSel = this.getById(wikiPage.getId());
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_PARENT);
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_PARENT);
 		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
 		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);
@@ -64,7 +64,7 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 	public void deletePage(WikiPage wikiPage) {
 		// 给相关人发送消息
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_DELETE);
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_DELETE);
 		userMessage.setAffectUserId(wikiPage.getCreateUserId());
 		userMessage.setAffectUserName(wikiPage.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);

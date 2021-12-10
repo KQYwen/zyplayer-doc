@@ -7,10 +7,12 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.config.security.UserAuthVo;
 import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.manage.mapper.UserGroupAuthMapper;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.wiki.controller.vo.UserPageAuthVo;
@@ -68,7 +70,7 @@ public class WikiPageAuthController {
 		if (canConfigAuth != null) {
 			return DocResponseJson.warn(canConfigAuth);
 		}
-		List<String> authNameList = Stream.of(WikiAuthType.values()).map(WikiAuthType::getName).collect(Collectors.toList());
+		List<String> authNameList = Stream.of(WikiAuthType.values()).map(WikiAuthType::getCode).collect(Collectors.toList());
 		QueryWrapper<AuthInfo> queryWrapper = new QueryWrapper<>();
 		queryWrapper.in("auth_name", authNameList);
 		Collection<AuthInfo> authInfoList = authInfoService.list(queryWrapper);
@@ -84,27 +86,27 @@ public class WikiPageAuthController {
 		for (UserPageAuthVo authVo : authVoList) {
 			List<UserAuth> userAuthList = new LinkedList<>();
 			if (Objects.equals(authVo.getEditPage(), 1)) {
-				Long authId = authInfoMap.get(WikiAuthType.EDIT_PAGE.getName());
+				Long authId = authInfoMap.get(WikiAuthType.EDIT_PAGE.getCode());
 				UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
 				userAuthList.add(userAuth);
 			}
 			if (Objects.equals(authVo.getDeletePage(), 1)) {
-				Long authId = authInfoMap.get(WikiAuthType.DELETE_PAGE.getName());
+				Long authId = authInfoMap.get(WikiAuthType.DELETE_PAGE.getCode());
 				UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
 				userAuthList.add(userAuth);
 			}
 			if (Objects.equals(authVo.getPageFileUpload(), 1)) {
-				Long authId = authInfoMap.get(WikiAuthType.PAGE_FILE_UPLOAD.getName());
+				Long authId = authInfoMap.get(WikiAuthType.PAGE_FILE_UPLOAD.getCode());
 				UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
 				userAuthList.add(userAuth);
 			}
 			if (Objects.equals(authVo.getPageFileDelete(), 1)) {
-				Long authId = authInfoMap.get(WikiAuthType.PAGE_FILE_DELETE.getName());
+				Long authId = authInfoMap.get(WikiAuthType.PAGE_FILE_DELETE.getCode());
 				UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
 				userAuthList.add(userAuth);
 			}
 			if (Objects.equals(authVo.getPageAuthManage(), 1)) {
-				Long authId = authInfoMap.get(WikiAuthType.PAGE_AUTH_MANAGE.getName());
+				Long authId = authInfoMap.get(WikiAuthType.PAGE_AUTH_MANAGE.getCode());
 				UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
 				userAuthList.add(userAuth);
 			}
@@ -115,13 +117,13 @@ public class WikiPageAuthController {
 			userAuthService.saveBatch(userAuthList);
 			// 给相关人发送消息
 			UserInfo userInfo = userInfoService.getById(authVo.getUserId());
-			UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_AUTH);
+			UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_AUTH);
 			userMessage.setAffectUserId(userInfo.getId());
 			userMessage.setAffectUserName(userInfo.getUserName());
 			userMessageService.addWikiMessage(userMessage);
 			// 刷新用户权限
-			Set<String> userAuthSet = userAuthService.getUserAuthSet(authVo.getUserId());
-			DocUserUtil.setUserAuth(authVo.getUserId(), userAuthSet);
+			List<UserAuthVo> userAuthListNew = userAuthService.getUserAuthSet(authVo.getUserId());
+			DocUserUtil.setUserAuth(authVo.getUserId(), userAuthListNew);
 		}
 		return DocResponseJson.ok();
 	}
@@ -166,13 +168,15 @@ public class WikiPageAuthController {
 		return DocResponseJson.ok(authVoList);
 	}
 	
-	private Integer haveAuth(Set<String> authNameSet, WikiAuthType wikiAuthType){
-		return authNameSet.contains(wikiAuthType.getName()) ? 1 : 0;
+	private Integer haveAuth(Set<String> authNameSet, WikiAuthType wikiAuthType) {
+		return authNameSet.contains(wikiAuthType.getCode()) ? 1 : 0;
 	}
 	
-	private UserAuth createUserAuth(Long pageId, Long loginUserId, Long userId, Long authId){
+	private UserAuth createUserAuth(Long pageId, Long loginUserId, Long userId, Long authId) {
 		UserAuth userAuth = new UserAuth();
-		userAuth.setAuthCustomSuffix(DocAuthConst.WIKI + pageId);
+		userAuth.setSysType(DocSysType.WIKI.getType());
+		userAuth.setSysModuleType(DocSysModuleType.Wiki.PAGE.getType());
+		userAuth.setSysModuleId(pageId);
 		userAuth.setCreationTime(new Date());
 		userAuth.setCreateUid(loginUserId);
 		userAuth.setDelFlag(0);

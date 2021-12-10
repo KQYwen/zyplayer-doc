@@ -152,7 +152,9 @@ CREATE TABLE `user_auth`  (
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '是否删除 0=未删除 1=已删除',
   `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-  `auth_custom_suffix` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '自定义权限结尾',
+  `sys_type` int NULL COMMENT '系统类型，DocSysType',
+  `sys_module_type` int NULL COMMENT '系统模块类型，DocSysModuleType',
+  `sys_module_id` bigint(20) NULL COMMENT '系统模块ID',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 73 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户权限表' ROW_FORMAT = Compact;
 

@@ -10,6 +10,8 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbProcLog;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.DbProcLogService;
 import com.zyplayer.doc.db.controller.param.ProcedureListParam;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
@@ -188,7 +190,7 @@ public class DbProcedureController {
 	 */
 	private void judgeAuth(Long sourceId, String authName, String noAuthInfo) {
 		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
-				&& !DocUserUtil.haveCustomAuth(authName, DocAuthConst.DB + sourceId)) {
+				&& !DocUserUtil.haveCustomAuth(authName, DocSysType.DB.getType(), DocSysModuleType.Db.DATASOURCE.getType(), sourceId)) {
 			throw new ConfirmException(noAuthInfo);
 		}
 	}

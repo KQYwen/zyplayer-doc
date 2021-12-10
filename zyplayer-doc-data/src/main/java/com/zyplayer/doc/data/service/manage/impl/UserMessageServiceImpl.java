@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.mapper.UserMessageMapper;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.UserMessageService;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.Objects;
 public class UserMessageServiceImpl extends ServiceImpl<UserMessageMapper, UserMessage> implements UserMessageService {
 	
 	@Override
-	public UserMessage createUserMessage(DocUserDetails currentUser, Long dataId, String dataDesc, UserMsgSysType sysType, UserMsgType msgType) {
+	public UserMessage createUserMessage(DocUserDetails currentUser, Long dataId, String dataDesc, DocSysType sysType, UserMsgType msgType) {
 		UserMessage userMessage = new UserMessage();
 		userMessage.setDataId(dataId);
 		userMessage.setDataDesc(dataDesc);

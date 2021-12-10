@@ -10,7 +10,7 @@ import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageComment;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageCommentService;
@@ -98,7 +98,7 @@ public class WikiPageCommentController {
 		pageComment.setDelFlag(1);
 		wikiPageCommentService.updateById(pageComment);
 		// 给相关人发送消息
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_COMMENT_DEL);
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_COMMENT_DEL);
 		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
 		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);
@@ -144,7 +144,7 @@ public class WikiPageCommentController {
 			wikiPageCommentService.save(pageComment);
 		}
 		// 给相关人发送消息
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_COMMENT);
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_COMMENT);
 		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
 		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);

@@ -9,6 +9,8 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
 import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.DbDatasourceService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
@@ -65,14 +67,15 @@ public class DatabaseDocController {
 		// 没管理权限只返回有权限的数据源
 		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)) {
 			QueryWrapper<UserAuth> updateWrapper = new QueryWrapper<>();
-			updateWrapper.likeRight("auth_custom_suffix", DocAuthConst.DB);
+			updateWrapper.eq("sys_type", DocSysType.DB.getType());
+			updateWrapper.eq("sys_module_type", DocSysModuleType.Db.DATASOURCE.getType());
 			updateWrapper.eq("del_flag", 0);
 			updateWrapper.eq("user_id", currentUser.getUserId());
 			List<UserAuth> userAuthList = userAuthService.list(updateWrapper);
 			if (userAuthList == null || userAuthList.isEmpty()) {
 				return DocDbResponseJson.ok();
 			}
-			List<Long> userAuthDbIds = userAuthList.stream().map(val -> NumberUtils.toLong(val.getAuthCustomSuffix().replace(DocAuthConst.DB, ""))).collect(Collectors.toList());
+			List<Long> userAuthDbIds = userAuthList.stream().map(UserAuth::getSysModuleId).collect(Collectors.toList());
 			wrapper.in("id", userAuthDbIds);
 		}
 		wrapper.select("id", "name", "group_name");
@@ -227,7 +230,7 @@ public class DatabaseDocController {
 	 */
 	private void judgeAuth(Long sourceId, String authName, String noAuthInfo) {
 		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
-				&& !DocUserUtil.haveCustomAuth(authName, DocAuthConst.DB + sourceId)) {
+				&& !DocUserUtil.haveCustomAuth(authName, DocSysType.DB.getType(), DocSysModuleType.Db.DATASOURCE.getType(), sourceId)) {
 			throw new ConfirmException(noAuthInfo);
 		}
 	}

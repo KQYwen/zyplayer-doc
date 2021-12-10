@@ -10,7 +10,7 @@ import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageZan;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
@@ -86,7 +86,7 @@ public class WikiPageZanController {
 		}
 		wikiPageZanService.zanPage(wikiPageZan);
 		// 给相关人发送消息
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_ZAN);
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_ZAN);
 		if (!Objects.equals(wikiPageZan.getYn(), 1)) {
 			userMessage.setMsgType(UserMsgType.WIKI_PAGE_ZAN_CANCEL.getType());
 		}

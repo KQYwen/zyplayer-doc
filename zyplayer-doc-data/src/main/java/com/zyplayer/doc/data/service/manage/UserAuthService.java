@@ -1,9 +1,10 @@
 package com.zyplayer.doc.data.service.manage;
 
-import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zyplayer.doc.data.config.security.UserAuthVo;
+import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * <p>
@@ -15,5 +16,5 @@ import java.util.Set;
  */
 public interface UserAuthService extends IService<UserAuth> {
 	
-	Set<String> getUserAuthSet(Long id);
+	List<UserAuthVo> getUserAuthSet(Long id);
 }

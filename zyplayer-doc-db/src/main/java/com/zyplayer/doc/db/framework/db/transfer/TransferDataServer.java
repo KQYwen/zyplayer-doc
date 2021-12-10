@@ -8,6 +8,8 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbTransferTask;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.DbTransferTaskService;
 import com.zyplayer.doc.data.utils.ThreadPoolUtil;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
@@ -90,12 +92,12 @@ public class TransferDataServer {
 			throw new ConfirmException("任务正在执行中，请勿重复执行");
 		}
 		boolean manageAuth = DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE);
-		boolean querySelect = DocUserUtil.haveCustomAuth(DbAuthType.SELECT.getName(), DocAuthConst.DB + transferTask.getQueryDatasourceId());
-		boolean queryUpdate = DocUserUtil.haveCustomAuth(DbAuthType.UPDATE.getName(), DocAuthConst.DB + transferTask.getQueryDatasourceId());
+		boolean querySelect = DocUserUtil.haveCustomAuth(DbAuthType.SELECT.getName(), DocSysType.DB.getType(), DocSysModuleType.Db.DATASOURCE.getType(), transferTask.getQueryDatasourceId());
+		boolean queryUpdate = DocUserUtil.haveCustomAuth(DbAuthType.UPDATE.getName(), DocSysType.DB.getType(), DocSysModuleType.Db.DATASOURCE.getType(), transferTask.getQueryDatasourceId());
 		if (!manageAuth && !querySelect && !queryUpdate) {
 			throw new ConfirmException("没有查询数据源的查询权限，创建任务失败");
 		}
-		boolean storageUpdate = DocUserUtil.haveCustomAuth(DbAuthType.UPDATE.getName(), DocAuthConst.DB + transferTask.getStorageDatasourceId());
+		boolean storageUpdate = DocUserUtil.haveCustomAuth(DbAuthType.UPDATE.getName(), DocSysType.DB.getType(), DocSysModuleType.Db.DATASOURCE.getType(), transferTask.getStorageDatasourceId());
 		if (!manageAuth && !storageUpdate) {
 			throw new ConfirmException("没有目标数据源的写入权限，创建任务失败");
 		}

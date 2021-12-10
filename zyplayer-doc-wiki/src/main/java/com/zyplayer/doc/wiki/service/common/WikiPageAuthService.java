@@ -3,8 +3,8 @@ package com.zyplayer.doc.wiki.service.common;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.repository.manage.mapper.UserGroupAuthMapper;
-import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import org.springframework.stereotype.Service;
@@ -43,10 +43,10 @@ public class WikiPageAuthService {
 		}
 		// 空间不是自己的，也没有权限
 		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUserId, wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.EDIT_PAGE.getName(), DocAuthConst.WIKI + pageId);
+			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.EDIT_PAGE.getCode(), DocSysType.WIKI.getType(), DocSysModuleType.Wiki.PAGE.getType(), pageId);
 			if (!pageAuth) {
 				// 在空间上直接授权了分组的权限，在这个分组里就具有权限
-				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), UserMsgSysType.WIKI.getType(), WikiAuthType.EDIT_PAGE.getType(), currentUserId);
+				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), DocSysType.WIKI.getType(), WikiAuthType.EDIT_PAGE.getType(), currentUserId);
 				if (authId == null) {
 					return "您没有修改该文章的权限！";
 				}
@@ -68,9 +68,9 @@ public class WikiPageAuthService {
 			return "只有个人空间才可以编辑权限";
 		}
 		if (!Objects.equals(currentUserId, wikiSpaceSel.getCreateUserId())) {
-			if (!DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_AUTH_MANAGE.getName(), DocAuthConst.WIKI + pageId)) {
+			if (!DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_AUTH_MANAGE.getCode(), DocSysType.WIKI.getType(), DocSysModuleType.Wiki.PAGE.getType(), pageId)) {
 				// 在空间上直接授权了分组的权限，在这个分组里就具有权限
-				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), UserMsgSysType.WIKI.getType(), WikiAuthType.PAGE_AUTH_MANAGE.getType(), currentUserId);
+				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), DocSysType.WIKI.getType(), WikiAuthType.PAGE_AUTH_MANAGE.getType(), currentUserId);
 				if (authId == null) {
 					return "您不是创建人或没有权限";
 				}
@@ -94,10 +94,10 @@ public class WikiPageAuthService {
 		}
 		// 空间不是自己的，也没有权限
 		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUserId, wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_FILE_UPLOAD.getName(), DocAuthConst.WIKI + pageId);
+			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_FILE_UPLOAD.getCode(), DocSysType.WIKI.getType(), DocSysModuleType.Wiki.PAGE.getType(), pageId);
 			if (!pageAuth) {
 				// 在空间上直接授权了分组的权限，在这个分组里就具有权限
-				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), UserMsgSysType.WIKI.getType(), WikiAuthType.PAGE_FILE_UPLOAD.getType(), currentUserId);
+				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), DocSysType.WIKI.getType(), WikiAuthType.PAGE_FILE_UPLOAD.getType(), currentUserId);
 				if (authId == null) {
 					return "您没有上传该文章附件的权限！";
 				}
@@ -121,10 +121,10 @@ public class WikiPageAuthService {
 		}
 		// 空间不是自己的，也没有权限
 		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUserId, wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_FILE_DELETE.getName(), DocAuthConst.WIKI + pageId);
+			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.PAGE_FILE_DELETE.getCode(), DocSysType.WIKI.getType(), DocSysModuleType.Wiki.PAGE.getType(), pageId);
 			if (!pageAuth) {
 				// 在空间上直接授权了分组的权限，在这个分组里就具有权限
-				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), UserMsgSysType.WIKI.getType(), WikiAuthType.PAGE_FILE_DELETE.getType(), currentUserId);
+				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), DocSysType.WIKI.getType(), WikiAuthType.PAGE_FILE_DELETE.getType(), currentUserId);
 				if (authId == null) {
 					return "您没有删除该文章附件的权限！";
 				}
@@ -152,10 +152,10 @@ public class WikiPageAuthService {
 		}
 		// 空间不是自己的，也没有权限
 		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUserId, wikiSpaceSel.getCreateUserId())) {
-			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.DELETE_PAGE.getName(), DocAuthConst.WIKI + pageId);
+			boolean pageAuth = DocUserUtil.haveCustomAuth(WikiAuthType.DELETE_PAGE.getCode(), DocSysType.WIKI.getType(), DocSysModuleType.Wiki.PAGE.getType(), pageId);
 			if (!pageAuth) {
 				// 在空间上直接授权了分组的权限，在这个分组里就具有权限
-				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), UserMsgSysType.WIKI.getType(), WikiAuthType.DELETE_PAGE.getType(), currentUserId);
+				Long authId = userGroupAuthMapper.haveAuth(wikiSpaceSel.getId(), DocSysType.WIKI.getType(), WikiAuthType.DELETE_PAGE.getType(), currentUserId);
 				if (authId == null) {
 					return "您没有删除该文章的权限！";
 				}

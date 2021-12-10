@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.db.controller.download.FormatDownloadConst;
 import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.param.ProcedureListParam;
@@ -72,7 +74,7 @@ public abstract class DbBaseService {
 	 */
 	public void judgeAuth(Long sourceId, String authName, String noAuthInfo) {
 		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)
-				&& !DocUserUtil.haveCustomAuth(authName, DocAuthConst.DB + sourceId)) {
+				&& !DocUserUtil.haveCustomAuth(authName, DocSysType.DB.getType(), DocSysModuleType.Db.DATASOURCE.getType(), sourceId)) {
 			throw new ConfirmException(noAuthInfo);
 		}
 	}

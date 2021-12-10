@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.config.security.UserAuthVo;
+import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
@@ -79,7 +81,7 @@ public class LoginController {
 				return DocResponseJson.warn("用户名或密码错误");
 			}
 		}
-		Set<String> userAuthSet = userAuthService.getUserAuthSet(userInfo.getId());
+		List<UserAuthVo> userAuthSet = userAuthService.getUserAuthSet(userInfo.getId());
 		String accessToken = IdUtil.simpleUUID();
 		DocUserDetails userDetails = new DocUserDetails(userInfo.getId(), userInfo.getUserName(), userInfo.getPassword(), true, userAuthSet);
 		DocUserUtil.setCurrentUser(accessToken, userDetails);

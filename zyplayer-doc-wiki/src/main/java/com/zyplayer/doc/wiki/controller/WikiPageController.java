@@ -15,7 +15,7 @@ import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
 import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.*;
 import com.zyplayer.doc.data.utils.CachePrefix;
@@ -242,7 +242,7 @@ public class WikiPageController {
 			wrapper.eq("page_id", pageId);
 			wikiPageContentService.update(pageContent, wrapper);
 			// 给相关人发送消息
-			UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_UPDATE);
+			UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_UPDATE);
 			userMessageService.addWikiMessage(userMessage);
 		} else {
 			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
@@ -278,7 +278,7 @@ public class WikiPageController {
 			pageContent.setCreateUserName(currentUser.getUsername());
 			wikiPageContentService.save(pageContent);
 			// 给相关人发送消息
-			UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_CREATE);
+			UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_CREATE);
 			userMessageService.addWikiMessage(userMessage);
 		}
 		try {

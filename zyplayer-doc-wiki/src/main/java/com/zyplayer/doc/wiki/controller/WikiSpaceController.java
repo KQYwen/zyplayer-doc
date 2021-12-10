@@ -13,7 +13,7 @@ import com.zyplayer.doc.data.repository.manage.entity.UserGroupAuth;
 import com.zyplayer.doc.data.repository.manage.entity.UserSetting;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpaceFavorite;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserSettingConst;
 import com.zyplayer.doc.data.service.manage.UserGroupAuthService;
 import com.zyplayer.doc.data.service.manage.UserSettingService;
@@ -181,7 +181,7 @@ public class WikiSpaceController {
 		// 先删除页面的所有用户的权限
 		QueryWrapper<UserGroupAuth> updateWrapper = new QueryWrapper<>();
 		updateWrapper.eq("data_id", spaceId);
-		updateWrapper.eq("project_type", UserMsgSysType.WIKI.getType());
+		updateWrapper.eq("project_type", DocSysType.WIKI.getType());
 		userGroupAuthService.remove(updateWrapper);
 		// 在创建权限
 		List<UserSpaceAuthVo> authVoList = JSON.parseArray(authList, UserSpaceAuthVo.class);
@@ -210,7 +210,7 @@ public class WikiSpaceController {
 		}
 		QueryWrapper<UserGroupAuth> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("data_id", spaceId);
-		queryWrapper.eq("project_type", UserMsgSysType.WIKI.getType());
+		queryWrapper.eq("project_type", DocSysType.WIKI.getType());
 		List<UserGroupAuth> authList = userGroupAuthService.list(queryWrapper);
 		if (CollectionUtils.isEmpty(authList)) {
 			return DocResponseJson.ok();
@@ -247,7 +247,7 @@ public class WikiSpaceController {
 			userAuth.setCreateTime(new Date());
 			userAuth.setCreateUserId(currentUser.getUserId());
 			userAuth.setCreateUserName(currentUser.getUsername());
-			userAuth.setProjectType(UserMsgSysType.WIKI.getType());
+			userAuth.setProjectType(DocSysType.WIKI.getType());
 			userAuth.setDelFlag(0);
 			userAuthList.add(userAuth);
 		}

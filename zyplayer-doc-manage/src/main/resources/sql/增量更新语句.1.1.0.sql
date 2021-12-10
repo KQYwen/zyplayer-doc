@@ -58,5 +58,11 @@ CREATE TABLE `api_global_param` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='api文档全局参数记录';
 
-
+-- 权限表优化
+ALTER TABLE `user_auth` ADD COLUMN `sys_type` int NULL COMMENT '系统类型，DocSysType',
+ADD COLUMN `sys_module_type` int NULL COMMENT '系统模块类型，DocSysModuleType',
+ADD COLUMN `sys_module_id` bigint(20) NULL COMMENT '系统模块ID';
+-- 历史数据处理
+update user_auth set sys_type=3, sys_module_type=1, sys_module_id=replace(auth_custom_suffix, 'DB_', '') where auth_custom_suffix like 'DB_%';
+update user_auth set sys_type=2, sys_module_type=1, sys_module_id=replace(auth_custom_suffix, 'WIKI_', '') where auth_custom_suffix like 'WIKI_%';
 

@@ -3,7 +3,10 @@ package com.zyplayer.doc.data.config.security;
 import com.zyplayer.doc.data.utils.CachePrefix;
 import com.zyplayer.doc.data.utils.CacheUtil;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 用户工具类
@@ -19,8 +22,17 @@ public class DocUserUtil {
 		DocUserUtil.ACCESS_TOKEN.set(accessToken);
 	}
 	
-	public static boolean haveCustomAuth(String authName, String suffix) {
-		return haveAuth(authName + suffix);
+	public static boolean haveCustomAuth(String authName, Integer sysType, Integer sysModuleType, Long sysModuleId) {
+		DocUserDetails currentUser = getCurrentUser();
+		if (currentUser == null) {
+			return false;
+		}
+		return currentUser.getUserAuthList().stream().anyMatch(auth ->
+				Objects.equals(auth.getAuthCode(), authName)
+				&& Objects.equals(auth.getSysType(), sysType)
+				&& Objects.equals(auth.getSysModuleType(), sysModuleType)
+				&& Objects.equals(auth.getSysModuleId(), sysModuleId)
+		);
 	}
 	
 	public static boolean haveAuth(String... authNames) {
@@ -28,8 +40,9 @@ public class DocUserUtil {
 		if (currentUser == null) {
 			return false;
 		}
+		Set<String> authCodeSet = currentUser.getUserAuthList().stream().map(UserAuthVo::getAuthCode).collect(Collectors.toSet());
 		for (String authName : authNames) {
-			if (!currentUser.getAuthorities().contains(authName)) {
+			if (!authCodeSet.contains(authName)) {
 				return false;
 			}
 		}
@@ -64,12 +77,12 @@ public class DocUserUtil {
 	/**
 	 * 设置当前用户权限
 	 */
-	public static void setUserAuth(Long userId, Set<String> userAuthSet) {
+	public static void setUserAuth(Long userId, List<UserAuthVo> userAuthList) {
 		String userToken = CacheUtil.get(CachePrefix.LOGIN_USER_ID_TOKEN + userId);
 		if (userToken != null) {
 			DocUserDetails docUser = CacheUtil.get(userToken);
 			if (docUser != null) {
-				docUser.setAuthorities(userAuthSet);
+				docUser.setUserAuthList(userAuthList);
 				CacheUtil.put(userToken, docUser);
 			}
 		}

@@ -1,6 +1,6 @@
 package com.zyplayer.doc.data.config.security;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * 登录用户信息
@@ -13,7 +13,7 @@ public class DocUserDetails {
 	private String username;
 	private String password;
 	private boolean enabled;
-	private Set<String> authorities;
+	private List<UserAuthVo> userAuthList;
 	
 	public Long getUserId() {
 		return userId;
@@ -47,12 +47,12 @@ public class DocUserDetails {
 		this.enabled = enabled;
 	}
 	
-	public Set<String> getAuthorities() {
-		return authorities;
+	public List<UserAuthVo> getUserAuthList() {
+		return userAuthList;
 	}
 	
-	public void setAuthorities(Set<String> authorities) {
-		this.authorities = authorities;
+	public void setUserAuthList(List<UserAuthVo> userAuthList) {
+		this.userAuthList = userAuthList;
 	}
 	
 	public DocUserDetails(Long userId, String username) {
@@ -68,13 +68,13 @@ public class DocUserDetails {
 		this.enabled = enabled;
 	}
 	
-	public DocUserDetails(Long userId, String username, String password, boolean enabled, Set<String> authorities) {
+	public DocUserDetails(Long userId, String username, String password, boolean enabled, List<UserAuthVo> userAuthList) {
 		super();
 		this.userId = userId;
 		this.username = username;
 		this.password = password;
 		this.enabled = enabled;
-		this.authorities = authorities;
+		this.userAuthList = userAuthList;
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class DocUserDetails {
 				", username='" + username + '\'' +
 				", password='" + password + '\'' +
 				", enabled=" + enabled +
-				", authorities=" + authorities +
+				", userAuthList=" + userAuthList +
 				'}';
 	}
 }

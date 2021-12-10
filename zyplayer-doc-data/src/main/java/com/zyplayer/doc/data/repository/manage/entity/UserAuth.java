@@ -59,9 +59,19 @@ public class UserAuth implements Serializable {
     private Date updateTime;
 
     /**
-     * 自定义权限结尾
+     * 系统类型，DocSysType
      */
-    private String authCustomSuffix;
+    private Integer sysType;
+
+    /**
+     * 系统模块类型，DocSysModuleType
+     */
+    private Integer sysModuleType;
+
+    /**
+     * 系统模块ID
+     */
+    private Long sysModuleId;
 
     public Long getId() {
         return id;
@@ -119,14 +129,31 @@ public class UserAuth implements Serializable {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
-    public String getAuthCustomSuffix() {
-        return authCustomSuffix;
+    
+    public Integer getSysType() {
+        return sysType;
     }
-
-    public void setAuthCustomSuffix(String authCustomSuffix) {
-        this.authCustomSuffix = authCustomSuffix;
+    
+    public void setSysType(Integer sysType) {
+        this.sysType = sysType;
     }
-
+    
+    public Integer getSysModuleType() {
+        return sysModuleType;
+    }
+    
+    public void setSysModuleType(Integer sysModuleType) {
+        this.sysModuleType = sysModuleType;
+    }
+    
+    public Long getSysModuleId() {
+        return sysModuleId;
+    }
+    
+    public void setSysModuleId(Long sysModuleId) {
+        this.sysModuleId = sysModuleId;
+    }
+    
     @Override
     public String toString() {
         return "UserAuth{" +
@@ -138,7 +165,6 @@ public class UserAuth implements Serializable {
         ", delFlag=" + delFlag +
         ", creationTime=" + creationTime +
         ", updateTime=" + updateTime +
-        ", authCustomSuffix=" + authCustomSuffix +
         "}";
     }
 }

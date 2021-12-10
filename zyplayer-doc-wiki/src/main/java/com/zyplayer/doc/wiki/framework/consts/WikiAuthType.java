@@ -18,11 +18,11 @@ public enum WikiAuthType {
 	PAGE_AUTH_MANAGE(7, "WIKI_PAGE_AUTH_MANAGE_"),
 	;
 	private Integer type;
-	private String name;
+	private String code;
 	
-	WikiAuthType(Integer type, String name) {
+	WikiAuthType(Integer type, String code) {
 		this.type = type;
-		this.name = name;
+		this.code = code;
 	}
 	
 	public Integer getType() {
@@ -33,11 +33,11 @@ public enum WikiAuthType {
 		this.type = type;
 	}
 	
-	public String getName() {
-		return name;
+	public String getCode() {
+		return code;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setCode(String code) {
+		this.code = code;
 	}
 }

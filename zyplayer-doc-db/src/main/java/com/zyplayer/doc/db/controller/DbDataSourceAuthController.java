@@ -11,6 +11,8 @@ import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
+import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
@@ -148,7 +150,9 @@ public class DbDataSourceAuthController {
 	
 	private UserAuth createUserAuth(Long sourceId, Long loginUserId, Long userId, Long authId) {
 		UserAuth userAuth = new UserAuth();
-		userAuth.setAuthCustomSuffix(DocAuthConst.DB + sourceId);
+		userAuth.setSysType(DocSysType.DB.getType());
+		userAuth.setSysModuleType(DocSysModuleType.Db.DATASOURCE.getType());
+		userAuth.setSysModuleId(sourceId);
 		userAuth.setCreationTime(new Date());
 		userAuth.setCreateUid(loginUserId);
 		userAuth.setDelFlag(0);

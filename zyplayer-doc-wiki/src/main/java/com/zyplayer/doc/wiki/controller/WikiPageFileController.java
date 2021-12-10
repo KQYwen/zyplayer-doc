@@ -2,7 +2,6 @@ package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -12,7 +11,7 @@ import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgSysType;
+import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.UserMessageService;
 import com.zyplayer.doc.data.service.manage.WikiPageFileService;
@@ -94,7 +93,7 @@ public class WikiPageFileController {
 		wikiPageFile.setUpdateTime(new Date());
 		wikiPageFileService.updateById(wikiPageFile);
 		// 给相关人发送消息
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_FILE_DEL);
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_FILE_DEL);
 		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
 		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);
@@ -134,7 +133,7 @@ public class WikiPageFileController {
 			return docResponseJson;
 		}
 		// 给相关人发送消息
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), UserMsgSysType.WIKI, UserMsgType.WIKI_PAGE_UPLOAD);
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_UPLOAD);
 		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
 		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);
