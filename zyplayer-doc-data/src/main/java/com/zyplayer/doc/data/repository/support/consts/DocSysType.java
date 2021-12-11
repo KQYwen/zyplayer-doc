@@ -8,7 +8,7 @@ package com.zyplayer.doc.data.repository.support.consts;
  */
 public enum DocSysType {
 	// 系统类型 1=manage 2=wiki 3=db
-	MANAGE(1), WIKI(2), DB(3),
+	MANAGE(1), WIKI(2), DB(3), API(4),
 	;
 	
 	DocSysType(int type) {

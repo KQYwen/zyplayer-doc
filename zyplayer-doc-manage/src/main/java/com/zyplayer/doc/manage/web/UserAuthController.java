@@ -41,12 +41,13 @@ public class UserAuthController {
 	public ResponseJson<Object> list(Long userId) {
 		QueryWrapper<UserAuth> userAuthWrapper = new QueryWrapper<>();
 		userAuthWrapper.eq("user_id", userId);
+		userAuthWrapper.eq("del_flag", 0);
 		List<UserAuth> userAuthList = userAuthService.list(userAuthWrapper);
 		if (userAuthList == null || userAuthList.isEmpty()) {
 			return DocResponseJson.ok();
 		}
 		QueryWrapper<AuthInfo> authQueryWrapper = new QueryWrapper<>();
-		authQueryWrapper.in("id", userAuthList.stream().collect(Collectors.mapping(UserAuth::getAuthId, Collectors.toList())));
+		authQueryWrapper.in("id", userAuthList.stream().map(UserAuth::getAuthId).collect(Collectors.toSet()));
 		List<AuthInfo> authList = authInfoService.list(authQueryWrapper);
 		return DocResponseJson.ok(authList);
 	}

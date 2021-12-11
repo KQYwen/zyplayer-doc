@@ -57,6 +57,8 @@ INSERT INTO `auth_info` VALUES (15, 'DB_SELECT_', '数据源查询权', 0, 1, '2
 INSERT INTO `auth_info` VALUES (16, 'DB_UPDATE_', '数据源增删改查权', 0, 1, '2019-08-18 23:25:17', 0);
 INSERT INTO `auth_info` VALUES (17, 'DB_DESC_EDIT_', '表字段注释修改权', 0, 1, '2019-08-18 23:25:17', 0);
 INSERT INTO `auth_info` VALUES (18, 'DB_PROC_EDIT_', '存储过程修改权', 0, 1, '2021-04-24 23:25:17', 0);
+INSERT INTO `auth_info` VALUES (19, 'API_DOC_MANAGE', 'api文档管理权', 0, 1, '2021-12-12 23:25:17', 0);
+INSERT INTO `auth_info` VALUES (20, 'API_DOC_DEVELOPER', 'api文档编辑权', 0, 1, '2021-12-12 23:25:17', 0);
 
 -- ----------------------------
 -- Table structure for db_datasource
@@ -164,18 +166,18 @@ CREATE TABLE `user_auth`  (
 -- ----------------------------
 -- Records of user_auth
 -- ----------------------------
-INSERT INTO `user_auth` VALUES (9, 2, 1, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL);
-INSERT INTO `user_auth` VALUES (10, 2, 2, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL);
-INSERT INTO `user_auth` VALUES (11, 2, 3, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL);
-INSERT INTO `user_auth` VALUES (12, 2, 4, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL);
-INSERT INTO `user_auth` VALUES (31, 3, 1, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL);
-INSERT INTO `user_auth` VALUES (32, 3, 2, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL);
-INSERT INTO `user_auth` VALUES (33, 3, 3, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL);
-INSERT INTO `user_auth` VALUES (34, 3, 4, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL);
-INSERT INTO `user_auth` VALUES (44, 1, 3, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL);
-INSERT INTO `user_auth` VALUES (45, 1, 4, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL);
-INSERT INTO `user_auth` VALUES (46, 1, 12, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL);
-INSERT INTO `user_auth` VALUES (47, 1, 13, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL);
+INSERT INTO `user_auth` VALUES (9, 2, 1, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (10, 2, 2, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (11, 2, 3, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (12, 2, 4, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (31, 3, 1, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (32, 3, 2, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (33, 3, 3, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (34, 3, 4, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (44, 1, 3, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (45, 1, 4, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (46, 1, 12, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (47, 1, 13, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for user_info

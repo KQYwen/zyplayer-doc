@@ -1,6 +1,9 @@
 import apiClient from './request/zyplayer.js'
 
 export const zyplayerApi = {
+
+    searchUserList: data => apiClient({url: '/user/info/search', method: 'post', data: data}),
+
     getSelfUserInfo: data => apiClient({url: '/user/info/selfInfo', method: 'post', data: data}),
     userLogout: data => apiClient({url: '/logout', method: 'post', data: data}),
     systemUpgradeInfo: data => apiClient({url: '/system/info/upgrade', method: 'post', data: data}),
@@ -15,5 +18,9 @@ export const zyplayerApi = {
     requestUrl: data => apiClient({url: '/doc-api/proxy/request', method: 'post', data: data}),
     apiShareDocDetail: data => apiClient({url: '/doc-api/share/detail', method: 'post', data: data}),
     apiShareDocApisDetail: data => apiClient({url: '/doc-api/share/apis/detail', method: 'post', data: data}),
+
+    docAuthList: data => apiClient({url: '/doc-api/doc/auth/list', method: 'post', data: data}),
+    docAuthAssign: data => apiClient({url: '/doc-api/doc/auth/assign', method: 'post', data: data}),
+    docAuthDelete: data => apiClient({url: '/doc-api/doc/auth/delete', method: 'post', data: data}),
 };
 

@@ -1,6 +1,9 @@
 <template>
     <a-directory-tree :showIcon="false" :tree-data="treeData" v-model:expandedKeys="expandedKeys" @select="docChecked">
         <template #title="{ title, isLeaf, method, children, key }">
+            <template v-if="key === 'info'">
+	            <file-text-outlined style="margin-right: 3px;"/>
+            </template>
             <template v-if="isLeaf">
                 <a-tag color="pink" v-if="method === 'get'">get</a-tag>
                 <a-tag color="red" v-else-if="method === 'post'">post</a-tag>
@@ -22,10 +25,12 @@
     import { useRouter, useRoute } from "vue-router";
     import {useStore} from 'vuex';
     import { message } from 'ant-design-vue';
+    import {InfoCircleOutlined, FileTextOutlined} from '@ant-design/icons-vue';
     import {zyplayerApi} from '../../../api'
     import {analysisSwaggerData, getTreeDataForTag} from '../../../assets/core/SwaggerTreeAnalysis.js'
 
     export default {
+	    components: {InfoCircleOutlined, FileTextOutlined},
         setup() {
             const store = useStore();
             const route = useRoute();
@@ -39,7 +44,7 @@
             let searchKeywords = ref('');
 
             const docChecked = (val, node) => {
-                if (node.node.key === 'main') {
+                if (node.node.key === 'info') {
                     router.push({path: '/swagger/info'});
                 } else if (node.node.isLeaf) {
                     let dataRef = node.node.dataRef;
@@ -64,17 +69,12 @@
                     tagPathMap.value = treeData.tagPathMap;
                     loadTreeData();
                     callback(true);
-                    setTimeout(() => {
-                        let isViewPage = (route.path === '/swagger/view' && route.query.id);
-                        if (!isViewPage) {
-                            router.push({path: '/swagger/info'});
-                        }
-                    }, 0);
                 });
             };
             const loadTreeData = async () => {
                 let metaInfo = {id: choiceDocId.value};
                 treeData.value = getTreeDataForTag(swaggerDoc.value, tagPathMap.value, searchKeywords.value, metaInfo);
+                treeData.value.unshift({key: 'info', title: '文档说明信息', isLeaf: true});
                 await nextTick();
                 expandedKeys.value = ['main'];
             };

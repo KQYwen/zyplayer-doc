@@ -57,17 +57,13 @@ public class DbDataSourceAuthController {
 		queryWrapper.in("auth_name", authNameList);
 		Collection<AuthInfo> authInfoList = authInfoService.list(queryWrapper);
 		Map<String, Long> authInfoMap = authInfoList.stream().collect(Collectors.toMap(AuthInfo::getAuthName, AuthInfo::getId));
-		
 		// 先删除所有用户的权限
-		QueryWrapper<UserAuth> updateWrapper = new QueryWrapper<>();
-		updateWrapper.eq("auth_custom_suffix", DocAuthConst.DB + sourceId);
-		updateWrapper.eq("del_flag", 0);
-		userAuthService.remove(updateWrapper);
+		userAuthService.deleteModuleAuth(DocSysType.DB.getType(), DocSysModuleType.Db.DATASOURCE.getType(), sourceId);
 		
 		List<UserDbAuthVo> authVoList = JSON.parseArray(authList, UserDbAuthVo.class);
 		for (UserDbAuthVo authVo : authVoList) {
 			List<UserAuth> userAuthList = new LinkedList<>();
-			Integer executeAuth = Optional.ofNullable(authVo.getExecuteAuth()).orElse(0);
+			int executeAuth = Optional.ofNullable(authVo.getExecuteAuth()).orElse(0);
 			if (executeAuth <= 0) {
 				Long authId = authInfoMap.get(DbAuthType.NO_AUTH.getName());
 				UserAuth userAuth = this.createUserAuth(sourceId, currentUser.getUserId(), authVo.getUserId(), authId);
@@ -98,9 +94,6 @@ public class DbDataSourceAuthController {
 				UserAuth userAuth = this.createUserAuth(sourceId, currentUser.getUserId(), authVo.getUserId(), authId);
 				userAuthList.add(userAuth);
 			}
-			if (userAuthList.size() <= 0) {
-				continue;
-			}
 			// 保存权限，重新登录后可用，后期可以考虑在这里直接修改缓存里的用户权限
 			userAuthService.saveBatch(userAuthList);
 		}
@@ -109,10 +102,7 @@ public class DbDataSourceAuthController {
 	
 	@PostMapping("/list")
 	public ResponseJson<Object> list(Long sourceId) {
-		QueryWrapper<UserAuth> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("auth_custom_suffix", DocAuthConst.DB + sourceId);
-		queryWrapper.eq("del_flag", 0);
-		List<UserAuth> authList = userAuthService.list(queryWrapper);
+		List<UserAuth> authList = userAuthService.getModuleAuthList(DocSysType.DB.getType(), DocSysModuleType.Db.DATASOURCE.getType(), sourceId);
 		if (CollectionUtils.isEmpty(authList)) {
 			return DocResponseJson.ok();
 		}

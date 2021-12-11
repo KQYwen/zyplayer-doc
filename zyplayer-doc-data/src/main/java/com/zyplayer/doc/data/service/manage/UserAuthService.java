@@ -16,5 +16,14 @@ import java.util.List;
  */
 public interface UserAuthService extends IService<UserAuth> {
 	
-	List<UserAuthVo> getUserAuthSet(Long id);
+	List<UserAuthVo> getUserAuthSet(Long userId);
+	
+	List<UserAuth> getModuleAuthList(Integer sysType, Integer sysModuleType, Long sysModuleId);
+	
+	List<UserAuth> getUserModuleAuthList(Long userId, Integer sysType, Integer sysModuleType, Long sysModuleId);
+	
+	boolean deleteModuleAuth(Integer sysType, Integer sysModuleType, Long sysModuleId);
+	
+	boolean deleteUserModuleAuth(Long userId, Integer sysType, Integer sysModuleType, Long sysModuleId);
+	
 }

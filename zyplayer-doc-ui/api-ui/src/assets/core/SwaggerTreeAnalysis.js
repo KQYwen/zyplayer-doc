@@ -63,7 +63,6 @@ export function analysisSwaggerData(swagger) {
  * @param tagPathMap 分组信息{分组名: {url: {...接口信息, path: '', url: '', method: ''}}}
  * @param keywords 过滤关键字
  * @param metaInfo 接口元信息，点击时放入URL的参数
- * @returns {{children: [], title: (*|string), key: string}[]}
  */
 export function getTreeDataForTag(swagger, tagPathMap, keywords, metaInfo) {
     let treeData = [];

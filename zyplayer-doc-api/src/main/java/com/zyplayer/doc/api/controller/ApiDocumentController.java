@@ -2,9 +2,9 @@ package com.zyplayer.doc.api.controller;
 
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zyplayer.doc.api.framework.utils.SwaggerDocUtil;
+import com.zyplayer.doc.api.service.ApiDocAuthJudgeService;
 import com.zyplayer.doc.api.service.SwaggerHttpRequestService;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
@@ -12,6 +12,7 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
+import com.zyplayer.doc.data.repository.manage.vo.ApiDocVo;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +42,9 @@ public class ApiDocumentController {
 	private static Logger logger = LoggerFactory.getLogger(ApiDocumentController.class);
 	
 	@Resource
-	private ApiDocService swaggerDocService;
+	ApiDocAuthJudgeService apiDocAuthJudgeService;
+	@Resource
+	private ApiDocService apiDocService;
 	@Resource
 	private SwaggerHttpRequestService swaggerHttpRequestService;
 	
@@ -54,8 +57,8 @@ public class ApiDocumentController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/list")
-	public ResponseJson<List<ApiDoc>> list(ApiDoc apiDoc, Integer pageNum, Integer pageSize) {
-		IPage<ApiDoc> docList = swaggerDocService.getApiDocList(apiDoc, pageNum, pageSize);
+	public ResponseJson<List<ApiDocVo>> list(ApiDoc apiDoc, Integer pageNum, Integer pageSize) {
+		IPage<ApiDocVo> docList = apiDocService.getApiDocList(apiDoc, pageNum, pageSize);
 		return DocResponseJson.ok(docList);
 	}
 	
@@ -69,7 +72,10 @@ public class ApiDocumentController {
 	@ResponseBody
 	@PostMapping(value = "/detail")
 	public ResponseJson<List<ApiDoc>> detail(Long id) {
-		ApiDoc apiDoc = swaggerDocService.getById(id);
+		ApiDoc apiDoc = apiDocService.getById(id);
+		if (!apiDocAuthJudgeService.haveDevelopAuth(apiDoc)) {
+			return DocResponseJson.warn("没有此文档的查看权限");
+		}
 		return DocResponseJson.ok(apiDoc);
 	}
 	
@@ -91,9 +97,12 @@ public class ApiDocumentController {
 		if (apiDoc.getId() == null) {
 			apiDoc.setShareUuid(IdUtil.simpleUUID());
 		} else {
-			ApiDoc apiDocSel = swaggerDocService.getById(apiDoc.getId());
+			ApiDoc apiDocSel = apiDocService.getById(apiDoc.getId());
 			if (apiDocSel == null) {
 				return DocResponseJson.warn("未找到指定的文档记录信息");
+			}
+			if (!apiDocAuthJudgeService.haveManageAuth(apiDocSel)) {
+				return DocResponseJson.warn("没有此文档的操作权限");
 			}
 			if (StringUtils.isBlank(apiDocSel.getShareUuid())) {
 				apiDoc.setShareUuid(IdUtil.simpleUUID());
@@ -118,7 +127,7 @@ public class ApiDocumentController {
 				}
 				// 删除原有文档
 				if (apiDoc.getId() != null) {
-					swaggerDocService.removeById(apiDoc.getId());
+					apiDocService.removeById(apiDoc.getId());
 				}
 				// 存明细地址
 				for (SwaggerResource resource : resourceList) {
@@ -126,13 +135,13 @@ public class ApiDocumentController {
 					apiDoc.setDocUrl(swaggerDomain + resource.getUrl());
 					apiDoc.setName(resource.getName());
 					apiDoc.setShareUuid(IdUtil.simpleUUID());
-					swaggerDocService.save(apiDoc);
+					apiDocService.save(apiDoc);
 				}
 			} else {
-				swaggerDocService.saveOrUpdate(apiDoc);
+				apiDocService.saveOrUpdate(apiDoc);
 			}
 		} else if (Objects.equals(apiDoc.getDocType(), 2) || Objects.equals(apiDoc.getDocType(), 4)) {
-			swaggerDocService.saveOrUpdate(apiDoc);
+			apiDocService.saveOrUpdate(apiDoc);
 		} else {
 			return DocResponseJson.warn("暂不支持的文档类型");
 		}
@@ -152,31 +161,39 @@ public class ApiDocumentController {
 		if (apiDoc.getId() == null) {
 			return DocResponseJson.warn("请指定修改的记录ID");
 		}
+		// 基本信息可以改，删除需要管理员权限
+		if (Objects.equals(apiDoc.getYn(), 0)) {
+			if (!apiDocAuthJudgeService.haveManageAuth(apiDoc.getId())) {
+				return DocResponseJson.warn("没有此文档的删除权限");
+			}
+		} else {
+			if (!apiDocAuthJudgeService.haveDevelopAuth(apiDoc.getId())) {
+				return DocResponseJson.warn("没有此文档的编辑权限");
+			}
+		}
 		ApiDoc swaggerDocUp = new ApiDoc();
 		swaggerDocUp.setId(apiDoc.getId());
 		swaggerDocUp.setDocStatus(apiDoc.getDocStatus());
 		swaggerDocUp.setShareInstruction(apiDoc.getShareInstruction());
 		swaggerDocUp.setYn(apiDoc.getYn());
-		swaggerDocService.updateById(swaggerDocUp);
+		apiDocService.updateById(swaggerDocUp);
 		return DocResponseJson.ok();
 	}
 	
 	@RequestMapping("/apis")
 	public ResponseJson<List<ApiDoc>> resources() {
-		QueryWrapper<ApiDoc> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("yn", 1);
-		queryWrapper.eq("doc_status", 1);
-		queryWrapper.orderByAsc("id");
-		queryWrapper.select("id", "name", "doc_type", "doc_url", "rewrite_domain", "open_visit", "doc_status");
-		List<ApiDoc> docList = swaggerDocService.list(queryWrapper);
+		List<ApiDoc> docList = apiDocService.getApiDocList();
 		return DocResponseJson.ok(docList);
 	}
 	
 	@RequestMapping("/apis/detail")
 	public ResponseJson<Object> detail(HttpServletRequest request, Long id) {
-		ApiDoc apiDoc = swaggerDocService.getById(id);
+		ApiDoc apiDoc = apiDocService.getById(id);
 		if (apiDoc == null) {
 			return DocResponseJson.warn("文档不存在");
+		}
+		if (!apiDocAuthJudgeService.haveDevelopAuth(apiDoc)) {
+			return DocResponseJson.warn("没有此文档的查看权限");
 		}
 		if (Objects.equals(apiDoc.getDocType(), 1)) {
 			try {

@@ -47,6 +47,7 @@ public class ApiSwaggerProxyController {
 		QueryWrapper<ApiDoc> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("yn", 1);
 		queryWrapper.eq("doc_status", 1);
+		queryWrapper.eq("open_visit", 1);
 		queryWrapper.in("doc_type", 1, 2);
 		queryWrapper.orderByAsc("id");
 		queryWrapper.select("id", "name", "rewrite_domain");
@@ -66,7 +67,7 @@ public class ApiSwaggerProxyController {
 	@RequestMapping(value = "/v2/api-docs", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, HAL_MEDIA_TYPE})
 	public ResponseEntity<Object> content(HttpServletRequest request, Long id) {
 		ApiDoc swaggerDoc = swaggerDocService.getById(id);
-		if (swaggerDoc == null) {
+		if (swaggerDoc == null || !Objects.equals(swaggerDoc.getOpenVisit(), 1)) {
 			throw new ConfirmException("文档不存在");
 		}
 		if (Objects.equals(swaggerDoc.getDocType(), 1)) {

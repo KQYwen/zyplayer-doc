@@ -1,17 +1,10 @@
 package com.zyplayer.doc.api.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zyplayer.doc.api.framework.utils.SwaggerDocUtil;
 import com.zyplayer.doc.api.service.SwaggerHttpRequestService;
-import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.data.config.security.DocUserDetails;
-import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
-import com.zyplayer.doc.data.repository.manage.entity.ApiGlobalParam;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.swagger.web.SwaggerResource;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 

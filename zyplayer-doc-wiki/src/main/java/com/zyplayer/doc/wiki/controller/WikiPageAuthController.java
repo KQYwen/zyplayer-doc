@@ -10,7 +10,6 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.config.security.UserAuthVo;
 import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.manage.mapper.UserGroupAuthMapper;
-import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
 import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
@@ -75,12 +74,8 @@ public class WikiPageAuthController {
 		queryWrapper.in("auth_name", authNameList);
 		Collection<AuthInfo> authInfoList = authInfoService.list(queryWrapper);
 		Map<String, Long> authInfoMap = authInfoList.stream().collect(Collectors.toMap(AuthInfo::getAuthName, AuthInfo::getId));
-		
 		// 先删除页面的所有用户的权限
-		QueryWrapper<UserAuth> updateWrapper = new QueryWrapper<>();
-		updateWrapper.eq("auth_custom_suffix", DocAuthConst.WIKI + pageId);
-		updateWrapper.eq("del_flag", 0);
-		userAuthService.remove(updateWrapper);
+		userAuthService.deleteModuleAuth(DocSysType.WIKI.getType(), DocSysModuleType.Wiki.PAGE.getType(), pageId);
 		
 		List<UserPageAuthVo> authVoList = JSON.parseArray(authList, UserPageAuthVo.class);
 		for (UserPageAuthVo authVo : authVoList) {
@@ -137,15 +132,12 @@ public class WikiPageAuthController {
 		if (canConfigAuth != null) {
 			return DocResponseJson.warn(canConfigAuth);
 		}
-		QueryWrapper<UserAuth> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("auth_custom_suffix", DocAuthConst.WIKI + pageId);
-		queryWrapper.eq("del_flag", 0);
-		List<UserAuth> authList = userAuthService.list(queryWrapper);
+		List<UserAuth> authList = userAuthService.getModuleAuthList(DocSysType.WIKI.getType(), DocSysModuleType.Wiki.PAGE.getType(), pageId);
 		if (CollectionUtils.isEmpty(authList)) {
 			return DocResponseJson.ok();
 		}
 		// 权限ID对应的权限名
-		Collection<AuthInfo> authInfoList = authInfoService.listByIds(authList.stream().map(UserAuth::getAuthId).collect(Collectors.toList()));
+		Collection<AuthInfo> authInfoList = authInfoService.listByIds(authList.stream().map(UserAuth::getAuthId).collect(Collectors.toSet()));
 		Map<Long, String> authInfoMap = authInfoList.stream().collect(Collectors.toMap(AuthInfo::getId, AuthInfo::getAuthName));
 		// 查询用户信息
 		Map<Long, List<UserAuth>> userAuthGroup = authList.stream().collect(Collectors.groupingBy(UserAuth::getUserId));

@@ -76,18 +76,18 @@ public class UserInfoController {
 		return DocResponseJson.ok(selfInfoVo);
 	}
 	
+	@AuthMan
 	@PostMapping("/search")
-	@AuthMan(DocAuthConst.USER_MANAGE)
 	public ResponseJson<Object> search(String search) {
 		if (StringUtils.isBlank(search)) {
 			return DocResponseJson.ok();
 		}
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
 		queryWrapper.and(con -> con.and(conSub -> conSub.like("user_name", search).or().like("user_no", search)
-				.or().like("email", search)).and(conSub -> conSub.eq("del_flag", 0)));
+				.or().like("email", search).or().like("phone", search)).and(conSub -> conSub.eq("del_flag", 0)));
 		queryWrapper.select("id", "user_name");
 		// 搜索最多返回20条
-		IPage<UserInfo> page = new Page<>(1, 20, false);
+		IPage<UserInfo> page =  Page.of(1, 20, false);
 		userInfoService.page(page, queryWrapper);
 		return DocResponseJson.ok(page);
 	}

@@ -66,3 +66,8 @@ ADD COLUMN `sys_module_id` bigint(20) NULL COMMENT '系统模块ID';
 update user_auth set sys_type=3, sys_module_type=1, sys_module_id=replace(auth_custom_suffix, 'DB_', '') where auth_custom_suffix like 'DB_%';
 update user_auth set sys_type=2, sys_module_type=1, sys_module_id=replace(auth_custom_suffix, 'WIKI_', '') where auth_custom_suffix like 'WIKI_%';
 
+
+INSERT INTO `auth_info`(auth_name, auth_desc, can_edit, create_uid, creation_time, auth_type) VALUES
+('API_DOC_MANAGE', 'api文档管理权', 0, 1, '2021-12-12 23:25:17', 0),
+('API_DOC_DEVELOPER', 'api文档编辑权', 0, 1, '2021-12-12 23:25:17', 0);
+

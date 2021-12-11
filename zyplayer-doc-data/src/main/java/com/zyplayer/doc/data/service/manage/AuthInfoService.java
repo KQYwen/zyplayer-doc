@@ -12,5 +12,6 @@ import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
  * @since 2018-12-03
  */
 public interface AuthInfoService extends IService<AuthInfo> {
-
+	
+	AuthInfo getByCode(String authCode);
 }
