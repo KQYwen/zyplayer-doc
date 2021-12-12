@@ -10,7 +10,7 @@ set build_folder=%app_name%-%version%
 
 set target_dir=%dist_dir%\%build_folder%
 
-::call mvn clean package -Dmaven.test.skip=true
+call mvn clean package -Dmaven.test.skip=true
 
 ::copy files
 

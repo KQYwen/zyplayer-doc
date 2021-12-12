@@ -2,6 +2,8 @@
 tmlog*.lck
 dependency-reduced-pom.xml
 
+/dist
+
 ######################################################################
 # Build Tools
 
