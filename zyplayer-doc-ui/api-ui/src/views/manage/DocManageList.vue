@@ -34,7 +34,6 @@
             <template v-if="column.dataIndex === 'operation'">
                 <a-button size="small" type="link" @click="editDoc(record)">编辑</a-button>
 	            <template v-if="record.authType === 1">
-		            <a-button size="small" type="link" @click="showMembers(record)">成员管理</a-button>
 		            <a-popconfirm title="确定要删除吗？" @confirm="deleteDoc(record)">
 			            <a-button size="small" type="link" danger>删除</a-button>
 		            </a-popconfirm>
@@ -43,7 +42,6 @@
                     <template #overlay>
                         <a-menu @click="handleActionMenuClick($event, record)">
                             <a-menu-item key="shareView"><link-outlined /> 查看开放文档</a-menu-item>
-                            <a-menu-item key="shareInstruction"><edit-outlined /> 编辑开放文档说明</a-menu-item>
                         </a-menu>
                     </template>
                     <a-button type="link" size="small">更多<DownOutlined /></a-button>
@@ -64,110 +62,9 @@
             </template>
         </template>
     </a-table>
-    <a-modal v-model:visible="newDocVisible" :title="docEdit.isNew?'新增文档':'编辑文档'" @ok="handleNewDocOk" :width="800">
-        <a-form layout="horizontal" ref="newDocFormRef" :rules="newDocRules" :model="docEdit" :label-col="{span: 4}" :wrapper-col="{span: 20}">
-            <a-form-item label="文档名称" required name="name">
-                <a-input placeholder="请输入文档名称" v-model:value="docEdit.name"></a-input>
-            </a-form-item>
-            <a-form-item label="文档类型" required name="docType">
-                <a-radio-group v-model:value="docEdit.docType">
-                    <a-radio :value="1">Swagger URL</a-radio>
-                    <a-radio :value="2">Swagger JSON</a-radio>
-                    <a-radio :value="3">OpenApi URL</a-radio>
-                    <a-radio :value="4">OpenApi JSON</a-radio>
-                    <a-radio :value="5" disabled>自建API</a-radio>
-                </a-radio-group>
-            </a-form-item>
-            <a-form-item label="文档地址" required name="docUrl" v-if="docEdit.docType === 1">
-                <a-input placeholder="请输入文档地址URL" v-model:value="docEdit.docUrl"></a-input>
-                <template #extra>
-                    查看文档地址
-                    <a-popover title="文档地址支持以下任一格式">
-                        <template #content>
-                            <p>格式一：http://doc.zyplayer.com/v2/api-docs</p>
-                            <p>格式二：http://doc.zyplayer.com/swagger-resources</p>
-                            <p>格式三：http://doc.zyplayer.com/swagger-ui.html</p>
-                        </template>
-                        <a>示例</a>
-                    </a-popover>
-                </template>
-            </a-form-item>
-            <a-form-item label="文档内容" required name="jsonContent" v-else-if="docEdit.docType === 2">
-<!--                textarea在内容很多的时候（>300KB）会卡顿，ace不会-->
-                <ace-editor v-model:value="docEdit.jsonContent" lang="json" theme="monokai" width="100%" height="100" :options="aceEditorConfig"></ace-editor>
-<!--                <a-textarea placeholder="请输入JSON格式的Swagger文档内容" v-model:value="docEdit.jsonContent" :auto-size="{ minRows: 5, maxRows: 10 }"></a-textarea>-->
-                <template #extra>
-                    查看文档内容
-                    <a-popover title="文档内容说明">
-                        <template #content>
-                            <div>支持以下格式的Swagger文档内容输入，其中 {"swagger": "2.0"} 为必要属性</div>
-                            <div v-highlight>
-                                <pre><code class="lang-json">{{swaggerDocDemo}}</code></pre>
-                            </div>
-                        </template>
-                        <a>说明</a>
-                    </a-popover>
-                </template>
-            </a-form-item>
-            <a-form-item label="文档地址" required name="docUrl" v-if="docEdit.docType === 3">
-                <a-input placeholder="请输入文档地址URL" v-model:value="docEdit.docUrl"></a-input>
-                <template #extra>
-                    查看文档地址
-                    <a-popover title="文档地址支持以下任一格式">
-                        <template #content>
-                            <p>格式一：http://doc.zyplayer.com/v3/api-docs</p>
-                        </template>
-                        <a>示例</a>
-                    </a-popover>
-                </template>
-            </a-form-item>
-            <a-form-item label="文档内容" required name="jsonContent" v-else-if="docEdit.docType === 4">
-                <ace-editor v-model:value="docEdit.jsonContent" lang="json" theme="monokai" width="100%" height="100" :options="aceEditorConfig"></ace-editor>
-<!--                <a-textarea placeholder="请输入JSON格式的OpenApi文档内容" v-model:value="docEdit.jsonContent" :auto-size="{ minRows: 5, maxRows: 10 }"></a-textarea>-->
-                <template #extra>
-                    查看文档内容
-                    <a-popover title="文档内容说明">
-                        <template #content>
-                            <div>支持以下格式的OpenApi文档内容输入，其中 {"openapi": "3.x.x"} 为必要属性</div>
-                            <div v-highlight>
-                                <pre><code class="lang-json">{{openApiDocDemo}}</code></pre>
-                            </div>
-                        </template>
-                        <a>说明</a>
-                    </a-popover>
-                </template>
-            </a-form-item>
-            <a-form-item label="目标域名" name="rewriteDomain">
-                <a-input placeholder="请输入目标域名" v-model:value="docEdit.rewriteDomain"></a-input>
-                <template #extra>
-                    目标域名
-                    <a-popover title="目标域名说明">
-                        <template #content>
-                            <p>在文档的在线调试界面，访问的域名可以初始为此处录入的域名，而非文档本身的域名地址</p>
-                            <p>可便于不同环境间的接口测试，例：http://doc.zyplayer.com</p>
-                        </template>
-                        <a>说明</a>
-                    </a-popover>
-                </template>
-            </a-form-item>
-            <a-form-item label="开放访问" required name="openVisit">
-                <a-radio-group v-model:value="docEdit.openVisit">
-                    <a-radio :value="0">否</a-radio>
-                    <a-radio :value="1">开放访问</a-radio>
-                </a-radio-group>
-                <template #extra>
-                    开放访问后无需登录即可通过<a @click="openShareViewWindow(docEdit)">开放文档URL</a>访问该文档信息
-                </template>
-            </a-form-item>
-            <a-form-item label="状态" required name="docStatus">
-                <a-radio-group v-model:value="docEdit.docStatus">
-                    <a-radio :value="1">启用</a-radio>
-                    <a-radio :value="2">禁用</a-radio>
-                </a-radio-group>
-            </a-form-item>
-        </a-form>
+    <a-modal v-model:visible="newDocVisible" :title="docEdit.isNew?'新增文档':'编辑文档'" @ok="handleNewDocOk" :width="850">
+        <EditDocBaseInfo :doc="docEdit"></EditDocBaseInfo>
     </a-modal>
-    <EditShareInstruction ref="instruction"></EditShareInstruction>
 </template>
 
 <script>
@@ -175,14 +72,14 @@
     import {zyplayerApi} from '../../api';
     import {useStore} from 'vuex';
     import aceEditor from "../../assets/ace-editor";
-    import EditShareInstruction from "./components/EditShareInstruction.vue";
+    import EditDocBaseInfo from "./components/EditDocBaseInfo.vue";
     import {getZyplayerApiBaseUrl} from "../../api/request/utils";
     import {DownOutlined, LinkOutlined, EditOutlined} from '@ant-design/icons-vue';
     import { message } from 'ant-design-vue';
 
     export default {
-	    emits: ['showMembers'],
-        components: {aceEditor, EditShareInstruction, DownOutlined, LinkOutlined, EditOutlined},
+	    emits: ['edit'],
+        components: {aceEditor, DownOutlined, LinkOutlined, EditOutlined, EditDocBaseInfo},
         setup(props, {emit}) {
             const store = useStore();
             let docList = ref([]);
@@ -217,9 +114,9 @@
             const handleNewDocOk = async () => {
                 newDocFormRef.value.validate().then(() => {
                     zyplayerApi.apiDocAdd(docEdit.value).then(res => {
-                        searchDocList();
                         newDocVisible.value = false;
                         store.commit('addDocChangedNum');
+                        emit('edit', 'edit', res.data);
                     });
                 }).catch(error => {
                     console.log('error', error);
@@ -231,14 +128,12 @@
                     docType: 1, openVisit: 0, docStatus: 1, isNew: 1
                 };
             };
-            const showMembers = (record) => {
-	            emit('showMembers', record);
-            };
             const editDoc = (record) => {
-                zyplayerApi.apiDocDetail({id: record.id}).then(res => {
-                    docEdit.value = res.data;
-                    newDocVisible.value = true;
-                });
+                emit('edit', 'edit', record);
+                // zyplayerApi.apiDocDetail({id: record.id}).then(res => {
+                //     docEdit.value = res.data;
+                //     newDocVisible.value = true;
+                // });
             };
             const updateDoc = async (id, docStatus, yn) => {
                 zyplayerApi.apiDocUpdate({id, docStatus, yn}).then(res => {
@@ -260,11 +155,8 @@
             const handleActionMenuClick = (item, record) => {
                 if (item.key === 'shareView') {
                     openShareViewWindow(record);
-                } else if (item.key === 'shareInstruction') {
-                    instruction.value.editDoc(record.id);
                 }
             }
-            let instruction = ref();
             onMounted(() => {
                 searchDocList();
             });
@@ -280,12 +172,10 @@
                 handleNewDocOk,
                 deleteDoc,
                 editDoc,
-	            showMembers,
                 handleTableChange,
                 openShareViewWindow,
                 handleActionMenuClick,
                 pagination,
-                instruction,
                 newDocRules: {
                     name: [{required: true, message: '请输入文档名称', trigger: 'change'}],
                     docUrl: [{required: true, message: '请输入文档地址', trigger: 'change'}],
@@ -302,35 +192,8 @@
                     {title: '状态', dataIndex: 'docStatus', width: 90},
                     {title: '文档地址', dataIndex: 'docUrl'},
                     {title: '目标域名', dataIndex: 'rewriteDomain', width: 250},
-                    {title: '操作', dataIndex: 'operation', fixed: 'right', width: 280},
+                    {title: '操作', dataIndex: 'operation', fixed: 'right', width: 200},
                 ],
-                aceEditorConfig: {
-                    wrap: true,
-                    autoScrollEditorIntoView: true,
-                    enableBasicAutocompletion: true,
-                    enableSnippets: true,
-                    enableLiveAutocompletion: true,
-                    minLines: 10,
-                    maxLines: 15,
-                },
-                swaggerDocDemo:
-                    '{\n'
-                    + '    "swagger": "2.0",\n'
-                    + '    "info": {},\n'
-                    + '    "host": "doc.zyplayer.com",\n'
-                    + '    "basePath":"/",\n'
-                    + '    "tags": [],\n'
-                    + '    "paths": {},\n'
-                    + '    "definitions": {}\n'
-                    + '}',
-                openApiDocDemo:
-                    '{\n'
-                    + '    "openapi": "3.0.3",\n'
-                    + '    "components": {}\n'
-                    + '    "servers": [],\n'
-                    + '    "paths": {},\n'
-                    + '    "info": {},\n'
-                    + '}',
             };
         },
     };

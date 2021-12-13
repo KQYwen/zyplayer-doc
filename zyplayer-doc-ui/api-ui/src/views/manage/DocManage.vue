@@ -1,23 +1,23 @@
 <template>
-	<DocManageList v-if="showView === 'list'" @showMembers="showMembers"></DocManageList>
+	<DocManageList v-if="showView === 'list'" @edit="editDoc"></DocManageList>
 	<div v-else>
-		<DocManageMembers v-if="showView === 'members'" @showDocList="showDocList" :doc="docInfo"></DocManageMembers>
+		<DocManageEdit v-if="showView === 'edit'" @showDocList="showDocList" :doc="docInfo"></DocManageEdit>
 	</div>
 </template>
 
 <script>
     import { toRefs, ref, reactive, onMounted } from 'vue';
     import DocManageList from "./DocManageList.vue";
-    import DocManageMembers from "./DocManageMembers.vue";
+    import DocManageEdit from "./DocManageEdit.vue";
 
     export default {
-        components: {DocManageList, DocManageMembers},
+        components: {DocManageList, DocManageEdit},
 	    setup() {
 		    let showView = ref('list');
 		    let docInfo = ref({});
-		    const showMembers = (doc) => {
+		    const editDoc = (type, doc) => {
 			    docInfo.value = doc;
-			    showView.value = 'members';
+			    showView.value = type;
 			};
 		    const showDocList = () => {
 			    showView.value = 'list';
@@ -25,7 +25,7 @@
             return {
 	            showView,
 	            docInfo,
-	            showMembers,
+				editDoc,
 	            showDocList,
             }
         },

@@ -1,13 +1,8 @@
 <template>
-	<a-page-header
-		title="成员管理"
-		:sub-title="doc.name||''"
-		@back="showDocList">
-		<template #extra>
-			<a-button @click="searchDocMemberList" type="primary">查询</a-button>
-			<a-button @click="openAddDocMember" :style="{ marginLeft: '8px' }">添加用户</a-button>
-		</template>
-	</a-page-header>
+	<div style="text-align: right;margin: 0 10px 10px 0;">
+		<a-button @click="searchDocMemberList" type="primary">查询</a-button>
+		<a-button @click="openAddDocMember" :style="{ marginLeft: '8px' }">添加用户</a-button>
+	</div>
     <a-table :dataSource="docMemberList" :columns="docListColumns" size="middle"
              :loading="docMemberListLoading" :pagination="false"
              @change="handleTableChange"
@@ -61,7 +56,7 @@
 </template>
 
 <script>
-    import { toRefs, ref, reactive, onMounted } from 'vue';
+    import { toRefs, ref, reactive, onMounted, watch } from 'vue';
     import {zyplayerApi} from '../../api';
     import {useStore} from 'vuex';
     import {getZyplayerApiBaseUrl} from "../../api/request/utils";
@@ -79,6 +74,9 @@
 	    },
         setup(props, {emit}) {
             const store = useStore();
+			// watch(() => props.doc, () => {
+			// 	searchDocMemberList();
+			// });
             let docMemberList = ref([]);
             let docMemberListLoading = ref(false);
             let searchParam = ref({docId: '', pageNum: 1, pageSize: 20});
@@ -98,7 +96,10 @@
                 searchParam.value.pageSize = paginationNew.pageSize;
                 searchDocMemberList();
             };
-            const searchDocMemberList = async () => {
+			const searchDocMemberList = async () => {
+				if (!props.doc.id) {
+					return;
+				}
                 docMemberListLoading.value = true;
 	            searchParam.value.docId = props.doc.id;
                 zyplayerApi.docAuthList(searchParam.value).then(res => {

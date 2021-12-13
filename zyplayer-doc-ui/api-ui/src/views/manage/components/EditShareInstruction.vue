@@ -1,53 +1,50 @@
 <template>
-    <a-modal v-model:visible="editShareInstructionVisible" @ok="handleNewDocOk" width="90%"
-             :bodyStyle="{height: 'calc(100vh - 300px)'}">
-        <template #title>
-            编辑开放文档说明
-            <a-tooltip placement="bottom">
-                <template #title>此说明文档将展示在开放文档的首页展示，可点击‘查看开放文档’查看效果</template>
-                <info-circle-outlined />
-            </a-tooltip>
-        </template>
-        <mavon-editor ref="mavonEditor" v-model="shareInstruction" :toolbars="toolbars"
-                      :externalLink="false" @imgAdd="addMarkdownImage" :imageFilter="imageFilter"
-                      style="height: 100%;"
-                      placeholder="请录入开放文档说明"/>
-    </a-modal>
+    <mavon-editor ref="mavonEditor" v-model="shareInstruction" :toolbars="toolbars"
+                  :externalLink="false" @imgAdd="addMarkdownImage" :imageFilter="imageFilter"
+                  style="height: 100%;"
+                  placeholder="请录入开放文档说明"/>
 </template>
 
 <script>
-    import { toRefs, ref, reactive, onMounted, nextTick } from 'vue';
+    import { toRefs, ref, reactive, onMounted, nextTick, watch } from 'vue';
     import {zyplayerApi} from '../../../api';
     import {useStore} from 'vuex';
     import aceEditor from "../../../assets/ace-editor";
     import {getZyplayerApiBaseUrl} from "../../../api/request/utils";
     import {BranchesOutlined, InfoCircleOutlined} from '@ant-design/icons-vue';
     import {mavonEditor, markdownIt} from 'mavon-editor'
+    import 'mavon-editor/dist/markdown/github-markdown.min.css'
+    import 'mavon-editor/dist/css/index.css'
     import { message } from 'ant-design-vue';
 
     export default {
         components: {aceEditor, BranchesOutlined, mavonEditor, InfoCircleOutlined},
-        setup() {
+        props: {
+            doc: {
+                type: Object,
+                required: true
+            },
+        },
+        setup(props, {emit}) {
             const store = useStore();
             let docEdit = ref({});
             let shareInstruction = ref('');
-            let editShareInstructionVisible = ref(false);
-            const handleNewDocOk = async () => {
+            watch(() => props.doc, () => {
+                editDoc();
+            });
+            const getDoc = () => {
                 if (!shareInstruction.value) {
                     message.error('请输入开放文档的说明');
-                    return;
+                    return false;
                 }
-                zyplayerApi.apiDocUpdate({id: docEdit.value.id, shareInstruction: shareInstruction.value}).then(res => {
-                    editShareInstructionVisible.value = false;
-                    message.success('保存成功！');
-                });
+                return {
+                    id: docEdit.value.id,
+                    shareInstruction: shareInstruction.value
+                };
             };
-            const editDoc = async (id) => {
-                editShareInstructionVisible.value = true;
-                zyplayerApi.apiDocDetail({id: id}).then(res => {
-                    docEdit.value = res.data;
-                    shareInstruction.value = res.data.shareInstruction;
-                });
+            const editDoc = async () => {
+                docEdit.value = props.doc;
+                shareInstruction.value = props.doc.shareInstruction;
             };
             const addMarkdownImage = (pos, file) => {
             };
@@ -56,12 +53,12 @@
                 return false;
             };
             onMounted(() => {
+                editDoc();
             });
             return {
-                editShareInstructionVisible,
                 docEdit,
                 shareInstruction,
-                handleNewDocOk,
+                getDoc,
                 editDoc,
                 imageFilter,
                 addMarkdownImage,
@@ -89,7 +86,7 @@
                     trash: true, // 清空
                     save: true, // 保存（触发events中的save事件）
                     /* 1.4.2 */
-                    navigation: true, // 导航目录
+                    navigation: false, // 导航目录
                     /* 2.1.8 */
                     alignleft: true, // 左对齐
                     aligncenter: true, // 居中

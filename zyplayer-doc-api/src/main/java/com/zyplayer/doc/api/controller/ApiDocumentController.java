@@ -88,7 +88,7 @@ public class ApiDocumentController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/add")
-	public ResponseJson<List<ApiDoc>> add(HttpServletRequest request, ApiDoc apiDoc) {
+	public ResponseJson<Object> add(HttpServletRequest request, ApiDoc apiDoc) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		apiDoc.setYn(1);
 		apiDoc.setCreateTime(new Date());
@@ -145,7 +145,7 @@ public class ApiDocumentController {
 		} else {
 			return DocResponseJson.warn("暂不支持的文档类型");
 		}
-		return DocResponseJson.ok();
+		return DocResponseJson.ok(apiDoc);
 	}
 	
 	/**
