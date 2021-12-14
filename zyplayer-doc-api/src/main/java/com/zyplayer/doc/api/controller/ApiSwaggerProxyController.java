@@ -9,7 +9,6 @@ import com.zyplayer.doc.data.service.manage.ApiDocService;
 import com.zyplayer.doc.api.controller.vo.SwaggerResourceVo;
 import com.zyplayer.doc.api.framework.utils.SwaggerDocUtil;
 import com.zyplayer.doc.api.service.SwaggerHttpRequestService;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
@@ -36,7 +35,7 @@ public class ApiSwaggerProxyController {
 	private static final String HAL_MEDIA_TYPE = "application/hal+json";
 	
 	@Resource
-	private ApiDocService swaggerDocService;
+	private ApiDocService apiDocService;
 	@Resource
 	private SwaggerHttpRequestService swaggerHttpRequestService;
 	
@@ -51,13 +50,13 @@ public class ApiSwaggerProxyController {
 		queryWrapper.in("doc_type", 1, 2);
 		queryWrapper.orderByAsc("id");
 		queryWrapper.select("id", "name", "rewrite_domain");
-		List<ApiDoc> docList = swaggerDocService.list(queryWrapper);
-		for (ApiDoc swaggerDoc : docList) {
+		List<ApiDoc> docList = apiDocService.list(queryWrapper);
+		for (ApiDoc apiDoc : docList) {
 			SwaggerResourceVo resource = new SwaggerResourceVo();
-			resource.setUrl("/v2/api-docs?id=" + swaggerDoc.getId());
-			resource.setName(swaggerDoc.getName());
+			resource.setUrl("/v2/api-docs?id=" + apiDoc.getId());
+			resource.setName(apiDoc.getName());
 			resource.setSwaggerVersion("2.0");
-			resource.setRewriteDomain(swaggerDoc.getRewriteDomain());
+			resource.setRewriteDomain(apiDoc.getRewriteDomain());
 			resourceList.add(resource);
 		}
 		return resourceList;
@@ -66,21 +65,21 @@ public class ApiSwaggerProxyController {
 	@ResponseBody
 	@RequestMapping(value = "/v2/api-docs", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, HAL_MEDIA_TYPE})
 	public ResponseEntity<Object> content(HttpServletRequest request, Long id) {
-		ApiDoc swaggerDoc = swaggerDocService.getById(id);
-		if (swaggerDoc == null || !Objects.equals(swaggerDoc.getOpenVisit(), 1)) {
+		ApiDoc apiDoc = apiDocService.getById(id);
+		if (apiDoc == null || !Objects.equals(apiDoc.getOpenVisit(), 1)) {
 			throw new ConfirmException("文档不存在");
 		}
-		if (Objects.equals(swaggerDoc.getDocType(), 1)) {
+		if (Objects.equals(apiDoc.getDocType(), 1)) {
 			try {
-				String docsDomain = SwaggerDocUtil.getV2ApiDocsDomain(swaggerDoc.getDocUrl());
-				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, swaggerDoc.getDocUrl(), docsDomain);
+				String docsDomain = SwaggerDocUtil.getV2ApiDocsDomain(apiDoc.getDocUrl());
+				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, apiDoc.getId(), apiDoc.getDocUrl(), docsDomain);
 				return new ResponseEntity<>(new Json(contentStr), HttpStatus.OK);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return new ResponseEntity<>(DocResponseJson.warn("请求文档失败"), HttpStatus.OK);
 			}
 		}
-		return new ResponseEntity<>(new Json(swaggerDoc.getJsonContent()), HttpStatus.OK);
+		return new ResponseEntity<>(new Json(apiDoc.getJsonContent()), HttpStatus.OK);
 	}
 	
 	@ResponseBody

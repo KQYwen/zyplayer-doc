@@ -62,7 +62,7 @@ public class ApiShareDocumentController {
 		if (Objects.equals(apiDoc.getDocType(), 1)) {
 			try {
 				String docsDomain = SwaggerDocUtil.getV2ApiDocsDomain(apiDoc.getDocUrl());
-				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, apiDoc.getDocUrl(), docsDomain);
+				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, apiDoc.getId(), apiDoc.getDocUrl(), docsDomain);
 				return DocResponseJson.ok(contentStr);
 			} catch (Exception e) {
 				e.printStackTrace();

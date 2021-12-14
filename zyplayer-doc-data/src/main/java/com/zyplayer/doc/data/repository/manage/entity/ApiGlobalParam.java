@@ -26,6 +26,11 @@ public class ApiGlobalParam implements Serializable {
     private Long id;
 
     /**
+     * api_doc主键ID
+     */
+    private Long docId;
+
+    /**
      * 参数类型 1=form 2=header 3=cookie
      */
     private Integer paramType;
@@ -142,5 +147,13 @@ public class ApiGlobalParam implements Serializable {
             ", createTime=" + createTime +
             ", yn=" + yn +
         "}";
+    }
+    
+    public Long getDocId() {
+        return docId;
+    }
+    
+    public void setDocId(Long docId) {
+        this.docId = docId;
     }
 }

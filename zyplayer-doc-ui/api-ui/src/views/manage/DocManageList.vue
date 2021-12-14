@@ -22,8 +22,8 @@
             </a-select>
         </a-form-item>
         <a-form-item>
-            <a-button @click="searchDocList" type="primary">查询</a-button>
-            <a-button @click="openNewDoc" :style="{ marginLeft: '8px' }">新建</a-button>
+            <a-button @click="searchDocList" type="primary"><template #icon><SearchOutlined/></template> 查询</a-button>
+            <a-button @click="openNewDoc" :style="{ marginLeft: '8px' }"><template #icon><PlusOutlined/></template> 新建</a-button>
         </a-form-item>
     </a-form>
     <a-table :dataSource="docList" :columns="docListColumns" size="middle"
@@ -63,23 +63,23 @@
         </template>
     </a-table>
     <a-modal v-model:visible="newDocVisible" :title="docEdit.isNew?'新增文档':'编辑文档'" @ok="handleNewDocOk" :width="850">
-        <EditDocBaseInfo :doc="docEdit"></EditDocBaseInfo>
+        <EditDocBaseInfo ref="docBaseInfoRef" :doc="docEdit"></EditDocBaseInfo>
     </a-modal>
 </template>
 
 <script>
-    import { toRefs, ref, reactive, onMounted } from 'vue';
+    import { toRefs, ref, reactive, onMounted, createVNode, defineComponent } from 'vue';
     import {zyplayerApi} from '../../api';
     import {useStore} from 'vuex';
     import aceEditor from "../../assets/ace-editor";
     import EditDocBaseInfo from "./components/EditDocBaseInfo.vue";
     import {getZyplayerApiBaseUrl} from "../../api/request/utils";
-    import {DownOutlined, LinkOutlined, EditOutlined} from '@ant-design/icons-vue';
-    import { message } from 'ant-design-vue';
+    import {DownOutlined, LinkOutlined, EditOutlined, SearchOutlined, PlusOutlined, ExclamationCircleOutlined} from '@ant-design/icons-vue';
+    import { message, Modal } from 'ant-design-vue';
 
     export default {
 	    emits: ['edit'],
-        components: {aceEditor, DownOutlined, LinkOutlined, EditOutlined, EditDocBaseInfo},
+        components: {aceEditor, DownOutlined, LinkOutlined, EditOutlined, SearchOutlined, PlusOutlined, EditDocBaseInfo},
         setup(props, {emit}) {
             const store = useStore();
             let docList = ref([]);
@@ -109,39 +109,41 @@
                 });
             };
             let docEdit = ref({});
-            let newDocFormRef = ref();
+            let docBaseInfoRef = ref();
             let newDocVisible = ref(false);
             const handleNewDocOk = async () => {
-                newDocFormRef.value.validate().then(() => {
-                    zyplayerApi.apiDocAdd(docEdit.value).then(res => {
-                        newDocVisible.value = false;
-                        store.commit('addDocChangedNum');
-                        emit('edit', 'edit', res.data);
-                    });
-                }).catch(error => {
-                    console.log('error', error);
-                });
-            };
-            const openNewDoc = async () => {
-                newDocVisible.value = true;
-                docEdit.value = {
-                    docType: 1, openVisit: 0, docStatus: 1, isNew: 1
-                };
-            };
-            const editDoc = (record) => {
-                emit('edit', 'edit', record);
-                // zyplayerApi.apiDocDetail({id: record.id}).then(res => {
-                //     docEdit.value = res.data;
-                //     newDocVisible.value = true;
-                // });
-            };
-            const updateDoc = async (id, docStatus, yn) => {
-                zyplayerApi.apiDocUpdate({id, docStatus, yn}).then(res => {
-                    searchDocList();
+	            let docNew = await docBaseInfoRef.value.getDoc();
+                zyplayerApi.apiDocAdd(docNew).then(res => {
+                    newDocVisible.value = false;
                     store.commit('addDocChangedNum');
+	                searchDocList();
                 });
             };
-            const deleteDoc = async (row) => updateDoc(row.id, null, 0);
+	        const openNewDoc = async () => {
+		        newDocVisible.value = true;
+		        docEdit.value = {docType: 1, openVisit: 0, docStatus: 1, isNew: 1};
+	        };
+	        const editDoc = (record) => {
+                emit('edit', 'edit', record);
+            };
+            const updateDoc = (id, docStatus, yn) => {
+                zyplayerApi.apiDocUpdate({id, docStatus, yn}).then(res => {
+                    store.commit('addDocChangedNum');
+                    searchDocList();
+                });
+            };
+            const deleteDoc = (row) => {
+                Modal.confirm({
+                    title: '再次确认',
+                    icon: createVNode(ExclamationCircleOutlined),
+                    content: '你真的确定要删除此文档吗？',
+                    okText: '确认',
+                    cancelText: '取消',
+                    onOk() {
+                        updateDoc(row.id, null, 0);
+                    },
+                });
+            };
             // 打开开放文档新窗口
             const openShareViewWindow = record => {
                 if (!record.shareUuid) {
@@ -166,7 +168,7 @@
                 docListLoading,
                 newDocVisible,
                 docEdit,
-                newDocFormRef,
+	            docBaseInfoRef,
                 searchDocList,
                 openNewDoc,
                 handleNewDocOk,

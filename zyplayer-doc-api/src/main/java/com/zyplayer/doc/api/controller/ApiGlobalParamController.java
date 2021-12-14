@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 全局参数控制器
@@ -46,11 +47,14 @@ public class ApiGlobalParamController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/list")
-	public ResponseJson<List<ApiGlobalParam>> list() {
+	public ResponseJson<List<ApiGlobalParam>> list(Long docId) {
+		Long docIdNew = Optional.ofNullable(docId).orElse(0L);
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		QueryWrapper<ApiGlobalParam> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("yn", 1);
-		queryWrapper.eq("create_user_id", currentUser.getUserId());
+		queryWrapper.eq("doc_id", docIdNew);
+		// 全局参数才按创建人来控制，文档的全局参数大家共用
+		queryWrapper.eq(docIdNew == 0, "create_user_id", currentUser.getUserId());
 		queryWrapper.orderByDesc("id");
 		List<ApiGlobalParam> globalParamList = apiGlobalParamService.list(queryWrapper);
 		return DocResponseJson.ok(globalParamList);
@@ -78,10 +82,13 @@ public class ApiGlobalParamController {
 				return DocResponseJson.warn("目标全局参数不存在");
 			}
 		}
+		globalParam.setDocId(Optional.ofNullable(globalParam.getDocId()).orElse(0L));
 		QueryWrapper<ApiGlobalParam> wrapper = new QueryWrapper<>();
 		wrapper.eq("yn", 1);
 		wrapper.eq("param_key", globalParam.getParamKey());
-		wrapper.eq("create_user_id", currentUser.getUserId());
+		wrapper.eq("doc_id", globalParam.getDocId());
+		// 全局参数才按创建人来控制，文档的全局参数大家共用
+		wrapper.eq(globalParam.getDocId() == 0, "create_user_id", currentUser.getUserId());
 		List<ApiGlobalParam> paramList = apiGlobalParamService.list(wrapper);
 		if (CollectionUtils.isNotEmpty(paramList)) {
 			if (paramList.size() > 1 || !Objects.equals(paramList.get(0).getId(), globalParam.getId())) {

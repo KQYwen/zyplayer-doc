@@ -1,6 +1,8 @@
 package com.zyplayer.doc.data.service.manage.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiGlobalParam;
 import com.zyplayer.doc.data.repository.manage.mapper.ApiGlobalParamMapper;
 import com.zyplayer.doc.data.service.manage.ApiGlobalParamService;
@@ -8,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -21,9 +24,15 @@ import java.util.List;
 public class ApiGlobalParamServiceImpl extends ServiceImpl<ApiGlobalParamMapper, ApiGlobalParam> implements ApiGlobalParamService {
 	
 	@Override
-	public List<ApiGlobalParam> getGlobalParamList() {
+	public List<ApiGlobalParam> getGlobalParamList(Long docId) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		Long docIdNew = Optional.ofNullable(docId).orElse(0L);
+		
 		QueryWrapper<ApiGlobalParam> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("yn", 1);
+		queryWrapper.eq("doc_id", docIdNew);
+		// 全局参数才按创建人来控制，文档的全局参数大家共用
+		queryWrapper.eq(docIdNew == 0, "create_user_id", currentUser.getUserId());
 		return this.list(queryWrapper);
 	}
 }

@@ -1,5 +1,6 @@
 package com.zyplayer.doc.api.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -13,6 +14,7 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
 import com.zyplayer.doc.data.repository.manage.vo.ApiDocVo;
+import com.zyplayer.doc.data.repository.support.consts.ApiAuthType;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -76,7 +78,11 @@ public class ApiDocumentController {
 		if (!apiDocAuthJudgeService.haveDevelopAuth(apiDoc)) {
 			return DocResponseJson.warn("没有此文档的查看权限");
 		}
-		return DocResponseJson.ok(apiDoc);
+		ApiDocVo apiDocVo  = new ApiDocVo();
+		BeanUtil.copyProperties(apiDoc, apiDocVo);
+		Integer authType = apiDocAuthJudgeService.haveManageAuth(apiDoc) ? ApiAuthType.MANAGE.getType() : ApiAuthType.DEVELOPER.getType();
+		apiDocVo.setAuthType(authType);
+		return DocResponseJson.ok(apiDocVo);
 	}
 	
 	/**
@@ -116,7 +122,7 @@ public class ApiDocumentController {
 				String swaggerDomain = SwaggerDocUtil.getSwaggerResourceDomain(docUrl);
 				List<SwaggerResource> resourceList;
 				try {
-					String resourcesStr = swaggerHttpRequestService.requestSwaggerUrl(request, docUrl, swaggerDomain);
+					String resourcesStr = swaggerHttpRequestService.requestSwaggerUrl(request, 0L, docUrl, swaggerDomain);
 					resourceList = JSON.parseArray(resourcesStr, SwaggerResource.class);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -198,7 +204,7 @@ public class ApiDocumentController {
 		if (Objects.equals(apiDoc.getDocType(), 1)) {
 			try {
 				String docsDomain = SwaggerDocUtil.getV2ApiDocsDomain(apiDoc.getDocUrl());
-				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, apiDoc.getDocUrl(), docsDomain);
+				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, apiDoc.getId(), apiDoc.getDocUrl(), docsDomain);
 				return DocResponseJson.ok(contentStr);
 			} catch (Exception e) {
 				e.printStackTrace();

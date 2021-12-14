@@ -47,6 +47,7 @@ CREATE TABLE `api_request_param` (
 DROP TABLE IF EXISTS `api_global_param`;
 CREATE TABLE `api_global_param` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `doc_id` bigint(20) DEFAULT NULL COMMENT 'api_doc主键ID',
   `param_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '参数类型 1=form 2=header 3=cookie',
   `param_key` varchar(100) DEFAULT NULL COMMENT '参数名',
   `param_value` varchar(1024) DEFAULT NULL COMMENT '参数值',

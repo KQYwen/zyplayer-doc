@@ -1,6 +1,11 @@
 <template>
 	<div class="page-layout">
 		<a-tabs type="editable-card" v-model:activeKey="activePage" @tab-click="changePage" @edit="editPageTab" style="padding: 5px 10px 0;">
+			<template #addIcon>
+				<a-tooltip title="新建一个API接口">
+					<plus-outlined />
+				</a-tooltip>
+			</template>
 			<a-tab-pane closable :tab="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)" :fullPath="item.fullPath" :key="item.fullPath" v-for="item in pageList"/>
 		</a-tabs>
 		<div class="page-body">
@@ -14,9 +19,11 @@
 </template>
 
 <script>
+	import {PlusOutlined} from '@ant-design/icons-vue';
+
 	export default {
 		name: 'PageTableView',
-		components: {},
+		components: {PlusOutlined},
 		data() {
 			return {
 				pageList: [],

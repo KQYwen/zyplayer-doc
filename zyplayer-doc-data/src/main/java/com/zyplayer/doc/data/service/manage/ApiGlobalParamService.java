@@ -15,5 +15,5 @@ import java.util.List;
  */
 public interface ApiGlobalParamService extends IService<ApiGlobalParam> {
 	
-	List<ApiGlobalParam> getGlobalParamList();
+	List<ApiGlobalParam> getGlobalParamList(Long docId);
 }

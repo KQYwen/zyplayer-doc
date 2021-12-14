@@ -1,6 +1,7 @@
 package com.zyplayer.doc.data.service.manage.impl;
 import java.util.*;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -78,18 +79,8 @@ public class ApiDocServiceImpl extends ServiceImpl<ApiDocMapper, ApiDoc> impleme
 				authType = ApiAuthType.MANAGE.getType();
 			}
 			ApiDocVo apiDocVo = new ApiDocVo();
+			BeanUtil.copyProperties(doc, apiDocVo);
 			apiDocVo.setAuthType(authType);
-			apiDocVo.setId(doc.getId());
-			apiDocVo.setName(doc.getName());
-			apiDocVo.setDocType(doc.getDocType());
-			apiDocVo.setDocUrl(doc.getDocUrl());
-			apiDocVo.setRewriteDomain(doc.getRewriteDomain());
-			apiDocVo.setOpenVisit(doc.getOpenVisit());
-			apiDocVo.setDocStatus(doc.getDocStatus());
-			apiDocVo.setCreateUserId(doc.getCreateUserId());
-			apiDocVo.setCreateUserName(doc.getCreateUserName());
-			apiDocVo.setCreateTime(doc.getCreateTime());
-			apiDocVo.setShareUuid(doc.getShareUuid());
 			return apiDocVo;
 		});
 	}

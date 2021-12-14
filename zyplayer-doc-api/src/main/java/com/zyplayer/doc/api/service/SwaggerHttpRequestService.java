@@ -50,8 +50,8 @@ public class SwaggerHttpRequestService {
 	 * @author 暮光：城中城
 	 * @since 2021-11-04
 	 */
-	public String requestSwaggerUrl(HttpServletRequest request, String docUrl, String docDomain) {
-		List<ApiGlobalParam> globalParamList = apiGlobalParamService.getGlobalParamList();
+	public String requestSwaggerUrl(HttpServletRequest request, Long docId, String docUrl, String docDomain) {
+		List<ApiGlobalParam> globalParamList = apiGlobalParamService.getGlobalParamList(docId);
 		Map<String, Object> globalFormParamMap = globalParamList.stream().filter(item -> Objects.equals(item.getParamType(), 1))
 				.collect(Collectors.toMap(ApiGlobalParam::getParamKey, ApiGlobalParam::getParamValue, (val1, val2) -> val1));
 		Map<String, String> globalHeaderParamMap = globalParamList.stream().filter(item -> Objects.equals(item.getParamType(), 2))

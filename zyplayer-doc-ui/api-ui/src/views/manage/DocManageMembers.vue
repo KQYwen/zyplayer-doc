@@ -1,12 +1,16 @@
 <template>
 	<div style="text-align: right;margin: 0 10px 10px 0;">
-		<a-button @click="searchDocMemberList" type="primary">查询</a-button>
-		<a-button @click="openAddDocMember" :style="{ marginLeft: '8px' }">添加用户</a-button>
+		<a-button @click="searchDocMemberList" type="primary">
+			<template #icon><search-outlined /></template> 查询
+		</a-button>
+		<a-button @click="openAddDocMember" :style="{ marginLeft: '8px' }">
+			<template #icon><plus-outlined /></template> 添加用户
+		</a-button>
 	</div>
     <a-table :dataSource="docMemberList" :columns="docListColumns" size="middle"
              :loading="docMemberListLoading" :pagination="false"
              @change="handleTableChange"
-             :scroll="{ x: 1400, y: 'calc(100vh - 300px)' }">
+             :scroll="{ x: 1000, y: 'calc(100vh - 300px)' }">
         <template #bodyCell="{ column, text, record }">
             <template v-if="column.dataIndex === 'operation'">
                 <a-popconfirm title="确定要删除吗？" @confirm="deleteDocMember(record)">
@@ -60,12 +64,12 @@
     import {zyplayerApi} from '../../api';
     import {useStore} from 'vuex';
     import {getZyplayerApiBaseUrl} from "../../api/request/utils";
-    import {DownOutlined, LinkOutlined, EditOutlined} from '@ant-design/icons-vue';
+    import {SearchOutlined, PlusOutlined} from '@ant-design/icons-vue';
     import { message } from 'ant-design-vue';
 
     export default {
 		emits: ['showDocList'],
-        components: {DownOutlined, LinkOutlined, EditOutlined},
+        components: {PlusOutlined, SearchOutlined},
 	    props: {
 		    doc: {
 			    type: Object,
@@ -106,6 +110,8 @@
                     setTimeout(() => docMemberListLoading.value = false, 500);
                     docMemberList.value = res.data || [];
                     pagination.value.total = res.total || 0;
+				}).catch(() => {
+					docMemberListLoading.value = false;
                 });
             };
             let userAdd = ref({});
@@ -129,6 +135,8 @@
 				        let resArr = res.data || [];
 				        resArr.forEach(item => userSearchList.value.push({label: item.userName, value: item.id}));
 				        userSearchState.value.fetching = false;
+					}).catch(() => {
+						userSearchState.value.fetching = false;
 			        });
 		        }, 500);
             };
