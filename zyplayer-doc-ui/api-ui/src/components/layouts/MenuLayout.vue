@@ -10,7 +10,7 @@
                     <a-select placeholder="请选择分组" v-model:value="docChoiceId" @change="docChoiceChange" style="width: 100%;">
                         <a-select-option :value="item.id" v-for="item in docResourceList">{{item.name}}</a-select-option>
                     </a-select>
-                    <a-input-search v-model:value="searchKeywords" placeholder="搜索文档内容" style="width: 100%;margin-top: 10px;" @search="docChoiceChange"/>
+                    <a-input-search v-model:value="searchKeywords" placeholder="搜索文档内容" style="width: 100%;margin-top: 10px;" @search="searchDoc"/>
                 </div>
                 <template v-if="docChoice && docChoice.docType">
                     <DocTreeSwagger v-if="docChoice.docType === 1 || docChoice.docType === 2" ref="swaggerRef"></DocTreeSwagger>
@@ -102,9 +102,26 @@
                         openApiRef.value.loadDoc(docChoiceId.value, searchKeywords.value, loadDocCallback);
                     }
                 }
+	            zyplayerApi.docApiGlobalParamList({docId: docChoiceId.value}).then(res => {
+		            let docGlobalParam = res.data || [];
+		            store.commit('setDocGlobalParam', docGlobalParam);
+	            });
             };
             const docChoiceChange = () => {
                 loadDoc();
+            };
+	        // 搜索文档
+            const searchDoc = () => {
+	            // 如果文档是swagger类型
+	            if (docChoice.value.docType === 1 || docChoice.value.docType === 2) {
+		            if (swaggerRef.value) {
+			            swaggerRef.value.loadTreeData(searchKeywords.value);
+		            }
+	            } else if (docChoice.value.docType === 3 || docChoice.value.docType === 4) {
+		            if (openApiRef.value) {
+			            openApiRef.value.loadTreeData(searchKeywords.value);
+		            }
+	            }
             };
             watch(store.getters.getDocChangedNum, () => {
                 getApiDocList();
@@ -136,6 +153,7 @@
                 swaggerRef,
                 openApiRef,
                 docChoice,
+	            searchDoc,
                 docChoiceChange,
             };
         },

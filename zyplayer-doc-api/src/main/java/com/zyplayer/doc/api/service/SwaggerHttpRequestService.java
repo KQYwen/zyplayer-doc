@@ -1,9 +1,12 @@
 package com.zyplayer.doc.api.service;
 
+import cn.hutool.core.io.resource.BytesResource;
+import cn.hutool.core.io.resource.MultiResource;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
+import com.zyplayer.doc.api.controller.ApiPoxyRequestController;
 import com.zyplayer.doc.api.controller.param.ProxyRequestParam;
 import com.zyplayer.doc.api.controller.vo.HttpCookieVo;
 import com.zyplayer.doc.api.controller.vo.HttpHeaderVo;
@@ -16,12 +19,17 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +43,7 @@ import java.util.stream.Stream;
  */
 @Service
 public class SwaggerHttpRequestService {
+	private static Logger logger = LoggerFactory.getLogger(SwaggerHttpRequestService.class);
 	
 	@Resource
 	private ApiGlobalParamService apiGlobalParamService;
@@ -153,6 +162,30 @@ public class SwaggerHttpRequestService {
 		// 用户输入的参数
 		requestParam.getFormParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
 		requestParam.getFormEncodeParamData().forEach(data -> httpRequest.form(data.getCode(), data.getValue()));
+		// 文件参数
+		if (request instanceof StandardMultipartHttpServletRequest) {
+			StandardMultipartHttpServletRequest multipartRequest = (StandardMultipartHttpServletRequest) request;
+			Iterator<String> fileNames = multipartRequest.getFileNames();
+			while (fileNames.hasNext()) {
+				String fileName = fileNames.next();
+				String originKey = fileName.replace("_file_", "");
+				List<MultipartFile> fileList = multipartRequest.getFiles(fileName);
+				try {
+					if (fileList.size() > 1) {
+						MultiResource multiResource = new MultiResource();
+						for (MultipartFile file : fileList) {
+							multiResource.add(new BytesResource(file.getBytes(), file.getOriginalFilename()));
+						}
+						httpRequest.form(originKey, multiResource);
+					} else if (fileList.size() > 0) {
+						MultipartFile multipartFile = fileList.get(0);
+						httpRequest.form(originKey, multipartFile.getBytes(), multipartFile.getOriginalFilename());
+					}
+				} catch (IOException e) {
+					logger.error("读取上传的文件失败", e);
+				}
+			}
+		}
 		// cookie参数
 		Map<String, String> cookieParam = new HashMap<>();
 		String headerCookie = headerParam.getOrDefault("Cookie", headerParam.get("cookie"));

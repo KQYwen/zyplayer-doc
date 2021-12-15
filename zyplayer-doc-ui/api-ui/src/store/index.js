@@ -13,6 +13,8 @@ export default createStore({
             apiDoc: {},
             // 全局参数
             globalParam: [],
+            // 当前文档全局参数
+            docGlobalParam: [],
             // 左侧菜单栏宽度
             leftAsideWidth: 0,
 
@@ -52,6 +54,19 @@ export default createStore({
         },
         setGlobalParam(state, globalParam) {
             state.globalParam = globalParam;
+        },
+        setDocGlobalParam(state, globalParam) {
+            state.docGlobalParam = globalParam;
+        },
+        setGlobalParamOnChange(state, globalParam, docId) {
+            if (docId && docId > 0) {
+                // 当前选中的文档是修改的文档才更新
+                if (state.apiDoc.id === docId) {
+                    state.docGlobalParam = globalParam;
+                }
+            } else {
+                state.globalParam = globalParam;
+            }
         },
         setApiDoc(state, apiDoc) {
             state.apiDoc = apiDoc;

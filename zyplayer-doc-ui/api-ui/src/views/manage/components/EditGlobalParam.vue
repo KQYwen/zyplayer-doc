@@ -70,7 +70,7 @@
                 zyplayerApi.docApiGlobalParamList(props.dynamicParam).then(res => {
                     setTimeout(() => docListLoading.value = false, 500);
                     docList.value = res.data || [];
-                    store.commit('setGlobalParam', docList.value);
+	                store.commit('setGlobalParamOnChange', docList.value, props.dynamicParam.id);
                 });
             };
             let docEdit = ref({});

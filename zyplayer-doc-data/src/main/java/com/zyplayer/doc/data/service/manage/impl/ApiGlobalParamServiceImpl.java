@@ -30,9 +30,13 @@ public class ApiGlobalParamServiceImpl extends ServiceImpl<ApiGlobalParamMapper,
 		
 		QueryWrapper<ApiGlobalParam> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("yn", 1);
-		queryWrapper.eq("doc_id", docIdNew);
 		// 全局参数才按创建人来控制，文档的全局参数大家共用
-		queryWrapper.eq(docIdNew == 0, "create_user_id", currentUser.getUserId());
+		if (docIdNew == 0) {
+			queryWrapper.eq("create_user_id", currentUser.getUserId());
+		} else {
+			queryWrapper.and(con -> con.or(or -> or.eq("doc_id", docIdNew))
+					.or(or -> or.eq("create_user_id", currentUser.getUserId())));
+		}
 		return this.list(queryWrapper);
 	}
 }

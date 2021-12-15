@@ -78,7 +78,16 @@
                 }
             };
             const docSearch = () => {
-                loadDoc();
+	            // 如果文档是swagger类型
+	            if (docChoice.value.docType === 1 || docChoice.value.docType === 2) {
+		            if (swaggerRef.value) {
+			            swaggerRef.value.loadTreeData(searchKeywords.value);
+		            }
+	            } else if (docChoice.value.docType === 3 || docChoice.value.docType === 4) {
+		            if (openApiRef.value) {
+			            openApiRef.value.loadTreeData(searchKeywords.value);
+		            }
+	            }
             };
             onMounted(() => {
                 docChoiceId.value = route.query.uuid;

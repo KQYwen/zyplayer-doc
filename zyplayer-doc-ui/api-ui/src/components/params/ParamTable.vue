@@ -41,7 +41,7 @@
                         <a-select-option value="true">TRUE</a-select-option>
                         <a-select-option value="false">FALSE</a-select-option>
                     </a-select>
-                    <a-upload v-else-if="isFileType(record.type)"
+                    <a-upload v-else-if="isFileType(record)"
                               :file-list="record.value" name="file" :multiple="record.type === 'array'"
                               :before-upload="file=>{return beforeUpload(file, record)}"
                               :remove="file=>{return handleRemove(file, record)}"
@@ -121,11 +121,11 @@
             paramListColumns.value.push({title: '参数值', dataIndex: 'value'});
             paramListColumns.value.push({title: '', dataIndex: 'action', width: 40});
             const beforeUpload = (file, record) => {
-                if (record.type !== 'array') {
-                    record.value = [file];
-                } else {
-                    record.value = [...record.value, file];
-                }
+	            if (record.type !== 'array' || !(record.value instanceof Array) || record.value.length <= 0) {
+		            record.value = [file];
+	            } else {
+		            record.value = [...record.value, file];
+	            }
                 return false;
             };
             const handleRemove = (file, record) => {

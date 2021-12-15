@@ -98,11 +98,13 @@
         setup(props) {
             const store = useStore();
             let apiDoc = store.state.apiDoc || {};
-            let globalParam = store.state.globalParam || [];
+            let userGlobalParam = store.state.globalParam || [];
+            let docGlobalParam = store.state.docGlobalParam || [];
             let swaggerDoc = store.state.swaggerDoc || {};
             let urlDomain = apiDoc.rewriteDomain || swaggerDoc.host;
             let docUrl = ref(urlDomain + props.docInfoShow.url);
             let activePage = ref('urlParam');
+	        let globalParam = [].concat(userGlobalParam, docGlobalParam);
             // URL参数处理
             const urlParamRef = ref();
             let urlParamListProp = props.requestParamList.filter(item => item.in === 'query' || item.in === 'path');
@@ -179,6 +181,9 @@
             } else if (headerParamListProp.length > 0) {
                 activePage.value = 'headerParam';
             }
+	        const isFileType = record => {
+		        return record.type === 'file' || record.subType === 'file' || record.subType === 'MultipartFile';
+	        };
             // 发送请求
             let requestResult = ref({});
             let requestLoading = ref(false);
@@ -190,11 +195,29 @@
                     message.error('请输入请求的目标URL地址');
                     return;
                 }
-                let formObjData = {};
-                const formData = new FormData();
+	            // 用于替换URL上的path参数
+	            let formObjData = {};
+	            // 代理请求发送给后端的对象
+	            const formData = new FormData();
+	            const appendData = item => {
+		            if (isFileType(item)) {
+						// 防止参数重名，加个前缀
+			            let name = '_file_' + item.name;
+			            if (item.type === 'array') {
+				            item.value.forEach(file => formData.append(name, file));
+			            } else {
+				            if (item.value instanceof Array && item.value.length > 0) {
+					            formData.append(name, item.value[0]);
+				            }
+			            }
+		            } else {
+			            formObjData[item.name] = item.value;
+			            formData.append(item.name, item.value);
+		            }
+	            };
                 let urlParamSelected = urlParamRef.value.getSelectedRowKeys();
                 let urlParamStr = urlParamList.value.filter(item => urlParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
-                    formObjData[item.name] = item.value;
+	                appendData(item);
                     return item.name + '=' + encodeURIComponent(item.value);
                 }).join('&');
                 let headerParamSelected = headerParamRef.value.getSelectedRowKeys();
@@ -210,7 +233,7 @@
                     let formParamSelected = formParamRef.value.getSelectedRowKeys();
                     formParamArr = formParamList.value.filter(item => formParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
                         // todo 判断处理文件格式
-                        formObjData[item.name] = item.value;
+	                    appendData(item);
                         return {code: item.name, value: item.value};
                     });
                 }
@@ -219,7 +242,7 @@
                     let formEncodeParamSelected = formEncodeParamRef.value.getSelectedRowKeys();
                     formEncodeParamArr = formEncodeParamList.value.filter(item => formEncodeParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
                         // todo 判断处理文件格式
-                        formObjData[item.name] = item.value;
+	                    appendData(item);
                         return {code: item.name, value: item.value};
                     });
                 }
@@ -227,9 +250,6 @@
                 if (bodyParamRef.value) {
                     bodyParamStr = bodyParamRef.value.getParam();
                 }
-                // fileList.value.forEach(file => {
-                //     formData.append('files[]', file);
-                // });
                 let url = urlParamStr ? (docUrl.value + '?' + urlParamStr) : docUrl.value;
                 // 替换path参数
                 Object.keys(formObjData).forEach((key) => {

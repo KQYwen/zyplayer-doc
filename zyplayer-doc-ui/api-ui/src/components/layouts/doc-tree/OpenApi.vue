@@ -41,7 +41,6 @@
             let treeData = ref([]);
             let expandedKeys = ref([]);
             let choiceDocId = ref('');
-            let searchKeywords = ref('');
 
             const docChecked = (val, node) => {
                 if (node.node.key === 'info') {
@@ -53,11 +52,11 @@
             };
             const loadDoc = (docId, keyword, callback) => {
                 choiceDocId.value = docId;
-                searchKeywords.value = keyword;
                 zyplayerApi.apiDocApisDetail({id: docId}).then(res => {
                     let v2Doc = toJsonObj(res.data);
                     // os：doc.swagger 和 doc.openapi 的区别
                     if (typeof v2Doc !== 'object' || !v2Doc.openapi) {
+	                    callback(false);
                         message.error('获取文档数据失败，请检查文档是否为标准的OpenApi文档格式');
                         return;
                     }
@@ -67,13 +66,15 @@
                     store.commit('setOpenApiUrlMethodMap', treeData.urlMethodMap);
                     store.commit('setOpenApiMethodStatistic', treeData.methodStatistic);
                     tagPathMap.value = treeData.tagPathMap;
-                    loadTreeData();
-                    callback();
+                    loadTreeData(keyword);
+                    callback(true);
+                }).catch(() => {
+	                callback(false);
                 });
             };
-            const loadTreeData = async () => {
+            const loadTreeData = async (keyword) => {
                 let metaInfo = {id: choiceDocId.value};
-                treeData.value = getTreeDataForTag(openApiDoc.value, tagPathMap.value, searchKeywords.value, metaInfo);
+                treeData.value = getTreeDataForTag(openApiDoc.value, tagPathMap.value, keyword, metaInfo);
                 treeData.value.unshift({key: 'info', title: '文档说明信息', isLeaf: true});
                 await nextTick();
                 expandedKeys.value = ['main'];
@@ -97,6 +98,7 @@
                 expandedKeys,
                 docChecked,
                 loadDoc,
+	            loadTreeData,
                 treeData,
             };
         },

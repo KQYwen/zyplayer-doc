@@ -1,6 +1,7 @@
 package com.zyplayer.doc.api.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zyplayer.doc.api.service.ApiDocAuthJudgeService;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -37,6 +38,8 @@ public class ApiGlobalParamController {
 	
 	@Resource
 	private ApiGlobalParamService apiGlobalParamService;
+	@Resource
+	ApiDocAuthJudgeService apiDocAuthJudgeService;
 	
 	/**
 	 * 获取所有的全局参数
@@ -49,6 +52,9 @@ public class ApiGlobalParamController {
 	@PostMapping(value = "/list")
 	public ResponseJson<List<ApiGlobalParam>> list(Long docId) {
 		Long docIdNew = Optional.ofNullable(docId).orElse(0L);
+		if (docIdNew > 0 && !apiDocAuthJudgeService.haveDevelopAuth(docIdNew)) {
+			return DocResponseJson.warn("没有此文档的查看权限");
+		}
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		QueryWrapper<ApiGlobalParam> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("yn", 1);
@@ -71,6 +77,11 @@ public class ApiGlobalParamController {
 	@PostMapping(value = "/update")
 	public ResponseJson<List<ApiDoc>> update(ApiGlobalParam globalParam) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		globalParam.setDocId(Optional.ofNullable(globalParam.getDocId()).orElse(0L));
+		// 新的文档ID是否有权限
+		if (globalParam.getDocId() > 0 && !apiDocAuthJudgeService.haveDevelopAuth(globalParam.getDocId())) {
+			return DocResponseJson.warn("没有此文档的查看权限");
+		}
 		if (globalParam.getId() == null) {
 			globalParam.setYn(1);
 			globalParam.setCreateTime(new Date());
@@ -78,11 +89,17 @@ public class ApiGlobalParamController {
 			globalParam.setCreateUserName(currentUser.getUsername());
 		} else {
 			ApiGlobalParam param = apiGlobalParamService.getById(globalParam.getId());
-			if (param == null || !Objects.equals(param.getCreateUserId(), currentUser.getUserId())) {
-				return DocResponseJson.warn("目标全局参数不存在");
+			if (param.getDocId() > 0) {
+				// 已有的文档ID是否有权限
+				if (!apiDocAuthJudgeService.haveDevelopAuth(param.getDocId())) {
+					return DocResponseJson.warn("没有此文档的查看权限");
+				}
+			} else {
+				if (!Objects.equals(param.getCreateUserId(), currentUser.getUserId())) {
+					return DocResponseJson.warn("目标全局参数不存在");
+				}
 			}
 		}
-		globalParam.setDocId(Optional.ofNullable(globalParam.getDocId()).orElse(0L));
 		QueryWrapper<ApiGlobalParam> wrapper = new QueryWrapper<>();
 		wrapper.eq("yn", 1);
 		wrapper.eq("param_key", globalParam.getParamKey());
