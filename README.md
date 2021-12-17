@@ -78,9 +78,7 @@ zyplayer-doc是一款前后端完全开源的在线文档工具，现有API接�
 如果您正在使用这个项目并感觉良好，或者是想支持我继续开发，您可以通过如下`任意`方式支持我：
 1. Star并分享 [zyplayer-doc](https://gitee.com/zyplayer/zyplayer-doc)
 2. 保留`关于页面`的项目链接
-3. 通过以下二维码一次性捐赠，我会去买一杯咖啡或攒着去植发
-
-![微信捐赠](zyplayer-doc-other/images/%E5%BE%AE%E4%BF%A1%E6%8D%90%E8%B5%A0.png)
+3. 通过[一次性捐赠](http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=359&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 支持，我会去买一杯咖啡或攒着去植发
 
 # 界面展示
 控制台页面
