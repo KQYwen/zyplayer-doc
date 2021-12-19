@@ -1,6 +1,6 @@
 -- ------------------------------------------------
--- 这是软件版本为：1.0.9的全量建表语句，初次部署可直接执行
--- 从低版本升级为1.0.9，请执行具体的增量升级SQL
+-- 这是软件版本为：1.1.0的全量建表语句，初次部署可直接执行
+-- 从低版本升级为1.1.0，请执行具体的增量升级SQL
 -- 初次部署文档：http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=279&space=23f3f59a60824d21af9f7c3bbc9bc3cb
 -- 升级指导文档：http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=284&space=23f3f59a60824d21af9f7c3bbc9bc3cb
 -- ------------------------------------------------

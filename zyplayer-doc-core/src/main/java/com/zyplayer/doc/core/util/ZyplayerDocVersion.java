@@ -7,5 +7,5 @@ package com.zyplayer.doc.core.util;
  * @since 2021-06-06
  */
 public class ZyplayerDocVersion {
-	public static final String version = "1.0.9";
+	public static final String version = "1.1.0";
 }

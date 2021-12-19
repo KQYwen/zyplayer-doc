@@ -10,9 +10,9 @@
 		</encoder>
 	</appender>
 	<appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/web/logs/zyplayer-doc-manage/error.log</file>
+		<file>./logs/zyplayer-doc-manage/error.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>/web/logs/zyplayer-doc-manage/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>./logs/zyplayer-doc-manage/error.%d{yyyy-MM-dd}.log</fileNamePattern>
 			<maxHistory>${maxHistory}</maxHistory>
 		</rollingPolicy>
 		<encoder>
@@ -25,9 +25,9 @@
 		</filter>
 	</appender>
 	<appender name="INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/web/logs/zyplayer-doc-manage/common.log</file>
+		<file>./logs/zyplayer-doc-manage/common.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>/web/logs/zyplayer-doc-manage/common.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>./logs/zyplayer-doc-manage/common.%d{yyyy-MM-dd}.log</fileNamePattern>
 			<maxHistory>${maxHistory}</maxHistory>
 		</rollingPolicy>
 		<encoder>

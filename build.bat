@@ -4,7 +4,7 @@ set dist_dir=dist
 
 set app_name=zyplayer-doc
 
-set version="1.0.9"
+set version="1.1.0"
 
 set build_folder=%app_name%-%version%
 

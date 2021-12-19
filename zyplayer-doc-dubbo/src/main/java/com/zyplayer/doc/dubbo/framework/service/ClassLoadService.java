@@ -115,7 +115,7 @@ public class ClassLoadService {
 //		String serviceName = "com.zyplayer.data.service.dubbo.DataIndicatorsService";
 //		String jarGroup = "com.zyplayer.data";
 //		String jarArtifact = "data-api-client";
-//		String jarVersion = "1.0.9.SNAPSHOTS";
+//		String jarVersion = "1.1.0.SNAPSHOTS";
 //		String basePath = "http://nexus.zyplayer.com:8081/nexus/content/groups/public";
 //		new ClassLoadService().loadServerMethod(serviceName, basePath, jarGroup, jarArtifact, jarVersion);
 //	}
