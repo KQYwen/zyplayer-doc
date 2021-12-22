@@ -1,3 +1,10 @@
+-- ------------------------------------------------
+-- 这是软件版本为：1.1.0的全量建表语句，初次部署可直接执行
+-- 从低版本升级为1.1.0，请执行具体的增量升级SQL
+-- 初次部署文档：http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=279&space=23f3f59a60824d21af9f7c3bbc9bc3cb
+-- 升级指导文档：http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=284&space=23f3f59a60824d21af9f7c3bbc9bc3cb
+-- ------------------------------------------------
+
 /*
  Navicat Premium Data Transfer
 
@@ -50,6 +57,8 @@ INSERT INTO `auth_info` VALUES (15, 'DB_SELECT_', '数据源查询权', 0, 1, '2
 INSERT INTO `auth_info` VALUES (16, 'DB_UPDATE_', '数据源增删改查权', 0, 1, '2019-08-18 23:25:17', 0);
 INSERT INTO `auth_info` VALUES (17, 'DB_DESC_EDIT_', '表字段注释修改权', 0, 1, '2019-08-18 23:25:17', 0);
 INSERT INTO `auth_info` VALUES (18, 'DB_PROC_EDIT_', '存储过程修改权', 0, 1, '2021-04-24 23:25:17', 0);
+INSERT INTO `auth_info` VALUES (19, 'API_DOC_MANAGE', 'api文档管理权', 0, 1, '2021-12-12 23:25:17', 0);
+INSERT INTO `auth_info` VALUES (20, 'API_DOC_DEVELOPER', 'api文档编辑权', 0, 1, '2021-12-12 23:25:17', 0);
 
 -- ----------------------------
 -- Table structure for db_datasource
@@ -148,25 +157,27 @@ CREATE TABLE `user_auth`  (
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '是否删除 0=未删除 1=已删除',
   `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-  `auth_custom_suffix` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '自定义权限结尾',
+  `sys_type` int NULL COMMENT '系统类型，DocSysType',
+  `sys_module_type` int NULL COMMENT '系统模块类型，DocSysModuleType',
+  `sys_module_id` bigint(20) NULL COMMENT '系统模块ID',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 73 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户权限表' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of user_auth
 -- ----------------------------
-INSERT INTO `user_auth` VALUES (9, 2, 1, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL);
-INSERT INTO `user_auth` VALUES (10, 2, 2, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL);
-INSERT INTO `user_auth` VALUES (11, 2, 3, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL);
-INSERT INTO `user_auth` VALUES (12, 2, 4, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL);
-INSERT INTO `user_auth` VALUES (31, 3, 1, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL);
-INSERT INTO `user_auth` VALUES (32, 3, 2, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL);
-INSERT INTO `user_auth` VALUES (33, 3, 3, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL);
-INSERT INTO `user_auth` VALUES (34, 3, 4, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL);
-INSERT INTO `user_auth` VALUES (44, 1, 3, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL);
-INSERT INTO `user_auth` VALUES (45, 1, 4, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL);
-INSERT INTO `user_auth` VALUES (46, 1, 12, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL);
-INSERT INTO `user_auth` VALUES (47, 1, 13, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL);
+INSERT INTO `user_auth` VALUES (9, 2, 1, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (10, 2, 2, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (11, 2, 3, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (12, 2, 4, 1, NULL, 0, '2018-12-15 22:19:59', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (31, 3, 1, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (32, 3, 2, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (33, 3, 3, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (34, 3, 4, 1, NULL, 0, '2019-06-21 15:19:51', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (44, 1, 3, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (45, 1, 4, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (46, 1, 12, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL, NULL, NULL);
+INSERT INTO `user_auth` VALUES (47, 1, 13, 1, NULL, 0, '2019-08-12 13:10:11', NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for user_info
@@ -506,5 +517,54 @@ CREATE TABLE `db_table_relation` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='表关系';
 
+DROP TABLE IF EXISTS `api_doc`;
+CREATE TABLE `api_doc` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `name` varchar(100) DEFAULT NULL COMMENT '文档名称',
+  `doc_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '文档类型 1=swagger url 2=swagger json 3=openapi url 4=openapi json 5=自建API分组',
+  `doc_url` varchar(250) DEFAULT NULL COMMENT '文档URL地址',
+  `json_content` mediumtext DEFAULT NULL COMMENT '文档json内容',
+  `rewrite_domain` varchar(100) DEFAULT NULL COMMENT '重写的域名',
+  `open_visit` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否开放访问 0=否 1=是',
+  `doc_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态 1=启用 2=禁用',
+  `share_uuid` varchar(50) DEFAULT NULL COMMENT '开放文档UUID',
+  `share_instruction` mediumtext DEFAULT NULL COMMENT '开放文档使用说明',
+  `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `yn` tinyint(4) DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='api文档地址';
+
+DROP TABLE IF EXISTS `api_request_param`;
+CREATE TABLE `api_request_param` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `doc_id` bigint(20) DEFAULT NULL COMMENT 'api_doc主键ID',
+  `doc_url` varchar(250) DEFAULT NULL COMMENT '文档url',
+  `form_data` text DEFAULT NULL COMMENT 'form参数',
+  `body_data` text DEFAULT NULL COMMENT 'body参数',
+  `header_data` varchar(1024) DEFAULT NULL COMMENT 'header参数',
+  `cookie_data` varchar(1024) DEFAULT NULL COMMENT 'cookie参数',
+  `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `yn` tinyint(4) DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='文档请求参数记录';
+
+DROP TABLE IF EXISTS `api_global_param`;
+CREATE TABLE `api_global_param` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
+  `doc_id` bigint(20) DEFAULT NULL COMMENT 'api_doc主键ID',
+  `param_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '参数类型 1=form 2=header 3=cookie',
+  `param_key` varchar(100) DEFAULT NULL COMMENT '参数名',
+  `param_value` varchar(1024) DEFAULT NULL COMMENT '参数值',
+  `param_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态 1=启用 2=禁用',
+  `create_user_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `yn` tinyint(4) DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='api文档全局参数记录';
 
 SET FOREIGN_KEY_CHECKS = 1;

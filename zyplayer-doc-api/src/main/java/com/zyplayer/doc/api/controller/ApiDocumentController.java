@@ -13,8 +13,10 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
+import com.zyplayer.doc.data.repository.manage.vo.ApiCustomVo;
 import com.zyplayer.doc.data.repository.manage.vo.ApiDocVo;
 import com.zyplayer.doc.data.repository.support.consts.ApiAuthType;
+import com.zyplayer.doc.data.service.manage.ApiCustomRequestService;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -49,6 +51,8 @@ public class ApiDocumentController {
 	private ApiDocService apiDocService;
 	@Resource
 	private SwaggerHttpRequestService swaggerHttpRequestService;
+	@Resource
+	ApiCustomRequestService apiCustomRequestService;
 	
 	/**
 	 * 获取所有的文档地址
@@ -78,7 +82,7 @@ public class ApiDocumentController {
 		if (!apiDocAuthJudgeService.haveDevelopAuth(apiDoc)) {
 			return DocResponseJson.warn("没有此文档的查看权限");
 		}
-		ApiDocVo apiDocVo  = new ApiDocVo();
+		ApiDocVo apiDocVo = new ApiDocVo();
 		BeanUtil.copyProperties(apiDoc, apiDocVo);
 		Integer authType = apiDocAuthJudgeService.haveManageAuth(apiDoc) ? ApiAuthType.MANAGE.getType() : ApiAuthType.DEVELOPER.getType();
 		apiDocVo.setAuthType(authType);
@@ -148,6 +152,8 @@ public class ApiDocumentController {
 			}
 		} else if (Objects.equals(apiDoc.getDocType(), 2) || Objects.equals(apiDoc.getDocType(), 4)) {
 			apiDocService.saveOrUpdate(apiDoc);
+		} else if (Objects.equals(apiDoc.getDocType(), 5)) {
+			apiDocService.saveOrUpdate(apiDoc);
 		} else {
 			return DocResponseJson.warn("暂不支持的文档类型");
 		}
@@ -213,6 +219,10 @@ public class ApiDocumentController {
 		}
 		if (Objects.equals(apiDoc.getDocType(), 2) || Objects.equals(apiDoc.getDocType(), 4)) {
 			return DocResponseJson.ok(apiDoc.getJsonContent());
+		}
+		if (Objects.equals(apiDoc.getDocType(), 5)) {
+			List<ApiCustomVo> customVoList = apiCustomRequestService.buildCustomApiList(apiDoc.getId());
+			return DocResponseJson.ok(customVoList);
 		}
 		return DocResponseJson.warn("暂不支持的文档类型");
 	}
