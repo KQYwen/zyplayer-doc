@@ -190,19 +190,19 @@
 </template>
 
 <script>
-	import QRCode from 'qrcodejs2'
-	import unitUtil from '../../common/lib/UnitUtil.js'
-	import htmlUtil from '../../common/lib/HtmlUtil.js'
-	import pageApi from '../../common/api/page'
-	import userApi from '../../common/api/user'
-	import Navigation from './components/Navigation.vue'
-	import {mavonEditor, markdownIt} from 'mavon-editor'
-	import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
-	import 'mavon-editor/dist/markdown/github-markdown.min.css'
-	import 'mavon-editor/dist/css/index.css'
-	import vue from "../../main";
+import QRCode from 'qrcodejs2'
+import unitUtil from '../../common/lib/UnitUtil.js'
+import htmlUtil from '../../common/lib/HtmlUtil.js'
+import pageApi from '../../common/api/page'
+import userApi from '../../common/api/user'
+import Navigation from './components/Navigation.vue'
+import {markdownIt, mavonEditor} from 'mavon-editor'
+import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
+import 'mavon-editor/dist/markdown/github-markdown.min.css'
+import 'mavon-editor/dist/css/index.css'
+import vue from "../../main";
 
-	var page = {
+var page = {
 		colorArr: ["#67C23A", "#409EFF", "#E6A23C", "#F56C6C", "#909399", "#303133"],
 		userHeadColor: {},
 	};
@@ -414,7 +414,6 @@
 			},
 			computeNavigationWidth() {
 				setTimeout(() => {
-					console.log(this.$refs.navigation)
 					if (this.$refs.navigation) {
 						this.$refs.navigation.computeNavigationWidth();
 					}
@@ -454,7 +453,10 @@
 					history.loading = 2;
 					this.pageHistoryDetail = history.content;
 					this.pageShowDetail = history.content;
-					setTimeout(() => this.previewPageImage(), 500);
+					setTimeout(() => {
+						this.previewPageImage();
+						this.createNavigationHeading();
+					}, 500);
 				} else {
 					history.loading = 1;
 					pageApi.pageHistoryDetail({id: history.id}).then(json => {
@@ -465,7 +467,10 @@
 						}
 						this.pageHistoryDetail = history.content;
 						this.pageShowDetail = history.content;
-						setTimeout(() => this.previewPageImage(), 500);
+						setTimeout(() => {
+							this.previewPageImage();
+							this.createNavigationHeading();
+						}, 500);
 					}).catch(() => {
 						history.loading = 3;
 					});
@@ -504,8 +509,7 @@
 					}
 					this.pageShowDetail = this.pageContent.content;
 					// 修改标题
-					let wikiTile = wikiPage.name || 'WIKI-内容展示';
-					document.title = wikiTile;
+					document.title = wikiPage.name || 'WIKI-内容展示';
 					// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
 					// if (!this.lastClickNode.id) {
 					// 	this.lastClickNode = {id: wikiPage.id, nodePath: wikiPage.name};
@@ -516,20 +520,24 @@
 					this.$emit('changeExpandedKeys', pageId);
 					setTimeout(() => {
 						this.previewPageImage();
-						let navigationList = htmlUtil.createNavigationHeading();
-						// 标题加到导航里面去
-						if (navigationList.length > 0) {
-							navigationList.unshift({
-								level: 1,
-								node: this.$refs.wikiTitle,
-								text: wikiTile
-							});
-						}
-						this.navigationList = navigationList;
+						this.createNavigationHeading();
 					}, 500);
 				});
 				this.loadCommentList(pageId);
 				this.getPageHistory(pageId, 1);
+			},
+			createNavigationHeading() {
+				let navigationList = htmlUtil.createNavigationHeading();
+				// 标题加到导航里面去
+				if (navigationList.length > 0) {
+					let wikiTile = this.wikiPage.name || 'WIKI-内容展示';
+					navigationList.unshift({
+						level: 1,
+						node: this.$refs.wikiTitle,
+						text: wikiTile
+					});
+				}
+				this.navigationList = navigationList;
 			},
 			closeImagePreview() {
 				this.showImagePreview = false;
