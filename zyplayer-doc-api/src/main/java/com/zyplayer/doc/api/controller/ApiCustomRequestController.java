@@ -1,8 +1,16 @@
 package com.zyplayer.doc.api.controller;
 
 
+import com.zyplayer.doc.core.json.DocResponseJson;
+import com.zyplayer.doc.core.json.ResponseJson;
+import com.zyplayer.doc.data.repository.manage.entity.ApiCustomRequest;
+import com.zyplayer.doc.data.service.manage.ApiCustomRequestService;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
 
 /**
  * <p>
@@ -13,7 +21,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @since 2021-12-22
  */
 @Controller
-@RequestMapping("/api-custom")
+@RequestMapping("/api-custom-request")
 public class ApiCustomRequestController {
-
+	
+	@Resource
+	ApiCustomRequestService apiCustomRequestService;
+	
+	/**
+	 * 1. 新增接口
+	 * 2. 修改接口名等
+	 * 3. 修改父文件夹
+	 *
+	 * @return 文档内容
+	 * @author 暮光：城中城
+	 * @since 2021年12月22日
+	 */
+	@ResponseBody
+	@PostMapping(value = "/add")
+	public ResponseJson<Object> add(ApiCustomRequest apiCustomRequest) {
+		apiCustomRequestService.addRequest(apiCustomRequest);
+		return DocResponseJson.ok();
+	}
 }

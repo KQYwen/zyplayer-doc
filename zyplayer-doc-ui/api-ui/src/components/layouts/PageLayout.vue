@@ -85,7 +85,7 @@
 				}
 			},
 			addPageTab() {
-				this.$router.push({path: '/api/request', query: {id: this.apiRequestIndex++}});
+				this.$router.push({path: '/custom/request', query: {id: this.apiRequestIndex++}});
 			},
 			removePageTab(key) {
 				if (this.pageList.length === 1) {

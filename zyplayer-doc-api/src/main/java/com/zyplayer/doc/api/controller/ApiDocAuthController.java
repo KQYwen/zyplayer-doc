@@ -1,7 +1,6 @@
 package com.zyplayer.doc.api.controller;
 
 import com.zyplayer.doc.api.controller.vo.DocUserAuthVo;
-import com.zyplayer.doc.api.service.ApiDocAuthJudgeService;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -11,6 +10,7 @@ import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.support.consts.ApiAuthType;
 import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
 import com.zyplayer.doc.data.repository.support.consts.DocSysType;
+import com.zyplayer.doc.data.service.common.ApiDocAuthJudgeService;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;

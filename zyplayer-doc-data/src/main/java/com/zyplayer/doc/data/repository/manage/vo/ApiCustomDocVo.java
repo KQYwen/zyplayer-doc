@@ -18,6 +18,11 @@ public class ApiCustomDocVo implements Serializable {
 	private String apiName;
 	
 	/**
+	 * 请求方式：get、head、post、put、patch、delete、options、trace
+	 */
+	private String method;
+	
+	/**
 	 * 接口url
 	 */
 	private String apiUrl;
@@ -88,5 +93,13 @@ public class ApiCustomDocVo implements Serializable {
 	
 	public void setCookieData(String cookieData) {
 		this.cookieData = cookieData;
+	}
+	
+	public String getMethod() {
+		return method;
+	}
+	
+	public void setMethod(String method) {
+		this.method = method;
 	}
 }

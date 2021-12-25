@@ -1,7 +1,6 @@
 package com.zyplayer.doc.api.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.zyplayer.doc.api.service.ApiDocAuthJudgeService;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -9,6 +8,7 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
 import com.zyplayer.doc.data.repository.manage.entity.ApiGlobalParam;
+import com.zyplayer.doc.data.service.common.ApiDocAuthJudgeService;
 import com.zyplayer.doc.data.service.manage.ApiGlobalParamService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;

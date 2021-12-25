@@ -1,5 +1,6 @@
-package com.zyplayer.doc.api.service;
+package com.zyplayer.doc.data.service.common;
 
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
@@ -64,6 +65,19 @@ public class ApiDocAuthJudgeService {
 		AuthInfo authInfo = authInfoService.getByCode(ApiAuthType.MANAGE.getCode());
 		List<UserAuth> userModuleAuthList = userAuthService.getUserModuleAuthList(currentUser.getUserId(), DocSysType.API.getType(), DocSysModuleType.Api.DOC.getType(), apiDoc.getId());
 		return userModuleAuthList.stream().anyMatch(auth -> Objects.equals(auth.getAuthId(), authInfo.getId()));
+	}
+	
+	/**
+	 * 判断当前用户是否有查看权限
+	 *
+	 * @author 暮光：城中城
+	 * @since 2021-12-12
+	 */
+	public void judgeDevelopAndThrow(Long docId) {
+		ApiDoc apiDoc = apiDocService.getById(docId);
+		if (!haveDevelopAuth(apiDoc)) {
+			throw new ConfirmException("没有此文档的开发权限");
+		}
 	}
 	
 	/**

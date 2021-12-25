@@ -5,7 +5,6 @@ import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zyplayer.doc.api.framework.utils.SwaggerDocUtil;
-import com.zyplayer.doc.api.service.ApiDocAuthJudgeService;
 import com.zyplayer.doc.api.service.SwaggerHttpRequestService;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
@@ -16,6 +15,7 @@ import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
 import com.zyplayer.doc.data.repository.manage.vo.ApiCustomVo;
 import com.zyplayer.doc.data.repository.manage.vo.ApiDocVo;
 import com.zyplayer.doc.data.repository.support.consts.ApiAuthType;
+import com.zyplayer.doc.data.service.common.ApiDocAuthJudgeService;
 import com.zyplayer.doc.data.service.manage.ApiCustomRequestService;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
 import org.apache.commons.lang.StringUtils;
@@ -221,7 +221,7 @@ public class ApiDocumentController {
 			return DocResponseJson.ok(apiDoc.getJsonContent());
 		}
 		if (Objects.equals(apiDoc.getDocType(), 5)) {
-			List<ApiCustomVo> customVoList = apiCustomRequestService.buildCustomApiList(apiDoc.getId());
+			List<ApiCustomVo> customVoList = apiCustomRequestService.buildCustomApiList(apiDoc);
 			return DocResponseJson.ok(customVoList);
 		}
 		return DocResponseJson.warn("暂不支持的文档类型");

@@ -50,7 +50,9 @@
             <template v-if="column.dataIndex === 'docType'">
                 <a-tag color="red" v-if="text === 1">Swagger URL</a-tag>
                 <a-tag color="blue" v-else-if="text === 2">Swagger JSON</a-tag>
+                <a-tag color="blue" v-else-if="text === 3">Swagger URL</a-tag>
                 <a-tag color="green" v-else-if="text === 4">OpenApi JSON</a-tag>
+                <a-tag color="green" v-else-if="text === 5">自建API</a-tag>
             </template>
             <template v-if="column.dataIndex === 'openVisit'">
                 <a-tag color="pink" v-if="text === 0">未开放</a-tag>

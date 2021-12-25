@@ -15,6 +15,7 @@
                 <template v-if="docChoice && docChoice.docType">
                     <DocTreeSwagger v-if="docChoice.docType === 1 || docChoice.docType === 2" ref="swaggerRef"></DocTreeSwagger>
                     <DocTreeOpenApi v-if="docChoice.docType === 3 || docChoice.docType === 4" ref="openApiRef"></DocTreeOpenApi>
+                    <CustomRequest v-if="docChoice.docType === 5" ref="customRequestRef"></CustomRequest>
                 </template>
             </a-spin>
         </div>
@@ -30,6 +31,7 @@
     import {zyplayerApi} from '../../api'
     import DocTreeSwagger from './doc-tree/Swagger.vue'
     import DocTreeOpenApi from './doc-tree/OpenApi.vue'
+    import CustomRequest from './doc-tree/CustomRequest.vue'
 
     export default {
         props: {
@@ -38,7 +40,7 @@
                 default: false
             },
         },
-        components: {MenuChildrenLayout, DocTreeSwagger, DocTreeOpenApi},
+        components: {MenuChildrenLayout, DocTreeSwagger, DocTreeOpenApi, CustomRequest},
         setup(props) {
             const store = useStore();
             const route = useRoute();
@@ -78,6 +80,7 @@
             };
             let swaggerRef = ref();
             let openApiRef = ref();
+            let customRequestRef = ref();
             const loadDoc = async () => {
                 treeDataLoading.value = true;
                 docChoice.value = docResourceList.value.find(item => item.id === docChoiceId.value);
@@ -101,6 +104,10 @@
                     if (openApiRef.value) {
                         openApiRef.value.loadDoc(docChoiceId.value, searchKeywords.value, loadDocCallback);
                     }
+                } else if (docChoice.value.docType === 5) {
+                    if (customRequestRef.value) {
+	                    customRequestRef.value.loadDoc(docChoiceId.value, searchKeywords.value, loadDocCallback);
+                    }
                 }
 	            zyplayerApi.docApiGlobalParamList({docId: docChoiceId.value}).then(res => {
 		            let docGlobalParam = res.data || [];
@@ -120,6 +127,10 @@
 	            } else if (docChoice.value.docType === 3 || docChoice.value.docType === 4) {
 		            if (openApiRef.value) {
 			            openApiRef.value.loadTreeData(searchKeywords.value);
+		            }
+	            } else if (docChoice.value.docType === 5) {
+		            if (customRequestRef.value) {
+			            customRequestRef.value.loadTreeData(searchKeywords.value);
 		            }
 	            }
             };
@@ -152,6 +163,7 @@
                 searchKeywords,
                 swaggerRef,
                 openApiRef,
+	            customRequestRef,
                 docChoice,
 	            searchDoc,
                 docChoiceChange,

@@ -35,6 +35,9 @@ export default createStore({
             openApiUrlMethodMap: {},
             // 方法统计{post: 10, total: 20}
             openApiMethodStatistic: {},
+            
+            // 自建API原始文档
+            customRequestDoc: {},
         }
     },
     getters: {
@@ -98,6 +101,10 @@ export default createStore({
         },
         setOpenApiMethodStatistic(state, openApiMethodStatistic) {
             state.openApiMethodStatistic = openApiMethodStatistic;
+        },
+        // openApi
+        setCustomRequestDoc(state, customRequestDoc) {
+            state.customRequestDoc = customRequestDoc;
         },
         addTableName(state, item) {
             let sameObj = Object.assign({}, state.pageTabNameMap);

@@ -11,6 +11,8 @@ import java.util.List;
  * @since 2021-11-04
  */
 public class ProxyRequestParam {
+	private Long docId;
+	private Long customRequestId;
 	private String url;
 	private String host;
 	private String method;
@@ -107,5 +109,21 @@ public class ProxyRequestParam {
 	
 	public void setHost(String host) {
 		this.host = host;
+	}
+	
+	public Long getCustomRequestId() {
+		return customRequestId;
+	}
+	
+	public void setCustomRequestId(Long customRequestId) {
+		this.customRequestId = customRequestId;
+	}
+	
+	public Long getDocId() {
+		return docId;
+	}
+	
+	public void setDocId(Long docId) {
+		this.docId = docId;
 	}
 }

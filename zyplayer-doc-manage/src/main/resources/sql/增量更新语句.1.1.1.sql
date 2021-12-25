@@ -15,6 +15,7 @@ CREATE TABLE `api_custom_request` (
   `doc_id` bigint(20) DEFAULT NULL COMMENT 'api_doc主键ID',
   `folder_id` bigint(20) DEFAULT NULL COMMENT '文件夹ID',
   `api_name` varchar(250) DEFAULT NULL COMMENT '接口名称',
+  `method` varchar(20) DEFAULT NULL COMMENT '请求方式：get、head、post、put、patch、delete、options、trace',
   `api_url` text DEFAULT NULL COMMENT '接口url',
   `form_data` text DEFAULT NULL COMMENT 'form参数',
   `body_data` text DEFAULT NULL COMMENT 'body参数',
@@ -27,6 +28,7 @@ CREATE TABLE `api_custom_request` (
   PRIMARY KEY (`id`),
   KEY `idx_doc_id` (`doc_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='自建接口文档';
+
 
 DROP TABLE IF EXISTS `api_custom_folder`;
 CREATE TABLE `api_custom_folder` (

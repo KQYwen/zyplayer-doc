@@ -2,6 +2,8 @@ package com.zyplayer.doc.data.service.manage;
 
 import com.zyplayer.doc.data.repository.manage.entity.ApiCustomRequest;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
+import com.zyplayer.doc.data.repository.manage.vo.ApiCustomDocVo;
 import com.zyplayer.doc.data.repository.manage.vo.ApiCustomVo;
 
 import java.util.List;
@@ -22,5 +24,13 @@ public interface ApiCustomRequestService extends IService<ApiCustomRequest> {
 	 * @author 暮光：城中城
 	 * @since 2021-12-22
 	 */
-	List<ApiCustomVo> buildCustomApiList(Long docId);
+	List<ApiCustomVo> buildCustomApiList(ApiDoc apiDoc);
+	
+	/**
+	 * 增加接口
+	 *
+	 * @author 暮光：城中城
+	 * @since 2021-12-22
+	 */
+	void addRequest(ApiCustomRequest apiCustomRequest);
 }

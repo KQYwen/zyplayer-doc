@@ -6,6 +6,8 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.api.controller.param.ProxyRequestParam;
 import com.zyplayer.doc.api.controller.vo.ProxyRequestResultVo;
 import com.zyplayer.doc.api.service.SwaggerHttpRequestService;
+import com.zyplayer.doc.data.repository.manage.entity.ApiCustomRequest;
+import com.zyplayer.doc.data.service.manage.ApiCustomRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +35,8 @@ public class ApiPoxyRequestController {
 	private static Logger logger = LoggerFactory.getLogger(ApiPoxyRequestController.class);
 	
 	@Resource
+	ApiCustomRequestService apiCustomRequestService;
+	@Resource
 	private SwaggerHttpRequestService swaggerHttpRequestService;
 	
 	/**
@@ -45,6 +49,18 @@ public class ApiPoxyRequestController {
 	@ResponseBody
 	@PostMapping(value = "/request")
 	public ResponseJson<ProxyRequestResultVo> request(HttpServletRequest request, ProxyRequestParam requestParam) {
+		// 自建接口时保存信息
+		if (requestParam.getCustomRequestId() != null) {
+			ApiCustomRequest apiCustomRequest = new ApiCustomRequest();
+			apiCustomRequest.setId(requestParam.getCustomRequestId());
+			apiCustomRequest.setDocId(requestParam.getDocId());
+			apiCustomRequest.setApiUrl(requestParam.getUrl());
+			apiCustomRequest.setFormData(requestParam.getFormParam());
+			apiCustomRequest.setBodyData(requestParam.getBodyParam());
+			apiCustomRequest.setHeaderData(requestParam.getHeaderParam());
+			apiCustomRequest.setCookieData(requestParam.getCookieParam());
+			apiCustomRequestService.addRequest(apiCustomRequest);
+		}
 		ProxyRequestResultVo requestResult = swaggerHttpRequestService.proxyRequest(request, requestParam);
 		return DocResponseJson.ok(requestResult);
 	}

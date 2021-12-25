@@ -90,7 +90,7 @@ let routers = [
                         ]
                     },
                     {
-                        path: '/api',
+                        path: '/custom',
                         name: 'API请求',
                         meta: {
                             hidden: true,
@@ -98,9 +98,9 @@ let routers = [
                         component: EmptyKeepAliveLayout,
                         children: [
                             {
-                                path: '/api/request',
+                                path: '/custom/request',
                                 name: '接口请求',
-                                component: () => import('./views/apiRequest/ApiRequest.vue')
+                                component: () => import('./views/customRequest/ApiRequest.vue')
                             },
                         ]
                     },
