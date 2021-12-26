@@ -78,10 +78,11 @@ public class SqlserverDownloadService implements DownloadService {
 			for (TableColumnDescDto dataCol : dataCols) {
 				if (values.length() > 0) values.append(", ");
 				Object val = item.get(dataCol.getName());
-				if (this.isNumber(dataCol.getType())) {
+				if (val == null) {
+					values.append("null");
+				} else if (this.isNumber(dataCol.getType())) {
 					values.append(val);
 				} else {
-					val = (val == null) ? "" : val;
 					val = val.toString().replaceAll("'", "''");
 					values.append("'").append(val).append("'");
 				}
@@ -112,20 +113,22 @@ public class SqlserverDownloadService implements DownloadService {
 			for (TableColumnDescDto dataCol : dataCols) {
 				Object val = item.get(dataCol.getName());
 				if (conditionSet.contains(dataCol.getName())) {
-					if (this.isNumber(dataCol.getType())) {
-						if (where.length() > 0) where.append(" and ");
+					if (where.length() > 0) where.append(" and ");
+					if (val == null) {
+						where.append(dataCol.getName()).append(" = null");
+					} else if (this.isNumber(dataCol.getType())) {
 						where.append(dataCol.getName()).append(" = ").append(val);
 					} else {
-						if (where.length() > 0) where.append(" and ");
 						where.append(dataCol.getName()).append(" = ").append("'").append(val).append("'");
 					}
 				} else {
 					if (values.length() > 0) values.append(", ");
 					values.append(dataCol.getName()).append("=");
-					if (this.isNumber(dataCol.getType())) {
+					if (val == null) {
+						values.append("null");
+					} else if (this.isNumber(dataCol.getType())) {
 						values.append(val);
 					} else {
-						val = (val == null) ? "" : val;
 						val = val.toString().replaceAll("'", "''");
 						values.append("'").append(val).append("'");
 					}

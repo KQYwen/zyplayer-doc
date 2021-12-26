@@ -18,8 +18,10 @@ export default {
 			let values = '';
 			dataCols.forEach(col => {
 				if (values.length > 0) values += ', ';
-				let val = item[col.prop] || '';
-				if (typeof val === 'number' && !isNaN(val)) {
+				let val = item[col.prop];
+				if (val === undefined || val === null || isNaN(val)) {
+					values += "null";
+				} else if (typeof val === 'number' && !isNaN(val)) {
 					values += val;
 				} else {
 					val = String(val).replaceAll('\'', '\'\'');
@@ -38,19 +40,22 @@ export default {
 		choiceData.forEach(item => {
 			let values = '', where = '';
 			dataCols.forEach(col => {
-				let val = item[col.prop] || '';
+				let val = item[col.prop];
 				if (condition.indexOf(col.prop) >= 0) {
-					if (typeof val === 'number' && !isNaN(val)) {
-						if (where.length > 0) where += ' and ';
+					if (where.length > 0) where += ' and ';
+					if (val === undefined || val === null || isNaN(val)) {
+						where += col.prop + ' = null';
+					} else if (typeof val === 'number' && !isNaN(val)) {
 						where += col.prop + ' = ' + val;
 					} else {
-						if (where.length > 0) where += ' and ';
 						where += col.prop + ' = ' + "'" + val + "'";
 					}
 				} else {
 					if (values.length > 0) values += ', ';
 					values += col.prop + '=';
-					if (typeof val === 'number' && !isNaN(val)) {
+					if (val === undefined || val === null || isNaN(val)) {
+						values += "null";
+					} else if (typeof val === 'number' && !isNaN(val)) {
 						values += val;
 					} else {
 						val = String(val).replaceAll('\'', '\'\'');
