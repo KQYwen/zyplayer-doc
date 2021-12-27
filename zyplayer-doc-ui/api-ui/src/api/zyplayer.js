@@ -22,5 +22,8 @@ export const zyplayerApi = {
     docAuthList: data => apiClient({url: '/doc-api/doc/auth/list', method: 'post', data: data}),
     docAuthAssign: data => apiClient({url: '/doc-api/doc/auth/assign', method: 'post', data: data}),
     docAuthDelete: data => apiClient({url: '/doc-api/doc/auth/delete', method: 'post', data: data}),
+
+    apiCustomFolderAdd: data => apiClient({url: '/api-custom-folder/add', method: 'post', data: data}),
+    apiCustomRequestAdd: data => apiClient({url: '/api-custom-request/add', method: 'post', data: data}),
 };
 

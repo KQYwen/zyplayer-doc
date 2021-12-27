@@ -39,7 +39,7 @@ public class ApiCustomRequestController {
 	@ResponseBody
 	@PostMapping(value = "/add")
 	public ResponseJson<Object> add(ApiCustomRequest apiCustomRequest) {
-		apiCustomRequestService.addRequest(apiCustomRequest);
-		return DocResponseJson.ok();
+		ApiCustomRequest requestSaved = apiCustomRequestService.addRequest(apiCustomRequest);
+		return DocResponseJson.ok(requestSaved);
 	}
 }

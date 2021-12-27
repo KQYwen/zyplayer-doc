@@ -70,7 +70,7 @@ public class ApiCustomRequestServiceImpl extends ServiceImpl<ApiCustomRequestMap
 	}
 	
 	@Override
-	public void addRequest(ApiCustomRequest apiCustomRequest) {
+	public ApiCustomRequest addRequest(ApiCustomRequest apiCustomRequest) {
 		apiDocAuthJudgeService.judgeDevelopAndThrow(apiCustomRequest.getDocId());
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		if (apiCustomRequest.getId() == null) {
@@ -84,6 +84,7 @@ public class ApiCustomRequestServiceImpl extends ServiceImpl<ApiCustomRequestMap
 			apiCustomRequest.setCreateUserName(null);
 		}
 		this.saveOrUpdate(apiCustomRequest);
+		return apiCustomRequest;
 	}
 	
 	/**
@@ -103,6 +104,7 @@ public class ApiCustomRequestServiceImpl extends ServiceImpl<ApiCustomRequestMap
 			List<ApiCustomVo> customGroupChildren = this.getCustomGroupChildren(children, apiGroupMap, apiMap);
 			List<ApiCustomDocVo> apis = this.buildApiCustomDocVo(apiCustomList);
 			ApiCustomVo apiCustomVo = new ApiCustomVo();
+			apiCustomVo.setFolderId(customGroup.getId());
 			apiCustomVo.setName(customGroup.getFolderName());
 			apiCustomVo.setDesc(customGroup.getFolderDesc());
 			apiCustomVo.setChildren(customGroupChildren);
@@ -117,6 +119,8 @@ public class ApiCustomRequestServiceImpl extends ServiceImpl<ApiCustomRequestMap
 		if (CollectionUtils.isNotEmpty(apiCustomList)) {
 			for (ApiCustomRequest apiCustom : apiCustomList) {
 				ApiCustomDocVo apiCustomDocVo = new ApiCustomDocVo();
+				apiCustomDocVo.setRequestId(apiCustom.getId());
+				apiCustomDocVo.setFolderId(apiCustom.getFolderId());
 				apiCustomDocVo.setApiUrl(apiCustom.getApiUrl());
 				apiCustomDocVo.setMethod(apiCustom.getMethod());
 				apiCustomDocVo.setApiName(apiCustom.getApiName());

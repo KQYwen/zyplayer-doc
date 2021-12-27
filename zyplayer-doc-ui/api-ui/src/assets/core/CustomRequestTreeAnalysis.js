@@ -31,7 +31,7 @@ function getTreeDataChildren(customRequest, keywords, metaInfo, treeIndex) {
         customRequest.children.forEach(item => {
             let tempTreeId = treeIndex + "_" + indexFolder + "_" + indexApi;
             let treeChildren = getTreeDataChildren(item, keywords, metaInfo, tempTreeId);
-            treeData.push({title: item.name, key: tempTreeId, children: treeChildren});
+            treeData.push({title: item.name, key: tempTreeId, folderId: item.folderId, isLeaf: false, children: treeChildren});
             indexApi++;
         });
     }
@@ -43,10 +43,11 @@ function getTreeDataChildren(customRequest, keywords, metaInfo, treeIndex) {
                 key: tempTreeId,
                 isLeaf: true,
                 method: item.method,
+                folderId: item.folderId,
                 query: {
                     ...metaInfo,
-                    path: item.apiUrl,
-                    method: item.method,
+                    requestId: item.requestId,
+                    folderId: item.folderId,
                 }
             });
             indexApi++;

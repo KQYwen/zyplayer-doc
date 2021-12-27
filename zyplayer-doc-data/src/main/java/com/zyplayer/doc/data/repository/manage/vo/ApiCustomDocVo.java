@@ -13,6 +13,16 @@ public class ApiCustomDocVo implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	/**
+	 * 接口ID
+	 */
+	private Long requestId;
+	
+	/**
+	 * 文件夹ID
+	 */
+	private Long folderId;
+	
+	/**
 	 * 接口名称
 	 */
 	private String apiName;
@@ -101,5 +111,21 @@ public class ApiCustomDocVo implements Serializable {
 	
 	public void setMethod(String method) {
 		this.method = method;
+	}
+	
+	public Long getRequestId() {
+		return requestId;
+	}
+	
+	public void setRequestId(Long requestId) {
+		this.requestId = requestId;
+	}
+	
+	public Long getFolderId() {
+		return folderId;
+	}
+	
+	public void setFolderId(Long folderId) {
+		this.folderId = folderId;
 	}
 }

@@ -1,17 +1,11 @@
 package com.zyplayer.doc.db.framework.db.mapper.base;
 
 import com.alibaba.druid.pool.DruidPooledConnection;
-import com.baomidou.mybatisplus.core.MybatisConfiguration;
-import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.builder.SqlSourceBuilder;
-import org.apache.ibatis.builder.StaticSqlSource;
-import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.parsing.GenericTokenParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -20,7 +14,10 @@ import javax.annotation.Resource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,14 +32,13 @@ public class SqlExecutor {
 	
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
-	@Resource
-	DbHistoryService dbHistoryService;
 	
 	// 执行中的PreparedStatement信息，用于强制取消执行
 	private static final Map<String, PreparedStatement> statementMap = new ConcurrentHashMap<>();
 	
 	/**
 	 * 取消执行
+	 *
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
@@ -62,6 +58,7 @@ public class SqlExecutor {
 	
 	/**
 	 * 执行sql，返回结果
+	 *
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
@@ -72,6 +69,7 @@ public class SqlExecutor {
 	
 	/**
 	 * 执行sql，返回结果
+	 *
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
@@ -82,6 +80,7 @@ public class SqlExecutor {
 	
 	/**
 	 * 执行sql，可通过handler回调每一行的结果
+	 *
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
@@ -89,9 +88,6 @@ public class SqlExecutor {
 		if (factoryBean == null) {
 			return ExecuteResult.error("未找到数据库连接", executeParam.getSql());
 		}
-//		BoundSql boundSql = getBoundSql(sql, paramMap);
-//		sql = boundSql.getSql();
-//		String sqlStr = SqlLogUtil.getSqlString(paramMap, boundSql);
 		// 有参数的时候不输出日志，暂时只有导数据才有参数
 		if (CollectionUtils.isEmpty(executeParam.getParamList())) {
 			if (StringUtils.isNotBlank(executeParam.getPrefixSql())) {
@@ -99,7 +95,6 @@ public class SqlExecutor {
 			}
 			logger.info("sql ==> {}", executeParam.getSql());
 		}
-//		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		PreparedStatement preparedStatement = null;
 		PreparedStatement prefixStatement = null;
 		DruidPooledConnection connection = null;
@@ -180,17 +175,5 @@ public class SqlExecutor {
 				logger.error("回收connection失败");
 			}
 		}
-	}
-	
-	private BoundSql getBoundSql(String sql, Map<String, Object> paramMap){
-		// 组装参数
-		GenericTokenParser parser = new GenericTokenParser("${", "}", content -> {
-			Object o = paramMap.get(content);
-			return (o == null) ? null : String.valueOf(o);
-		});
-		sql = parser.parse(sql);
-		SqlSourceBuilder sqlSourceBuilder = new SqlSourceBuilder(new MybatisConfiguration());
-		StaticSqlSource parse = (StaticSqlSource) sqlSourceBuilder.parse(sql, Object.class, paramMap);
-		return parse.getBoundSql(new Object());
 	}
 }

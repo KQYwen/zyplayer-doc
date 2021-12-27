@@ -32,5 +32,5 @@ public interface ApiCustomRequestService extends IService<ApiCustomRequest> {
 	 * @author 暮光：城中城
 	 * @since 2021-12-22
 	 */
-	void addRequest(ApiCustomRequest apiCustomRequest);
+	ApiCustomRequest addRequest(ApiCustomRequest apiCustomRequest);
 }

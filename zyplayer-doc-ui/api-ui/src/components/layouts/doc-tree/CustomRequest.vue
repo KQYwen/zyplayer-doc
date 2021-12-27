@@ -1,42 +1,38 @@
 <template>
     <a-directory-tree :showIcon="false" :tree-data="treeData" v-model:expandedKeys="expandedKeys" @select="docChecked">
-        <template #title="{ title, isLeaf, method, children, key }">
-            <template v-if="key === 'info'">
+        <template #title="record">
+            <template v-if="record.key === 'info'">
 	            <file-text-outlined style="margin-right: 3px;"/>
             </template>
-            <template v-if="isLeaf">
-                <a-tag color="pink" v-if="method === 'get'">get</a-tag>
-                <a-tag color="red" v-else-if="method === 'post'">post</a-tag>
-                <a-tag color="orange" v-else-if="method === 'put'">put</a-tag>
-                <a-tag color="green" v-else-if="method === 'head'">head</a-tag>
-                <a-tag color="cyan" v-else-if="method === 'patch'">patch</a-tag>
-                <a-tag color="blue" v-else-if="method === 'delete'">delete</a-tag>
-                <a-tag color="purple" v-else-if="method === 'options'">options</a-tag>
-                <a-tag color="purple" v-else-if="method === 'trace'">trace</a-tag>
+            <template v-if="record.isLeaf">
+                <a-tag color="pink" v-if="record.method === 'get'">get</a-tag>
+                <a-tag color="red" v-else-if="record.method === 'post'">post</a-tag>
+                <a-tag color="orange" v-else-if="record.method === 'put'">put</a-tag>
+                <a-tag color="green" v-else-if="record.method === 'head'">head</a-tag>
+                <a-tag color="cyan" v-else-if="record.method === 'patch'">patch</a-tag>
+                <a-tag color="blue" v-else-if="record.method === 'delete'">delete</a-tag>
+                <a-tag color="purple" v-else-if="record.method === 'options'">options</a-tag>
+                <a-tag color="purple" v-else-if="record.method === 'trace'">trace</a-tag>
             </template>
-            <span style="margin: 0 6px 0 3px;">{{title}}</span>
-	        <template v-if="children">
-		        <a-badge :count="children.length" :number-style="{backgroundColor: '#fff', color: '#999', boxShadow: '0 0 0 1px #d9d9d9 inset'}"/>
+            <span style="margin: 0 6px 0 3px;">{{record.title}}</span>
+	        <template v-if="record.children">
+		        <a-badge :count="record.children.length" showZero :number-style="{backgroundColor: '#fff', color: '#999', boxShadow: '0 0 0 1px #d9d9d9 inset'}"/>
 		        <a-dropdown :trigger="['click']">
 			        <span @click.stop="" style="padding: 3px 10px;"><ellipsis-outlined /></span>
 			        <template #overlay>
-				        <a-menu>
-					        <a-menu-item>
-						        <plus-outlined />
-						        <a href="javascript:;"> 新建接口</a>
+				        <a-menu @click="handleMenuClick($event, record)">
+					        <a-menu-item key="newRequest">
+						        <plus-outlined /> 新建接口
 					        </a-menu-item>
-					        <a-menu-item>
-						        <folder-add-outlined />
-						        <a href="javascript:;"> 新建文件夹</a>
+					        <a-menu-item key="newFolder">
+						        <folder-add-outlined /> 新建文件夹
 					        </a-menu-item>
 					        <a-menu-divider />
-					        <a-menu-item>
-						        <edit-outlined />
-						        <a href="javascript:;"> 编辑</a>
+					        <a-menu-item key="edit">
+						        <edit-outlined /> 编辑
 					        </a-menu-item>
-					        <a-menu-item>
-						        <delete-outlined />
-						        <a href="javascript:;"> 删除</a>
+					        <a-menu-item key="delete">
+						        <delete-outlined /> 删除
 					        </a-menu-item>
 				        </a-menu>
 			        </template>
@@ -63,21 +59,20 @@
             const router = useRouter();
 
             let tagPathMap = ref({});
-            let customRequestDoc = ref({});
+            let customRequestDoc = {};
             let treeData = ref([]);
-            let expandedKeys = ref([]);
-            let choiceDocId = ref('');
+            let expandedKeys = ref(['main']);
+            let choiceDocId = '';
+            let searchKeyword = '';
 
             const docChecked = (val, node) => {
-                if (node.node.key === 'info') {
-                    router.push({path: '/custom/info'});
-                } else if (node.node.isLeaf) {
+                if (node.node.isLeaf) {
                     let dataRef = node.node.dataRef;
-                    router.push({path: '/custom/view', query: dataRef.query});
+                    router.push({path: '/custom/request', query: dataRef.query});
                 }
             };
             const loadDoc = (docId, keyword, callback) => {
-                choiceDocId.value = docId;
+                choiceDocId = docId;
                 zyplayerApi.apiDocApisDetail({id: docId}).then(res => {
                     let v2Doc = res.data;
                     if (!v2Doc && v2Doc.length != 1) {
@@ -85,7 +80,7 @@
                         message.error('获取文档数据失败');
                         return;
                     }
-                    customRequestDoc.value = v2Doc;
+                    customRequestDoc = v2Doc;
                     store.commit('setCustomRequestDoc', v2Doc);
 	                loadTreeData(keyword);
 	                callback(true);
@@ -94,12 +89,48 @@
                 });
             };
             const loadTreeData = async (keyword) => {
-                let metaInfo = {id: choiceDocId.value};
-                treeData.value = getTreeDataForTag(customRequestDoc.value, keyword, metaInfo);
+                let metaInfo = {id: choiceDocId};
+	            searchKeyword = keyword;
+                treeData.value = getTreeDataForTag(customRequestDoc, keyword, metaInfo);
                 treeData.value.unshift({key: 'info', title: '文档说明信息', isLeaf: true});
-                await nextTick();
-                expandedKeys.value = ['main'];
             };
+	        const handleMenuClick = (event, record) => {
+		        if (event.key === 'newFolder') {
+			        let params = {
+				        // id: '',
+				        docId: choiceDocId,
+				        parentFolderId: record.folderId,
+				        folderName: '新建文件夹',
+				        folderDesc: '',
+			        };
+			        zyplayerApi.apiCustomFolderAdd(params).then(res => {
+				        loadDoc(choiceDocId, searchKeyword);
+			        });
+				} else if (event.key === 'newRequest') {
+			        let params = {
+				        // id: '',
+				        docId: choiceDocId,
+				        folderId: record.folderId,
+				        apiName: '新建接口',
+				        method: 'get',
+				        apiUrl: '',
+				        // formData: '测试xxx',
+				        // bodyData: '测试xxx',
+				        // headerData: '测试xxx',
+				        // cookieData: '测试xxx',
+			        };
+			        zyplayerApi.apiCustomRequestAdd(params).then(res => {
+				        loadDoc(choiceDocId, searchKeyword);
+				        let requestSaved = res.data;
+				        let queryInfo = {
+					        id: choiceDocId,
+					        requestId: requestSaved.id,
+					        folderId: requestSaved.folderId,
+				        };
+				        router.push({path: '/custom/request', query: queryInfo});
+			        });
+				}
+	        };
             const toJsonObj = (value) => {
                 if (typeof value !== 'string') {
                     return value;
@@ -121,6 +152,7 @@
                 loadDoc,
 	            loadTreeData,
                 treeData,
+	            handleMenuClick,
             };
         },
     };

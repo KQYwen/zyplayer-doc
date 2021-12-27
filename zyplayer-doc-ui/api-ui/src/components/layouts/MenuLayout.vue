@@ -71,6 +71,8 @@
                             docChoiceId.value = parseInt(route.query.id);
                         } else if (route.path === '/openapi/view' && route.query.id){
                             docChoiceId.value = parseInt(route.query.id);
+                        } else if (route.path === '/custom/request' && route.query.id){
+                            docChoiceId.value = parseInt(route.query.id);
                         } else {
                             docChoiceId.value = docResourceList.value[0].id;
                         }
