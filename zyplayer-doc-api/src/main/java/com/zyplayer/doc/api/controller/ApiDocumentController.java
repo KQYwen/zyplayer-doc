@@ -150,9 +150,10 @@ public class ApiDocumentController {
 			} else {
 				apiDocService.saveOrUpdate(apiDoc);
 			}
-		} else if (Objects.equals(apiDoc.getDocType(), 2) || Objects.equals(apiDoc.getDocType(), 4)) {
-			apiDocService.saveOrUpdate(apiDoc);
-		} else if (Objects.equals(apiDoc.getDocType(), 5)) {
+		} else if (Objects.equals(apiDoc.getDocType(), 2)
+				|| Objects.equals(apiDoc.getDocType(), 3)
+				|| Objects.equals(apiDoc.getDocType(), 4)
+				|| Objects.equals(apiDoc.getDocType(), 5)) {
 			apiDocService.saveOrUpdate(apiDoc);
 		} else {
 			return DocResponseJson.warn("暂不支持的文档类型");
@@ -207,7 +208,7 @@ public class ApiDocumentController {
 		if (!apiDocAuthJudgeService.haveDevelopAuth(apiDoc)) {
 			return DocResponseJson.warn("没有此文档的查看权限");
 		}
-		if (Objects.equals(apiDoc.getDocType(), 1)) {
+		if (Objects.equals(apiDoc.getDocType(), 1) || Objects.equals(apiDoc.getDocType(), 3)) {
 			try {
 				String docsDomain = SwaggerDocUtil.getV2ApiDocsDomain(apiDoc.getDocUrl());
 				String contentStr = swaggerHttpRequestService.requestSwaggerUrl(request, apiDoc.getId(), apiDoc.getDocUrl(), docsDomain);

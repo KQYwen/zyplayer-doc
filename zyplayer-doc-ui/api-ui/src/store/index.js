@@ -30,7 +30,7 @@ export default createStore({
             // openApi原始文档
             openApiDoc: {},
             // openApi原始definitions
-            openApiDefinitions: {},
+            openApiComponents: {},
             // url对应的map信息 {'url + "." + method': {swagger.paths.url.method对象信息}}
             openApiUrlMethodMap: {},
             // 方法统计{post: 10, total: 20}
@@ -94,7 +94,7 @@ export default createStore({
         // openApi
         setOpenApiDoc(state, openApiDoc) {
             state.openApiDoc = openApiDoc;
-            state.openApiDefinitions = openApiDoc.definitions || {};
+            state.openApiComponents = openApiDoc.components || {};
         },
         setOpenApiUrlMethodMap(state, openApiUrlMethodMap) {
             state.openApiUrlMethodMap = openApiUrlMethodMap;

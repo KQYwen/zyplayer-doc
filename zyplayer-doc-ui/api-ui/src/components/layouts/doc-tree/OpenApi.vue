@@ -14,7 +14,7 @@
                 <a-tag color="purple" v-else-if="method === 'options'">options</a-tag>
                 <a-tag color="purple" v-else-if="method === 'trace'">trace</a-tag>
             </template>
-            <span style="margin: 0 6px 0 3px;">{{title}}</span>
+            <span style="margin: 0 6px 0 3px;word-break: break-all;">{{title}}</span>
             <a-badge v-if="children" :count="children.length" :number-style="{backgroundColor: '#fff', color: '#999', boxShadow: '0 0 0 1px #d9d9d9 inset'}"/>
         </template>
     </a-directory-tree>

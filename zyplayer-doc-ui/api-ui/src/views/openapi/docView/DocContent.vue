@@ -42,8 +42,8 @@
                     </template>
                 </template>
                 <template #expandedRowRender="{ record }">
-                    <template v-if="record.schemas">
-                        <a-table :dataSource="record.schemas" :columns="responseParamListColumns" size="small" :pagination="false">
+                    <template v-if="record.childrens">
+                        <a-table :dataSource="record.childrens" :columns="responseMediaTypeColumns" size="small" :pagination="false">
                             <template #bodyCell="{ column, text, record }">
                                 <template v-if="column.dataIndex === 'type'">
                                     {{text}}
@@ -51,9 +51,23 @@
                                     <template v-if="record.format">({{record.format}})</template>
                                 </template>
                             </template>
+	                        <template #expandedRowRender="{ record }">
+		                        <template v-if="record.schemas">
+			                        <a-table :dataSource="record.schemas" :columns="responseParamListColumns" size="small" :pagination="false">
+				                        <template #bodyCell="{ column, text, record }">
+					                        <template v-if="column.dataIndex === 'type'">
+						                        {{text}}
+						                        <template v-if="record.subType">[{{record.subType}}]</template>
+						                        <template v-if="record.format">({{record.format}})</template>
+					                        </template>
+				                        </template>
+			                        </a-table>
+		                        </template>
+		                        <div v-else style="text-align: center;padding: 10px 0;">无结果说明</div>
+	                        </template>
                         </a-table>
                     </template>
-                    <div v-else style="text-align: center;padding: 10px 0;">无参数说明</div>
+                    <div v-else style="text-align: center;padding: 10px 0;">无结果说明</div>
                 </template>
             </a-table>
         </a-form-item>
@@ -97,6 +111,9 @@
                     {title: '状态码', dataIndex: 'code', width: 100},
                     {title: '类型', dataIndex: 'type', width: 250},
                     {title: '说明', dataIndex: 'desc'},
+                ],
+                responseMediaTypeColumns: [
+                    {title: '媒体类型', dataIndex: 'mediaType'},
                 ],
                 responseParamListColumns: [
                     {title: '参数名', dataIndex: 'name', width: 250},

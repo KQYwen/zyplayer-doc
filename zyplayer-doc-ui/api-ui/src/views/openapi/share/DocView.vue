@@ -79,7 +79,7 @@
                     produces: produces,
                 };
                 // 解析请求参数
-                let definitionsDataMap = store.state.openApiDefinitions;
+                let definitionsDataMap = store.state.openApiComponents;
                 requestParamList.value = openApiAnalysis.getRequestParamList(docInfo.parameters, definitionsDataMap);
                 responseParamList.value = openApiAnalysis.getResponseParamList(docInfo.responses, definitionsDataMap);
             }
