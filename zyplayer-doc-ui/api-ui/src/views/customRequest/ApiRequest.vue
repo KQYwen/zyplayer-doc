@@ -1,6 +1,6 @@
 <template>
     <div>
-        <a-input-search v-model:value="docUrl" @search="sendRequest" placeholder="请输入目标URL地址">
+        <a-input-search v-model:value="docInfoShow.apiUrl" @search="sendRequest" placeholder="请输入目标URL地址">
             <template #addonBefore>
                 <a-select v-model:value="docInfoShow.method" style="width: 100px;">
                     <a-select-option :value="method" v-for="method in methodList">{{method.toUpperCase()}}</a-select-option>
@@ -82,12 +82,11 @@
         components: {
             VerticalAlignTopOutlined, VerticalAlignBottomOutlined, CloseOutlined, ParamTable, ParamBody, ApiRequestResult,
         },
-        setup(props) {
-            let docUrl = ref('');
+	    setup(props) {
             let activePage = ref('urlParam');
             const route = useRoute();
             const store = useStore();
-            store.commit('addTableName', {key: route.fullPath, val: '接口请求' + route.query.id});
+		    const queryParam = {docId: route.query.id, requestId: route.query.requestId};
             let globalParam = store.state.globalParam || [];
             let nextIndex = 1;
             // URL参数处理
@@ -95,28 +94,13 @@
             let urlParamList = ref([]);
             // Header参数处理
             const headerParamRef = ref();
-            let headerParamListProp = [];
-            let headerParamListGlobal = globalParam.filter(item => item.paramType === 2);
-            headerParamListGlobal.forEach(item => {
-                headerParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
-            });
-            let headerParamList = ref(JSON.parse(JSON.stringify(headerParamListProp)));
+            let headerParamList = ref([]);
             // cookie参数处理
             const cookieParamRef = ref();
-            let cookieParamListProp = [];
-            let cookieParamListGlobal = globalParam.filter(item => item.paramType === 3);
-            cookieParamListGlobal.forEach(item => {
-                cookieParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
-            });
-            let cookieParamList = ref(JSON.parse(JSON.stringify(cookieParamListProp)));
+            let cookieParamList = ref([]);
             // form参数处理
             const formParamRef= ref();
-            let formParamListProp = [];
-            let formParamListGlobal = globalParam.filter(item => item.paramType === 1);
-            formParamListGlobal.forEach(item => {
-                formParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
-            });
-            let formParamList = ref(JSON.parse(JSON.stringify(formParamListProp)));
+            let formParamList = ref([]);
             // form参数处理
             const formEncodeParamRef = ref();
             let formEncodeParamList = ref([]);
@@ -131,7 +115,7 @@
             let requestResult = ref({});
             let requestLoading = ref(false);
             const sendRequest = () => {
-                if (!docUrl.value) {
+                if (!docInfoShow.value.apiUrl) {
                     message.error('请输入请求的目标URL地址');
                     return;
                 }
@@ -168,12 +152,14 @@
                 if (bodyParamRef.value) {
                     bodyParamStr = bodyParamRef.value.getParam();
                 }
-                let url = urlParamStr ? (docUrl.value + '?' + urlParamStr) : docUrl.value;
+                let url = urlParamStr ? (docInfoShow.value.apiUrl + '?' + urlParamStr) : docInfoShow.value.apiUrl;
                 formData.append('url', url);
                 formData.append('host', '');
                 formData.append('method', docInfoShow.value.method);
                 formData.append('contentType', '');
-                formData.append('headerParam', JSON.stringify(headerParamArr));
+	            formData.append('docId', queryParam.docId);
+	            formData.append('customRequestId', queryParam.requestId);
+	            formData.append('headerParam', JSON.stringify(headerParamArr));
                 formData.append('cookieParam', JSON.stringify(cookieParamArr));
                 formData.append('formParam', JSON.stringify(formParamArr));
                 formData.append('formEncodeParam', JSON.stringify(formEncodeParamArr));
@@ -197,8 +183,49 @@
             const activePageChange = () => {
                 queryParamVisible.value = true;
             }
+		    onMounted(async () => {
+			    let detailRes = await zyplayerApi.apiCustomRequestDetail({id: route.query.requestId});
+			    let requestDetail = detailRes.data;
+			    if (!requestDetail) {
+				    console.log('文档加载失败', detailRes);
+			    }
+			    docInfoShow.value = requestDetail;
+			    store.commit('addTableName', {key: route.fullPath, val: requestDetail.apiName});
+			    // Header参数处理
+			    let headerParamListProp = [];
+			    let headerParamListGlobal = globalParam.filter(item => item.paramType === 2);
+			    headerParamListGlobal.forEach(item => {
+				    headerParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+			    });
+			    if (requestDetail.headerData) {
+				    let headerData = JSON.parse(requestDetail.headerData);
+				    headerData.forEach(item => {
+					    headerParamListProp.unshift({name: item.code, value: item.value, type: 'string', key: 'g' + (nextIndex++)});
+				    });
+			    }
+			    headerParamList.value = headerParamListProp;
+			    // cookie参数处理
+			    let cookieParamListProp = [];
+			    let cookieParamListGlobal = globalParam.filter(item => item.paramType === 3);
+			    cookieParamListGlobal.forEach(item => {
+				    cookieParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+			    });
+			    if (requestDetail.cookieData) {
+				    let cookieData = JSON.parse(requestDetail.cookieData);
+				    cookieData.forEach(item => {
+					    cookieParamListProp.unshift({name: item.code, value: item.value, type: 'string', key: 'g' + (nextIndex++)});
+				    });
+			    }
+			    cookieParamList.value = cookieParamListProp;
+			    // form参数处理
+			    let formParamListProp = [];
+			    let formParamListGlobal = globalParam.filter(item => item.paramType === 1);
+			    formParamListGlobal.forEach(item => {
+				    formParamListProp.push({name: item.paramKey, value: item.paramValue, type: 'string', key: 'g' + (nextIndex++)});
+			    });
+			    formParamList.value = formParamListProp;
+		    });
             return {
-                docUrl,
                 activePage,
                 activePageChange,
                 requestLoading,

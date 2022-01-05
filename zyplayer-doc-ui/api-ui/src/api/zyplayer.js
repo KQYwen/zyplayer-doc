@@ -25,5 +25,6 @@ export const zyplayerApi = {
 
     apiCustomFolderAdd: data => apiClient({url: '/api-custom-folder/add', method: 'post', data: data}),
     apiCustomRequestAdd: data => apiClient({url: '/api-custom-request/add', method: 'post', data: data}),
+    apiCustomRequestDetail: data => apiClient({url: '/api-custom-request/detail', method: 'post', data: data}),
 };
 

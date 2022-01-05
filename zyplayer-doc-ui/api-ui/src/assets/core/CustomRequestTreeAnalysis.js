@@ -47,7 +47,6 @@ function getTreeDataChildren(customRequest, keywords, metaInfo, treeIndex) {
                 query: {
                     ...metaInfo,
                     requestId: item.requestId,
-                    folderId: item.folderId,
                 }
             });
             indexApi++;

@@ -83,20 +83,30 @@
         },
         emits: ['update:selected'],
         setup(props, { attrs, slots, emit, expose }) {
-            let paramListRef = ref(props.paramList);
-            let nextIndex = 10000;
-            // Query参数处理
-            if (paramListRef.value.length <= 0 || !paramListRef.value[paramListRef.value.length - 1].isLastRow) {
-                props.paramList.push({name: '', value: undefined, type: 'integer', key: ++nextIndex, isLastRow: true});
-            }
-            let queryParamSelectedRowKeys = ref([]);
-            paramListRef.value.forEach(item => {
-                item.value = item.value || item.example || undefined;
-                if ((item.enum && item.type === 'array') || item.type === 'file' || item.subType === 'MultipartFile') {
-                    item.value = [];
-                }
-                queryParamSelectedRowKeys.value.push(item.key);
-            });
+	        let queryParamSelectedRowKeys = ref([]);
+	        let nextIndex = 10000;
+	        let paramListRef = ref([]);
+	        watch(() => props.paramList, () => {
+		        propsParamInit();
+	        });
+	        onMounted(() => {
+		        propsParamInit();
+	        });
+            const propsParamInit = () => {
+	            paramListRef.value = props.paramList;
+	            console.log('paramListRef.value', paramListRef.value);
+	            // Query参数处理
+	            if (paramListRef.value.length <= 0 || !paramListRef.value[paramListRef.value.length - 1].isLastRow) {
+		            props.paramList.push({name: '', value: undefined, type: 'integer', key: ++nextIndex, isLastRow: true});
+	            }
+	            paramListRef.value.forEach(item => {
+		            item.value = item.value || item.example || undefined;
+		            if ((item.enum && item.type === 'array') || item.type === 'file' || item.subType === 'MultipartFile') {
+			            item.value = [];
+		            }
+		            queryParamSelectedRowKeys.value.push(item.key);
+	            });
+            };
             const queryParamRowSelectionChange = (selectedRowKeys, selectedRows) => {
                 queryParamSelectedRowKeys.value = selectedRowKeys;
             };
