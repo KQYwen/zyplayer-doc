@@ -6,31 +6,25 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.config.security.UserAuthVo;
-import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.data.service.manage.UserInfoService;
 import com.zyplayer.doc.manage.web.param.LdapPerson;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQueryBuilder;
-import org.springframework.ldap.support.LdapUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * 用户登录控制器
@@ -40,6 +34,7 @@ import java.util.Set;
  */
 @RestController
 public class LoginController {
+	private static Logger logger = LoggerFactory.getLogger(LoginController.class);
 	
 	@Resource
 	private UserInfoService userInfoService;
@@ -48,9 +43,6 @@ public class LoginController {
 	@Resource
 	private LdapTemplate ldapTemplate;
 	
-	// TODO 域账号登录，待测试
-	@Value("${spring.ldap.domainName:}")
-	private String ldapDomainName;
 	@Value("${spring.ldap.enable:false}")
 	private boolean ldapLoginEnable;
 	
@@ -113,10 +105,10 @@ public class LoginController {
 	 */
 	private UserInfo ldapAutoRegister(LdapPerson ldapPerson) {
 		UserInfo userInfo = new UserInfo();
-		userInfo.setEmail(ldapPerson.getEmail());
+		userInfo.setEmail(ldapPerson.getMail());
 		userInfo.setPassword("LDAP");
-		userInfo.setUserName(ldapPerson.getName());
-		userInfo.setUserNo(ldapPerson.getsAMAccountName());
+		userInfo.setUserNo(ldapPerson.getUid());
+		userInfo.setUserName(StringUtils.defaultIfBlank(ldapPerson.getDisplayName(), ldapPerson.getUid()));
 		userInfo.setSex(1);
 		userInfoService.save(userInfo);
 		return userInfo;
@@ -124,44 +116,17 @@ public class LoginController {
 	
 	/**
 	 * 鉴别域账号中是否有该用户
+	 * 参考项目：https://gitee.com/durcframework/torna，方法：cn.torna.service.login.form.impl.LdapLoginManager#ldapAuth
 	 */
 	public LdapPerson getUserFromLdap(String username, String password) {
-		if (StringUtils.endsWithIgnoreCase(username, ldapDomainName)) {
-			username = username.replaceAll("(?i)" + ldapDomainName, "");
-		}
-		String userDn = username + ldapDomainName;
-		DirContext dirContext = null;
 		try {
-			dirContext = ldapTemplate.getContextSource().getContext(userDn, password);
-			List<LdapPerson> search = ldapTemplate.search(
-					LdapQueryBuilder.query().where("objectClass").is("person").and("sAMAccountName").is(username),
-					(AttributesMapper<LdapPerson>) attributes -> {
-						LdapPerson person = new LdapPerson();
-						person.setName(this.getAttributeValue(attributes.get("cn")));
-						person.setsAMAccountName(this.getAttributeValue(attributes.get("sAMAccountName")));
-						person.setEmail(this.getAttributeValue(attributes.get("userPrincipalName")));
-						return person;
-					});
-			if (CollectionUtils.isNotEmpty(search)) {
-				return search.get(0);
-			}
+			return ldapTemplate.authenticate(
+					LdapQueryBuilder.query().where("uid").is(username),
+					password,
+					(dirContext, ldapEntryIdentification) ->
+							ldapTemplate.findOne(LdapQueryBuilder.query().where("uid").is(username), LdapPerson.class));
 		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (null != dirContext) {
-				LdapUtils.closeContext(dirContext);
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * 取值
-	 */
-	private String getAttributeValue(Attribute attribute) throws NamingException {
-		if (attribute != null) {
-			Object obj = attribute.get(0);
-			return obj == null ? null : obj.toString();
+			logger.error("LDAP登录失败", e);
 		}
 		return null;
 	}

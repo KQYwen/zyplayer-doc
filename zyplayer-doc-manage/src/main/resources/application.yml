@@ -1,5 +1,5 @@
 
-# 端口和根路劲，jar启动时依此处配置，放tomcat后以tomcat的配置为准
+# 端口和根路径，jar启动时依此处配置，放tomcat后以tomcat的配置为准
 server:
   port: 8083
   servlet:
@@ -68,13 +68,13 @@ spring:
       max-request-size: 100MB
   datasource:
     continue-on-error: true
+  # 域账号登录，暂未严格测试
   ldap:
     enable: false
-    urls: ['ldap://10.0.1.1:10389']
+    urls: ldap://10.0.1.1:10389
     base: dc=xx,dc=net
     username: cn=Manager,dc=xx,dc=net
     password: MKDSHYDNIS
-    anonymousReadOnly: true
 
 # 下面的配置可以不用管了
 mybatis-plus:
