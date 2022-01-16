@@ -125,7 +125,6 @@
 				        let queryInfo = {
 					        id: choiceDocId,
 					        requestId: requestSaved.id,
-					        folderId: requestSaved.folderId,
 				        };
 				        router.push({path: '/custom/request', query: queryInfo});
 			        });

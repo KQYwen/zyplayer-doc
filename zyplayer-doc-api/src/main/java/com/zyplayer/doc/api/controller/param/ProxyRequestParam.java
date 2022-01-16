@@ -22,6 +22,7 @@ public class ProxyRequestParam {
 	private String formParam;
 	private String formEncodeParam;
 	private String bodyParam;
+	private String apiName;
 	
 	public List<ParamData> getHeaderParamData() {
 		return JSON.parseArray(headerParam, ParamData.class);
@@ -125,5 +126,13 @@ public class ProxyRequestParam {
 	
 	public void setDocId(Long docId) {
 		this.docId = docId;
+	}
+	
+	public String getApiName() {
+		return apiName;
+	}
+	
+	public void setApiName(String apiName) {
+		this.apiName = apiName;
 	}
 }

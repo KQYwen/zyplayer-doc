@@ -49,12 +49,14 @@ public class ApiPoxyRequestController {
 	@ResponseBody
 	@PostMapping(value = "/request")
 	public ResponseJson<ProxyRequestResultVo> request(HttpServletRequest request, ProxyRequestParam requestParam) {
-		// 自建接口时保存信息
+		// 自建接口请求时保存信息
 		if (requestParam.getCustomRequestId() != null) {
 			ApiCustomRequest apiCustomRequest = new ApiCustomRequest();
 			apiCustomRequest.setId(requestParam.getCustomRequestId());
+			apiCustomRequest.setApiName(requestParam.getApiName());
 			apiCustomRequest.setDocId(requestParam.getDocId());
 			apiCustomRequest.setApiUrl(requestParam.getUrl());
+			apiCustomRequest.setMethod(requestParam.getMethod());
 			apiCustomRequest.setFormData(requestParam.getFormParam());
 			apiCustomRequest.setBodyData(requestParam.getBodyParam());
 			apiCustomRequest.setHeaderData(requestParam.getHeaderParam());

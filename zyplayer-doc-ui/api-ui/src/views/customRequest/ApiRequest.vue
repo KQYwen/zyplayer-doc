@@ -1,67 +1,73 @@
 <template>
-    <div>
-        <a-input-search v-model:value="docInfoShow.apiUrl" @search="sendRequest" placeholder="请输入目标URL地址">
-            <template #addonBefore>
-                <a-select v-model:value="docInfoShow.method" style="width: 100px;">
-                    <a-select-option :value="method" v-for="method in methodList">{{method.toUpperCase()}}</a-select-option>
-                </a-select>
-            </template>
-            <template #enterButton>
-                <a-button type="primary" :loading="requestLoading">发送请求</a-button>
-            </template>
-        </a-input-search>
-        <a-tabs v-model:activeKey="activePage" closable @tab-click="activePageChange" style="padding: 5px 10px 0;">
-            <a-tab-pane tab="URL参数" key="urlParam" forceRender>
-                <div v-show="queryParamVisible">
-                    <ParamTable ref="urlParamRef" :paramList="urlParamList"></ParamTable>
+	<div class="api-name-box">
+		<a-row type="flex">
+			<a-col flex="auto"><a-input v-model:value="docInfoShow.apiName" :bordered="false" placeholder="请输入接口名称" /></a-col>
+			<a-col flex="88px">
+				<a-button @click="saveCustomRequest" type="dashed"><save-outlined /> 保存</a-button>
+			</a-col>
+		</a-row>
+	</div>
+    <a-input-search v-model:value="docInfoShow.apiUrl" @search="sendRequest" placeholder="请输入目标URL地址">
+        <template #addonBefore>
+            <a-select v-model:value="docInfoShow.method" style="width: 100px;">
+                <a-select-option :value="method" v-for="method in methodList">{{method.toUpperCase()}}</a-select-option>
+            </a-select>
+        </template>
+        <template #enterButton>
+            <a-button type="primary" :loading="requestLoading">发送请求</a-button>
+        </template>
+    </a-input-search>
+    <a-tabs v-model:activeKey="activePage" closable @tab-click="activePageChange" style="padding: 5px 10px 0;">
+        <a-tab-pane tab="URL参数" key="urlParam" forceRender>
+            <div v-show="queryParamVisible">
+                <ParamTable ref="urlParamRef" :paramList="urlParamList"></ParamTable>
+            </div>
+        </a-tab-pane>
+        <a-tab-pane tab="Body参数" key="bodyParam" v-if="docInfoShow.method !== 'get'" forceRender>
+            <div v-show="queryParamVisible">
+                <div style="margin-bottom: 6px;">
+                    <a-radio-group v-model:value="bodyParamType">
+                        <a-radio value="none">none</a-radio>
+                        <a-radio value="form">form-data</a-radio>
+                        <a-radio value="formUrlEncode">x-www-form-urlencoded</a-radio>
+                        <a-radio value="row">row</a-radio>
+                        <a-radio value="binary">binary</a-radio>
+                    </a-radio-group>
+                    <a-select v-if="bodyParamType === 'row'" v-model:value="consumesParamType" size="small" style="margin-left: 10px;vertical-align: top;width: 100px;">
+                        <a-select-option value="json">JSON</a-select-option>
+                        <a-select-option value="html">HTML</a-select-option>
+                        <a-select-option value="xml">XML</a-select-option>
+                        <a-select-option value="javascript">JavaScript</a-select-option>
+                        <a-select-option value="text">TEXT</a-select-option>
+                    </a-select>
                 </div>
-            </a-tab-pane>
-            <a-tab-pane tab="Body参数" key="bodyParam" v-if="docInfoShow.method !== 'get'" forceRender>
-                <div v-show="queryParamVisible">
-                    <div style="margin-bottom: 6px;">
-                        <a-radio-group v-model:value="bodyParamType">
-                            <a-radio value="none">none</a-radio>
-                            <a-radio value="form">form-data</a-radio>
-                            <a-radio value="formUrlEncode">x-www-form-urlencoded</a-radio>
-                            <a-radio value="row">row</a-radio>
-                            <a-radio value="binary">binary</a-radio>
-                        </a-radio-group>
-                        <a-select v-if="bodyParamType === 'row'" v-model:value="consumesParamType" size="small" style="margin-left: 10px;vertical-align: top;width: 100px;">
-                            <a-select-option value="json">JSON</a-select-option>
-                            <a-select-option value="html">HTML</a-select-option>
-                            <a-select-option value="xml">XML</a-select-option>
-                            <a-select-option value="javascript">JavaScript</a-select-option>
-                            <a-select-option value="text">TEXT</a-select-option>
-                        </a-select>
-                    </div>
-                    <div v-show="bodyParamType === 'form'">
-                        <ParamTable ref="formParamRef" :paramList="formParamList" showType></ParamTable>
-                    </div>
-                    <div v-show="bodyParamType === 'formUrlEncode'">
-                        <ParamTable ref="formEncodeParamRef" :paramList="formEncodeParamList"></ParamTable>
-                    </div>
-                    <div v-show="bodyParamType === 'row'">
-                        <ParamBody ref="bodyParamRef" :rowLang="consumesParamType" :paramList="bodyRowParamList"></ParamBody>
-                    </div>
+                <div v-show="bodyParamType === 'form'">
+                    <ParamTable ref="formParamRef" :paramList="formParamList" showType></ParamTable>
                 </div>
-            </a-tab-pane>
-            <a-tab-pane tab="Header参数" key="headerParam" forceRender>
-                <div v-show="queryParamVisible">
-                    <ParamTable ref="headerParamRef" :paramList="headerParamList"></ParamTable>
+                <div v-show="bodyParamType === 'formUrlEncode'">
+                    <ParamTable ref="formEncodeParamRef" :paramList="formEncodeParamList"></ParamTable>
                 </div>
-            </a-tab-pane>
-            <a-tab-pane tab="Cookie参数" key="cookieParam" forceRender>
-                <div v-show="queryParamVisible">
-                    <ParamTable ref="cookieParamRef" :paramList="cookieParamList"></ParamTable>
+                <div v-show="bodyParamType === 'row'">
+                    <ParamBody ref="bodyParamRef" :rowLang="consumesParamType" :paramList="bodyRowParamList"></ParamBody>
                 </div>
-            </a-tab-pane>
-            <template #rightExtra>
-                <a-button v-if="queryParamVisible" @click="hideQueryParam" type="link">收起参数</a-button>
-                <a-button v-else @click="showQueryParam" type="link">展开参数</a-button>
-            </template>
-        </a-tabs>
-        <ApiRequestResult :result="requestResult" :loading="requestLoading"></ApiRequestResult>
-    </div>
+            </div>
+        </a-tab-pane>
+        <a-tab-pane tab="Header参数" key="headerParam" forceRender>
+            <div v-show="queryParamVisible">
+                <ParamTable ref="headerParamRef" :paramList="headerParamList"></ParamTable>
+            </div>
+        </a-tab-pane>
+        <a-tab-pane tab="Cookie参数" key="cookieParam" forceRender>
+            <div v-show="queryParamVisible">
+                <ParamTable ref="cookieParamRef" :paramList="cookieParamList"></ParamTable>
+            </div>
+        </a-tab-pane>
+        <template #rightExtra>
+            <a-button v-if="queryParamVisible" @click="hideQueryParam" type="link">收起参数</a-button>
+            <a-button v-else @click="showQueryParam" type="link">展开参数</a-button>
+        </template>
+    </a-tabs>
+    <ApiRequestResult :result="requestResult" :loading="requestLoading"></ApiRequestResult>
 </template>
 
 <script>
@@ -73,14 +79,14 @@
     import ApiRequestResult from './ApiRequestResult.vue'
     import ParamTable from '../../components/params/ParamTable.vue'
     import ParamBody from '../../components/params/ParamBody.vue'
-    import {CloseOutlined, VerticalAlignTopOutlined, VerticalAlignBottomOutlined} from '@ant-design/icons-vue';
+    import {CloseOutlined, SaveOutlined, VerticalAlignTopOutlined, VerticalAlignBottomOutlined} from '@ant-design/icons-vue';
     import 'mavon-editor/dist/markdown/github-markdown.min.css'
     import 'mavon-editor/dist/css/index.css'
     import {zyplayerApi} from "../../api";
 
     export default {
         components: {
-            VerticalAlignTopOutlined, VerticalAlignBottomOutlined, CloseOutlined, ParamTable, ParamBody, ApiRequestResult,
+            VerticalAlignTopOutlined, VerticalAlignBottomOutlined, CloseOutlined, SaveOutlined, ParamTable, ParamBody, ApiRequestResult,
         },
 	    setup(props) {
             let activePage = ref('urlParam');
@@ -158,6 +164,7 @@
                 formData.append('method', docInfoShow.value.method);
                 formData.append('contentType', '');
 	            formData.append('docId', queryParam.docId);
+	            formData.append('apiName', docInfoShow.value.apiName);
 	            formData.append('customRequestId', queryParam.requestId);
 	            formData.append('headerParam', JSON.stringify(headerParamArr));
                 formData.append('cookieParam', JSON.stringify(cookieParamArr));
@@ -225,11 +232,18 @@
 			    });
 			    formParamList.value = formParamListProp;
 		    });
+			// 保存请求内容
+		    const saveCustomRequest = () => {
+			    zyplayerApi.apiCustomRequestAdd(docInfoShow.value).then(res => {
+				    message.success('保存成功');
+			    });
+		    }
             return {
                 activePage,
                 activePageChange,
                 requestLoading,
                 sendRequest,
+	            saveCustomRequest,
                 requestResult,
                 consumesParamType,
                 // url参数
@@ -261,3 +275,8 @@
         },
     };
 </script>
+
+<style>
+.api-name-box{padding-bottom: 10px;}
+</style>
+
