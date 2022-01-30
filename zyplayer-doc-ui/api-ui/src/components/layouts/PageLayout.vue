@@ -42,8 +42,9 @@
 			}
 		},
 		created() {
-			let {name, path, fullPath} = this.$route;
-			this.pageList.push({name, path, fullPath});
+			let {name, path, fullPath, query} = this.$route;
+			let checkedTab = {name, path, fullPath, query};
+			this.pageList.push(checkedTab);
 			let activePage = this.getRouteRealPath(this.$route);
 			this.linkList.push(activePage);
 			this.activePage = activePage;
@@ -55,11 +56,12 @@
 				this.activePage = activePage;
 				if (this.linkList.indexOf(activePage) < 0) {
 					this.linkList.push(activePage);
-					let {name, path, fullPath} = newRoute;
-					this.pageList.push({name, path, fullPath});
+					let {name, path, fullPath, query} = newRoute;
+					this.pageList.push({name, path, fullPath, query});
 				}
 				let pageRoute = this.pageList.find(item => this.getRouteRealPath(item) === activePage);
 				pageRoute.fullPath = newRoute.fullPath;
+				this.$store.commit('setActivePage', pageRoute);
 			},
 		},
 		methods: {

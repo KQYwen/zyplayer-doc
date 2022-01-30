@@ -1,6 +1,7 @@
 package com.zyplayer.doc.data.repository.manage.vo;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * api自建文档信息
@@ -13,19 +14,24 @@ public class ApiCustomDocVo implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * 接口ID
+	 * 节点类型 0=目录 1=接口
 	 */
-	private Long requestId;
+	private Integer nodeType;
 	
 	/**
-	 * 文件夹ID
+	 * 接口ID
 	 */
-	private Long folderId;
+	private Long nodeId;
 	
 	/**
 	 * 接口名称
 	 */
-	private String apiName;
+	private String nodeName;
+	
+	/**
+	 * 接口说明
+	 */
+	private String nodeDesc;
 	
 	/**
 	 * 请求方式：get、head、post、put、patch、delete、options、trace
@@ -57,13 +63,10 @@ public class ApiCustomDocVo implements Serializable {
 	 */
 	private String cookieData;
 	
-	public String getApiName() {
-		return apiName;
-	}
-	
-	public void setApiName(String apiName) {
-		this.apiName = apiName;
-	}
+	/**
+	 * 子目录列表
+	 */
+	private List<ApiCustomDocVo> children;
 	
 	public String getApiUrl() {
 		return apiUrl;
@@ -113,19 +116,43 @@ public class ApiCustomDocVo implements Serializable {
 		this.method = method;
 	}
 	
-	public Long getRequestId() {
-		return requestId;
+	public Long getNodeId() {
+		return nodeId;
 	}
 	
-	public void setRequestId(Long requestId) {
-		this.requestId = requestId;
+	public void setNodeId(Long nodeId) {
+		this.nodeId = nodeId;
 	}
 	
-	public Long getFolderId() {
-		return folderId;
+	public String getNodeName() {
+		return nodeName;
 	}
 	
-	public void setFolderId(Long folderId) {
-		this.folderId = folderId;
+	public void setNodeName(String nodeName) {
+		this.nodeName = nodeName;
+	}
+	
+	public List<ApiCustomDocVo> getChildren() {
+		return children;
+	}
+	
+	public void setChildren(List<ApiCustomDocVo> children) {
+		this.children = children;
+	}
+	
+	public String getNodeDesc() {
+		return nodeDesc;
+	}
+	
+	public void setNodeDesc(String nodeDesc) {
+		this.nodeDesc = nodeDesc;
+	}
+	
+	public Integer getNodeType() {
+		return nodeType;
+	}
+	
+	public void setNodeType(Integer nodeType) {
+		this.nodeType = nodeType;
 	}
 }

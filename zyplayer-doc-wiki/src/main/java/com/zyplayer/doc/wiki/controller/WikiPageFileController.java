@@ -2,6 +2,7 @@ package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.IdUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -105,11 +106,11 @@ public class WikiPageFileController {
 		Map<String, Object> resultMap = new HashMap<>();
 		DocResponseJson docResponseJson = this.uploadFile(wikiPageFile, file);
 		if (!docResponseJson.isOk()) {
-			resultMap.put("errno", "1");
-			resultMap.put("err", docResponseJson.getErrMsg());
+			resultMap.put("errno", 1);
+			resultMap.put("message", docResponseJson.getErrMsg());
 		} else {
-			resultMap.put("errno", "0");
-			resultMap.put("data", new String[]{wikiPageFile.getFileUrl()});
+			resultMap.put("errno", 0);
+			resultMap.put("data", new JSONObject().fluentPut("url", wikiPageFile.getFileUrl()));
 		}
 		return resultMap;
 	}

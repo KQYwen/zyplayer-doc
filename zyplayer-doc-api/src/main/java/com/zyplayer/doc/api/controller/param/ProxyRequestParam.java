@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ProxyRequestParam {
 	private Long docId;
-	private Long customRequestId;
+	private Long nodeId;
 	private String url;
 	private String host;
 	private String method;
@@ -112,14 +112,6 @@ public class ProxyRequestParam {
 		this.host = host;
 	}
 	
-	public Long getCustomRequestId() {
-		return customRequestId;
-	}
-	
-	public void setCustomRequestId(Long customRequestId) {
-		this.customRequestId = customRequestId;
-	}
-	
 	public Long getDocId() {
 		return docId;
 	}
@@ -134,5 +126,13 @@ public class ProxyRequestParam {
 	
 	public void setApiName(String apiName) {
 		this.apiName = apiName;
+	}
+	
+	public Long getNodeId() {
+		return nodeId;
+	}
+	
+	public void setNodeId(Long nodeId) {
+		this.nodeId = nodeId;
 	}
 }

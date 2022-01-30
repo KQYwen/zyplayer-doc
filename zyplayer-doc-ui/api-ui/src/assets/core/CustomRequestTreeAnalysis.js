@@ -8,19 +8,20 @@ const methodArray = ["get", "head", "post", "put", "patch", "delete", "options",
  * @param keywords 过滤关键字
  * @param metaInfo 接口元信息，点击时放入URL的参数
  */
-export function getTreeDataForTag(customRequest, keywords, metaInfo) {
+export function getTreeDataForTag(customRequest, keywords, metaInfo, requestInfoMap) {
     let firstChild = customRequest[0];
-    let treeData = getTreeDataChildren(firstChild, keywords, metaInfo, 1);
+    let treeData = getTreeDataChildren(firstChild, keywords, metaInfo, requestInfoMap, 1);
     return [
         {
             key: 'main',
+            isLeaf: false,
             title: firstChild.name || '自建API接口文档',
             children: treeData
         }
     ];
 }
 
-function getTreeDataChildren(customRequest, keywords, metaInfo, treeIndex) {
+function getTreeDataChildren(customRequest, keywords, metaInfo, requestInfoMap, treeIndex) {
     let treeData = [];
     if (!customRequest) {
         return treeData;
@@ -29,27 +30,37 @@ function getTreeDataChildren(customRequest, keywords, metaInfo, treeIndex) {
     let indexApi = 1;
     if (customRequest.children && customRequest.children.length > 0) {
         customRequest.children.forEach(item => {
+            requestInfoMap.originNodeMap[item.nodeId] = item;
             let tempTreeId = treeIndex + "_" + indexFolder + "_" + indexApi;
-            let treeChildren = getTreeDataChildren(item, keywords, metaInfo, tempTreeId);
-            treeData.push({title: item.name, key: tempTreeId, folderId: item.folderId, isLeaf: false, children: treeChildren});
-            indexApi++;
-        });
-    }
-    if (customRequest.apis && customRequest.apis.length > 0) {
-        customRequest.apis.forEach(item => {
-            let tempTreeId = treeIndex + "_" + indexFolder + "_" + indexApi;
-            treeData.push({
-                title: item.apiName,
-                key: tempTreeId,
-                isLeaf: true,
-                method: item.method,
-                folderId: item.folderId,
-                query: {
-                    ...metaInfo,
-                    requestId: item.requestId,
+            if (item.nodeType === 1) {
+                treeData.push({
+                    title: item.nodeName,
+                    key: tempTreeId,
+                    isLeaf: true,
+                    method: item.method,
+                    nodeId: item.nodeId,
+                    query: {
+                        ...metaInfo,
+                        nodeId: item.nodeId,
+                    }
+                });
+                indexApi++;
+            } else {
+                let treeChildren = getTreeDataChildren(item, keywords, metaInfo, requestInfoMap, tempTreeId);
+                let eureka = searchInCustomRequestFolder(item, keywords);
+                if (treeChildren.length > 0 || eureka) {
+                    treeData.push({
+                        title: item.nodeName,
+                        key: tempTreeId,
+                        nodeId: item.nodeId,
+                        isLeaf: false,
+                        editing: false,
+                        titleEditing: item.nodeName,
+                        children: treeChildren
+                    });
+                    indexApi++;
                 }
-            });
-            indexApi++;
+            }
         });
     }
     indexFolder++;
@@ -63,16 +74,20 @@ function getTreeDataChildren(customRequest, keywords, metaInfo, treeIndex) {
  * @param keywords 关键字
  * @returns {*|boolean} 是否包含
  */
-function searchInPathMethods(url, methodNode, keywords) {
-    if (!keywords || !url) {
+function searchInCustomRequest(request, keywords) {
+    if (!keywords || !request) {
         return true;
     }
-    url = url.toLowerCase();
     keywords = keywords.toLowerCase();
-    // 路径中有就不用再去找了
-    if (url.indexOf(keywords) >= 0) {
+    let searchData = request.apiUrl + request.method + request.nodeName;
+    return (searchData && searchData.toLowerCase().indexOf(keywords) >= 0);
+}
+
+function searchInCustomRequestFolder(folder, keywords) {
+    if (!keywords || !folder) {
         return true;
     }
-    let searchData = methodNode.path + methodNode.method + methodNode.summary + methodNode.description + methodNode.tags;
+    keywords = keywords.toLowerCase();
+    let searchData = folder.name;
     return (searchData && searchData.toLowerCase().indexOf(keywords) >= 0);
 }

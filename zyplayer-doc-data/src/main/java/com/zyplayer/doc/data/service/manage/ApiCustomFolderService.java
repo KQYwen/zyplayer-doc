@@ -21,4 +21,12 @@ public interface ApiCustomFolderService extends IService<ApiCustomFolder> {
 	 * @since 2021-12-22
 	 */
 	void addFolder(ApiCustomFolder apiCustomFolder);
+	
+	/**
+	 * 删除文件夹
+	 *
+	 * @author 暮光：城中城
+	 * @since 2021-12-22
+	 */
+	void deleteFolder(Long id);
 }

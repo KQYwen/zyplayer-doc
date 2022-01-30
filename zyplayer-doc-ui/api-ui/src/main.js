@@ -31,3 +31,11 @@ app.directive('highlight', {
     }
 });
 
+// 聚焦元素
+app.directive('autofocus', {
+    updated(el) {
+        // 延迟等待弹窗初始完成
+        setTimeout(() => el.focus(), 0);
+    }
+});
+

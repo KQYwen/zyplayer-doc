@@ -47,62 +47,45 @@ let routers = [
                     },
                     // 以下是隐藏的菜单路由
                     {
-                        path: '/swagger',
-                        name: 'swagger文档',
+                        path: '/swagger/info',
+                        name: 'Swagger文档信息',
                         meta: {
                             hidden: true,
-                            icon: 'SettingOutlined'
                         },
-                        component: EmptyKeepAliveLayout,
-                        children: [
-                            {
-                                path: '/swagger/info',
-                                name: 'Swagger文档信息',
-                                component: () => import('./views/swagger/DocInfo.vue')
-                            },
-                            {
-                                path: '/swagger/view',
-                                name: 'Swagger文档展示',
-                                component: () => import('./views/swagger/DocView.vue')
-                            },
-                        ]
+                        component: () => import('./views/swagger/DocInfo.vue')
+                    },
+                    {
+                        path: '/swagger/view',
+                        name: 'Swagger文档展示',
+                        meta: {
+                            hidden: true,
+                        },
+                        component: () => import('./views/swagger/DocView.vue')
                     },
                     // 以下是OpenApi的菜单路由
                     {
-                        path: '/openapi',
-                        name: 'openApi文档',
+                        path: '/openapi/info',
+                        name: 'OpenApi文档信息',
                         meta: {
                             hidden: true,
-                            icon: 'SettingOutlined'
                         },
-                        component: EmptyKeepAliveLayout,
-                        children: [
-                            {
-                                path: '/openapi/info',
-                                name: 'OpenApi文档信息',
-                                component: () => import('./views/openapi/DocInfo.vue')
-                            },
-                            {
-                                path: '/openapi/view',
-                                name: 'OpenApi文档展示',
-                                component: () => import('./views/openapi/DocView.vue')
-                            },
-                        ]
+                        component: () => import('./views/openapi/DocInfo.vue')
                     },
                     {
-                        path: '/custom',
-                        name: 'API请求',
+                        path: '/openapi/view',
+                        name: 'OpenApi文档展示',
                         meta: {
                             hidden: true,
                         },
-                        component: EmptyKeepAliveLayout,
-                        children: [
-                            {
-                                path: '/custom/request',
-                                name: '接口请求',
-                                component: () => import('./views/customRequest/ApiRequest.vue')
-                            },
-                        ]
+                        component: () => import('./views/openapi/DocView.vue')
+                    },
+                    {
+                        path: '/custom/request',
+                        name: '接口请求',
+                        meta: {
+                            hidden: true,
+                        },
+                        component: () => import('./views/customRequest/ApiRequest.vue')
                     },
                 ]
             },
@@ -127,24 +110,20 @@ let routers = [
                         component: () => import('./views/share/ShareHome.vue')
                     },
                     {
-                        path: '/doc',
-                        name: '开放文档查看',
+                        path: '/share/swagger/view',
+                        name: 'Swagger开放文档展示',
                         meta: {
                             hidden: true,
                         },
-                        component: EmptyKeepAliveLayout,
-                        children: [
-                            {
-                                path: '/share/swagger/view',
-                                name: 'Swagger开放文档展示',
-                                component: () => import('./views/swagger/share/DocView.vue')
-                            },
-                            {
-                                path: '/share/openapi/view',
-                                name: 'OpenApi开放文档展示',
-                                component: () => import('./views/openapi/share/DocView.vue')
-                            },
-                        ]
+                        component: () => import('./views/swagger/share/DocView.vue')
+                    },
+                    {
+                        path: '/share/openapi/view',
+                        name: 'OpenApi开放文档展示',
+                        meta: {
+                            hidden: true,
+                        },
+                        component: () => import('./views/openapi/share/DocView.vue')
                     },
                 ]
             }

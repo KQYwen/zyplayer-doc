@@ -24,7 +24,16 @@ export const zyplayerApi = {
     docAuthDelete: data => apiClient({url: '/doc-api/doc/auth/delete', method: 'post', data: data}),
 
     apiCustomFolderAdd: data => apiClient({url: '/api-custom-folder/add', method: 'post', data: data}),
+    apiCustomFolderUpdate: data => apiClient({url: '/api-custom-folder/update', method: 'post', data: data}),
+    apiCustomFolderDelete: data => apiClient({url: '/api-custom-folder/delete', method: 'post', data: data}),
     apiCustomRequestAdd: data => apiClient({url: '/api-custom-request/add', method: 'post', data: data}),
     apiCustomRequestDetail: data => apiClient({url: '/api-custom-request/detail', method: 'post', data: data}),
+    apiCustomRequestDelete: data => apiClient({url: '/api-custom-request/delete', method: 'post', data: data}),
+
+    apiCustomNodeAdd: data => apiClient({url: '/api-custom-node/add', method: 'post', data: data}),
+    apiCustomNodeUpdate: data => apiClient({url: '/api-custom-node/update', method: 'post', data: data}),
+    apiCustomNodeDelete: data => apiClient({url: '/api-custom-node/delete', method: 'post', data: data}),
+    apiCustomNodeDetail: data => apiClient({url: '/api-custom-node/detail', method: 'post', data: data}),
+    apiCustomNodeChangeParent: data => apiClient({url: '/api-custom-node/changeParent', method: 'post', data: data}),
 };
 

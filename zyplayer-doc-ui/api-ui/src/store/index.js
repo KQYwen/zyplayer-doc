@@ -5,6 +5,8 @@ export default createStore({
         return {
             // 文档改变事件，供其他页面watch
             docChangedNum: 1,
+            customRequestChange: {},
+            
             // 用户信息
             userInfo: {},
             // tab多标签的标签名map{xxx: 'val'}
@@ -38,9 +40,14 @@ export default createStore({
             
             // 自建API原始文档
             customRequestDoc: {},
+            // 当前选中的Tab页面
+            activePage: {},
         }
     },
     getters: {
+        getCustomRequestChange: (state) => () => {
+            return state.customRequestChange;
+        },
         getDocChangedNum: (state) => () => {
             return state.docChangedNum;
         },
@@ -49,6 +56,9 @@ export default createStore({
         },
         getApiDoc: (state) => () => {
             return state.apiDoc;
+        },
+        getActivePage: (state) => () => {
+            return state.activePage;
         },
     },
     mutations: {
@@ -110,6 +120,12 @@ export default createStore({
             let sameObj = Object.assign({}, state.pageTabNameMap);
             sameObj[item.key] = item.val;
             state.pageTabNameMap = sameObj;
+        },
+        setCustomRequestChange(state, customRequestChange) {
+            state.customRequestChange = customRequestChange;
+        },
+        setActivePage(state, activePage) {
+            state.activePage = activePage;
         },
     }
 });

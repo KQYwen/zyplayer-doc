@@ -1,7 +1,7 @@
 <template>
 	<div class="api-name-box">
 		<a-row type="flex">
-			<a-col flex="auto"><a-input v-model:value="docInfoShow.apiName" :bordered="false" placeholder="请输入接口名称" /></a-col>
+			<a-col flex="auto"><a-input v-model:value="docInfoShow.nodeName" :bordered="false" placeholder="请输入接口名称" /></a-col>
 			<a-col flex="88px">
 				<a-button @click="saveCustomRequest" type="dashed"><save-outlined /> 保存</a-button>
 			</a-col>
@@ -92,7 +92,7 @@
             let activePage = ref('urlParam');
             const route = useRoute();
             const store = useStore();
-		    const queryParam = {docId: route.query.id, requestId: route.query.requestId};
+		    const queryParam = {docId: route.query.id, nodeId: route.query.nodeId};
             let globalParam = store.state.globalParam || [];
             let nextIndex = 1;
             // URL参数处理
@@ -125,6 +125,7 @@
                     message.error('请输入请求的目标URL地址');
                     return;
                 }
+	            setCustomRequestDefaultValue();
                 const formData = new FormData();
                 let urlParamSelected = urlParamRef.value.getSelectedRowKeys();
                 let urlParamStr = urlParamList.value.filter(item => urlParamSelected.indexOf(item.key) >= 0 && item.name && item.value).map(item => {
@@ -164,8 +165,8 @@
                 formData.append('method', docInfoShow.value.method);
                 formData.append('contentType', '');
 	            formData.append('docId', queryParam.docId);
-	            formData.append('apiName', docInfoShow.value.apiName);
-	            formData.append('customRequestId', queryParam.requestId);
+	            formData.append('nodeName', docInfoShow.value.nodeName);
+	            formData.append('nodeId', queryParam.nodeId);
 	            formData.append('headerParam', JSON.stringify(headerParamArr));
                 formData.append('cookieParam', JSON.stringify(cookieParamArr));
                 formData.append('formParam', JSON.stringify(formParamArr));
@@ -173,9 +174,10 @@
                 formData.append('bodyParam', bodyParamStr);
                 requestLoading.value = true;
                 requestResult.value = {};
-                zyplayerApi.requestUrl(formData).then(res => {
-                    requestResult.value = res;
-                    requestLoading.value = false;
+	            zyplayerApi.requestUrl(formData).then(res => {
+		            requestResult.value = res;
+		            requestLoading.value = false;
+		            changeCustomRequest();
                 }).catch(e => {
                     requestLoading.value = false;
                 });
@@ -190,14 +192,23 @@
             const activePageChange = () => {
                 queryParamVisible.value = true;
             }
+		    // 改变侧边栏标题
+		    const changeCustomRequest = () => {
+			    store.commit('setCustomRequestChange', {
+				    method: docInfoShow.value.method,
+				    nodeId: docInfoShow.value.nodeId,
+				    nodeName: docInfoShow.value.nodeName,
+			    });
+			    store.commit('addTableName', {key: route.fullPath, val: docInfoShow.value.nodeName});
+		    }
 		    onMounted(async () => {
-			    let detailRes = await zyplayerApi.apiCustomRequestDetail({id: route.query.requestId});
+			    let detailRes = await zyplayerApi.apiCustomNodeDetail({id: route.query.nodeId});
 			    let requestDetail = detailRes.data;
 			    if (!requestDetail) {
 				    console.log('文档加载失败', detailRes);
 			    }
 			    docInfoShow.value = requestDetail;
-			    store.commit('addTableName', {key: route.fullPath, val: requestDetail.apiName});
+			    store.commit('addTableName', {key: route.fullPath, val: requestDetail.nodeName});
 			    // Header参数处理
 			    let headerParamListProp = [];
 			    let headerParamListGlobal = globalParam.filter(item => item.paramType === 2);
@@ -234,9 +245,16 @@
 		    });
 			// 保存请求内容
 		    const saveCustomRequest = () => {
-			    zyplayerApi.apiCustomRequestAdd(docInfoShow.value).then(res => {
+			    setCustomRequestDefaultValue();
+			    zyplayerApi.apiCustomNodeAdd(docInfoShow.value).then(res => {
 				    message.success('保存成功');
+				    changeCustomRequest();
 			    });
+		    }
+		    const setCustomRequestDefaultValue = () => {
+			    if (!docInfoShow.value.nodeName) {
+				    docInfoShow.value.nodeName = '新建接口';
+			    }
 		    }
             return {
                 activePage,

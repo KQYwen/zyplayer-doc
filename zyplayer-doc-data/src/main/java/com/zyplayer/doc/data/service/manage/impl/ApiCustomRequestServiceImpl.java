@@ -14,7 +14,7 @@ import com.zyplayer.doc.data.service.common.ApiDocAuthJudgeService;
 import com.zyplayer.doc.data.service.manage.ApiCustomFolderService;
 import com.zyplayer.doc.data.service.manage.ApiCustomRequestService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -57,7 +57,6 @@ public class ApiCustomRequestServiceImpl extends ServiceImpl<ApiCustomRequestMap
 		Map<Long, List<ApiCustomFolder>> apiGroupMap = apiCustomGroupList.stream()
 				.peek(item -> item.setParentFolderId(Optional.ofNullable(item.getParentFolderId()).orElse(0L)))
 				.collect(Collectors.groupingBy(ApiCustomFolder::getParentFolderId));
-		List<ApiCustomVo> apiCustomVoList = new LinkedList<>();
 		List<ApiCustomDocVo> apis = this.buildApiCustomDocVo(apiMap.get(0L));
 		List<ApiCustomVo> customGroupChildren = this.getCustomGroupChildren(apiGroupMap.get(0L), apiGroupMap, apiMap);
 		// 组装结果对象
@@ -65,6 +64,7 @@ public class ApiCustomRequestServiceImpl extends ServiceImpl<ApiCustomRequestMap
 		apiCustomVo.setChildren(customGroupChildren);
 		apiCustomVo.setName(apiDoc.getName());
 		apiCustomVo.setApis(apis);
+		List<ApiCustomVo> apiCustomVoList = new LinkedList<>();
 		apiCustomVoList.add(apiCustomVo);
 		return apiCustomVoList;
 	}
@@ -79,10 +79,13 @@ public class ApiCustomRequestServiceImpl extends ServiceImpl<ApiCustomRequestMap
 			apiCustomRequest.setCreateUserId(currentUser.getUserId());
 			apiCustomRequest.setCreateUserName(currentUser.getUsername());
 		} else {
+			apiCustomRequest.setDocId(null);
 			apiCustomRequest.setCreateTime(null);
 			apiCustomRequest.setCreateUserId(null);
 			apiCustomRequest.setCreateUserName(null);
 		}
+		String apiName = StringUtils.defaultString(apiCustomRequest.getApiName(), "新建接口");
+		apiCustomRequest.setApiName(apiName);
 		this.saveOrUpdate(apiCustomRequest);
 		return apiCustomRequest;
 	}
@@ -98,39 +101,39 @@ public class ApiCustomRequestServiceImpl extends ServiceImpl<ApiCustomRequestMap
 			return Collections.emptyList();
 		}
 		List<ApiCustomVo> apiCustomVoList = new LinkedList<>();
-		for (ApiCustomFolder customGroup : apiCustomGroups) {
-			List<ApiCustomRequest> apiCustomList = apiMap.get(customGroup.getId());
-			List<ApiCustomFolder> children = apiGroupMap.get(customGroup.getId());
-			List<ApiCustomVo> customGroupChildren = this.getCustomGroupChildren(children, apiGroupMap, apiMap);
-			List<ApiCustomDocVo> apis = this.buildApiCustomDocVo(apiCustomList);
-			ApiCustomVo apiCustomVo = new ApiCustomVo();
-			apiCustomVo.setFolderId(customGroup.getId());
-			apiCustomVo.setName(customGroup.getFolderName());
-			apiCustomVo.setDesc(customGroup.getFolderDesc());
-			apiCustomVo.setChildren(customGroupChildren);
-			apiCustomVo.setApis(apis);
-			apiCustomVoList.add(apiCustomVo);
-		}
+//		for (ApiCustomFolder customGroup : apiCustomGroups) {
+//			List<ApiCustomRequest> apiCustomList = apiMap.get(customGroup.getId());
+//			List<ApiCustomFolder> children = apiGroupMap.get(customGroup.getId());
+//			List<ApiCustomVo> customGroupChildren = this.getCustomGroupChildren(children, apiGroupMap, apiMap);
+//			List<ApiCustomDocVo> apis = this.buildApiCustomDocVo(apiCustomList);
+//			ApiCustomVo apiCustomVo = new ApiCustomVo();
+//			apiCustomVo.setFolderId(customGroup.getId());
+//			apiCustomVo.setName(customGroup.getFolderName());
+//			apiCustomVo.setDesc(customGroup.getFolderDesc());
+//			apiCustomVo.setChildren(customGroupChildren);
+//			apiCustomVo.setApis(apis);
+//			apiCustomVoList.add(apiCustomVo);
+//		}
 		return apiCustomVoList;
 	}
 	
 	private List<ApiCustomDocVo> buildApiCustomDocVo(List<ApiCustomRequest> apiCustomList) {
 		List<ApiCustomDocVo> apis = new LinkedList<>();
-		if (CollectionUtils.isNotEmpty(apiCustomList)) {
-			for (ApiCustomRequest apiCustom : apiCustomList) {
-				ApiCustomDocVo apiCustomDocVo = new ApiCustomDocVo();
-				apiCustomDocVo.setRequestId(apiCustom.getId());
-				apiCustomDocVo.setFolderId(apiCustom.getFolderId());
-				apiCustomDocVo.setApiUrl(apiCustom.getApiUrl());
-				apiCustomDocVo.setMethod(apiCustom.getMethod());
-				apiCustomDocVo.setApiName(apiCustom.getApiName());
-				apiCustomDocVo.setBodyData(apiCustom.getBodyData());
-				apiCustomDocVo.setCookieData(apiCustom.getCookieData());
-				apiCustomDocVo.setFormData(apiCustom.getFormData());
-				apiCustomDocVo.setHeaderData(apiCustom.getHeaderData());
-				apis.add(apiCustomDocVo);
-			}
-		}
+//		if (CollectionUtils.isNotEmpty(apiCustomList)) {
+//			for (ApiCustomRequest apiCustom : apiCustomList) {
+//				ApiCustomDocVo apiCustomDocVo = new ApiCustomDocVo();
+//				apiCustomDocVo.setRequestId(apiCustom.getId());
+//				apiCustomDocVo.setFolderId(apiCustom.getFolderId());
+//				apiCustomDocVo.setApiUrl(apiCustom.getApiUrl());
+//				apiCustomDocVo.setMethod(apiCustom.getMethod());
+//				apiCustomDocVo.setApiName(apiCustom.getApiName());
+//				apiCustomDocVo.setBodyData(apiCustom.getBodyData());
+//				apiCustomDocVo.setCookieData(apiCustom.getCookieData());
+//				apiCustomDocVo.setFormData(apiCustom.getFormData());
+//				apiCustomDocVo.setHeaderData(apiCustom.getHeaderData());
+//				apis.add(apiCustomDocVo);
+//			}
+//		}
 		return apis;
 	}
 }

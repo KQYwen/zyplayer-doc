@@ -1,51 +1,58 @@
 <template>
 	<div style="height: 100%;" class="page-edit-vue">
-		<el-row type="border-card" style="height: 100%;overflow: auto;padding: 20px;box-sizing: border-box;">
-			<el-row :gutter="20">
-				<el-col :span="16">
-					<template v-if="pageId">
-						<span>编辑方式：</span>
-						<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId">
-							<el-option label="Markdown" :value="2"></el-option>
-							<el-option label="HTML" :value="1"></el-option>
-						</el-select>
-					</template>
-					<template v-else>
-						<span style="margin-right: 20px;">父级：{{parentWikiPage.name || '/'}}</span>
-						<el-tooltip class="item" content="在根目录创建文档" v-if="parentId">
-							<el-button type="text" @click="changeToRootPath" style="padding: 0 10px;">根目录</el-button>
-						</el-tooltip>
-						<span style="margin-left: 50px;">编辑方式：</span>
-						<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId">
-							<el-option label="Markdown" :value="2"></el-option>
-							<el-option label="HTML" :value="1"></el-option>
-						</el-select>
-					</template>
-				</el-col>
-				<el-col :span="8" style="text-align: right;">
-					<el-button type="primary" v-on:click="createWikiSave(1)" icon="el-icon-document-checked">保存并查看</el-button>
-					<el-button type="success" v-on:click="createWikiSave(0)" icon="el-icon-check">仅保存</el-button>
-					<el-button v-on:click="createWikiCancel" icon="el-icon-back">取消</el-button>
-				</el-col>
-			</el-row>
-			<el-input v-model="wikiPageEdit.pageTitle" placeholder="请输入标题" class="page-title-input"></el-input>
-			<mavon-editor v-show="wikiPageEdit.editorType===2" ref="mavonEditor" v-model="markdownContent" :toolbars="toolbars"
-						  :externalLink="false"
-						  @save="createWikiSave(0)" @imgAdd="addMarkdownImage"
-						  placeholder="请录入文档内容" class="page-content-editor wang-editor-body"/>
-			<div v-show="wikiPageEdit.editorType===1" id="newPageContentDiv" class="page-content-editor" style="height: calc(100vh - 250px);"></div>
-		</el-row>
+		<div style="box-sizing: border-box;background: #f5f5f5;overflow: hidden;">
+			<div style="padding: 8px;font-size: 14px;background: #fff;">
+				<el-row>
+					<el-col :span="16">
+						<template v-if="pageId">
+							<span>编辑方式：</span>
+							<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId" size="mini">
+								<el-option label="Markdown" :value="2"></el-option>
+								<el-option label="HTML" :value="1"></el-option>
+							</el-select>
+						</template>
+						<template v-else>
+							<span style="margin-right: 20px;">父级：{{parentWikiPage.name || '/'}}</span>
+							<el-tooltip class="item" content="在根目录创建文档" v-if="parentId">
+								<el-button type="text" @click="changeToRootPath" size="mini" style="padding: 0 10px;">根目录</el-button>
+							</el-tooltip>
+							<span style="margin-left: 50px;">编辑方式：</span>
+							<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId" size="mini">
+								<el-option label="Markdown" :value="2"></el-option>
+								<el-option label="HTML" :value="1"></el-option>
+							</el-select>
+						</template>
+					</el-col>
+					<el-col :span="8" style="text-align: right;">
+						<el-button type="primary" v-on:click="createWikiSave(1)" size="mini" icon="el-icon-document-checked">保存并查看</el-button>
+						<el-button type="success" v-on:click="createWikiSave(0)" size="mini" icon="el-icon-check">仅保存</el-button>
+						<el-button v-on:click="createWikiCancel" size="mini" icon="el-icon-back">取消</el-button>
+					</el-col>
+				</el-row>
+			</div>
+			<div v-show="wikiPageEdit.editorType===2" style="padding: 0 10px 10px 10px;background: #fff;">
+				<el-input v-model="wikiPageEdit.pageTitle" placeholder="请输入标题" class="page-title-input"></el-input>
+				<mavon-editor ref="mavonEditor" v-model="markdownContent" :toolbars="toolbars"
+				              :externalLink="false"
+				              style="height: calc(100vh - 165px);"
+				              @save="createWikiSave(0)" @imgAdd="addMarkdownImage"
+				              placeholder="请录入文档内容" class="page-content-editor wang-editor-body"/>
+			</div>
+			<div v-show="wikiPageEdit.editorType===1">
+				<WangEditor ref="wangEditor"></WangEditor>
+			</div>
+<!--			<div v-show="wikiPageEdit.editorType===1" id="newPageContentDiv" class="page-content-editor" style="height: calc(100vh - 250px);"></div>-->
+		</div>
 	</div>
 </template>
 
 <script>
-	import WangEditor from 'wangeditor'
 	import pageApi from '../../common/api/page'
-	import {mavonEditor, markdownIt} from 'mavon-editor'
+	import {mavonEditor} from 'mavon-editor'
 	import 'mavon-editor/dist/markdown/github-markdown.min.css'
 	import 'mavon-editor/dist/css/index.css'
-	import "../../common/lib/wangEditor.css";
 	import axios from 'axios'
+	import WangEditor from './editor/WangEditor.vue'
 
 	export default {
 		props: ['spaceId'],
@@ -102,7 +109,7 @@
 			};
 		},
 		components: {
-			'mavon-editor': mavonEditor
+			WangEditor, mavonEditor,
 		},
 		destroyed: function () {
             this.unlockPage();
@@ -156,8 +163,10 @@
 					content = this.markdownContent;
 					preview = this.markdownContent;
 				} else {
-					content = this.editor.txt.html();
-					preview = this.editor.txt.text();
+					let pageData = this.$refs.wangEditor.getPageData();
+					content = pageData.html;
+					preview = pageData.text;
+					this.wikiPageEdit.pageTitle = pageData.title;
 				}
 				// 修改内容时强制不能修改父路径，只能在目录上拖动修改
 				let parentId = (this.pageId > 0) ? '' : this.parentId;
@@ -193,7 +202,11 @@
 					if (this.wikiPageEdit.editorType === 2) {
 						this.markdownContent = this.pageContent.content || "";
 					} else {
-						this.editor.txt.html(this.pageContent.content || "");
+						// this.editor.txt.html(this.pageContent.content || "");
+						setTimeout(() => {
+							this.$refs.wangEditor.setTitle(this.wikiPage.name || "");
+							this.$refs.wangEditor.setHtml(this.pageContent.content || "");
+						}, 0);
 					}
 				});
 			},
@@ -254,14 +267,14 @@
 				});
 			},
 			initEditor() {
-				this.editor = new WangEditor('#newPageContentDiv');
-				this.editor.customConfig.uploadImgServer = process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload';
-				this.editor.customConfig.zIndex = 100;
-				this.editor.customConfig.uploadFileName = 'files';
-				this.editor.customConfig.uploadImgMaxLength = 1;
-				this.editor.customConfig.pasteFilterStyle = false;
-				this.editor.customConfig.withCredentials = true;
-				this.editor.create();
+				// this.editor = new WangEditor('#newPageContentDiv');
+				// this.editor.customConfig.uploadImgServer = process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload';
+				// this.editor.customConfig.zIndex = 100;
+				// this.editor.customConfig.uploadFileName = 'files';
+				// this.editor.customConfig.uploadImgMaxLength = 1;
+				// this.editor.customConfig.pasteFilterStyle = false;
+				// this.editor.customConfig.withCredentials = true;
+				// this.editor.create();
 			},
 		}
 	}
@@ -288,7 +301,7 @@
 		padding: 10px 0;
 	}
 	.page-edit-vue .page-title-input{
-		padding: 10px 0;
+		padding-bottom: 10px;
 	}
 </style>
 

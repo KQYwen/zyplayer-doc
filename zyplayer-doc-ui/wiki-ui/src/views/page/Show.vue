@@ -30,10 +30,10 @@
 											</el-button>
 											<el-dropdown-menu slot="dropdown">
 												<el-dropdown-item command="showPageHistory" icon="el-icon-time">查看历史版本</el-dropdown-item>
-												<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete==1" icon="el-icon-delete">删除</el-dropdown-item>
 												<el-dropdown-item command="editAuth" v-if="wikiPageAuth.canConfigAuth==1" icon="el-icon-s-check">权限设置</el-dropdown-item>
 												<el-dropdown-item command="showOpenPage" v-if="spaceInfo.openDoc == 1" icon="el-icon-share">查看开放文档</el-dropdown-item>
 												<el-dropdown-item command="showMobileView" v-if="spaceInfo.openDoc == 1" icon="el-icon-mobile-phone">手机端查看</el-dropdown-item>
+												<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete==1" icon="el-icon-delete">删除</el-dropdown-item>
 											</el-dropdown-menu>
 										</el-dropdown>
 									</div>
@@ -196,7 +196,7 @@ import htmlUtil from '../../common/lib/HtmlUtil.js'
 import pageApi from '../../common/api/page'
 import userApi from '../../common/api/user'
 import Navigation from './components/Navigation.vue'
-import {markdownIt, mavonEditor} from 'mavon-editor'
+import {mavonEditor} from 'mavon-editor'
 import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
 import 'mavon-editor/dist/markdown/github-markdown.min.css'
 import 'mavon-editor/dist/css/index.css'
@@ -463,7 +463,7 @@ var page = {
 						history.loading = 2;
 						history.content = json.data || '--';
 						if (this.wikiPage.editorType === 2) {
-							history.content = markdownIt.render(history.content);
+							history.content = mavonEditor.getMarkdownIt().render(history.content);
 						}
 						this.pageHistoryDetail = history.content;
 						this.pageShowDetail = history.content;
@@ -505,7 +505,7 @@ var page = {
 						canConfigAuth: result.canConfigAuth,
 					};
 					if (this.wikiPage.editorType === 2) {
-						this.pageContent.content = markdownIt.render(this.pageContent.content);
+						this.pageContent.content = mavonEditor.getMarkdownIt().render(this.pageContent.content);
 					}
 					this.pageShowDetail = this.pageContent.content;
 					// 修改标题

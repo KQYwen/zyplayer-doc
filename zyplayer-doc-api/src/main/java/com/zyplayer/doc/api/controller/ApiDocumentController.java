@@ -12,10 +12,12 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.ApiDoc;
+import com.zyplayer.doc.data.repository.manage.vo.ApiCustomDocVo;
 import com.zyplayer.doc.data.repository.manage.vo.ApiCustomVo;
 import com.zyplayer.doc.data.repository.manage.vo.ApiDocVo;
 import com.zyplayer.doc.data.repository.support.consts.ApiAuthType;
 import com.zyplayer.doc.data.service.common.ApiDocAuthJudgeService;
+import com.zyplayer.doc.data.service.manage.ApiCustomNodeService;
 import com.zyplayer.doc.data.service.manage.ApiCustomRequestService;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
 import org.apache.commons.lang.StringUtils;
@@ -52,7 +54,7 @@ public class ApiDocumentController {
 	@Resource
 	private SwaggerHttpRequestService swaggerHttpRequestService;
 	@Resource
-	ApiCustomRequestService apiCustomRequestService;
+	ApiCustomNodeService apiCustomNodeService;
 	
 	/**
 	 * 获取所有的文档地址
@@ -222,7 +224,7 @@ public class ApiDocumentController {
 			return DocResponseJson.ok(apiDoc.getJsonContent());
 		}
 		if (Objects.equals(apiDoc.getDocType(), 5)) {
-			List<ApiCustomVo> customVoList = apiCustomRequestService.buildCustomApiList(apiDoc);
+			List<ApiCustomDocVo> customVoList = apiCustomNodeService.buildCustomApiList(apiDoc);
 			return DocResponseJson.ok(customVoList);
 		}
 		return DocResponseJson.warn("暂不支持的文档类型");

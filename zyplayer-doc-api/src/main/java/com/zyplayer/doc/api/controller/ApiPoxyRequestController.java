@@ -6,21 +6,19 @@ import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.api.controller.param.ProxyRequestParam;
 import com.zyplayer.doc.api.controller.vo.ProxyRequestResultVo;
 import com.zyplayer.doc.api.service.SwaggerHttpRequestService;
-import com.zyplayer.doc.data.repository.manage.entity.ApiCustomRequest;
-import com.zyplayer.doc.data.service.manage.ApiCustomRequestService;
+import com.zyplayer.doc.data.repository.manage.entity.ApiCustomNode;
+import com.zyplayer.doc.data.repository.manage.entity.ApiCustomParams;
+import com.zyplayer.doc.data.service.manage.ApiCustomNodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 /**
  * 请求参数控制器
@@ -35,7 +33,7 @@ public class ApiPoxyRequestController {
 	private static Logger logger = LoggerFactory.getLogger(ApiPoxyRequestController.class);
 	
 	@Resource
-	ApiCustomRequestService apiCustomRequestService;
+	ApiCustomNodeService apiCustomNodeService;
 	@Resource
 	private SwaggerHttpRequestService swaggerHttpRequestService;
 	
@@ -50,18 +48,20 @@ public class ApiPoxyRequestController {
 	@PostMapping(value = "/request")
 	public ResponseJson<ProxyRequestResultVo> request(HttpServletRequest request, ProxyRequestParam requestParam) {
 		// 自建接口请求时保存信息
-		if (requestParam.getCustomRequestId() != null) {
-			ApiCustomRequest apiCustomRequest = new ApiCustomRequest();
-			apiCustomRequest.setId(requestParam.getCustomRequestId());
-			apiCustomRequest.setApiName(requestParam.getApiName());
-			apiCustomRequest.setDocId(requestParam.getDocId());
-			apiCustomRequest.setApiUrl(requestParam.getUrl());
-			apiCustomRequest.setMethod(requestParam.getMethod());
-			apiCustomRequest.setFormData(requestParam.getFormParam());
-			apiCustomRequest.setBodyData(requestParam.getBodyParam());
-			apiCustomRequest.setHeaderData(requestParam.getHeaderParam());
-			apiCustomRequest.setCookieData(requestParam.getCookieParam());
-			apiCustomRequestService.addRequest(apiCustomRequest);
+		if (requestParam.getNodeId() != null) {
+			ApiCustomNode apiCustomNode = new ApiCustomNode();
+			apiCustomNode.setNodeType(1);
+			apiCustomNode.setId(requestParam.getNodeId());
+			apiCustomNode.setDocId(requestParam.getDocId());
+			apiCustomNode.setNodeName(requestParam.getApiName());
+			ApiCustomParams apiCustomParams = new ApiCustomParams();
+			apiCustomParams.setApiUrl(requestParam.getUrl());
+			apiCustomParams.setMethod(requestParam.getMethod());
+			apiCustomParams.setFormData(requestParam.getFormParam());
+			apiCustomParams.setBodyData(requestParam.getBodyParam());
+			apiCustomParams.setHeaderData(requestParam.getHeaderParam());
+			apiCustomParams.setCookieData(requestParam.getCookieParam());
+			apiCustomNodeService.addNode(apiCustomNode, apiCustomParams);
 		}
 		ProxyRequestResultVo requestResult = swaggerHttpRequestService.proxyRequest(request, requestParam);
 		return DocResponseJson.ok(requestResult);

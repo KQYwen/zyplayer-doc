@@ -42,7 +42,7 @@
 
 <script>
 	import pageApi from '../../../../common/api/page'
-	import {mavonEditor, markdownIt} from 'mavon-editor'
+	import {mavonEditor} from 'mavon-editor'
 	import unitUtil from '../../../../common/lib/UnitUtil.js'
 	import htmlUtil from '../../../../common/lib/HtmlUtil.js'
 	import Navigation from '../../components/Navigation.vue'
@@ -84,7 +84,7 @@
 					let pageContent = json.data.pageContent || {};
 					this.pageFileList = json.data.fileList || [];
 					if (this.wikiPage.editorType === 2) {
-						pageContent.content = markdownIt.render(pageContent.content);
+						pageContent.content = mavonEditor.getMarkdownIt().render(pageContent.content);
 					}
 					this.pageShowDetail = pageContent.content;
 					let wikiTile = wikiPage.name || 'WIKI-内容展示';

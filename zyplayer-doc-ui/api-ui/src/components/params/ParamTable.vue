@@ -94,7 +94,6 @@
 	        });
             const propsParamInit = () => {
 	            paramListRef.value = props.paramList;
-	            console.log('paramListRef.value', paramListRef.value);
 	            // Query参数处理
 	            if (paramListRef.value.length <= 0 || !paramListRef.value[paramListRef.value.length - 1].isLastRow) {
 		            props.paramList.push({name: '', value: undefined, type: 'integer', key: ++nextIndex, isLastRow: true});

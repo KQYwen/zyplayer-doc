@@ -22,8 +22,8 @@ import javax.annotation.Resource;
  * @since 2021-12-22
  */
 @Controller
-@RequestMapping("/api-custom-request")
-public class ApiCustomRequestController {
+@RequestMapping("/api-custom-params")
+public class ApiCustomParamsController {
 	
 	@Resource
 	ApiDocAuthJudgeService apiDocAuthJudgeService;

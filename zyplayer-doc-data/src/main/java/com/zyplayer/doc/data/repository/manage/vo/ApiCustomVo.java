@@ -14,9 +14,9 @@ public class ApiCustomVo implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * 文件夹ID
+	 * 节点ID
 	 */
-	private Long folderId;
+	private Long nodeId;
 	
 	/**
 	 * 文件夹名称
@@ -70,11 +70,11 @@ public class ApiCustomVo implements Serializable {
 		this.apis = apis;
 	}
 	
-	public Long getFolderId() {
-		return folderId;
+	public Long getNodeId() {
+		return nodeId;
 	}
 	
-	public void setFolderId(Long folderId) {
-		this.folderId = folderId;
+	public void setNodeId(Long nodeId) {
+		this.nodeId = nodeId;
 	}
 }

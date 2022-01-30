@@ -174,7 +174,8 @@
                 }
             },
             changeWikiPageExpandedKeys(pageId) {
-                this.wikiPageExpandedKeys = [pageId];
+				// 展开没有触发子节点的加载，如果去加载子节点有还找不到当前的node，暂不展开
+                // this.wikiPageExpandedKeys = [pageId];
             },
             searchByKeywords() {
                 this.$refs.wikiPageTree.filter(this.searchKeywords);
@@ -187,6 +188,7 @@
                 console.log("点击节点：", data);
                 this.nowPageId = data.id;
                 this.$router.push({path: '/page/show', query: {pageId: data.id}});
+				this.handleNodeExpand(data);
             },
             handleNodeExpand(node) {
                 if (node.children.length > 0 && node.children[0].needLoad) {
@@ -304,28 +306,32 @@
             },
             doGetPageList(parentId, node) {
 				let param = {spaceId: this.choiceSpace, parentId: parentId || 0};
-                if (this.nowSpaceShow.treeLazyLoad == 0) {
+                if (this.nowSpaceShow.treeLazyLoad === 0) {
                     param.parentId = null;
                 }
 				pageApi.pageList(param).then(json => {
 					let result = json.data || [];
-					let pathIndex = [];
-					if (this.nowSpaceShow.treeLazyLoad == 0) {
-						pathIndex = result;
+					let treeData = [];
+					if (this.nowSpaceShow.treeLazyLoad === 0) {
+						treeData = result;
 					} else {
                         for (let i = 0; i < result.length; i++) {
 							let item = result[i];
                             item.parentId = item.parentId || 0;
-                            item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
-                            pathIndex.push(item);
+                            item.children = [{name: '加载中...', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
+                            treeData.push(item);
                         }
                     }
                     if (parentId > 0) {
-                        node.children = pathIndex;
+                        node.children = treeData;
                     } else {
-						this.wikiPageList = pathIndex;
+						this.wikiPageList = treeData;
                     }
-                });
+				}).catch(() => {
+					if (parentId > 0) {
+						node.children = [];
+					}
+				});
             },
             userSettingDropdown(command) {
                 console.log("command:" + command);
