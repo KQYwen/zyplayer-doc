@@ -1,7 +1,7 @@
 <template>
     <mavon-editor ref="mavonEditor" v-model="shareInstruction" :toolbars="toolbars"
                   :externalLink="false" @imgAdd="addMarkdownImage" :imageFilter="imageFilter"
-                  style="height: 100%;"
+                  style="height: calc(100vh - 80px);"
                   placeholder="请录入开放文档说明"/>
 </template>
 

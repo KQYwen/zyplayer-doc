@@ -19,6 +19,7 @@
 							<a-menu @click="handleFolderDropdownClick($event, record)">
 								<a-menu-item key="newRequest"><plus-outlined /> 新建接口</a-menu-item>
 								<a-menu-item key="newFolder"><folder-add-outlined /> 新建文件夹</a-menu-item>
+								<a-menu-item key="refresh"><reload-outlined /> 刷新</a-menu-item>
 							</a-menu>
 						</template>
 					</a-dropdown>
@@ -50,6 +51,9 @@
 					<a-popover v-model:visible="record.data.editing" placement="rightTop" title="编辑名称" trigger="click" @visibleChange="editFolderVisibleChange($event, record)">
 						<template #content>
 							<a-input v-model:value="record.data.titleEditing" v-autofocus></a-input>
+							<div style="margin-top: 10px;text-align: right;">
+								<a-button @click="editFolderSave(record)" type="primary">保存</a-button>
+							</div>
 						</template>
 						<span class="tree-title-text">{{record.title}}</span>
 					</a-popover>
@@ -86,14 +90,25 @@
 	    FolderAddOutlined,
 	    ApiOutlined,
 	    PlusOutlined,
-	    ExclamationCircleOutlined
+	    ExclamationCircleOutlined,
+	    ReloadOutlined
     } from '@ant-design/icons-vue';
     import {zyplayerApi} from '../../../api'
     import {getTreeDataForTag} from '../../../assets/core/CustomRequestTreeAnalysis.js'
 
     export default {
-	    components: {InfoCircleOutlined, FileTextOutlined, EllipsisOutlined, EditOutlined, DeleteOutlined, FolderAddOutlined, ApiOutlined, PlusOutlined},
-        setup() {
+	    components: {
+		    InfoCircleOutlined,
+		    FileTextOutlined,
+		    EllipsisOutlined,
+		    EditOutlined,
+		    DeleteOutlined,
+		    FolderAddOutlined,
+		    ApiOutlined,
+		    PlusOutlined,
+		    ReloadOutlined,
+	    },
+	    setup() {
             const store = useStore();
             const route = useRoute();
             const router = useRouter();
@@ -176,10 +191,11 @@
 				// 点击触发弹出事件不处理
 		        if (visible) {
 			        record.data.editing = false;
-					return;
 		        }
+	        };
+	        const editFolderSave = (record) => {
+		        // 没做修改不处理
 		        let title = record.data.titleEditing;
-				// 没做修改不处理
 		        if (title === record.data.title) {
 			        return;
 		        }
@@ -190,6 +206,8 @@
 			        if (folderItem) {
 				        folderItem.name = title;
 			        }
+			        record.data.editing = false;
+			        message.success('修改成功');
 		        });
 	        };
 	        const handleApiTitleDropdownClick = (event, record) => {
@@ -242,6 +260,12 @@
 					        changeSelectedRequestKeys(requestSaved.id);
 				        });
 			        });
+		        } else if (event.key === 'refresh') {
+			        loadDoc(choiceDocId, searchKeyword, res => {
+						if(res) {
+							message.success('重新加载成功');
+						}
+			        });
 		        } else if (event.key === 'edit') {
 			        record.data.editing = true;
 		        } else if (event.key === 'delete') {
@@ -291,6 +315,7 @@
                 expandedKeys,
 	            selectedKeys,
 	            editFolderVisibleChange,
+	            editFolderSave,
                 docChecked,
 	            treeDataDragEnd,
                 loadDoc,

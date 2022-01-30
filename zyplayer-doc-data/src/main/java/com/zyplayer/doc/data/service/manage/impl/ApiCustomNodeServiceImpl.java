@@ -37,31 +37,30 @@ public class ApiCustomNodeServiceImpl extends ServiceImpl<ApiCustomNodeMapper, A
 	ApiCustomParamsService apiCustomParamsService;
 	
 	@Override
-	public void addNode(ApiCustomNode apiCustomFolder, ApiCustomParams apiCustomParams) {
-		apiDocAuthJudgeService.judgeDevelopAndThrow(apiCustomFolder.getDocId());
+	public void addNode(ApiCustomNode apiCustomNode, ApiCustomParams apiCustomParams) {
+		apiDocAuthJudgeService.judgeDevelopAndThrow(apiCustomNode.getDocId());
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		Long parentId = Optional.ofNullable(apiCustomFolder.getParentId()).orElse(0L);
-		apiCustomFolder.setParentId(parentId);
-		if (apiCustomFolder.getId() == null) {
-			apiCustomFolder.setYn(1);
-			apiCustomFolder.setCreateTime(new Date());
-			apiCustomFolder.setCreateUserId(currentUser.getUserId());
-			apiCustomFolder.setCreateUserName(currentUser.getUsername());
+		Long parentId = Optional.ofNullable(apiCustomNode.getParentId()).orElse(0L);
+		if (apiCustomNode.getId() == null) {
+			apiCustomNode.setYn(1);
+			apiCustomNode.setCreateTime(new Date());
+			apiCustomNode.setCreateUserId(currentUser.getUserId());
+			apiCustomNode.setCreateUserName(currentUser.getUsername());
 			// 修改顺序值，新增放最后
 			Integer lastSeq = apiCustomNodeMapper.getLastSeq(parentId);
 			lastSeq = Optional.ofNullable(lastSeq).orElse(0);
-			apiCustomFolder.setSeqNo(lastSeq + 1);
+			apiCustomNode.setSeqNo(lastSeq + 1);
 		} else {
-			apiCustomFolder.setCreateTime(null);
-			apiCustomFolder.setCreateUserId(null);
-			apiCustomFolder.setCreateUserName(null);
+			apiCustomNode.setCreateTime(null);
+			apiCustomNode.setCreateUserId(null);
+			apiCustomNode.setCreateUserName(null);
 		}
-		this.saveOrUpdate(apiCustomFolder);
+		this.saveOrUpdate(apiCustomNode);
 		// 保存参数
-		if (Objects.equals(apiCustomFolder.getNodeType(), 1)) {
-			apiCustomParams.setNodeId(apiCustomFolder.getId());
+		if (Objects.equals(apiCustomNode.getNodeType(), 1)) {
+			apiCustomParams.setNodeId(apiCustomNode.getId());
 			QueryWrapper<ApiCustomParams> nodeParamsWrapper = new QueryWrapper<>();
-			nodeParamsWrapper.eq("node_id", apiCustomFolder.getId());
+			nodeParamsWrapper.eq("node_id", apiCustomNode.getId());
 			ApiCustomParams customParams = apiCustomParamsService.getOne(nodeParamsWrapper);
 			if (customParams != null) {
 				apiCustomParams.setId(customParams.getId());
