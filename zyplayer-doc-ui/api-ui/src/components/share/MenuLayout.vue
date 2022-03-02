@@ -12,6 +12,7 @@
                 <template v-if="docChoice && docChoice.docType">
                     <DocTreeSwagger v-if="docChoice.docType === 1 || docChoice.docType === 2" ref="swaggerRef"></DocTreeSwagger>
                     <DocTreeOpenApi v-if="docChoice.docType === 3 || docChoice.docType === 4" ref="openApiRef"></DocTreeOpenApi>
+                    <DocTreeCustomRequest v-if="docChoice.docType === 5" ref="customRequestRef"></DocTreeCustomRequest>
                 </template>
             </a-spin>
         </div>
@@ -27,6 +28,7 @@
     import {zyplayerApi} from '../../api'
     import DocTreeSwagger from './doc-tree/Swagger.vue'
     import DocTreeOpenApi from './doc-tree/OpenApi.vue'
+    import DocTreeCustomRequest from './doc-tree/CustomRequest.vue'
 
     export default {
         props: {
@@ -35,7 +37,7 @@
                 default: false
             },
         },
-        components: {MenuChildrenLayout, DocTreeSwagger, DocTreeOpenApi},
+        components: {MenuChildrenLayout, DocTreeSwagger, DocTreeOpenApi, DocTreeCustomRequest},
         setup(props) {
             const store = useStore();
             const route = useRoute();
