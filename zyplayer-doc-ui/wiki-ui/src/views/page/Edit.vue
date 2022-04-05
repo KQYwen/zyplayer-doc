@@ -256,9 +256,9 @@
 					timeout: 10000,
 					withCredentials: true
 				}).then(res => {
-					let urlArr = res.data.data || [];
-					if (urlArr.length > 0) {
-						this.$refs.mavonEditor.$img2Url(pos, urlArr[0]);
+					let urlObj = res.data.data || {};
+					if (urlObj.url) {
+						this.$refs.mavonEditor.$img2Url(pos, urlObj.url);
 					} else {
 						this.$message.warning("上传失败，返回数据为空");
 					}
