@@ -142,6 +142,7 @@
 			<div style="text-align: center;">
 				<div class="mobile-qr" ref="qrCodeDiv"></div>
 				<div>使用微信或手机浏览器扫一扫查看</div>
+				<div>或 <a target="_blank" :href="qrCodeUrl">直接访问</a></div>
 			</div>
 		</el-dialog>
 		<!--点赞人员弹窗-->
@@ -223,6 +224,7 @@ var page = {
 				zanUserList: [],
 				parentPath: {},
 				// 手机扫码
+				qrCodeUrl: '',
 				mobileScanDialogVisible: false,
 				// 评论相关
 				commentTextInput: "",
@@ -305,9 +307,10 @@ var page = {
 						this.mobileScanDialogVisible = true;
 						let hostPath = window.location.href.split("#")[0];
 						setTimeout(() => {
+							this.qrCodeUrl = hostPath + routeUrl.href;
 							this.$refs.qrCodeDiv.innerHTML = "";
 							new QRCode(this.$refs.qrCodeDiv, {
-								text: hostPath + routeUrl.href,
+								text: this.qrCodeUrl,
 								width: 250,
 								height: 250,
 								colorDark: "#333333", //二维码颜色

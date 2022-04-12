@@ -18,7 +18,11 @@
 	import pageApi from '../../common/api/page'
 	import PageTree from './PageTree'
 	import Vant from 'vant';
-	import 'vant/lib/index.css';
+	import 'vant/lib/icon/index.css';
+	import 'vant/lib/popup/index.css';
+	import 'vant/lib/cell/index.css';
+	import 'vant/lib/nav-bar/index.css';
+	import 'vant/lib/collapse-item/index.css';
 	Vue.use(Vant);
 
 	export default {

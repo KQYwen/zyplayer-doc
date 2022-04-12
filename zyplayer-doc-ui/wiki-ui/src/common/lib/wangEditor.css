@@ -23,6 +23,3 @@
 .wang-editor-body pre code {
 	display: block;
 }
-.wang-editor-body ul, ol {
-	list-style: decimal;
-}
