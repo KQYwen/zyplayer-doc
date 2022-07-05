@@ -154,10 +154,6 @@
 				});
 			},
 			createWikiSave(saveAfter) {
-				if (!this.wikiPageEdit.pageTitle) {
-					this.$message.warning("标题不能为空");
-					return;
-				}
 				let content = '', preview = '';
 				if (this.wikiPageEdit.editorType === 2) {
 					content = this.markdownContent;
@@ -167,6 +163,10 @@
 					content = pageData.html;
 					preview = pageData.text;
 					this.wikiPageEdit.pageTitle = pageData.title;
+				}
+				if (!this.wikiPageEdit.pageTitle) {
+					this.$message.warning("标题不能为空");
+					return;
 				}
 				// 修改内容时强制不能修改父路径，只能在目录上拖动修改
 				let parentId = (this.pageId > 0) ? '' : this.parentId;
