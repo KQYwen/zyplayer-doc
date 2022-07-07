@@ -3,10 +3,10 @@
 # 项目介绍
 zyplayer-doc是一款前后端完全开源的在线文档工具，现有API接口文档（Swagger、OpenApi、自建接口）、WIKI文档、数据库文档（数据库表结构查看管理、SQL执行）、Dubbo文档。
 
-体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/zyplayer-doc-manage/) 账号：zyplayer 密码：123456
+体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/) 账号：zyplayer 密码：123456
 
 各模块的详细使用文档地址，可参考：
-[详细部署文档](http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 
+[详细部署文档](http://doc.zyplayer.com/doc-wiki#/page/share/view?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 
 
 欢迎有想法的一起来完善，如果觉得不错就给个Star鼓励下呗！作为给作者快速更新的动力！
 
@@ -78,7 +78,7 @@ zyplayer-doc是一款前后端完全开源的在线文档工具，现有API接�
 如果您正在使用这个项目并感觉良好，或者是想支持我继续开发，您可以通过如下`任意`方式支持我：
 1. Star并分享 [zyplayer-doc](https://gitee.com/zyplayer/zyplayer-doc)
 2. 保留`关于页面`的项目链接
-3. 通过[一次性捐赠](http://doc.zyplayer.com/zyplayer-doc-manage/doc-wiki#/page/share/view?pageId=359&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 支持，我会去买一杯咖啡或攒着去植发
+3. 通过[一次性捐赠](http://doc.zyplayer.com/doc-wiki#/page/share/view?pageId=359&space=23f3f59a60824d21af9f7c3bbc9bc3cb) 支持，我会去买一杯咖啡或攒着去植发
 
 # 界面展示
 控制台页面
