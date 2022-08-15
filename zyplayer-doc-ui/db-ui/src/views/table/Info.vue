@@ -61,7 +61,7 @@
 				</el-row>
 				<el-row class="status-info-row">
 					<el-col :span="6"><span class="label">行数：</span>{{tableStatusInfo.rows||0}}</el-col>
-					<el-col :span="6"><span class="label">自动递增：</span>{{tableStatusInfo.avgRowLength||0}}</el-col>
+					<el-col :span="6"><span class="label">自动递增：</span>{{tableStatusInfo.autoIncrement||0}}</el-col>
 					<el-col :span="6"><span class="label">行格式：</span>{{tableStatusInfo.rowFormat}}</el-col>
 					<el-col :span="6"><span class="label">排序规则：</span>{{tableStatusInfo.collation}}</el-col>
 				</el-row>
