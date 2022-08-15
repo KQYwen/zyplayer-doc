@@ -11,6 +11,9 @@ export default {
     getSelfUserInfo: data => {
         return request({url: '/user/info/selfInfo', method: 'post', data: Qs.stringify(data)});
     },
+	updateSelfPwd: data => {
+        return request({url: '/user/info/updateSelfPwd', method: 'post', data: Qs.stringify(data)});
+    },
 	selfInfoWithAuth: data => {
         return request({url: '/user/info/selfInfoWithAuth', method: 'post', data: Qs.stringify(data)});
     },

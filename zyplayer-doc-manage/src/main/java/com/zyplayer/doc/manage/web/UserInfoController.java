@@ -166,6 +166,28 @@ public class UserInfoController {
 		return DocResponseJson.ok(password);
 	}
 	
+	@AuthMan
+	@PostMapping("/updateSelfPwd")
+	public ResponseJson<Object> updateSelfPwd(String currentPwd, String newPwd) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		// 检查密码是否正确
+		if (StringUtils.isBlank(currentPwd) || StringUtils.isBlank(newPwd)) {
+			return DocResponseJson.warn("密码不能为空");
+		}
+		UserInfo userInfo = userInfoService.getById(currentUser.getUserId());
+		String oldPasswordInput = DigestUtils.md5DigestAsHex(currentPwd.getBytes());
+		if (!Objects.equals(oldPasswordInput, userInfo.getPassword())) {
+			return DocResponseJson.warn("当前密码密码错误");
+		}
+		String newPassword = DigestUtils.md5DigestAsHex(newPwd.getBytes());
+		UserInfo userInfoUp = new UserInfo();
+		userInfoUp.setId(currentUser.getUserId());
+		userInfoUp.setPassword(newPassword);
+		userInfoUp.setUpdateTime(new Date());
+		userInfoService.updateById(userInfoUp);
+		return DocResponseJson.ok();
+	}
+	
 	@AuthMan(DocAuthConst.USER_MANAGE)
 	@PostMapping("/delete")
 	public ResponseJson<Object> delete(Long id) {
