@@ -55,7 +55,7 @@
 		position: fixed;
 		z-index: 4;
 		top: 150px;
-		height: calc(100vh - 250px);
+		max-height: calc(100vh - 250px);
 		width: 100%;
 		overflow-y: auto;
 		padding-left: 16px;

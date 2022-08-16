@@ -28,6 +28,9 @@ import com.zyplayer.doc.wiki.service.git.GitService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.github.dozermapper.core.Mapper;
+import org.apache.poi.poifs.filesystem.DirectoryEntry;
+import org.apache.poi.poifs.filesystem.DocumentEntry;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +38,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -321,6 +329,47 @@ public class WikiPageController {
 	public ResponseJson<Object> searchByEs(SearchByEsParam param) {
 		param.setNewsType(1);
 		return this.news(param);
+	}
+	
+	@PostMapping("/download")
+	public ResponseJson<Object> download(Long pageId, HttpServletResponse response) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		WikiPage wikiPageSel = wikiPageService.getById(pageId);
+		// 页面已删除
+		if (wikiPageSel == null || Objects.equals(wikiPageSel.getDelFlag(), 1)) {
+			return DocResponseJson.warn("该页面不存在或已删除！");
+		}
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		// 空间已删除
+		if (wikiSpaceSel == null || Objects.equals(wikiSpaceSel.getDelFlag(), 1)) {
+			return DocResponseJson.warn("该页面不存在或已删除！");
+		}
+		// 私人空间
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.warn("您没有权限查看该空间的文章详情！");
+		}
+		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
+		wrapper.eq("page_id", pageId);
+		WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
+		try {
+			ByteArrayInputStream bais = new ByteArrayInputStream(pageContent.getContent().getBytes("GBK"));
+			POIFSFileSystem poifs = new POIFSFileSystem();
+			DirectoryEntry directory = poifs.getRoot();
+			directory.createDocument("WordDocument", bais);
+			// 写入流
+			response.setContentType("application/vnd.ms-excel");
+			response.setCharacterEncoding("utf-8");
+			String fileName = URLEncoder.encode(wikiPageSel.getName(), "UTF-8");
+			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".docx");
+			ServletOutputStream outputStream = response.getOutputStream();
+			poifs.writeFilesystem(outputStream);
+			bais.close();
+			outputStream.close();
+			return DocResponseJson.ok();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return DocResponseJson.warn("导出失败");
 	}
 	
 	@PostMapping("/news")

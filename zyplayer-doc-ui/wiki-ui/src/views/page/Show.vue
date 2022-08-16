@@ -3,9 +3,6 @@
 		<el-row type="border-card" style="height: 100%;">
 			<el-col :span="actionTabVisible?18:24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
 				<el-row>
-					<el-col :xs="0" :sm="4" :md="4" :lg="6" :xl="6" v-if="navigationList.length > 0">
-						<Navigation ref="navigation" :heading="navigationList"></Navigation>
-					</el-col>
 					<el-col :xs="24" :sm="navigationList.length > 0?20:24" :md="navigationList.length > 0?20:24" :lg="navigationList.length > 0?18:24" :xl="navigationList.length > 0?18:24">
 						<div style="max-width: 1000px;margin: 0 auto;padding-left: 10px;">
 							<div class="wiki-title" ref="wikiTitle">{{wikiPage.name}}</div>
@@ -33,6 +30,7 @@
 												<el-dropdown-item command="editAuth" v-if="wikiPageAuth.canConfigAuth==1" icon="el-icon-s-check">权限设置</el-dropdown-item>
 												<el-dropdown-item command="showOpenPage" v-if="spaceInfo.openDoc == 1" icon="el-icon-share">查看开放文档</el-dropdown-item>
 												<el-dropdown-item command="showMobileView" v-if="spaceInfo.openDoc == 1" icon="el-icon-mobile-phone">手机端查看</el-dropdown-item>
+												<el-dropdown-item command="exportWord" v-if="spaceInfo.openDoc == 1" icon="el-icon-download">导出为Word文档</el-dropdown-item>
 												<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete==1" icon="el-icon-delete">删除</el-dropdown-item>
 											</el-dropdown-menu>
 										</el-dropdown>
@@ -83,6 +81,9 @@
 								</span>
 							</div>
 						</div>
+					</el-col>
+					<el-col :xs="0" :sm="4" :md="4" :lg="6" :xl="6" v-if="navigationList.length > 0">
+						<Navigation ref="navigation" :heading="navigationList"></Navigation>
 					</el-col>
 				</el-row>
 			</el-col>
@@ -187,6 +188,9 @@
 		<div ref="imagePreview">
 			<el-image-viewer v-if="showImagePreview" :url-list="showImagePreviewList" :on-close="closeImagePreview" :initial-index="previewInitialIndex"/>
 		</div>
+		<form method="post" ref="downloadForm" :action="downloadFormParam.url" target="_blank">
+			<input type="hidden" :name="key" :value="val" v-for="(val,key) in downloadFormParam.param">
+		</form>
 	</div>
 </template>
 
@@ -255,6 +259,11 @@ var page = {
 					fullscreen: true,
 					readmodel: true,
 				},
+				// 下载为Word
+				downloadFormParam: {
+					url: 'zyplayer-doc-wiki/page/download',
+					param: {}
+				},
 			};
 		},
 		beforeRouteUpdate(to, from, next) {
@@ -287,38 +296,52 @@ var page = {
 				} else if (val == 'showPageHistory') {
 					this.showPageHistory();
 				} else if (val == 'showOpenPage') {
-					if (this.spaceInfo.openDoc != 1) {
-						this.$message.warning("该空间未开放，无法查看开放文档地址");
-					} else {
-						let routeUrl = this.$router.resolve({
-							path: '/page/share/view',
-							query: {pageId: this.wikiPage.id, space: this.spaceInfo.uuid}
-						});
-						window.open(routeUrl.href, '_blank');
-					}
+					this.showOpenPage();
 				} else if (val == 'showMobileView') {
-					if (this.spaceInfo.openDoc != 1) {
-						this.$message.warning("该空间未开放，无法查看开放文档地址");
-					} else {
-						let routeUrl = this.$router.resolve({
-							path: '/page/share/mobile/view',
-							query: {pageId: this.wikiPage.id, space: this.spaceInfo.uuid}
+					this.showMobileView();
+				} else if (val == 'exportWord') {
+					this.exportWord();
+				}
+			},
+			exportWord() {
+				this.downloadFormParam.param = {
+					pageId: this.wikiPage.id
+				};
+				setTimeout(() => this.$refs.downloadForm.submit(), 0);
+			},
+			showOpenPage() {
+				if (this.spaceInfo.openDoc != 1) {
+					this.$message.warning("该空间未开放，无法查看开放文档地址");
+				} else {
+					let routeUrl = this.$router.resolve({
+						path: '/page/share/view',
+						query: {pageId: this.wikiPage.id, space: this.spaceInfo.uuid}
+					});
+					window.open(routeUrl.href, '_blank');
+				}
+			},
+			showMobileView() {
+				if (this.spaceInfo.openDoc != 1) {
+					this.$message.warning("该空间未开放，无法查看开放文档地址");
+				} else {
+					let routeUrl = this.$router.resolve({
+						path: '/page/share/mobile/view',
+						query: {pageId: this.wikiPage.id, space: this.spaceInfo.uuid}
+					});
+					this.mobileScanDialogVisible = true;
+					let hostPath = window.location.href.split("#")[0];
+					setTimeout(() => {
+						this.qrCodeUrl = hostPath + routeUrl.href;
+						this.$refs.qrCodeDiv.innerHTML = "";
+						new QRCode(this.$refs.qrCodeDiv, {
+							text: this.qrCodeUrl,
+							width: 250,
+							height: 250,
+							colorDark: "#333333", //二维码颜色
+							colorLight: "#ffffff", //二维码背景色
+							correctLevel: QRCode.CorrectLevel.M//容错率，L/M/H
 						});
-						this.mobileScanDialogVisible = true;
-						let hostPath = window.location.href.split("#")[0];
-						setTimeout(() => {
-							this.qrCodeUrl = hostPath + routeUrl.href;
-							this.$refs.qrCodeDiv.innerHTML = "";
-							new QRCode(this.$refs.qrCodeDiv, {
-								text: this.qrCodeUrl,
-								width: 250,
-								height: 250,
-								colorDark: "#333333", //二维码颜色
-								colorLight: "#ffffff", //二维码背景色
-								correctLevel: QRCode.CorrectLevel.M//容错率，L/M/H
-							});
-						}, 0);
-					}
+					}, 0);
 				}
 			},
             addPageAuthUser() {
