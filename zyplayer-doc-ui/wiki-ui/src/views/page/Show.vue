@@ -30,7 +30,7 @@
 												<el-dropdown-item command="editAuth" v-if="wikiPageAuth.canConfigAuth==1" icon="el-icon-s-check">权限设置</el-dropdown-item>
 												<el-dropdown-item command="showOpenPage" v-if="spaceInfo.openDoc == 1" icon="el-icon-share">查看开放文档</el-dropdown-item>
 												<el-dropdown-item command="showMobileView" v-if="spaceInfo.openDoc == 1" icon="el-icon-mobile-phone">手机端查看</el-dropdown-item>
-												<el-dropdown-item command="exportWord" v-if="spaceInfo.openDoc == 1" icon="el-icon-download">导出为Word文档</el-dropdown-item>
+												<el-dropdown-item command="exportWord" icon="el-icon-download">导出为Word文档</el-dropdown-item>
 												<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete==1" icon="el-icon-delete">删除</el-dropdown-item>
 											</el-dropdown-menu>
 										</el-dropdown>
