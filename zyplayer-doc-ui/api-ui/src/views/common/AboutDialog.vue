@@ -10,7 +10,7 @@
 			<a-tabs type="card">
 				<a-tab-pane tab="支持" key="support">
 					<div style="line-height: 30px;">
-						<div>文档：<a target="_blank" href="http://doc.zyplayer.com/doc-wiki#/page/share/view?pageId=1&space=23f3f59a60824d21af9f7c3bbc9bc3cb">http://doc.zyplayer.com</a></div>
+						<div>文档：<a target="_blank" href="http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d">http://doc.zyplayer.com</a></div>
 						<div>主页：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">https://gitee.com/zyplayer/zyplayer-doc</a></div>
 						<div>反馈：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc/issues">https://gitee.com/zyplayer/zyplayer-doc/issues</a></div>
 						<div>特性关注&技术交流QQ群：466363173</div>
