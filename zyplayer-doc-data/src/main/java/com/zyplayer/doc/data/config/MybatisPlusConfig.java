@@ -3,7 +3,6 @@ package com.zyplayer.doc.data.config;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import com.github.pagehelper.PageInterceptor;
 import com.zyplayer.doc.data.repository.support.interceptor.SqlLogInterceptor;
 import com.zyplayer.doc.data.utils.DruidDataSourceUtil;
 import org.mybatis.spring.annotation.MapperScan;
@@ -29,10 +28,6 @@ public class MybatisPlusConfig {
 	 * sql日志
 	 **/
 	private static final SqlLogInterceptor SQL_LOG_INTERCEPTOR = new SqlLogInterceptor();
-	/**
-	 * MYSQL 分页
-	 **/
-	private static final PageInterceptor MYSQL_PAGE_HELPER = new PageInterceptor();
 	
 	/**
 	 * 数据库配置
@@ -62,7 +57,7 @@ public class MybatisPlusConfig {
 		public MybatisSqlSessionFactoryBean manageSqlSessionFactory() throws Exception {
 			MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
 			sqlSessionFactoryBean.setDataSource(manageDatasource());
-			sqlSessionFactoryBean.setPlugins(SQL_LOG_INTERCEPTOR, MYSQL_PAGE_HELPER, paginationInterceptor);
+			sqlSessionFactoryBean.setPlugins(SQL_LOG_INTERCEPTOR, paginationInterceptor);
 			
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 			sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/manage/*Mapper.xml"));

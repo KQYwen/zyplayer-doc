@@ -3,7 +3,7 @@ package com.zyplayer.doc.manage.task;
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
 import com.zyplayer.doc.core.util.ZyplayerDocVersion;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

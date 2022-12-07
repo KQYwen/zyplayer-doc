@@ -4,9 +4,6 @@ import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.dozermapper.core.Mapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -23,7 +20,8 @@ import com.zyplayer.doc.manage.web.param.UserListParam;
 import com.zyplayer.doc.manage.web.vo.AuthInfoVo;
 import com.zyplayer.doc.manage.web.vo.UserAuthVo;
 import com.zyplayer.doc.manage.web.vo.UserInfoAuthVo;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,8 +48,6 @@ public class UserInfoController {
 	AuthInfoService authInfoService;
 	@Resource
 	UserAuthService userAuthService;
-	@Resource
-	Mapper mapper;
 	
 	@AuthMan
 	@PostMapping("/selfInfo")
@@ -104,13 +100,13 @@ public class UserInfoController {
 			queryWrapper.like(param.getType() == 5, "email", param.getKeyword());
 		}
 		queryWrapper.ne("del_flag", 1);
-		PageHelper.startPage(param.getPageNum(), param.getPageSize(), true);
-		List<UserInfo> userInfoList = userInfoService.list(queryWrapper);
-		if (userInfoList != null && userInfoList.size() > 0) {
+		IPage<UserInfo> page = new Page<>(param.getPageNum(), param.getPageSize(), true);
+		userInfoService.page(page, queryWrapper);
+		List<UserInfo> userInfoList = page.getRecords();
+		if (CollectionUtils.isNotEmpty(userInfoList)) {
 			userInfoList.forEach(val -> val.setPassword(""));
 		}
-		PageInfo<UserInfo> pageInfo = new PageInfo<>(userInfoList);
-		return DocResponseJson.ok(pageInfo);
+		return DocResponseJson.ok(page);
 	}
 	
 	@AuthMan(DocAuthConst.USER_MANAGE)
@@ -215,7 +211,7 @@ public class UserInfoController {
 		List<AuthInfoVo> authInfoVoList = new LinkedList<>();
 		authList.forEach(val -> {
 			UserAuth userAuth = userAuthMap.get(val.getId());
-			AuthInfoVo infoVo = mapper.map(val, AuthInfoVo.class);
+			AuthInfoVo infoVo = new AuthInfoVo(val);
 			infoVo.setChecked((userAuth == null) ? 0 : 1);
 			authInfoVoList.add(infoVo);
 		});

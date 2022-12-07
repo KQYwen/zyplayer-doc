@@ -1,8 +1,7 @@
 package com.zyplayer.doc.manage.framework.config;
 
-import com.zyplayer.doc.db.framework.configuration.EnableDocDb;
-import com.zyplayer.doc.dubbo.framework.config.EnableDocDubbo;
 import com.zyplayer.doc.api.framework.config.EnableDocApi;
+import com.zyplayer.doc.db.framework.configuration.EnableDocDb;
 import com.zyplayer.doc.wiki.framework.config.EnableDocWiki;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,10 +16,6 @@ public class ZyplayerDocConfig {
 	
 	@EnableDocWiki
 	public class enableDocWiki {
-	}
-	
-	@EnableDocDubbo
-	public class enableDocDubbo {
 	}
 	
 	@EnableDocDb

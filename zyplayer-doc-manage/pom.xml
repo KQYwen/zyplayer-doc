@@ -6,7 +6,7 @@
 	<packaging>war</packaging>
 
 	<name>zyplayer-doc-manage</name>
-	<description>定位为所有文档的管理项目，API接口文档、dubbo文档、数据库文档、、、、等</description>
+	<description>定位为所有文档的管理项目，API接口文档、数据库文档、、、、等</description>
 
 	<parent>
 		<groupId>com.zyplayer</groupId>
@@ -44,10 +44,6 @@
 		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-db</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.zyplayer</groupId>
-			<artifactId>zyplayer-doc-dubbo</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.zyplayer</groupId>

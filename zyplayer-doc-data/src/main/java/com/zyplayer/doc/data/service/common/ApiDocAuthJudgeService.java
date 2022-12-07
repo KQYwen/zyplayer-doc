@@ -1,5 +1,6 @@
 package com.zyplayer.doc.data.service.common;
 
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
@@ -12,7 +13,6 @@ import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

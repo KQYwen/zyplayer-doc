@@ -20,8 +20,8 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -174,7 +174,7 @@ public class TransferDataServer {
 			}
 		} catch (Exception e) {
 			logger.error("SQL执行出错：", e);
-			String executeInfo = String.format("[%s] 处理出错：%s", DateTime.now().toString(), ExceptionUtils.getFullStackTrace(e));
+			String executeInfo = String.format("[%s] 处理出错：%s", DateTime.now().toString(), ExceptionUtils.getStackTrace(e));
 			dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.ERROR.getCode(), executeInfo);
 		}
 	}

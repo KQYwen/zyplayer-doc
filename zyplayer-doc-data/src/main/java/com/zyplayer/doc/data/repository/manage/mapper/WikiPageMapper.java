@@ -19,9 +19,11 @@ public interface WikiPageMapper extends BaseMapper<WikiPage> {
 	@Update("update wiki_page set zan_num=zan_num + #{numAdd} where id=#{id}")
 	void updateZanNum(@Param("id") Long id, @Param("numAdd") Integer numAdd);
 	
-	@Update("update wiki_page set seq_no=seq_no + 1 where parent_id=#{parentId} and seq_no >= #{afterSeq} and del_flag=0")
-	void updateAfterSeq(@Param("parentId") Long parentId, @Param("afterSeq") Integer afterSeq);
+	@Update("update wiki_page set seq_no=seq_no + 1 where space_id = #{spaceId} and parent_id=#{parentId} and seq_no >= #{afterSeq} and del_flag=0")
+	void updateAfterSeq(@Param("spaceId") Long spaceId, @Param("parentId") Long parentId, @Param("afterSeq") Integer afterSeq);
 	
-	@Select("select max(seq_no) from wiki_page where parent_id=#{parentId} and del_flag=0")
-	Integer getLastSeq(@Param("parentId") Long parentId);
+	@Select("select max(seq_no) from wiki_page where space_id = #{spaceId} and parent_id=#{parentId} and del_flag=0")
+	Integer getLastSeq(@Param("spaceId") Long spaceId, @Param("parentId") Long parentId);
+	
+	void updateChildrenSeq(@Param("spaceId") Long spaceId, @Param("parentId") Long parentId);
 }

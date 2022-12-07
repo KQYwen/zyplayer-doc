@@ -5,8 +5,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.ApiModelProperty;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,19 +24,12 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 		mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
 	}
 	
-	@ApiModelProperty(value = "状态码")
 	private Integer errCode;
-	@ApiModelProperty(value = "返回值说明")
 	private String errMsg;
-	@ApiModelProperty(value = "返回数据")
 	private Object data;
-	@ApiModelProperty(value = "总数")
 	private Long total;
-	@ApiModelProperty(value = "当前页数")
 	private Integer pageNum;
-	@ApiModelProperty(value = "每页条数")
 	private Integer pageSize;
-	@ApiModelProperty(value = "总页数")
 	private Integer totalPage;
 	
 	public DocResponseJson() {
@@ -122,14 +113,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	
 	public void setData(Object data) {
 		if (null != data) {
-			if (data instanceof PageInfo) {
-				PageInfo<?> pageInfo = (PageInfo<?>) data;
-				this.data = pageInfo.getList();
-				this.total = pageInfo.getTotal();
-				this.pageNum = pageInfo.getPageNum();
-				this.pageSize = pageInfo.getPageSize();
-				this.totalPage = pageInfo.getPages();
-			} else if (data instanceof IPage) {
+			if (data instanceof IPage) {
 				IPage<?> iPage = (IPage<?>) data;
 				this.data = iPage.getRecords();
 				this.total = iPage.getTotal();

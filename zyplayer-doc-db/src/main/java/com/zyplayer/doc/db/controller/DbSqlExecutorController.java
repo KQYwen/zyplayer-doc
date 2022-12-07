@@ -25,7 +25,7 @@ import com.zyplayer.doc.db.framework.utils.JSONUtil;
 import com.zyplayer.doc.db.framework.utils.SqlLogUtil;
 import com.zyplayer.doc.db.service.database.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.database.DbBaseService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;

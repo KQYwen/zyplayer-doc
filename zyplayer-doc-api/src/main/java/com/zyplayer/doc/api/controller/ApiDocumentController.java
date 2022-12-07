@@ -20,7 +20,7 @@ import com.zyplayer.doc.data.service.common.ApiDocAuthJudgeService;
 import com.zyplayer.doc.data.service.manage.ApiCustomNodeService;
 import com.zyplayer.doc.data.service.manage.ApiCustomRequestService;
 import com.zyplayer.doc.data.service.manage.ApiDocService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;

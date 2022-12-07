@@ -1,1 +1,0 @@
-import"./custom.e03d703e.js";import{E as o}from"./EditGlobalParam.4ed84db8.js";import{_ as r}from"./main.54fae6aa.js";import{r as e,o as t,c as s}from"./vendor.627eef95.js";const m={components:{EditGlobalParam:o},setup(){return{}}};function n(c,p,d,l,i,_){const a=e("EditGlobalParam");return t(),s(a,{"dynamic-param":{docId:0}})}var G=r(m,[["render",n]]);export{G as default};

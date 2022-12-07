@@ -16,7 +16,7 @@ import com.zyplayer.doc.db.service.common.ExecuteAuthService;
 import com.zyplayer.doc.db.service.database.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.database.DbBaseService;
 import com.zyplayer.doc.db.service.download.BaseDownloadService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

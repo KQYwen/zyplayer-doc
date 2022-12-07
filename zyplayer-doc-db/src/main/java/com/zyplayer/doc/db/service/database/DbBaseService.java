@@ -24,7 +24,7 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
 import com.zyplayer.doc.db.service.download.BaseDownloadService;
 import com.zyplayer.doc.db.service.download.DownloadService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

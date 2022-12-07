@@ -4,7 +4,7 @@ import com.alibaba.druid.pool.DruidPooledConnection;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

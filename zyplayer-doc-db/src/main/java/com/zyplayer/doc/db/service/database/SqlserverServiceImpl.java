@@ -6,7 +6,7 @@ import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
 import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import com.zyplayer.doc.db.framework.db.mapper.sqlserver.SqlServerMapper;
 import com.zyplayer.doc.db.service.download.SqlserverDownloadService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

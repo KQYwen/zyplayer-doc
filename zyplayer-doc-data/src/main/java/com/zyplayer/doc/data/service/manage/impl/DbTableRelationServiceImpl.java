@@ -9,7 +9,7 @@ import com.zyplayer.doc.data.repository.manage.entity.DbTableRelation;
 import com.zyplayer.doc.data.repository.manage.mapper.DbTableRelationMapper;
 import com.zyplayer.doc.data.repository.manage.param.TableRelationParam;
 import com.zyplayer.doc.data.service.manage.DbTableRelationService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

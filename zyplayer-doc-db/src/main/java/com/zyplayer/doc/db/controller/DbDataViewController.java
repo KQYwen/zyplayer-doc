@@ -21,8 +21,8 @@ import com.zyplayer.doc.db.service.database.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.database.DbBaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -170,7 +170,7 @@ public class DbDataViewController {
 			return sqlExecutor.execute(executeParam);
 		} catch (Exception e) {
 			logger.error("执行出错", e);
-			return ExecuteResult.error(ExceptionUtils.getFullStackTrace(e), executeSql);
+			return ExecuteResult.error(ExceptionUtils.getStackTrace(e), executeSql);
 		}
 	}
 }

@@ -15,9 +15,9 @@ import com.zyplayer.doc.db.framework.configuration.DatasourceUtil;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -88,7 +88,7 @@ public class DbDatasourceController {
 			return DocDbResponseJson.warn(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return DocDbResponseJson.warn(ExceptionUtils.getFullStackTrace(e));
+			return DocDbResponseJson.warn(ExceptionUtils.getStackTrace(e));
 		}
 		return DocDbResponseJson.ok();
 	}

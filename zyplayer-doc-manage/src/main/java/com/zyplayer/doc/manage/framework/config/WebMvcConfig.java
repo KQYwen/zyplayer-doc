@@ -63,7 +63,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(userLoginInterceptor)
-				.excludePathPatterns("/", "/doc-wiki", "/doc-db", "/doc-swagger-plus", "/doc-dubbo")
+				.excludePathPatterns("/", "/doc-wiki", "/doc-db", "/doc-swagger-plus")
 				.excludePathPatterns("/**/*.js", "/**/*.css", "/**/*.png", "/**/*.gif", "/**/*.jpg", "/**/*.jpeg", "/**/fonts/*");
 	}
 	

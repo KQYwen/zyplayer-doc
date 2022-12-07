@@ -2,6 +2,7 @@ package com.zyplayer.doc.manage.web.vo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -51,6 +52,15 @@ public class AuthInfoVo implements Serializable {
 	 * 创建时间
 	 */
 	private Date creationTime;
+	
+	public AuthInfoVo(AuthInfo authInfo) {
+		this.id = authInfo.getId();
+		this.authName = authInfo.getAuthName();
+		this.authDesc = authInfo.getAuthDesc();
+		this.canEdit = authInfo.getCanEdit();
+		this.createUid = authInfo.getCreateUid();
+		this.creationTime = authInfo.getCreationTime();
+	}
 	
 	public Long getId() {
 		return id;

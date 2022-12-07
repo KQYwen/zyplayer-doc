@@ -1,7 +1,7 @@
 # zyplayer-doc
 
 # 项目介绍
-zyplayer-doc是一款前后端完全开源的在线文档工具，现有API接口文档（Swagger、OpenApi、自建接口）、WIKI文档、数据库文档（数据库表结构查看管理、SQL执行）、Dubbo文档。
+zyplayer-doc是一款前后端完全开源的在线文档工具，现有API接口文档（Swagger、OpenApi、自建接口）、WIKI文档、数据库文档（数据库表结构查看管理、SQL执行）。
 
 体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/) 账号：zyplayer 密码：123456
 
@@ -64,14 +64,10 @@ zyplayer-doc是一款前后端完全开源的在线文档工具，现有API接�
 2. 支持将所有的Swagger文档、OpenApi文档、自建接口文档进行统一管理，支持全局参数设置，请求参数缓存，下次自动填充等。
 3. 目标是实现一个平台解决所有项目的接口文档统一管理。
 
-## zyplayer-doc-dubbo 将dubbo的文档在线化管理
-1. 支持zookeeper、nacos的注册中心文档获取，支持在线调试接口
-
 ## 其他
 1. zyplayer-doc-ui 前面各模块的前端UI源码
 2. zyplayer-doc-core 一些核心、公用的类
 3. zyplayer-doc-data 数据库层面的交互
-4. zyplayer-doc-grpc grpc文档工具
 5. zyplayer-doc-other 一些测试
 
 # 用爱发电

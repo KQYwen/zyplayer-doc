@@ -1,7 +1,6 @@
 <template>
     <div style="padding: 10px;">
         <div style="max-width: 800px;margin: 20px auto;">
-            <div style="text-align: center;">欢迎使用ヾ(๑╹◡╹)ﾉ" - 今天也要加油鸭</div>
             <div style="padding: 20px;">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
@@ -19,10 +18,6 @@
                         <div class="item" v-on:click="jumpToDocPage('doc-wiki')">
                             <div class="logo-text text3">WIKI</div>
                             <div>WIKI文档</div>
-                        </div>
-                        <div class="item" v-on:click="jumpToDocPage('doc-dubbo')">
-                            <div class="logo-img"><img src="../../assets/img/dubbo.png"></div>
-                            <div>Dubbo文档</div>
                         </div>
                     </div>
                 </el-card>

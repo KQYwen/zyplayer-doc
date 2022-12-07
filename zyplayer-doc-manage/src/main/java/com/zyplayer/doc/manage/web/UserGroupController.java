@@ -13,7 +13,7 @@ import com.zyplayer.doc.data.repository.manage.mapper.UserGroupMapper;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.service.manage.UserGroupRelationService;
 import com.zyplayer.doc.data.service.manage.UserGroupService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

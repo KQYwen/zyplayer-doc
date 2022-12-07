@@ -1,6 +1,5 @@
 package com.zyplayer.doc.manage.web;
 
-import com.zyplayer.doc.core.annotation.AuthMan;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,13 +38,6 @@ public class DocSystemController {
 	@GetMapping("/doc-api")
 	public ModelAndView swaggerPlus() {
 		ModelAndView modelAndView = new ModelAndView("/doc-api.html");
-		modelAndView.setStatus(HttpStatus.OK);
-		return modelAndView;
-	}
-	
-	@GetMapping("/doc-dubbo")
-	public ModelAndView dubbo() {
-		ModelAndView modelAndView = new ModelAndView("/doc-dubbo.html");
 		modelAndView.setStatus(HttpStatus.OK);
 		return modelAndView;
 	}
