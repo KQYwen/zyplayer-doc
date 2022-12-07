@@ -18,11 +18,8 @@
 			and a.space_id in
 			<foreach collection="spaceIds" open="(" close=")" item="item" separator=",">#{item}</foreach>
 		</if>
-		<if test="newsType == 1">order by a.update_time desc</if>
-		<if test="newsType == 2">order by a.create_time desc</if>
-		<if test="newsType == 3">order by a.view_num desc</if>
-		<if test="newsType == 4">order by a.zan_num desc</if>
-		<if test="newsType == 5">order by a.view_num+a.zan_num desc</if>
+		order by a.update_time desc
+		limit 15
 	</select>
 
 </mapper>

@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper">
-
+	<update id="updateChildrenSeq">
+		update wiki_page a
+			join (
+				SELECT id, @rownum := @rownum + 1 AS rownum
+				FROM (SELECT @rownum := 0) t, wiki_page
+				where parent_id = #{parentId} and space_id = #{spaceId}
+				ORDER BY seq_no ASC, update_time DESC
+			) b on a.id = b.id
+		set seq_no = b.rownum
+		where a.parent_id = #{parentId} and a.space_id = #{spaceId};
+	</update>
 </mapper>

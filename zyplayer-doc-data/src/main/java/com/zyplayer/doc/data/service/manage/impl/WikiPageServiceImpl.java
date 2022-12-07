@@ -36,23 +36,25 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 	
 	@Override
 	public void changeParent(WikiPage wikiPage, Integer beforeSeq, Integer afterSeq) {
+		WikiPage wikiPageSel = this.getById(wikiPage.getId());
 		if (beforeSeq != null && beforeSeq >= 0) {
 			// 在此seq之前
-			wikiPageMapper.updateAfterSeq(wikiPage.getParentId(), beforeSeq);
+			wikiPageMapper.updateAfterSeq(wikiPageSel.getSpaceId(), wikiPage.getParentId(), beforeSeq);
 			wikiPage.setSeqNo(beforeSeq);
 		} else if (afterSeq != null && afterSeq >= 0) {
 			// 在此seq之后
-			wikiPageMapper.updateAfterSeq(wikiPage.getParentId(), afterSeq + 1);
+			wikiPageMapper.updateAfterSeq(wikiPageSel.getSpaceId(), wikiPage.getParentId(), afterSeq + 1);
 			wikiPage.setSeqNo(afterSeq + 1);
 		} else {
 			// 放在末尾
-			Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getParentId());
+			Integer lastSeq = wikiPageMapper.getLastSeq(wikiPageSel.getSpaceId(), wikiPage.getParentId());
 			lastSeq = Optional.ofNullable(lastSeq).orElse(0);
 			wikiPage.setSeqNo(lastSeq + 1);
 		}
 		this.updateById(wikiPage);
+		// 重置当前分支的所有节点seq值
+		wikiPageMapper.updateChildrenSeq(wikiPageSel.getSpaceId(), wikiPage.getParentId());
 		// 给相关人发送消息
-		WikiPage wikiPageSel = this.getById(wikiPage.getId());
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_PARENT);
 		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
