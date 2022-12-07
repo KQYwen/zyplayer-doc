@@ -2,8 +2,6 @@ package com.zyplayer.doc.wiki.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.DocResponseJson;
@@ -27,9 +25,7 @@ import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import com.zyplayer.doc.wiki.service.git.GitService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import com.github.dozermapper.core.Mapper;
 import org.apache.poi.poifs.filesystem.DirectoryEntry;
-import org.apache.poi.poifs.filesystem.DocumentEntry;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +37,6 @@ import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -78,8 +73,6 @@ public class WikiPageController {
 	UserMessageService userMessageService;
 	@Resource
 	GitService gitService;
-	@Resource
-	Mapper mapper;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPageVo>> list(WikiPage wikiPage) {
@@ -92,21 +85,12 @@ public class WikiPageController {
 		UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
 		wrapper.eq("del_flag", 0);
 		wrapper.eq("space_id", wikiPage.getSpaceId());
-		wrapper.eq(wikiPage.getParentId() != null, "parent_id", wikiPage.getParentId());
 		List<WikiPage> wikiPageList = wikiPageService.list(wrapper);
-		Map<Long, List<WikiPageVo>> listMap = wikiPageList.stream().map(val -> mapper.map(val, WikiPageVo.class)).collect(Collectors.groupingBy(WikiPageVo::getParentId));
-		List<WikiPageVo> nodePageList;
-		if (wikiPage.getParentId() == null) {
-			nodePageList = listMap.get(0L);
-			if (CollectionUtils.isNotEmpty(nodePageList)) {
-				nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
-				this.setChildren(listMap, nodePageList, "");
-			}
-		} else {
-			nodePageList = listMap.get(wikiPage.getParentId());
-			if (CollectionUtils.isNotEmpty(nodePageList)) {
-				nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
-			}
+		Map<Long, List<WikiPageVo>> listMap = wikiPageList.stream().map(WikiPageVo::new).collect(Collectors.groupingBy(WikiPageVo::getParentId));
+		List<WikiPageVo> nodePageList = listMap.get(0L);
+		if (CollectionUtils.isNotEmpty(nodePageList)) {
+			nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPageVo::getSeqNo)).collect(Collectors.toList());
+			this.setChildren(listMap, nodePageList, "");
 		}
 		return DocResponseJson.ok(nodePageList);
 	}
@@ -253,6 +237,7 @@ public class WikiPageController {
 			UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_UPDATE);
 			userMessageService.addWikiMessage(userMessage);
 		} else {
+			Long parentId = Optional.ofNullable(wikiPage.getParentId()).orElse(0L);
 			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
 			if (wikiSpaceSel == null) {
 				return DocResponseJson.warn("未找到指定的空间！");
@@ -265,20 +250,22 @@ public class WikiPageController {
 			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
 				return DocResponseJson.warn("您没有权限新增该空间的文章！");
 			}
-			if (wikiPage.getParentId() != null && wikiPage.getParentId() > 0) {
-				WikiPage wikiPageParent = wikiPageService.getById(wikiPage.getParentId());
+			if (parentId> 0) {
+				WikiPage wikiPageParent = wikiPageService.getById(parentId);
 				if (!Objects.equals(wikiPage.getSpaceId(), wikiPageParent.getSpaceId())) {
 					return DocResponseJson.warn("当前空间和父页面的空间不一致，请重新选择父页面！");
 				}
 			}
-			Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getParentId());
-			lastSeq = Optional.ofNullable(lastSeq).orElse(0);
+			Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getSpaceId(), parentId);
+			lastSeq = Optional.ofNullable(lastSeq).orElse(99999);
 			wikiPage.setSeqNo(lastSeq + 1);
 			wikiPage.setCreateTime(new Date());
 			wikiPage.setUpdateTime(new Date());
 			wikiPage.setCreateUserId(currentUser.getUserId());
 			wikiPage.setCreateUserName(currentUser.getUsername());
 			wikiPageService.save(wikiPage);
+			// 重置当前分支的所有节点seq值
+			wikiPageMapper.updateChildrenSeq(wikiPage.getSpaceId(), parentId);
 			// 详情
 			pageContent.setPageId(wikiPage.getId());
 			pageContent.setCreateTime(new Date());
@@ -385,11 +372,9 @@ public class WikiPageController {
 			param.setKeywords("%" + keywords + "%");
 		}
 		// 分页查询
-		PageHelper.startPage(param.getPageNum(), param.getPageSize(), true);
 		List<SpaceNewsVo> spaceNewsVoList = wikiPageContentMapper.getNewsList(param);
-		PageInfo<SpaceNewsVo> pageListPageInfo = new PageInfo<>(spaceNewsVoList);
 		if (spaceNewsVoList == null || spaceNewsVoList.isEmpty()) {
-			return DocResponseJson.ok(pageListPageInfo);
+			return DocResponseJson.ok();
 		}
 		spaceNewsVoList.forEach(val -> {
 			val.setSpaceName(wikiSpaceMap.get(val.getSpaceId()).getName());
@@ -409,7 +394,7 @@ public class WikiPageController {
 			}
 			val.setPageTitle(pageTitle);
 		});
-		return DocResponseJson.ok(pageListPageInfo);
+		return DocResponseJson.ok(spaceNewsVoList);
 	}
 	
 	private Map<Long, WikiSpace> getCanVisitWikiSpace(Long spaceId) {
@@ -440,7 +425,7 @@ public class WikiPageController {
 			page.setPath(nowPath);
 			List<WikiPageVo> wikiPageVos = listMap.get(page.getId());
 			if (CollectionUtils.isNotEmpty(wikiPageVos)) {
-				wikiPageVos = wikiPageVos.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
+				wikiPageVos = wikiPageVos.stream().sorted(Comparator.comparingInt(WikiPageVo::getSeqNo)).collect(Collectors.toList());
 				page.setChildren(wikiPageVos);
 				this.setChildren(listMap, wikiPageVos, nowPath);
 			}

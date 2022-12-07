@@ -12,9 +12,6 @@
 				<el-form-item label="空间开放：">
 					<el-switch v-model="newSpaceForm.openDoc" inactive-text="需要登录" :inactive-value="0" active-text="开放访问" :active-value="1"></el-switch>
 				</el-form-item>
-				<el-form-item label="目录加载：">
-					<el-switch v-model="newSpaceForm.treeLazyLoad" inactive-text="预先加载" :inactive-value="0" active-text="延迟加载" :active-value="1"></el-switch>
-				</el-form-item>
 				<el-form-item label="空间类型：">
 					<el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%;">
 						<el-option :key="1" label="公共空间" :value="1">

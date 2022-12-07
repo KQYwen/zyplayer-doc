@@ -2,9 +2,6 @@ package com.zyplayer.doc.wiki.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.github.dozermapper.core.Mapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
@@ -53,8 +50,6 @@ public class WikiOpenApiController {
 	WikiPageFileService wikiPageFileService;
 	@Resource
 	WikiPageContentMapper wikiPageContentMapper;
-	@Resource
-	Mapper mapper;
 	
 	@PostMapping("/space/info")
 	public ResponseJson<WikiSpace> spaceInfo(String space) {
@@ -77,9 +72,7 @@ public class WikiOpenApiController {
 		}
 		// 分页查询
 		param.setSpaceIds(Collections.singletonList(wikiSpace.getId()));
-		PageHelper.startPage(param.getPageNum(), param.getPageSize(), true);
 		List<SpaceNewsVo> spaceNewsVoList = wikiPageContentMapper.getNewsList(param);
-		PageInfo<SpaceNewsVo> pageListPageInfo = new PageInfo<>(spaceNewsVoList);
 		if (CollectionUtils.isNotEmpty(spaceNewsVoList)) {
 			spaceNewsVoList.forEach(val -> {
 				val.setSpace(wikiSpace.getUuid());
@@ -101,7 +94,7 @@ public class WikiOpenApiController {
 				val.setPageTitle(pageTitle);
 			});
 		}
-		return DocResponseJson.ok(pageListPageInfo);
+		return DocResponseJson.ok(spaceNewsVoList);
 	}
 	
 	@PostMapping("/page/list")
@@ -117,10 +110,10 @@ public class WikiOpenApiController {
 		if (CollectionUtils.isEmpty(wikiPageList)) {
 			return DocResponseJson.ok();
 		}
-		Map<Long, List<WikiPageVo>> listMap = wikiPageList.stream().map(val -> mapper.map(val, WikiPageVo.class)).collect(Collectors.groupingBy(WikiPageVo::getParentId));
+		Map<Long, List<WikiPageVo>> listMap = wikiPageList.stream().map(WikiPageVo::new).collect(Collectors.groupingBy(WikiPageVo::getParentId));
 		List<WikiPageVo> nodePageList = listMap.get(0L);
 		if (CollectionUtils.isNotEmpty(nodePageList)) {
-			nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
+			nodePageList = nodePageList.stream().sorted(Comparator.comparingInt(WikiPageVo::getSeqNo)).collect(Collectors.toList());
 			this.setChildren(listMap, nodePageList);
 		}
 		return DocResponseJson.ok(nodePageList);
@@ -169,7 +162,7 @@ public class WikiOpenApiController {
 		for (WikiPageVo page : nodePageList) {
 			List<WikiPageVo> wikiPageVos = listMap.get(page.getId());
 			if (CollectionUtils.isNotEmpty(wikiPageVos)) {
-				wikiPageVos = wikiPageVos.stream().sorted(Comparator.comparingInt(WikiPage::getSeqNo)).collect(Collectors.toList());
+				wikiPageVos = wikiPageVos.stream().sorted(Comparator.comparingInt(WikiPageVo::getSeqNo)).collect(Collectors.toList());
 				page.setChildren(wikiPageVos);
 				this.setChildren(listMap, wikiPageVos);
 			}

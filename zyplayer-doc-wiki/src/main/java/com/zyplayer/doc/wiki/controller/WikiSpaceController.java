@@ -23,7 +23,6 @@ import com.zyplayer.doc.wiki.controller.vo.UserSpaceAuthVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiSpaceVo;
 import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import org.apache.commons.collections.CollectionUtils;
-import com.github.dozermapper.core.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,8 +53,6 @@ public class WikiSpaceController {
 	WikiSpaceFavoriteService wikiSpaceFavoriteService;
 	@Resource
 	UserSettingService userSettingService;
-	@Resource
-	Mapper mapper;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiSpaceVo>> list(WikiSpace wikiSpace, Integer ignoreFavorite) {
@@ -65,7 +62,7 @@ public class WikiSpaceController {
 		wrapper.eq(wikiSpace.getId() != null, "id", wikiSpace.getId());
 		wrapper.and(con -> con.and(conSub -> conSub.eq("type", 3).eq("create_user_id", currentUser.getUserId())).or().in("type", 1, 2));
 		List<WikiSpace> spaceList = wikiSpaceService.list(wrapper);
-		List<WikiSpaceVo> spaceVoList = spaceList.stream().map(item -> mapper.map(item, WikiSpaceVo.class)).collect(Collectors.toList());
+		List<WikiSpaceVo> spaceVoList = spaceList.stream().map(WikiSpaceVo::new).collect(Collectors.toList());
 		// 收藏
 		QueryWrapper<WikiSpaceFavorite> favoriteWrapper = new QueryWrapper<>();
 		favoriteWrapper.eq("user_id", currentUser.getUserId());

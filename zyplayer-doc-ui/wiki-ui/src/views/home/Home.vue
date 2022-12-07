@@ -1,9 +1,6 @@
 <template>
     <div style="padding: 10px;" class="home-vue">
         <div style="max-width: 800px;margin: 0 auto;">
-            <el-select v-model="searchParam.newsType" v-on:change="getSpacePageNews" placeholder="请选择查看方式" style="float: right;z-index: 1;">
-                <el-option :label="item.val" :value="item.key" :key="item.key" v-for="item in newsTypesArr"></el-option>
-            </el-select>
             <el-tabs value="first">
                 <el-tab-pane :label="newsTypesMap[searchParam.newsType]" name="first">
                     <div v-if="spacePageNews.length <= 0" class="empty-news">暂无数据</div>
@@ -23,18 +20,6 @@
                     </div>
                 </el-tab-pane>
             </el-tabs>
-            <div class="page-info-box">
-                <el-pagination
-                        @size-change="handleSizeChange"
-                        @current-change="handleCurrentChange"
-                        :page-sizes="[20, 50, 100]"
-                        :page-size="20"
-                        :current-page="searchParam.pageNum"
-                        layout="prev, pager, next, jumper, sizes, total"
-                        :total="totalCount"
-                        >
-                </el-pagination>
-            </div>
         </div>
     </div>
 </template>
@@ -72,7 +57,6 @@
             getSpacePageNews() {
 				pageApi.pageNews(this.searchParam).then(json => {
 					this.spacePageNews = json.data || [];
-					this.totalCount = json.total;
 				});
             },
             handleSizeChange(val) {

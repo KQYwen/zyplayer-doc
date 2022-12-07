@@ -17,9 +17,22 @@
                     <div align="center">
                         <el-button v-on:click="createWiki" icon="el-icon-plus" style="width: 100%;">创建文档</el-button>
                     </div>
-                    <el-input v-model="searchKeywords" @input="searchByKeywords" @keyup.enter.native="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0;">
-                        <el-button slot="append" icon="el-icon-search" v-on:click="searchByKeywordsNewPage"></el-button>
-                    </el-input>
+	                <el-autocomplete
+			                style="width: 100%;margin: 10px 0;" popper-class="search-autocomplete"
+			                v-model="searchKeywords"
+			                :fetch-suggestions="doSearchByKeywords"
+			                placeholder="在当前空间搜索"
+			                @select="handleSearchKeywordsSelect"
+	                >
+		                <template slot-scope="{ item }">
+			                <div class="search-option-item">
+				                <div class="title">
+					                <span v-html="item.pageTitle || '-'"></span>
+				                </div>
+				                <span class="content" v-html="item.previewContent || '-'"></span>
+			                </div>
+		                </template>
+	                </el-autocomplete>
 					<div style="overflow: auto; padding-bottom: 30px;">
 						<el-tree :props="defaultProps" :data="wikiPageList" @node-click="handleNodeClick"
 								 @node-expand="handleNodeExpand" draggable @node-drop="handlePageDrop"
@@ -96,13 +109,13 @@
 </template>
 
 <script>
-    import userApi from '../../common/api/user'
-    import pageApi from '../../common/api/page'
-	import CreateSpace from '../space/CreateSpace'
-	import RightResize from './RightResize.vue'
-	import aboutDialog from "../../views/common/AboutDialog";
+import userApi from '../../common/api/user'
+import pageApi from '../../common/api/page'
+import CreateSpace from '../space/CreateSpace'
+import RightResize from './RightResize.vue'
+import aboutDialog from "../../views/common/AboutDialog";
 
-    export default {
+export default {
         data() {
             return {
                 leftCollapse: true,
@@ -176,6 +189,20 @@
             changeWikiPageExpandedKeys(pageId) {
 				// 展开没有触发子节点的加载，如果去加载子节点有还找不到当前的node，暂不展开
                 // this.wikiPageExpandedKeys = [pageId];
+            },
+	        doSearchByKeywords(queryString, callback) {
+		        if (!queryString || !queryString.trim()) {
+			        callback([]);
+					return;
+				}
+		        pageApi.pageNews({spaceId: this.choiceSpace, keywords: queryString}).then(json => {
+			        let spacePageNews = json.data || [];
+			        callback(spacePageNews);
+		        });
+            },
+	        handleSearchKeywordsSelect(item) {
+				this.searchKeywords = '';
+		        this.$router.push({path: '/page/show', query: {pageId: item.pageId}});
             },
             searchByKeywords() {
                 this.$refs.wikiPageTree.filter(this.searchKeywords);
@@ -305,32 +332,9 @@
                 });
             },
             doGetPageList(parentId, node) {
-				let param = {spaceId: this.choiceSpace, parentId: parentId || 0};
-                if (this.nowSpaceShow.treeLazyLoad === 0) {
-                    param.parentId = null;
-                }
+				let param = {spaceId: this.choiceSpace};
 				pageApi.pageList(param).then(json => {
-					let result = json.data || [];
-					let treeData = [];
-					if (this.nowSpaceShow.treeLazyLoad === 0) {
-						treeData = result;
-					} else {
-                        for (let i = 0; i < result.length; i++) {
-							let item = result[i];
-                            item.parentId = item.parentId || 0;
-                            item.children = [{name: '加载中...', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
-                            treeData.push(item);
-                        }
-                    }
-                    if (parentId > 0) {
-                        node.children = treeData;
-                    } else {
-						this.wikiPageList = treeData;
-                    }
-				}).catch(() => {
-					if (parentId > 0) {
-						node.children = [];
-					}
+					this.wikiPageList = json.data || [];
 				});
             },
             userSettingDropdown(command) {
@@ -401,4 +405,24 @@
 	.head-icon{margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;}
 	.header-user-message .page-info-box{text-align: right;margin-top: 10px;}
 	.upgrade-info{max-height: 150px;overflow-y: auto;word-break: break-all; white-space: pre-wrap; line-height: 26px;}
+	.search-option-item {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.search-option-item .title {
+		font-weight: bold;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.search-option-item .content {
+		font-size: 12px;
+		color: #888;
+	}
+	.search-autocomplete {
+		width: 600px !important;
+	}
 </style>
+
+

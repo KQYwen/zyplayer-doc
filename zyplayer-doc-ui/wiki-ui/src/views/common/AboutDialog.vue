@@ -31,7 +31,6 @@
 							<a target="_blank" href="https://github.com/alibaba/fastjson">Fastjson</a>、
 							<a target="_blank" href="https://alibaba-easyexcel.github.io">Easy Excel</a>、
 							<a target="_blank" href="https://swagger.io">Swagger</a>、
-							<a target="_blank" href="https://dubbo.io">Dubbo</a>、
 							<a target="_blank" href="http://www.eclipse.org/jgit">JGit</a>、...
 						</div>
 						<el-divider content-position="left">前端</el-divider>
