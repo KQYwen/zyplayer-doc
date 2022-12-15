@@ -1,11 +1,14 @@
 package com.zyplayer.doc.db.controller.param;
 
+import lombok.Data;
+
 /**
  * 存储过程列表查询参数
  *
  * @author 暮光：城中城
  * @since 2021-04-25
  */
+@Data
 public class ProcedureListParam {
 	private Long sourceId;
 	private String dbName;
@@ -14,60 +17,4 @@ public class ProcedureListParam {
 	private Integer offset;
 	private String name;
 	private String type;
-	
-	public Long getSourceId() {
-		return sourceId;
-	}
-	
-	public void setSourceId(Long sourceId) {
-		this.sourceId = sourceId;
-	}
-	
-	public String getDbName() {
-		return dbName;
-	}
-	
-	public void setDbName(String dbName) {
-		this.dbName = dbName;
-	}
-	
-	public Integer getPageNum() {
-		return pageNum;
-	}
-	
-	public void setPageNum(Integer pageNum) {
-		this.pageNum = pageNum;
-	}
-	
-	public Integer getPageSize() {
-		return pageSize;
-	}
-	
-	public void setPageSize(Integer pageSize) {
-		this.pageSize = pageSize;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public String getType() {
-		return type;
-	}
-	
-	public void setType(String type) {
-		this.type = type;
-	}
-	
-	public Integer getOffset() {
-		return offset;
-	}
-	
-	public void setOffset(Integer offset) {
-		this.offset = offset;
-	}
 }
