@@ -1,5 +1,7 @@
 package com.zyplayer.doc.data.repository.manage.vo;
 
+import lombok.*;
+
 import java.util.List;
 
 /**
@@ -8,6 +10,7 @@ import java.util.List;
  * @author 暮光：城中城
  * @since 2021-06-07
  */
+@Data
 public class TableRelationVo {
 	private String dbName;
 	private String tableName;
@@ -16,52 +19,5 @@ public class TableRelationVo {
 	private String columnName;
 	private Integer nodeType;
 	private List<TableRelationVo> children;
-	
-	public String getDbName() {
-		return dbName;
-	}
-	
-	public void setDbName(String dbName) {
-		this.dbName = dbName;
-	}
-	
-	public String getTableName() {
-		return tableName;
-	}
-	
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public String getColumnName() {
-		return columnName;
-	}
-	
-	public void setColumnName(String columnName) {
-		this.columnName = columnName;
-	}
-	
-	public List<TableRelationVo> getChildren() {
-		return children;
-	}
-	
-	public void setChildren(List<TableRelationVo> children) {
-		this.children = children;
-	}
-	
-	public Integer getNodeType() {
-		return nodeType;
-	}
-	
-	public void setNodeType(Integer nodeType) {
-		this.nodeType = nodeType;
-	}
+
 }

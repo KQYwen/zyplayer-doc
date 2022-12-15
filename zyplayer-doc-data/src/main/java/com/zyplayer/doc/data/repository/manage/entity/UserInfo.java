@@ -2,6 +2,7 @@ package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,9 +15,8 @@ import java.util.Date;
  * @author 暮光：城中城
  * @since 2018-12-05
  */
+@Data
 public class UserInfo implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * 主键自增ID
@@ -73,112 +73,9 @@ public class UserInfo implements Serializable {
      * 手机号
      */
     private String phone;
-    
+
     /**
      * 性别 0=女 1=男
      */
     private Integer sex;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getUserNo() {
-        return userNo;
-    }
-
-    public void setUserNo(String userNo) {
-        this.userNo = userNo;
-    }
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-    public Integer getDelFlag() {
-        return delFlag;
-    }
-
-    public void setDelFlag(Integer delFlag) {
-        this.delFlag = delFlag;
-    }
-    public Long getCreateUid() {
-        return createUid;
-    }
-
-    public void setCreateUid(Long createUid) {
-        this.createUid = createUid;
-    }
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(Date creationTime) {
-        this.creationTime = creationTime;
-    }
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    @Override
-    public String toString() {
-        return "UserInfo{" +
-        "id=" + id +
-        ", userNo=" + userNo +
-        ", password=" + password +
-        ", userName=" + userName +
-        ", email=" + email +
-        ", avatar=" + avatar +
-        ", delFlag=" + delFlag +
-        ", createUid=" + createUid +
-        ", creationTime=" + creationTime +
-        ", updateTime=" + updateTime +
-        "}";
-    }
-    
-    public String getPhone() {
-        return phone;
-    }
-    
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-    
-    public Integer getSex() {
-        return sex;
-    }
-    
-    public void setSex(Integer sex) {
-        this.sex = sex;
-    }
 }

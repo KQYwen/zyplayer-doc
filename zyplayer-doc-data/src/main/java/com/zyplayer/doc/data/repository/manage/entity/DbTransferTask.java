@@ -1,21 +1,22 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
  * @since 2019-09-30
  */
+@Data
 public class DbTransferTask implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * 主键自增ID
@@ -87,123 +88,4 @@ public class DbTransferTask implements Serializable {
      * 删除标记 0=正常 1=已删除
      */
     private Integer delFlag;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Long getQueryDatasourceId() {
-        return queryDatasourceId;
-    }
-
-    public void setQueryDatasourceId(Long queryDatasourceId) {
-        this.queryDatasourceId = queryDatasourceId;
-    }
-    public Long getStorageDatasourceId() {
-        return storageDatasourceId;
-    }
-
-    public void setStorageDatasourceId(Long storageDatasourceId) {
-        this.storageDatasourceId = storageDatasourceId;
-    }
-    public String getQuerySql() {
-        return querySql;
-    }
-
-    public void setQuerySql(String querySql) {
-        this.querySql = querySql;
-    }
-    public String getStorageSql() {
-        return storageSql;
-    }
-
-    public void setStorageSql(String storageSql) {
-        this.storageSql = storageSql;
-    }
-    public Integer getNeedCount() {
-        return needCount;
-    }
-
-    public void setNeedCount(Integer needCount) {
-        this.needCount = needCount;
-    }
-    public Integer getLastExecuteStatus() {
-        return lastExecuteStatus;
-    }
-
-    public void setLastExecuteStatus(Integer lastExecuteStatus) {
-        this.lastExecuteStatus = lastExecuteStatus;
-    }
-    public Date getLastExecuteTime() {
-        return lastExecuteTime;
-    }
-
-    public void setLastExecuteTime(Date lastExecuteTime) {
-        this.lastExecuteTime = lastExecuteTime;
-    }
-    public String getLastExecuteInfo() {
-        return lastExecuteInfo;
-    }
-
-    public void setLastExecuteInfo(String lastExecuteInfo) {
-        this.lastExecuteInfo = lastExecuteInfo;
-    }
-    public Long getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(Long createUserId) {
-        this.createUserId = createUserId;
-    }
-    public String getCreateUserName() {
-        return createUserName;
-    }
-
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
-    }
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-    public Integer getDelFlag() {
-        return delFlag;
-    }
-
-    public void setDelFlag(Integer delFlag) {
-        this.delFlag = delFlag;
-    }
-
-    @Override
-    public String toString() {
-        return "DbTransferTask{" +
-        "id=" + id +
-        ", name=" + name +
-        ", queryDatasourceId=" + queryDatasourceId +
-        ", storageDatasourceId=" + storageDatasourceId +
-        ", querySql=" + querySql +
-        ", storageSql=" + storageSql +
-        ", needCount=" + needCount +
-        ", lastExecuteStatus=" + lastExecuteStatus +
-        ", lastExecuteTime=" + lastExecuteTime +
-        ", lastExecuteInfo=" + lastExecuteInfo +
-        ", createUserId=" + createUserId +
-        ", createUserName=" + createUserName +
-        ", createTime=" + createTime +
-        ", delFlag=" + delFlag +
-        "}";
-    }
 }
