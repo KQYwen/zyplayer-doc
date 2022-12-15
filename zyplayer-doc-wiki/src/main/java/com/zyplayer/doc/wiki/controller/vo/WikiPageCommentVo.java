@@ -1,6 +1,7 @@
 package com.zyplayer.doc.wiki.controller.vo;
 
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageComment;
+import lombok.*;
 
 import java.util.List;
 
@@ -10,14 +11,8 @@ import java.util.List;
  * @author 暮光：城中城
  * @since 2019-02-24
  */
+@Data
 public class WikiPageCommentVo extends WikiPageComment {
 	private List<WikiPageComment> commentList;
-	
-	public List<WikiPageComment> getCommentList() {
-		return commentList;
-	}
-	
-	public void setCommentList(List<WikiPageComment> commentList) {
-		this.commentList = commentList;
-	}
+
 }

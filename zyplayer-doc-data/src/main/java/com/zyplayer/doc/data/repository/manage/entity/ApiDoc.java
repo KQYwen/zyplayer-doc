@@ -3,6 +3,8 @@ package com.zyplayer.doc.data.repository.manage.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -14,10 +16,9 @@ import java.util.Date;
  * @author 暮光：城中城
  * @since 2021-11-25
  */
+@Data
 @TableName("api_doc")
 public class ApiDoc implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * 主键自增ID
@@ -64,7 +65,7 @@ public class ApiDoc implements Serializable {
      * 开放文档UUID
      */
     private String shareUuid;
-    
+
     /**
      * 开放文档使用说明
      */
@@ -89,123 +90,4 @@ public class ApiDoc implements Serializable {
      * 是否有效 0=无效 1=有效
      */
     private Integer yn;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Integer getDocType() {
-        return docType;
-    }
-
-    public void setDocType(Integer docType) {
-        this.docType = docType;
-    }
-    public String getDocUrl() {
-        return docUrl;
-    }
-
-    public void setDocUrl(String docUrl) {
-        this.docUrl = docUrl;
-    }
-    public String getJsonContent() {
-        return jsonContent;
-    }
-
-    public void setJsonContent(String jsonContent) {
-        this.jsonContent = jsonContent;
-    }
-    public String getRewriteDomain() {
-        return rewriteDomain;
-    }
-
-    public void setRewriteDomain(String rewriteDomain) {
-        this.rewriteDomain = rewriteDomain;
-    }
-    public Integer getOpenVisit() {
-        return openVisit;
-    }
-
-    public void setOpenVisit(Integer openVisit) {
-        this.openVisit = openVisit;
-    }
-    public Integer getDocStatus() {
-        return docStatus;
-    }
-
-    public void setDocStatus(Integer docStatus) {
-        this.docStatus = docStatus;
-    }
-    public Long getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(Long createUserId) {
-        this.createUserId = createUserId;
-    }
-    public String getCreateUserName() {
-        return createUserName;
-    }
-
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
-    }
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-    public Integer getYn() {
-        return yn;
-    }
-
-    public void setYn(Integer yn) {
-        this.yn = yn;
-    }
-
-    @Override
-    public String toString() {
-        return "ApiDoc{" +
-            "id=" + id +
-            ", name=" + name +
-            ", docType=" + docType +
-            ", docUrl=" + docUrl +
-            ", jsonContent=" + jsonContent +
-            ", rewriteDomain=" + rewriteDomain +
-            ", openVisit=" + openVisit +
-            ", docStatus=" + docStatus +
-            ", createUserId=" + createUserId +
-            ", createUserName=" + createUserName +
-            ", createTime=" + createTime +
-            ", yn=" + yn +
-        "}";
-    }
-    
-    public String getShareUuid() {
-        return shareUuid;
-    }
-    
-    public void setShareUuid(String shareUuid) {
-        this.shareUuid = shareUuid;
-    }
-    
-    public String getShareInstruction() {
-        return shareInstruction;
-    }
-    
-    public void setShareInstruction(String shareInstruction) {
-        this.shareInstruction = shareInstruction;
-    }
 }
