@@ -1,9 +1,11 @@
 package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -13,9 +15,8 @@ import java.io.Serializable;
  * @author 暮光：城中城
  * @since 2021-02-09
  */
+@Data
 public class UserSetting implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * 主键自增ID
@@ -48,58 +49,4 @@ public class UserSetting implements Serializable {
      */
     private Integer delFlag;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-    public Integer getDelFlag() {
-        return delFlag;
-    }
-
-    public void setDelFlag(Integer delFlag) {
-        this.delFlag = delFlag;
-    }
-
-    @Override
-    public String toString() {
-        return "UserSetting{" +
-        "id=" + id +
-        ", userId=" + userId +
-        ", name=" + name +
-        ", value=" + value +
-        ", createTime=" + createTime +
-        ", delFlag=" + delFlag +
-        "}";
-    }
 }

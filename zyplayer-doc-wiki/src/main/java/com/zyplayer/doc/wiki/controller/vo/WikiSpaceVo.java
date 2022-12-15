@@ -1,6 +1,7 @@
 package com.zyplayer.doc.wiki.controller.vo;
 
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
+import lombok.*;
 
 import java.util.Date;
 
@@ -10,8 +11,9 @@ import java.util.Date;
  * @author 暮光：城中城
  * @since 2021-02-09
  */
+@Data
 public class WikiSpaceVo {
-	
+
 	/**
 	 * 主键自增ID
 	 */
@@ -56,7 +58,7 @@ public class WikiSpaceVo {
 	 * 创建时间
 	 */
 	private Integer favorite;
-	
+
 	public WikiSpaceVo(WikiSpace space) {
 		this.id = space.getId();
 		this.name = space.getName();
@@ -69,92 +71,5 @@ public class WikiSpaceVo {
 		this.createUserName = space.getCreateUserName();
 		this.createTime = space.getCreateTime();
 	}
-	
-	public Long getId() {
-		return id;
-	}
-	
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public Integer getType() {
-		return type;
-	}
-	
-	public void setType(Integer type) {
-		this.type = type;
-	}
-	
-	public String getSpaceExplain() {
-		return spaceExplain;
-	}
-	
-	public void setSpaceExplain(String spaceExplain) {
-		this.spaceExplain = spaceExplain;
-	}
-	
-	public Integer getTreeLazyLoad() {
-		return treeLazyLoad;
-	}
-	
-	public void setTreeLazyLoad(Integer treeLazyLoad) {
-		this.treeLazyLoad = treeLazyLoad;
-	}
-	
-	public Integer getOpenDoc() {
-		return openDoc;
-	}
-	
-	public void setOpenDoc(Integer openDoc) {
-		this.openDoc = openDoc;
-	}
-	
-	public String getUuid() {
-		return uuid;
-	}
-	
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-	
-	public Long getCreateUserId() {
-		return createUserId;
-	}
-	
-	public void setCreateUserId(Long createUserId) {
-		this.createUserId = createUserId;
-	}
-	
-	public String getCreateUserName() {
-		return createUserName;
-	}
-	
-	public void setCreateUserName(String createUserName) {
-		this.createUserName = createUserName;
-	}
-	
-	public Date getCreateTime() {
-		return createTime;
-	}
-	
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-	
-	public Integer getFavorite() {
-		return favorite;
-	}
-	
-	public void setFavorite(Integer favorite) {
-		this.favorite = favorite;
-	}
+
 }
