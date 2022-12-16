@@ -1,18 +1,13 @@
 package com.zyplayer.doc.db.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
-import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
-import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
 import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
 import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.DbDatasourceService;
-import com.zyplayer.doc.data.service.manage.UserAuthService;
 import com.zyplayer.doc.db.controller.vo.DatabaseExportVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo.TableInfoVo;
@@ -28,7 +23,6 @@ import com.zyplayer.doc.db.framework.utils.PoiUtil;
 import com.zyplayer.doc.db.service.database.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.database.DbBaseService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,40 +43,24 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("/zyplayer-doc-db/doc-db")
 public class DatabaseDocController {
-	
+
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
 	@Resource
 	DbDatasourceService dbDatasourceService;
 	@Resource
-	UserAuthService userAuthService;
-	@Resource
 	DatabaseServiceFactory databaseServiceFactory;
-	
-	@PostMapping(value = "/getDataSourceList")
-	public ResponseJson getDataSourceList() {
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
-		wrapper.eq("yn", 1);
-		// 没管理权限只返回有权限的数据源
-		if (!DocUserUtil.haveAuth(DocAuthConst.DB_DATASOURCE_MANAGE)) {
-			QueryWrapper<UserAuth> updateWrapper = new QueryWrapper<>();
-			updateWrapper.eq("sys_type", DocSysType.DB.getType());
-			updateWrapper.eq("sys_module_type", DocSysModuleType.Db.DATASOURCE.getType());
-			updateWrapper.eq("del_flag", 0);
-			updateWrapper.eq("user_id", currentUser.getUserId());
-			List<UserAuth> userAuthList = userAuthService.list(updateWrapper);
-			if (userAuthList == null || userAuthList.isEmpty()) {
-				return DocDbResponseJson.ok();
-			}
-			List<Long> userAuthDbIds = userAuthList.stream().map(UserAuth::getSysModuleId).collect(Collectors.toList());
-			wrapper.in("id", userAuthDbIds);
-		}
-		wrapper.select("id", "name", "group_name");
-		List<DbDatasource> datasourceList = dbDatasourceService.list(wrapper);
-		return DocDbResponseJson.ok(datasourceList);
+
+	/**
+	 * 获取数据源列表(管理员返回所有数据源,用户返回有权限的数据源)
+	 * @return ResponseJson
+	 */
+	@PostMapping("/getDataSourceList")
+	public DocDbResponseJson getDataSourceList() {
+		List<DbDatasource> dataSourceList = dbDatasourceService.getDataSourceList();
+		return DocDbResponseJson.ok(dataSourceList);
 	}
-	
+
 	/**
 	 * 获取数据源基本信息
 	 *
@@ -90,50 +68,50 @@ public class DatabaseDocController {
 	 * @return 基本信息
 	 */
 	@PostMapping(value = "/getSourceBaseInfo")
-	public ResponseJson getSourceBaseInfo(Long sourceId) {
+	public DocDbResponseJson getSourceBaseInfo(Long sourceId) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		Map<String, Object> dbResultMap = new HashMap<>();
 		dbResultMap.put("product", dbBaseService.getDatabaseProduct().name().toLowerCase());
 		return DocDbResponseJson.ok(dbResultMap);
 	}
-	
+
 	@PostMapping(value = "/getTableDdl")
-	public ResponseJson getTableDdl(Long sourceId, String dbName, String tableName) {
+	public DocDbResponseJson getTableDdl(Long sourceId, String dbName, String tableName) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		TableDdlVo tableDdlVo = dbBaseService.getTableDdl(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableDdlVo);
 	}
-	
+
 	@PostMapping(value = "/getDatabaseList")
-	public ResponseJson getDatabaseList(Long sourceId) {
+	public DocDbResponseJson getDatabaseList(Long sourceId) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		List<DatabaseInfoDto> databaseList = dbBaseService.getDatabaseList(sourceId);
 		return DocDbResponseJson.ok(databaseList);
 	}
-	
+
 	@PostMapping(value = "/getTableStatus")
-	public ResponseJson getTableStatus(Long sourceId, String dbName, String tableName) {
+	public DocDbResponseJson getTableStatus(Long sourceId, String dbName, String tableName) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		TableStatusVo tableStatusVo = dbBaseService.getTableStatus(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableStatusVo);
 	}
-	
+
 	@PostMapping(value = "/getTableList")
-	public ResponseJson getTableList(Long sourceId, String dbName) {
+	public DocDbResponseJson getTableList(Long sourceId, String dbName) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		List<TableInfoDto> tableList = dbBaseService.getTableList(sourceId, dbName);
 		return DocDbResponseJson.ok(tableList);
 	}
-	
+
 	@PostMapping(value = "/getTableColumnList")
-	public ResponseJson getTableColumnList(Long sourceId, String dbName, String tableName) {
+	public DocDbResponseJson getTableColumnList(Long sourceId, String dbName, String tableName) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		TableColumnVo tableColumnVo = dbBaseService.getTableColumnList(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableColumnVo);
 	}
-	
+
 	@PostMapping(value = "/getTableAndColumnBySearch")
-	public ResponseJson getTableAndColumnBySearch(Long sourceId, String dbName, String searchText) {
+	public DocDbResponseJson getTableAndColumnBySearch(Long sourceId, String dbName, String searchText) {
 		if (StringUtils.isBlank(searchText)) {
 			return DocDbResponseJson.ok();
 		}
@@ -141,32 +119,32 @@ public class DatabaseDocController {
 		List<QueryTableColumnDescDto> columnDescDto = dbBaseService.getTableAndColumnBySearch(sourceId, dbName, searchText);
 		return DocDbResponseJson.ok(columnDescDto);
 	}
-	
+
 	@PostMapping(value = "/getTableDescList")
-	public ResponseJson getTableDescList(Long sourceId, String dbName, String tableName) {
+	public DocDbResponseJson getTableDescList(Long sourceId, String dbName, String tableName) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		List<TableDescDto> tableDescList = dbBaseService.getTableDescList(sourceId, dbName, tableName);
 		return DocDbResponseJson.ok(tableDescList);
 	}
-	
+
 	@PostMapping(value = "/updateTableDesc")
-	public ResponseJson updateTableDesc(Long sourceId, String dbName, String tableName, String newDesc) {
+	public DocDbResponseJson updateTableDesc(Long sourceId, String dbName, String tableName, String newDesc) {
 		this.judgeAuth(sourceId, DbAuthType.DESC_EDIT.getName(), "没有修改该表注释的权限");
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		dbBaseService.updateTableDesc(sourceId, dbName, tableName, newDesc);
 		return DocDbResponseJson.ok();
 	}
-	
+
 	@PostMapping(value = "/updateTableColumnDesc")
-	public ResponseJson updateTableColumnDesc(Long sourceId, String dbName, String tableName, String columnName, String newDesc) {
+	public DocDbResponseJson updateTableColumnDesc(Long sourceId, String dbName, String tableName, String columnName, String newDesc) {
 		this.judgeAuth(sourceId, DbAuthType.DESC_EDIT.getName(), "没有修改该表字段注释的权限");
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		dbBaseService.updateTableColumnDesc(sourceId, dbName, tableName, columnName, newDesc);
 		return DocDbResponseJson.ok();
 	}
-	
+
 	@PostMapping(value = "/exportDatabase")
-	public ResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames, Integer exportType, Integer exportFormat) {
+	public DocDbResponseJson exportDatabase(HttpServletResponse response, Long sourceId, String dbName, String tableNames, Integer exportType, Integer exportFormat) {
 		if (StringUtils.isBlank(tableNames)) {
 			return DocDbResponseJson.warn("请选择需要导出的表");
 		}
@@ -178,7 +156,7 @@ public class DatabaseDocController {
 		}
 		return DocDbResponseJson.ok();
 	}
-	
+
 	private DocDbResponseJson exportForTableDdl(HttpServletResponse response, Long sourceId, String dbName, List<String> tableNameList, Integer exportFormat) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		Map<String, String> ddlSqlMap = new HashMap<>();
@@ -196,7 +174,7 @@ public class DatabaseDocController {
 		}
 		return DocDbResponseJson.ok();
 	}
-	
+
 	private DocDbResponseJson exportForTableDoc(HttpServletResponse response, Long sourceId, String dbName, List<String> tableNameList, Integer exportFormat) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		// 数据组装
@@ -222,7 +200,7 @@ public class DatabaseDocController {
 			return DocDbResponseJson.error("导出失败：" + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 权限判断
 	 *
@@ -235,4 +213,3 @@ public class DatabaseDocController {
 		}
 	}
 }
-

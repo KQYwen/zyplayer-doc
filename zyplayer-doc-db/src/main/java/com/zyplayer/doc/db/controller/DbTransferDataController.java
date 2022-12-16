@@ -2,7 +2,6 @@ package com.zyplayer.doc.db.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
-import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbTransferTask;
@@ -28,26 +27,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/zyplayer-doc-db/transfer")
 public class DbTransferDataController {
-	
+
 	@Resource
 	TransferDataServer transferDataServer;
 	@Resource
 	DbTransferTaskService dbTransferTaskService;
-	
+
 	@PostMapping(value = "/start")
-	public ResponseJson doTransfer(Long id) {
+	public DocDbResponseJson doTransfer(Long id) {
 		transferDataServer.transferData(id);
 		return DocDbResponseJson.ok();
 	}
-	
+
 	@PostMapping(value = "/cancel")
-	public ResponseJson cancel(Long id) {
+	public DocDbResponseJson cancel(Long id) {
 		transferDataServer.cancel(id);
 		return DocDbResponseJson.ok();
 	}
-	
+
 	@PostMapping(value = "/list")
-	public ResponseJson list() {
+	public DocDbResponseJson list() {
 		QueryWrapper<DbTransferTask> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("del_flag", 0);
 		queryWrapper.select(
@@ -57,15 +56,15 @@ public class DbTransferDataController {
 		List<DbTransferTask> taskList = dbTransferTaskService.list(queryWrapper);
 		return DocDbResponseJson.ok(taskList);
 	}
-	
+
 	@PostMapping(value = "/detail")
-	public ResponseJson detail(Long id) {
+	public DocDbResponseJson detail(Long id) {
 		DbTransferTask transferTask = dbTransferTaskService.getById(id);
 		return DocDbResponseJson.ok(transferTask);
 	}
-	
+
 	@PostMapping(value = "/update")
-	public ResponseJson update(DbTransferTask transferTask) {
+	public DocDbResponseJson update(DbTransferTask transferTask) {
 		DbTransferTask transferTaskUp = new DbTransferTask();
 		if (transferTask.getId() == null) {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -86,9 +85,9 @@ public class DbTransferDataController {
 		dbTransferTaskService.saveOrUpdate(transferTaskUp);
 		return DocDbResponseJson.ok();
 	}
-	
+
 	@PostMapping("/sqlColumns")
-	public ResponseJson sqlColumns(String sql) {
+	public DocDbResponseJson sqlColumns(String sql) {
 		List<String> selectNames = SqlParseUtil.getSelectNames(sql);
 		return DocDbResponseJson.ok(selectNames);
 	}

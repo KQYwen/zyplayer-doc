@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
-import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbFavorite;
@@ -46,7 +45,7 @@ import java.util.*;
 @RequestMapping("/zyplayer-doc-db/executor")
 public class DbSqlExecutorController {
 	private static Logger logger = LoggerFactory.getLogger(DbSqlExecutorController.class);
-	
+
 	@Resource
 	SqlExecutor sqlExecutor;
 	@Resource
@@ -55,9 +54,9 @@ public class DbSqlExecutorController {
 	DbFavoriteService dbFavoriteService;
 	@Resource
 	DatabaseServiceFactory databaseServiceFactory;
-	
+
 	@PostMapping(value = "/execute")
-	public ResponseJson execute(Long sourceId, String executeId, String dbName, String sql, String params) {
+	public DocDbResponseJson execute(Long sourceId, String executeId, String dbName, String sql, String params) {
 		if (StringUtils.isBlank(sql)) {
 			return DocDbResponseJson.warn("执行的SQL不能为空");
 		}
@@ -107,24 +106,24 @@ public class DbSqlExecutorController {
 		}
 		return DocDbResponseJson.ok(resultList);
 	}
-	
+
 	@PostMapping(value = "/cancel")
-	public ResponseJson cancel(String executeId) {
+	public DocDbResponseJson cancel(String executeId) {
 		sqlExecutor.cancel(executeId);
 		return DocDbResponseJson.ok();
 	}
-	
+
 	@PostMapping(value = "/history/list")
-	public ResponseJson historyList(Long sourceId) {
+	public DocDbResponseJson historyList(Long sourceId) {
 		UpdateWrapper<DbHistory> wrapper = new UpdateWrapper<>();
 		wrapper.eq(sourceId != null, "datasource_id", sourceId);
 		wrapper.orderByDesc("id");
 		List<DbHistory> favoriteList = dbHistoryService.list(wrapper);
 		return DocDbResponseJson.ok(favoriteList);
 	}
-	
+
 	@PostMapping(value = "/favorite/list")
-	public ResponseJson favoriteList(Long sourceId) {
+	public DocDbResponseJson favoriteList(Long sourceId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		UpdateWrapper<DbFavorite> wrapper = new UpdateWrapper<>();
 		wrapper.eq(sourceId != null, "datasource_id", sourceId);
@@ -134,9 +133,9 @@ public class DbSqlExecutorController {
 		List<DbFavorite> favoriteList = dbFavoriteService.list(wrapper);
 		return DocDbResponseJson.ok(favoriteList);
 	}
-	
+
 	@PostMapping(value = "/favorite/add")
-	public ResponseJson addFavorite(DbFavorite dbFavorite) {
+	public DocDbResponseJson addFavorite(DbFavorite dbFavorite) {
 		Integer yn = Optional.ofNullable(dbFavorite.getYn()).orElse(1);
 		if (yn == 1) {
 			if (StringUtils.isBlank(dbFavorite.getContent())) {
@@ -156,6 +155,5 @@ public class DbSqlExecutorController {
 		}
 		return DocDbResponseJson.ok();
 	}
-	
-}
 
+}

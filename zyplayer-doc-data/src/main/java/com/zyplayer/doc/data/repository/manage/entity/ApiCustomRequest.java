@@ -20,8 +20,6 @@ import java.util.Date;
 @TableName("api_custom_request")
 public class ApiCustomRequest implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * 主键自增ID
      */

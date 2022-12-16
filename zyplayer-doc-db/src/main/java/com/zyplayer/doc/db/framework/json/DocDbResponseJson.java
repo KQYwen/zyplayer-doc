@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zyplayer.doc.core.json.ResponseJson;
 import lombok.Data;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,7 +17,7 @@ import java.util.Date;
  * @since 2018年8月8日
  */
 @Data
-public class DocDbResponseJson implements ResponseJson {
+public class DocDbResponseJson {
 	private static SerializeConfig mapping = new SerializeConfig();
 	static {
 		mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));

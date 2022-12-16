@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
-import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbProcLog;
@@ -42,12 +41,12 @@ import java.util.List;
 @RequestMapping("/zyplayer-doc-db/procedure")
 public class DbProcedureController {
 	private static Logger logger = LoggerFactory.getLogger(DbProcedureController.class);
-	
+
 	@Resource
 	DatabaseServiceFactory databaseServiceFactory;
 	@Resource
 	DbProcLogService dbProcLogService;
-	
+
 	/**
 	 * 存储过程列表
 	 *
@@ -55,7 +54,7 @@ public class DbProcedureController {
 	 * @return 列表
 	 */
 	@PostMapping(value = "/list")
-	public ResponseJson list(ProcedureListParam procedureParam) {
+	public DocDbResponseJson list(ProcedureListParam procedureParam) {
 		try {
 			DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(procedureParam.getSourceId());
 			procedureParam.setOffset((procedureParam.getPageNum() - 1) * procedureParam.getPageSize());
@@ -70,7 +69,7 @@ public class DbProcedureController {
 			return DocDbResponseJson.error(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 获取函数详情
 	 *
@@ -81,7 +80,7 @@ public class DbProcedureController {
 	 * @return 详情
 	 */
 	@PostMapping(value = "/detail")
-	public ResponseJson detail(Long sourceId, String dbName, String typeName, String procName) {
+	public DocDbResponseJson detail(Long sourceId, String dbName, String typeName, String procName) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		try {
 			ProcedureDto procedureDto = dbBaseService.getProcedureDetail(sourceId, dbName, typeName, procName);
@@ -91,7 +90,7 @@ public class DbProcedureController {
 			return DocDbResponseJson.error(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 删除函数
 	 *
@@ -102,7 +101,7 @@ public class DbProcedureController {
 	 * @return 结果
 	 */
 	@PostMapping(value = "/delete")
-	public ResponseJson delete(Long sourceId, String dbName, String typeName, String procName) {
+	public DocDbResponseJson delete(Long sourceId, String dbName, String typeName, String procName) {
 		this.judgeAuth(sourceId, DbAuthType.PROC_EDIT.getName(), "没有修改该库函数的权限");
 		DbProcLog dbProcLog = this.createDbProcLog(sourceId, dbName, typeName, procName, "删除函数操作");
 		try {
@@ -117,7 +116,7 @@ public class DbProcedureController {
 			dbProcLogService.save(dbProcLog);
 		}
 	}
-	
+
 	/**
 	 * 保存函数
 	 *
@@ -129,7 +128,7 @@ public class DbProcedureController {
 	 * @return 结果
 	 */
 	@PostMapping(value = "/save")
-	public ResponseJson save(Long sourceId, String dbName, String typeName, String procName, String procSql) {
+	public DocDbResponseJson save(Long sourceId, String dbName, String typeName, String procName, String procSql) {
 		this.judgeAuth(sourceId, DbAuthType.PROC_EDIT.getName(), "没有修改该库函数的权限");
 		DbProcLog dbProcLog = this.createDbProcLog(sourceId, dbName, typeName, procName, procSql);
 		try {
@@ -147,7 +146,7 @@ public class DbProcedureController {
 			dbProcLogService.save(dbProcLog);
 		}
 	}
-	
+
 	/**
 	 * 存储过程修改日志列表
 	 *
@@ -158,7 +157,7 @@ public class DbProcedureController {
 	 * @return 列表
 	 */
 	@PostMapping(value = "/log/list")
-	public ResponseJson logList(Integer pageNum, Integer pageSize, Long sourceId, String dbName, String typeName, String procName) {
+	public DocDbResponseJson logList(Integer pageNum, Integer pageSize, Long sourceId, String dbName, String typeName, String procName) {
 		QueryWrapper<DbProcLog> wrapper = new QueryWrapper<>();
 		wrapper.eq("datasource_id", sourceId);
 		wrapper.eq("proc_db", dbName);
@@ -170,7 +169,7 @@ public class DbProcedureController {
 		dbProcLogService.page(page, wrapper);
 		return DocDbResponseJson.ok(page);
 	}
-	
+
 	/**
 	 * 存储过程修改日志详情
 	 *
@@ -178,11 +177,11 @@ public class DbProcedureController {
 	 * @return 详情
 	 */
 	@PostMapping(value = "/log/detail")
-	public ResponseJson logDetail(Long logId) {
+	public DocDbResponseJson logDetail(Long logId) {
 		DbProcLog dbProcLog = dbProcLogService.getById(logId);
 		return DocDbResponseJson.ok(dbProcLog);
 	}
-	
+
 	/**
 	 * 权限判断
 	 *
@@ -194,7 +193,7 @@ public class DbProcedureController {
 			throw new ConfirmException(noAuthInfo);
 		}
 	}
-	
+
 	/**
 	 * 创建日志对象
 	 *
@@ -220,4 +219,3 @@ public class DbProcedureController {
 		return dbProcLog;
 	}
 }
-
