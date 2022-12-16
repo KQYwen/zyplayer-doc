@@ -2,20 +2,20 @@ package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * <p>
- *
- * </p>
+ * 数据源对象
  *
  * @author 暮光：城中城
  * @since 2019-07-04
  */
 @Data
+@TableName("db_datasource")
 public class DbDatasource implements Serializable {
 
     /**

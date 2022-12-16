@@ -2,7 +2,6 @@ package com.zyplayer.doc.db.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
-import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.repository.manage.entity.DbTableRelation;
 import com.zyplayer.doc.data.repository.manage.param.TableRelationParam;
 import com.zyplayer.doc.data.repository.manage.vo.TableRelationVo;
@@ -34,22 +33,22 @@ import java.util.*;
 @RequestMapping("/zyplayer-doc-db/table-relation")
 public class DbTableRelationController {
 	private static Logger logger = LoggerFactory.getLogger(DbTableRelationController.class);
-	
+
 	@Resource
 	DatabaseServiceFactory databaseServiceFactory;
 	@Resource
 	DbTableRelationService dbTableRelationService;
-	
+
 	@PostMapping(value = "/update")
-	public ResponseJson update(TableRelationParam param) {
+	public DocDbResponseJson update(TableRelationParam param) {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
 		dbBaseService.judgeAuth(param.getSourceId(), DbAuthType.UPDATE.getName(), "没有该库的执行权限");
 		dbTableRelationService.update(param);
 		return DocDbResponseJson.ok();
 	}
-	
+
 	@PostMapping(value = "/getRelation")
-	public ResponseJson getRelation(TableRelationParam param) {
+	public DocDbResponseJson getRelation(TableRelationParam param) {
 		TableRelationVo relationVo = new TableRelationVo();
 		relationVo.setDbName(param.getDbName());
 		relationVo.setName(param.getTableName());
@@ -73,7 +72,7 @@ public class DbTableRelationController {
 		}
 		return DocDbResponseJson.ok(relationVo);
 	}
-	
+
 	public List<TableRelationVo> getRelation(Long sourceId, String dbName, String tableName, String columnName, Set<String> drillPath, int recursion) {
 		// 最大支持5层关系链展示
 		if (recursion >= 5) {
@@ -137,4 +136,3 @@ public class DbTableRelationController {
 		return resultRelationList;
 	}
 }
-

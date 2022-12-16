@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.zyplayer.doc.core.annotation.AuthMan;
-import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.db.controller.download.FormatDownloadConst;
 import com.zyplayer.doc.db.controller.download.FormatDownloadService;
 import com.zyplayer.doc.db.controller.param.DataViewParam;
@@ -45,7 +44,7 @@ import java.util.*;
 @RequestMapping("/zyplayer-doc-db/data-view")
 public class DbDataViewController {
 	private static Logger logger = LoggerFactory.getLogger(DbDataViewController.class);
-	
+
 	@Resource
 	ExecuteAuthService executeAuthService;
 	@Resource
@@ -57,7 +56,7 @@ public class DbDataViewController {
 	// 最大允许导出的行数，设置的过大有可能会导致内存溢出，默认10W条
 	@Value("${zyplayer.doc.db.download-max-row:100000}")
 	Integer downloadMaxRow;
-	
+
 	/**
 	 * 数据查询接口
 	 *
@@ -65,7 +64,7 @@ public class DbDataViewController {
 	 * @since 2021-08-14
 	 */
 	@PostMapping(value = "/query")
-	public ResponseJson query(DataViewParam param) {
+	public DocDbResponseJson query(DataViewParam param) {
 		// 数据查询
 		ExecuteType executeType = executeAuthService.getExecuteType(param.getSourceId());
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
@@ -84,20 +83,20 @@ public class DbDataViewController {
 		}
 		return responseJson;
 	}
-	
+
 	/**
 	 * 删除表数据
 	 *
 	 * @author 暮光：城中城
 	 */
 	@PostMapping(value = "/deleteTableLineData")
-	public ResponseJson deleteTableLineData(Long sourceId, String dbName, String tableName, String lineJson) {
+	public DocDbResponseJson deleteTableLineData(Long sourceId, String dbName, String tableName, String lineJson) {
 		JSONArray lineJsonArr = JSON.parseArray(lineJson);
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(sourceId);
 		dbBaseService.deleteTableLineData(sourceId, dbName, tableName, lineJsonArr);
 		return DocDbResponseJson.ok();
 	}
-	
+
 	/**
 	 * 多表下载
 	 *
@@ -107,7 +106,7 @@ public class DbDataViewController {
 	 * @author 暮光：城中城
 	 */
 	@PostMapping(value = "/downloadMultiple")
-	public ResponseJson downloadMultiple(HttpServletResponse response, DataViewParam param) {
+	public DocDbResponseJson downloadMultiple(HttpServletResponse response, DataViewParam param) {
 		if (StringUtils.isBlank(param.getTableNames())) {
 			return DocDbResponseJson.warn("请选择导出的表");
 		}
@@ -130,7 +129,7 @@ public class DbDataViewController {
 		}
 		return DocDbResponseJson.ok();
 	}
-	
+
 	/**
 	 * 获取数据总条数
 	 *
@@ -148,7 +147,7 @@ public class DbDataViewController {
 		}
 		return 0L;
 	}
-	
+
 	/**
 	 * 执行数据查询
 	 *
@@ -174,4 +173,3 @@ public class DbDataViewController {
 		}
 	}
 }
-

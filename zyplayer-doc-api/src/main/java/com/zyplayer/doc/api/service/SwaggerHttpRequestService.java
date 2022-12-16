@@ -6,7 +6,6 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
-import com.zyplayer.doc.api.controller.ApiPoxyRequestController;
 import com.zyplayer.doc.api.controller.param.ProxyRequestParam;
 import com.zyplayer.doc.api.controller.vo.HttpCookieVo;
 import com.zyplayer.doc.api.controller.vo.HttpHeaderVo;
@@ -44,15 +43,15 @@ import java.util.stream.Stream;
 @Service
 public class SwaggerHttpRequestService {
 	private static Logger logger = LoggerFactory.getLogger(SwaggerHttpRequestService.class);
-	
+
 	@Resource
 	private ApiGlobalParamService apiGlobalParamService;
-	
+
 	private static final Map<String, Method> requestMethodMap = Stream.of(Method.values()).collect(Collectors.toMap(val -> val.name().toLowerCase(), val -> val));
-	
+
 	List<String> domainHeaderKeys = Arrays.asList("referer", "origin");
 	List<String> needRequestHeaderKeys = Arrays.asList("user-agent");
-	
+
 	/**
 	 * 请求真实的swagger文档内容
 	 *
@@ -81,7 +80,7 @@ public class SwaggerHttpRequestService {
 				.timeout(10000).execute().body();
 		return resultStr;
 	}
-	
+
 	/**
 	 * 执行代理请求
 	 *
@@ -102,7 +101,7 @@ public class SwaggerHttpRequestService {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 执行代理请求
 	 *
@@ -141,7 +140,7 @@ public class SwaggerHttpRequestService {
 		resultVo.setUseTime(System.currentTimeMillis() - startTime);
 		return resultVo;
 	}
-	
+
 	private HttpResponse getHttpResponse(HttpServletRequest request, ProxyRequestParam requestParam) {
 		// 执行请求
 		Method method = requestMethodMap.get(requestParam.getMethod());
@@ -195,13 +194,13 @@ public class SwaggerHttpRequestService {
 			httpRequest.body(requestParam.getBodyParam());
 		}
 		// 强制设置类型，貌似不用刻意设置，如果写的application/json，参数是表单，传过去收不到值，先注释这个
-//			if (StringUtils.isNotBlank(requestParam.getContentType())) {
-//				httpRequest.contentType(requestParam.getContentType());
-//			}
+		//			if (StringUtils.isNotBlank(requestParam.getContentType())) {
+		//				httpRequest.contentType(requestParam.getContentType());
+		//			}
 		// 执行请求
 		return httpRequest.timeout(10000).execute();
 	}
-	
+
 	/**
 	 * 获取http的cookie
 	 *
@@ -228,7 +227,7 @@ public class SwaggerHttpRequestService {
 		}
 		return httpCookies;
 	}
-	
+
 	/**
 	 * 获取http的header
 	 *

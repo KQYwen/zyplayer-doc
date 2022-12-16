@@ -39,15 +39,4 @@ public class DocUserDetails {
 		this.enabled = enabled;
 		this.userAuthList = userAuthList;
 	}
-
-	@Override
-	public String toString() {
-		return "DocUserDetails{" +
-				"userId=" + userId +
-				", username='" + username + '\'' +
-				", password='" + password + '\'' +
-				", enabled=" + enabled +
-				", userAuthList=" + userAuthList +
-				'}';
-	}
 }

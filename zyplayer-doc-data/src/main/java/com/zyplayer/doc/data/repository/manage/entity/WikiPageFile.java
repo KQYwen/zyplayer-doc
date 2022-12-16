@@ -2,6 +2,7 @@ package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ import java.util.Date;
  * @since 2019-03-06
  */
 @Data
+@TableName("wiki_page_file")
 public class WikiPageFile implements Serializable {
 
     /**
