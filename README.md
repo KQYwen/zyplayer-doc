@@ -1,7 +1,5 @@
-# zyplayer-doc
-
 # 项目介绍
-zyplayer-doc是一款前后端完全开源的在线文档工具，现有API接口文档（Swagger、OpenApi、自建接口）、WIKI文档、数据库文档（数据库表结构查看管理、SQL执行）。
+zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同时还包含数据库文档、Api接口文档。
 
 体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/) 账号：zyplayer 密码：123456
 

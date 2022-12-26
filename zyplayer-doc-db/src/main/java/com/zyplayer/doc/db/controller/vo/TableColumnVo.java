@@ -3,6 +3,7 @@ package com.zyplayer.doc.db.controller.vo;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
+import lombok.Data;
 
 import java.util.List;
 
@@ -12,53 +13,25 @@ import java.util.List;
  * @author 暮光：城中城
  * @since 2018-11-27
  */
+@Data
 public class TableColumnVo {
-	
+
+	// 表字段注释信息
 	private List<TableColumnDescDto> columnList;
-	
+
+	// 表名+表注释
 	private TableInfoVo tableInfo;
-	
+
+	@Data
 	public static class TableInfoVo {
-		
+
 		@ColumnWidth(20)
 		@ExcelProperty("表名")
 		private String tableName;
-		
+
 		@ColumnWidth(80)
 		@ExcelProperty("表注释")
 		private String description;
-		
-		public String getDescription() {
-			return description;
-		}
-		
-		public void setDescription(String description) {
-			this.description = description;
-		}
-		
-		public String getTableName() {
-			return tableName;
-		}
-		
-		public void setTableName(String tableName) {
-			this.tableName = tableName;
-		}
+
 	}
-	
-	public List<TableColumnDescDto> getColumnList() {
-		return columnList;
-	}
-	
-	public void setColumnList(List<TableColumnDescDto> columnList) {
-		this.columnList = columnList;
-	}
-	
-	public TableInfoVo getTableInfo() {
-		return tableInfo;
-	}
-	
-	public void setTableInfo(TableInfoVo tableInfo) {
-		this.tableInfo = tableInfo;
-	}
-	
 }

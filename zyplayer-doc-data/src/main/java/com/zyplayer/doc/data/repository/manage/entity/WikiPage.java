@@ -2,6 +2,8 @@ package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,9 +16,9 @@ import java.util.Date;
  * @author 暮光：城中城
  * @since 2019-06-06
  */
+@Data
+@TableName("wiki_page")
 public class WikiPage implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * 主键自增ID
@@ -103,147 +105,5 @@ public class WikiPage implements Serializable {
      * 编辑框类型 1=HTML 2=Markdown
      */
     private Integer editorType;
-    
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Long getSpaceId() {
-        return spaceId;
-    }
-
-    public void setSpaceId(Long spaceId) {
-        this.spaceId = spaceId;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-    public Integer getNodeType() {
-        return nodeType;
-    }
-
-    public void setNodeType(Integer nodeType) {
-        this.nodeType = nodeType;
-    }
-    public Integer getZanNum() {
-        return zanNum;
-    }
-
-    public void setZanNum(Integer zanNum) {
-        this.zanNum = zanNum;
-    }
-    public Integer getEditType() {
-        return editType;
-    }
-
-    public void setEditType(Integer editType) {
-        this.editType = editType;
-    }
-    public Long getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(Long createUserId) {
-        this.createUserId = createUserId;
-    }
-    public String getCreateUserName() {
-        return createUserName;
-    }
-
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
-    }
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-    public Long getUpdateUserId() {
-        return updateUserId;
-    }
-
-    public void setUpdateUserId(Long updateUserId) {
-        this.updateUserId = updateUserId;
-    }
-    public String getUpdateUserName() {
-        return updateUserName;
-    }
-
-    public void setUpdateUserName(String updateUserName) {
-        this.updateUserName = updateUserName;
-    }
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-    public Integer getDelFlag() {
-        return delFlag;
-    }
-
-    public void setDelFlag(Integer delFlag) {
-        this.delFlag = delFlag;
-    }
-    public Integer getViewNum() {
-        return viewNum;
-    }
-
-    public void setViewNum(Integer viewNum) {
-        this.viewNum = viewNum;
-    }
-    public Integer getSeqNo() {
-        return seqNo;
-    }
-
-    public void setSeqNo(Integer seqNo) {
-        this.seqNo = seqNo;
-    }
-    
-    @Override
-    public String toString() {
-        return "WikiPage{" +
-        "id=" + id +
-        ", spaceId=" + spaceId +
-        ", name=" + name +
-        ", parentId=" + parentId +
-        ", nodeType=" + nodeType +
-        ", zanNum=" + zanNum +
-        ", editType=" + editType +
-        ", createUserId=" + createUserId +
-        ", createUserName=" + createUserName +
-        ", createTime=" + createTime +
-        ", updateUserId=" + updateUserId +
-        ", updateUserName=" + updateUserName +
-        ", updateTime=" + updateTime +
-        ", delFlag=" + delFlag +
-        ", viewNum=" + viewNum +
-        ", seqNo=" + seqNo +
-        "}";
-    }
-    
-    public Integer getEditorType() {
-        return editorType;
-    }
-    
-    public void setEditorType(Integer editorType) {
-        this.editorType = editorType;
-    }
 }

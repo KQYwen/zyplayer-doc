@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zyplayer.doc.core.annotation.AuthMan;
 import com.zyplayer.doc.core.exception.ConfirmException;
-import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbDatasource;
@@ -36,14 +35,14 @@ import java.util.stream.Collectors;
 @AuthMan(DocAuthConst.DB_DATASOURCE_MANAGE)
 @RequestMapping("/zyplayer-doc-db/datasource")
 public class DbDatasourceController {
-	
+
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
 	@Resource
 	DbDatasourceService dbDatasourceService;
-	
+
 	@PostMapping(value = "/list")
-	public ResponseJson list(Integer pageNum, Integer pageSize, String name, String groupName) {
+	public DocDbResponseJson list(Integer pageNum, Integer pageSize, String name, String groupName) {
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
 		wrapper.eq("yn", 1);
 		wrapper.eq(StringUtils.isNotBlank(groupName), "group_name", groupName);
@@ -55,9 +54,9 @@ public class DbDatasourceController {
 		}
 		return DocDbResponseJson.ok(page);
 	}
-	
+
 	@PostMapping(value = "/groups")
-	public ResponseJson groups() {
+	public DocDbResponseJson groups() {
 		QueryWrapper<DbDatasource> wrapper = new QueryWrapper<>();
 		wrapper.eq("yn", 1);
 		wrapper.isNotNull("group_name");
@@ -70,9 +69,9 @@ public class DbDatasourceController {
 		Set<String> groupNameSet = datasourceList.stream().map(DbDatasource::getGroupName).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
 		return DocDbResponseJson.ok(groupNameSet);
 	}
-	
+
 	@PostMapping(value = "/test")
-	public ResponseJson test(DbDatasource dbDatasource) {
+	public DocDbResponseJson test(DbDatasource dbDatasource) {
 		// 验证新的数据源
 		try {
 			// 获取原始密码
@@ -92,9 +91,9 @@ public class DbDatasourceController {
 		}
 		return DocDbResponseJson.ok();
 	}
-	
+
 	@PostMapping(value = "/update")
-	public ResponseJson update(DbDatasource dbDatasource) {
+	public DocDbResponseJson update(DbDatasource dbDatasource) {
 		if (StringUtils.isBlank(dbDatasource.getName())) {
 			return DocDbResponseJson.warn("名字必填");
 		} else if (StringUtils.isBlank(dbDatasource.getDriverClassName())) {
@@ -129,4 +128,3 @@ public class DbDatasourceController {
 		return DocDbResponseJson.ok();
 	}
 }
-

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zyplayer.doc.core.json.ResponseJson;
+import lombok.Data;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -16,7 +16,8 @@ import java.util.Date;
  * @author 暮光：城中城
  * @since 2018年8月8日
  */
-public class DocDbResponseJson implements ResponseJson {
+@Data
+public class DocDbResponseJson {
 	private static SerializeConfig mapping = new SerializeConfig();
 	static {
 		mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
@@ -53,26 +54,6 @@ public class DocDbResponseJson implements ResponseJson {
 		this.errCode = errCode;
 	}
 
-	public Integer getErrCode() {
-		return errCode;
-	}
-
-	public void setErrCode(Integer errCode) {
-		this.errCode = errCode;
-	}
-
-	public String getErrMsg() {
-		return errMsg;
-	}
-
-	public void setErrMsg(String errMsg) {
-		this.errMsg = errMsg;
-	}
-
-	public Object getData() {
-		return data;
-	}
-
 	public void setData(Object data) {
 		if (null != data) {
 			if (data instanceof IPage) {
@@ -96,7 +77,7 @@ public class DocDbResponseJson implements ResponseJson {
 	public static DocDbResponseJson warn(String errMsg) {
 		return new DocDbResponseJson(300, errMsg);
 	}
-	
+
 	/**
 	 * 错误
 	 *
@@ -135,7 +116,7 @@ public class DocDbResponseJson implements ResponseJson {
 	public String toJson() {
 		return JSON.toJSONString(this, mapping);
 	}
-	
+
 	public void send(HttpServletResponse response) {
 		try {
 			response.setStatus(200);
@@ -147,17 +128,10 @@ public class DocDbResponseJson implements ResponseJson {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "DefaultResponseJson [errCode=" + errCode + ", errMsg=" + errMsg + ", data=" + data + "]";
 	}
-	
-	public Long getTotal() {
-		return total;
-	}
-	
-	public void setTotal(Long total) {
-		this.total = total;
-	}
+
 }

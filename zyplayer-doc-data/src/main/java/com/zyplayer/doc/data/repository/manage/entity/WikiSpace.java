@@ -2,21 +2,23 @@ package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 暮光：城中城
  * @since 2019-03-11
  */
+@Data
+@TableName("wiki_space")
 public class WikiSpace implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * 主键自增ID
@@ -78,107 +80,4 @@ public class WikiSpace implements Serializable {
      * 删除标记 0=正常 1=已删除
      */
     private Integer delFlag;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
-    public String getSpaceExplain() {
-        return spaceExplain;
-    }
-
-    public void setSpaceExplain(String spaceExplain) {
-        this.spaceExplain = spaceExplain;
-    }
-    public Integer getEditType() {
-        return editType;
-    }
-
-    public void setEditType(Integer editType) {
-        this.editType = editType;
-    }
-    public Integer getTreeLazyLoad() {
-        return treeLazyLoad;
-    }
-
-    public void setTreeLazyLoad(Integer treeLazyLoad) {
-        this.treeLazyLoad = treeLazyLoad;
-    }
-    public Integer getOpenDoc() {
-        return openDoc;
-    }
-
-    public void setOpenDoc(Integer openDoc) {
-        this.openDoc = openDoc;
-    }
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-    public Long getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(Long createUserId) {
-        this.createUserId = createUserId;
-    }
-    public String getCreateUserName() {
-        return createUserName;
-    }
-
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
-    }
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-    public Integer getDelFlag() {
-        return delFlag;
-    }
-
-    public void setDelFlag(Integer delFlag) {
-        this.delFlag = delFlag;
-    }
-
-    @Override
-    public String toString() {
-        return "WikiSpace{" +
-        "id=" + id +
-        ", name=" + name +
-        ", type=" + type +
-        ", spaceExplain=" + spaceExplain +
-        ", editType=" + editType +
-        ", treeLazyLoad=" + treeLazyLoad +
-        ", openDoc=" + openDoc +
-        ", uuid=" + uuid +
-        ", createUserId=" + createUserId +
-        ", createUserName=" + createUserName +
-        ", createTime=" + createTime +
-        ", delFlag=" + delFlag +
-        "}";
-    }
 }

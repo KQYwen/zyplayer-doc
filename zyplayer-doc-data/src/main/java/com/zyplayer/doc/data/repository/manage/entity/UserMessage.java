@@ -2,6 +2,8 @@ package com.zyplayer.doc.data.repository.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,9 +16,9 @@ import java.util.Date;
  * @author 暮光：城中城
  * @since 2020-06-23
  */
+@Data
+@TableName("user_message")
 public class UserMessage implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * 主键自增ID
@@ -84,114 +86,4 @@ public class UserMessage implements Serializable {
      */
     private Date creationTime;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Integer getSysType() {
-        return sysType;
-    }
-
-    public void setSysType(Integer sysType) {
-        this.sysType = sysType;
-    }
-    public Integer getMsgType() {
-        return msgType;
-    }
-
-    public void setMsgType(Integer msgType) {
-        this.msgType = msgType;
-    }
-    public Long getDataId() {
-        return dataId;
-    }
-
-    public void setDataId(Long dataId) {
-        this.dataId = dataId;
-    }
-    public String getDataDesc() {
-        return dataDesc;
-    }
-
-    public void setDataDesc(String dataDesc) {
-        this.dataDesc = dataDesc;
-    }
-    public Integer getMsgStatus() {
-        return msgStatus;
-    }
-
-    public void setMsgStatus(Integer msgStatus) {
-        this.msgStatus = msgStatus;
-    }
-    public Long getOperatorUserId() {
-        return operatorUserId;
-    }
-
-    public void setOperatorUserId(Long operatorUserId) {
-        this.operatorUserId = operatorUserId;
-    }
-    public String getOperatorUserName() {
-        return operatorUserName;
-    }
-
-    public void setOperatorUserName(String operatorUserName) {
-        this.operatorUserName = operatorUserName;
-    }
-    public Long getAcceptUserId() {
-        return acceptUserId;
-    }
-
-    public void setAcceptUserId(Long acceptUserId) {
-        this.acceptUserId = acceptUserId;
-    }
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(Date creationTime) {
-        this.creationTime = creationTime;
-    }
-
-    @Override
-    public String toString() {
-        return "UserMessage{" +
-        "id=" + id +
-        ", sysType=" + sysType +
-        ", msgType=" + msgType +
-        ", dataId=" + dataId +
-        ", dataDesc=" + dataDesc +
-        ", msgStatus=" + msgStatus +
-        ", operatorUserId=" + operatorUserId +
-        ", operatorUserName=" + operatorUserName +
-        ", acceptUserId=" + acceptUserId +
-        ", creationTime=" + creationTime +
-        "}";
-    }
-    
-    public String getMsgContent() {
-        return msgContent;
-    }
-    
-    public void setMsgContent(String msgContent) {
-        this.msgContent = msgContent;
-    }
-    
-    public Long getAffectUserId() {
-        return affectUserId;
-    }
-    
-    public void setAffectUserId(Long affectUserId) {
-        this.affectUserId = affectUserId;
-    }
-    
-    public String getAffectUserName() {
-        return affectUserName;
-    }
-    
-    public void setAffectUserName(String affectUserName) {
-        this.affectUserName = affectUserName;
-    }
 }
