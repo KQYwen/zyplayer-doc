@@ -8,6 +8,9 @@ import routes from './routes'
 import store from './store/index'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+// 注册一个全局自定义指令
+import hljs from 'highlight.js'
+import 'highlight.js/styles/googlecode.css'
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
@@ -15,27 +18,30 @@ Vue.use(VueAxios, axios);
 
 // 公用方法
 Vue.prototype.$store = store;
+// 路由重复点击报错处理
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+	return originalPush.call(this, location).catch(err => err)
+}
 
 const router = new VueRouter({routes});
 // 路由跳转时判断处理
 router.beforeEach((to, from, next) => {
-    if (to.name) {
-        document.title = to.name;
-    }
-    next();
+	if (to.name) {
+		document.title = to.name;
+	}
+	next();
 });
+
+
 
 let vue = new Vue({
-    el: '#app',
-    router,
-    render(h) {
-        return h(App);
-    }
+	el: '#app',
+	router,
+	render(h) {
+		return h(App);
+	}
 });
-
-// 注册一个全局自定义指令
-import hljs from 'highlight.js'
-import 'highlight.js/styles/googlecode.css'
 
 Vue.directive('highlight', function (el) {
 	let blocks = el.querySelectorAll('pre code');
