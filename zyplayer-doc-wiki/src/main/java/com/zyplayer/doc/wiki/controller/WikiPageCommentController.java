@@ -18,8 +18,8 @@ import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageCommentVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,20 +35,21 @@ import java.util.Objects;
  * @author 暮光：城中城
  * @since 2019年2月17日
  */
+@Slf4j
 @AuthMan
 @RestController
 @RequestMapping("/zyplayer-doc-wiki/page/comment")
+@RequiredArgsConstructor
 public class WikiPageCommentController {
-	private static Logger logger = LoggerFactory.getLogger(WikiPageCommentController.class);
-	
+
 	@Resource
-	WikiPageCommentService wikiPageCommentService;
+	private final WikiPageCommentService wikiPageCommentService;
 	@Resource
-	WikiSpaceService wikiSpaceService;
+	private final WikiSpaceService wikiSpaceService;
 	@Resource
-	WikiPageService wikiPageService;
+	private final WikiPageService wikiPageService;
 	@Resource
-	UserMessageService userMessageService;
+	private final UserMessageService userMessageService;
 	
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPageCommentVo>> list(WikiPageComment pageComment) {

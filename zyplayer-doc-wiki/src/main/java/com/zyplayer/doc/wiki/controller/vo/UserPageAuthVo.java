@@ -1,6 +1,6 @@
 package com.zyplayer.doc.wiki.controller.vo;
 
-import lombok.*;
+import lombok.Data;
 
 /**
  * 用户页面权限信息

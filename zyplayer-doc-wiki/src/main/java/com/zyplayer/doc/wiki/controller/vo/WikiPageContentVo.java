@@ -3,7 +3,7 @@ package com.zyplayer.doc.wiki.controller.vo;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageContent;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
-import lombok.*;
+import lombok.Data;
 
 import java.util.List;
 

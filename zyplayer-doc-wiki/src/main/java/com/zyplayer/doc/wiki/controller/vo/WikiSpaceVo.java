@@ -1,7 +1,7 @@
 package com.zyplayer.doc.wiki.controller.vo;
 
 import com.zyplayer.doc.data.repository.manage.entity.WikiSpace;
-import lombok.*;
+import lombok.Data;
 
 import java.util.Date;
 

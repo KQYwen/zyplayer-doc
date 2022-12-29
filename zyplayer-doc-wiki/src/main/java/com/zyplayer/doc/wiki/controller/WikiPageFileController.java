@@ -19,8 +19,8 @@ import com.zyplayer.doc.data.service.manage.WikiPageFileService;
 import com.zyplayer.doc.data.service.manage.WikiPageService;
 import com.zyplayer.doc.data.service.manage.WikiSpaceService;
 import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,26 +39,22 @@ import java.util.Map;
  * @author 暮光：城中城
  * @since 2019年2月17日
  */
+@Slf4j
 @AuthMan
 @RestController
 @RequestMapping("/zyplayer-doc-wiki/page/file")
+@RequiredArgsConstructor
 public class WikiPageFileController {
-	private static Logger logger = LoggerFactory.getLogger(WikiPageFileController.class);
-	
-	@Value("${zyplayer.doc.wiki.upload-path:}")
-	private String uploadPath;
-	
-	@Resource
-	WikiPageFileService wikiPageFileService;
-	@Resource
-	WikiSpaceService wikiSpaceService;
-	@Resource
-	WikiPageService wikiPageService;
-	@Resource
-	WikiPageAuthService wikiPageAuthService;
-	@Resource
-	UserMessageService userMessageService;
-	
+
+    @Value("${zyplayer.doc.wiki.upload-path:}")
+    private String uploadPath;
+
+    private final WikiPageFileService wikiPageFileService;
+    private final WikiSpaceService wikiSpaceService;
+    private final WikiPageService wikiPageService;
+    private final WikiPageAuthService wikiPageAuthService;
+    private final UserMessageService userMessageService;
+
 //	@PostMapping("/list")
 //	public ResponseJson<List<WikiPageFile>> list(WikiPageFile wikiPageFile) {
 //		// TODO 检查space是否开放访问
@@ -72,113 +67,114 @@ public class WikiPageFileController {
 //		}
 //		return DocResponseJson.ok(fileList);
 //	}
-	
-	@PostMapping("/delete")
-	public ResponseJson<Object> delete(WikiPageFile wikiPageFile) {
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		Long id = wikiPageFile.getId();
-		if (id == null || id <= 0) {
-			return DocResponseJson.warn("需指定删除的附件！");
-		}
-		WikiPageFile pageFileSel = wikiPageFileService.getById(wikiPageFile.getId());
-		WikiPage wikiPageSel = wikiPageService.getById(pageFileSel.getPageId());
-		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-		// 权限判断
-		String canDeleteFile = wikiPageAuthService.canDeleteFile(wikiSpaceSel, pageFileSel.getPageId(), currentUser.getUserId());
-		if (canDeleteFile != null) {
-			return DocResponseJson.warn(canDeleteFile);
-		}
-		wikiPageFile.setDelFlag(1);
-		wikiPageFile.setUpdateUserId(currentUser.getUserId());
-		wikiPageFile.setUpdateUserName(currentUser.getUsername());
-		wikiPageFile.setUpdateTime(new Date());
-		wikiPageFileService.updateById(wikiPageFile);
-		// 给相关人发送消息
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_FILE_DEL);
-		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
-		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
-		userMessageService.addWikiMessage(userMessage);
-		return DocResponseJson.ok();
-	}
-	
-	@PostMapping("/wangEditor/upload")
-	public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
-		Map<String, Object> resultMap = new HashMap<>();
-		DocResponseJson docResponseJson = this.uploadFile(wikiPageFile, file);
-		if (!docResponseJson.isOk()) {
-			resultMap.put("errno", 1);
-			resultMap.put("message", docResponseJson.getErrMsg());
-		} else {
-			resultMap.put("errno", 0);
-			resultMap.put("data", new JSONObject().fluentPut("url", wikiPageFile.getFileUrl()));
-		}
-		return resultMap;
-	}
-	
-	@PostMapping("/upload")
-	public ResponseJson upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		Long pageId = wikiPageFile.getPageId();
-		if (pageId == null || pageId <= 0) {
-			return DocResponseJson.warn("未指定附件关联的文档");
-		}
-		WikiPage wikiPageSel = wikiPageService.getById(pageId);
-		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-		// 权限判断
-		String canUploadFile = wikiPageAuthService.canUploadFile(wikiSpaceSel, wikiPageSel.getId(), currentUser.getUserId());
-		if (canUploadFile != null) {
-			return DocResponseJson.warn(canUploadFile);
-		}
-		DocResponseJson docResponseJson = this.uploadFile(wikiPageFile, file);
-		if (!docResponseJson.isOk()) {
-			return docResponseJson;
-		}
-		// 给相关人发送消息
-		UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_UPLOAD);
-		userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
-		userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
-		userMessageService.addWikiMessage(userMessage);
-		return DocResponseJson.ok(wikiPageFile);
-	}
-	
-	/**
-	 * 单纯的文件上传方法
-	 * @param wikiPageFile
-	 * @param file
-	 * @return
-	 */
-	private DocResponseJson uploadFile(WikiPageFile wikiPageFile, MultipartFile file) {
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		String fileName = file.getOriginalFilename();
-		String fileSuffix = "";
-		if (fileName != null && fileName.lastIndexOf(".") >= 0) {
-			fileSuffix = fileName.substring(fileName.lastIndexOf("."));
-		}
-		String path = uploadPath + "/" + DateTime.now().toString("yyyy/MM/dd") + "/";
-		File newFile = new File(path);
-		if (!newFile.exists() && !newFile.mkdirs()) {
-			return DocResponseJson.warn("创建文件夹失败");
-		}
-		String simpleUUID = IdUtil.simpleUUID();
-		path += simpleUUID + fileSuffix;
-		newFile = new File(path);
-		try {
-			file.transferTo(newFile);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return DocResponseJson.warn("保存文件失败");
-		}
-		wikiPageFile.setFileSize(file.getSize());
-		wikiPageFile.setUuid(simpleUUID);
-		wikiPageFile.setFileUrl(path);
-		wikiPageFile.setFileName(fileName);
-		wikiPageFile.setCreateTime(new Date());
-		wikiPageFile.setCreateUserId(currentUser.getUserId());
-		wikiPageFile.setCreateUserName(currentUser.getUsername());
-		wikiPageFile.setDelFlag(0);
-		wikiPageFileService.save(wikiPageFile);
-		wikiPageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + wikiPageFile.getUuid());
-		return DocResponseJson.ok();
-	}
+
+    @PostMapping("/delete")
+    public ResponseJson<Object> delete(WikiPageFile wikiPageFile) {
+        DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+        Long id = wikiPageFile.getId();
+        if (id == null || id <= 0) {
+            return DocResponseJson.warn("需指定删除的附件！");
+        }
+        WikiPageFile pageFileSel = wikiPageFileService.getById(wikiPageFile.getId());
+        WikiPage wikiPageSel = wikiPageService.getById(pageFileSel.getPageId());
+        WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+        // 权限判断
+        String canDeleteFile = wikiPageAuthService.canDeleteFile(wikiSpaceSel, pageFileSel.getPageId(), currentUser.getUserId());
+        if (canDeleteFile != null) {
+            return DocResponseJson.warn(canDeleteFile);
+        }
+        wikiPageFile.setDelFlag(1);
+        wikiPageFile.setUpdateUserId(currentUser.getUserId());
+        wikiPageFile.setUpdateUserName(currentUser.getUsername());
+        wikiPageFile.setUpdateTime(new Date());
+        wikiPageFileService.updateById(wikiPageFile);
+        // 给相关人发送消息
+        UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_FILE_DEL);
+        userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
+        userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
+        userMessageService.addWikiMessage(userMessage);
+        return DocResponseJson.ok();
+    }
+
+    @PostMapping("/wangEditor/upload")
+    public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+        Map<String, Object> resultMap = new HashMap<>();
+        DocResponseJson docResponseJson = this.uploadFile(wikiPageFile, file);
+        if (!docResponseJson.isOk()) {
+            resultMap.put("errno", 1);
+            resultMap.put("message", docResponseJson.getErrMsg());
+        } else {
+            resultMap.put("errno", 0);
+            resultMap.put("data", new JSONObject().fluentPut("url", wikiPageFile.getFileUrl()));
+        }
+        return resultMap;
+    }
+
+    @PostMapping("/upload")
+    public ResponseJson upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+        DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+        Long pageId = wikiPageFile.getPageId();
+        if (pageId == null || pageId <= 0) {
+            return DocResponseJson.warn("未指定附件关联的文档");
+        }
+        WikiPage wikiPageSel = wikiPageService.getById(pageId);
+        WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+        // 权限判断
+        String canUploadFile = wikiPageAuthService.canUploadFile(wikiSpaceSel, wikiPageSel.getId(), currentUser.getUserId());
+        if (canUploadFile != null) {
+            return DocResponseJson.warn(canUploadFile);
+        }
+        DocResponseJson docResponseJson = this.uploadFile(wikiPageFile, file);
+        if (!docResponseJson.isOk()) {
+            return docResponseJson;
+        }
+        // 给相关人发送消息
+        UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_UPLOAD);
+        userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
+        userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
+        userMessageService.addWikiMessage(userMessage);
+        return DocResponseJson.ok(wikiPageFile);
+    }
+
+    /**
+     * 单纯的文件上传方法
+     *
+     * @param wikiPageFile
+     * @param file
+     * @return
+     */
+    private DocResponseJson uploadFile(WikiPageFile wikiPageFile, MultipartFile file) {
+        DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+        String fileName = file.getOriginalFilename();
+        String fileSuffix = "";
+        if (fileName != null && fileName.lastIndexOf(".") >= 0) {
+            fileSuffix = fileName.substring(fileName.lastIndexOf("."));
+        }
+        String path = uploadPath + "/" + DateTime.now().toString("yyyy/MM/dd") + "/";
+        File newFile = new File(path);
+        if (!newFile.exists() && !newFile.mkdirs()) {
+            return DocResponseJson.warn("创建文件夹失败");
+        }
+        String simpleUUID = IdUtil.simpleUUID();
+        path += simpleUUID + fileSuffix;
+        newFile = new File(path);
+        try {
+            file.transferTo(newFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return DocResponseJson.warn("保存文件失败");
+        }
+        wikiPageFile.setFileSize(file.getSize());
+        wikiPageFile.setUuid(simpleUUID);
+        wikiPageFile.setFileUrl(path);
+        wikiPageFile.setFileName(fileName);
+        wikiPageFile.setCreateTime(new Date());
+        wikiPageFile.setCreateUserId(currentUser.getUserId());
+        wikiPageFile.setCreateUserName(currentUser.getUsername());
+        wikiPageFile.setDelFlag(0);
+        wikiPageFileService.save(wikiPageFile);
+        wikiPageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + wikiPageFile.getUuid());
+        return DocResponseJson.ok();
+    }
 }
 

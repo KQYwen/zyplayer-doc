@@ -1,7 +1,7 @@
 package com.zyplayer.doc.wiki.controller.vo;
 
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageComment;
-import lombok.*;
+import lombok.Data;
 
 import java.util.List;
 
