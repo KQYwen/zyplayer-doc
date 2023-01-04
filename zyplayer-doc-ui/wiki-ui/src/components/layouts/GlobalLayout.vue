@@ -50,6 +50,10 @@
 								 @node-click="handleNodeClick"
 								 @node-expand="handleNodeExpand"
 								 @node-drop="handlePageDrop">
+								 <span slot-scope="{node,data}" style="font-size:14px;">
+										<i class="el-icon-document"></i>&nbsp;
+										<span>{{ node.label }}</span>
+								 </span>
 						</el-tree>
 					</div>
 				</div>

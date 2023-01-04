@@ -30,6 +30,7 @@ import com.zyplayer.doc.data.utils.CachePrefix;
 import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
+import com.zyplayer.doc.wiki.framework.common.MDToText;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import com.zyplayer.doc.wiki.service.git.GitService;
@@ -210,6 +211,10 @@ public class WikiPageController {
         DocUserDetails currentUser = DocUserUtil.getCurrentUser();
         WikiPageContent pageContent = new WikiPageContent();
         pageContent.setContent(content);
+        if(wikiPage.getEditorType()==2)
+        {
+            preview = MDToText.mdToText(preview);
+        }
         pageContent.setPreview(preview);
         // 数据库是varchar(16000)，所以如果不开启es的话搜索超过16000的文章就搜不到~，es存preview不截断
         if (StringUtils.isNotBlank(preview) && preview.length() > 16000) {

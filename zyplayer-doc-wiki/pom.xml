@@ -79,6 +79,13 @@
 			<artifactId>ooxml-schemas</artifactId>
 			<version>1.4</version>
 		</dependency>
+
+
+		<dependency>
+			<groupId>com.atlassian.commonmark</groupId>
+			<artifactId>commonmark</artifactId>
+			<version>0.10.0</version>
+		</dependency>
 	</dependencies>
 	<licenses>
 		<license>

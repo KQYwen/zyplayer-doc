@@ -12,6 +12,11 @@
 							 :expand-on-click-node="false" :default-expanded-keys="wikiPageExpandedKeys"
 							 node-key="id"
 							 style="background-color: #fafafa;padding-bottom: 30px;">
+								 <span slot-scope="{node,data}" style="font-size:14px;">
+										<i class="el-icon-document"></i>&nbsp;
+										<span>{{ node.label }}</span>
+								 </span>
+							
 					</el-tree>
 					<!--请手下留情，别删我(╥╯^╰╥)，给我一个露脸的机会，我长的不碍眼的-->
 					<div class="build-info">本文档使用<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>构建</div>

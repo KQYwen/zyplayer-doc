@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Set;
 
@@ -158,7 +159,7 @@ public class GitService {
             treeWalk.setRecursive(false);
             ObjectId blobId = treeWalk.getObjectId(0);
             ObjectLoader loader = repository.open(blobId);
-            return new String(loader.getBytes());
+            return new String(loader.getBytes(), Charset.forName("UTF-8"));
         } catch (Exception e) {
             log.error("获取git文件内容失败", e);
             throw new ConfirmException("获取历史版本数据失败：" + e.getMessage());
