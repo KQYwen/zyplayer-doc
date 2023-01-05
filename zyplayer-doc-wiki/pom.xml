@@ -50,11 +50,6 @@
 			<artifactId>zyplayer-doc-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jgit</groupId>
-			<artifactId>org.eclipse.jgit</artifactId>
-		</dependency>
-		
-		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>4.1.0</version>
