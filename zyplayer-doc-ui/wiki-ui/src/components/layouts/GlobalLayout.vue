@@ -35,24 +35,24 @@
 							</div>
 						</template>
 					</el-autocomplete>
-					<div style="overflow: auto; padding-bottom: 30px;">
+					<div class="wiki-page-tree-box">
 						<el-tree ref="wikiPageTree"
-								 :current-node-key="nowPageId"
-								 :data="wikiPageList"
-								 :default-expanded-keys="wikiPageExpandedKeys"
-								 :expand-on-click-node="false"
-								 :filter-node-method="filterPageNode"
-								 :props="defaultProps"
-								 draggable
-								 highlight-current
-								 node-key="id"
-								 style="background-color: #fafafa;"
-								 @node-click="handleNodeClick"
-								 @node-expand="handleNodeExpand"
-								 @node-drop="handlePageDrop">
+						         :current-node-key="nowPageId"
+						         :data="wikiPageList"
+						         :default-expanded-keys="wikiPageExpandedKeys"
+						         :expand-on-click-node="false"
+						         :filter-node-method="filterPageNode"
+						         :props="defaultProps"
+						         draggable
+						         highlight-current
+						         node-key="id"
+						         style="background-color: #fafafa;"
+						         @node-click="handleNodeClick"
+						         @node-expand="handleNodeExpand"
+						         @node-drop="handlePageDrop">
 								 <span slot-scope="{node,data}" style="font-size:14px;">
-										<i class="el-icon-document"></i>&nbsp;
-										<span>{{ node.label }}</span>
+									<i class="el-icon-document"></i>
+									<span style="margin-left: 6px;">{{ node.label }}</span>
 								 </span>
 						</el-tree>
 					</div>
@@ -499,4 +499,20 @@ html, body {
 }
 </style>
 
+<style lang="scss">
+.wiki-page-tree-box {
+  overflow: auto;
+  padding-bottom: 30px;
 
+  .el-tree-node {
+
+	.el-tree-node__content {
+	  height: 35px;
+
+	  .el-tree-node__label {
+		width: 100%;
+	  }
+	}
+  }
+}
+</style>

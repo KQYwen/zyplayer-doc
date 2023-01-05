@@ -3,7 +3,6 @@ import ShareLayout from './components/layouts/ShareLayout.vue'
 import ShareMobileLayout from './components/layouts/ShareMobileLayout.vue'
 
 import Search from './views/page/Search.vue'
-import EditorTest from './views/page/EditorTest.vue'
 import NoAuth from './views/common/NoAuth.vue'
 
 import Home from './views/home/Home.vue'
@@ -21,7 +20,6 @@ let routes = [
 	{path: '/', redirect: '/home'},
 	{path: '/page/search', name: 'WIKI-全局搜索', component: Search},
 	{path: '/common/noAuth', name: 'WIKI-没有权限', component: NoAuth},
-	{path: '/page/editorTest', name: '编辑内容', component: EditorTest},
 	{
 		path: '/',
 		name: '页面管理',

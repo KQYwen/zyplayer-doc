@@ -50,10 +50,9 @@ public class WikiPageHistory implements Serializable {
      * 删除标记 0=正常 1=已删除
      */
     private Integer delFlag;
-
+    
     /**
-     * git提交记录ID
+     * gzip压缩后的页面内容
      */
-    private String gitCommitId;
-
+    private byte[] content;
 }

@@ -14,7 +14,7 @@ module.exports = {
 		index: {
 			entry: 'src/main.js',
 			template: 'public/index.html',
-			filename: process.env.NODE_ENV === 'production'?'doc-wiki.html':'index.html',
+			filename: 'doc-wiki.html',
 		},
 	}
 };

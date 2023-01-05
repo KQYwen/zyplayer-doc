@@ -11,6 +11,9 @@
 		data() {
 			return {};
 		},
+		mounted() {
+			// console.log("VUE_APP_TEST_ENV：" + process.env.VUE_APP_TEST_ENV);
+		},
 		methods: {}
 	}
 </script>

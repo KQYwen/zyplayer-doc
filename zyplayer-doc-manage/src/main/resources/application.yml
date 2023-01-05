@@ -17,7 +17,7 @@ zyplayer:
       # 管理端的数据库配置
       datasource:
         driverClassName: com.mysql.jdbc.Driver
-        url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
+        url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_opensource?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
         username: root
         password: root
     # ------WIKI文档相关------

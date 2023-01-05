@@ -12,5 +12,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2020-09-05
  */
 public interface WikiPageHistoryService extends IService<WikiPageHistory> {
-
+	
+	/**
+	 * 保存或更新
+	 */
+	WikiPageHistory saveRecord(Long spaceId, Long pageId, String content);
 }
