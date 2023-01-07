@@ -3,37 +3,29 @@
 		<el-row type="border-card" style="height: 100%">
 			<el-col :span="actionTabVisible ? 18 : 24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
 				<el-row>
-					<el-col
-						:xs="24"
-						:sm="navigationList.length > 0 ? 20 : 24"
-						:md="navigationList.length > 0 ? 20 : 24"
-						:lg="navigationList.length > 0 ? 18 : 24"
-						:xl="navigationList.length > 0 ? 18 : 24">
+					<el-col :span="navigationList.length > 0 ? 18 : 24">
 						<div style="max-width: 1000px; margin: 0 auto; padding-left: 10px">
 							<div class="wiki-title" ref="wikiTitleRef">{{ wikiPage.name }}</div>
 							<div class="wiki-author">
-								<div>
-                                    <span v-if="wikiPage.updateUserName">{{ wikiPage.updateUserName }}　于　{{wikiPage.updateTime}}　修改</span>
-									<span v-else class="create-user-time">{{ wikiPage.createUserName }}　于　{{wikiPage.createTime}}　创建</span>
-									<div style="float: right">
+								<el-row>
+									<el-col :span="12">
+										<span v-if="wikiPage.updateUserName">{{ wikiPage.updateUserName }}　于　{{wikiPage.updateTime}}　修改</span>
+										<span v-else class="create-user-time">{{ wikiPage.createUserName }}　于　{{wikiPage.createTime}}　创建</span>
+									</el-col>
+									<el-col :span="12" style="text-align: right;">
 										<el-link type="primary" :icon="ElIconChatLineRound" :underline="false" @click="showCommentWiki" style="margin-right: 15px">评论</el-link>
-										<el-upload
-												v-if="wikiPageAuth.canUploadFile == 1"
-												class="upload-page-file"
-												:action="uploadFileUrl"
-												:with-credentials="true"
-												:on-success="uploadFileSuccess"
-												:on-error="uploadFileError"
-												name="files"
-												show-file-list
-												multiple
-												:data="uploadFormData"
-												:limit="999"
-												style="display: inline; margin-right: 15px;vertical-align: middle;">
+										<el-upload v-if="wikiPageAuth.canUploadFile === 1"
+										           :on-success="uploadFileSuccess"
+										           :on-error="uploadFileError"
+										           :action="uploadFileUrl"
+										           :data="uploadFormData"
+										           :with-credentials="true" class="upload-page-file" name="files"
+										           show-file-list multiple :limit="999"
+										           style="display: inline; margin-right: 15px;vertical-align: middle;">
 											<el-link type="primary" :underline="false" :icon="ElIconUpload">上传附件</el-link>
 										</el-upload>
-										<el-link v-if="wikiPageAuth.canEdit == 1" type="primary" :underline="false" :icon="ElIconEdit" @click="editWiki" style="margin-right: 15px;">编辑</el-link>
-										<el-dropdown style="margin-right: 15px;vertical-align: middle;" @command="handleMoreCommand">
+										<el-link v-if="wikiPageAuth.canEdit === 1" type="primary" :underline="false" :icon="ElIconEdit" @click="editWiki" style="margin-right: 15px;">编辑</el-link>
+										<el-dropdown style="margin-right: 15px;vertical-align: middle;" trigger="click" @command="handleMoreCommand">
 											<el-link type="primary" :underline="false">
 												更多
 												<el-icon class="el-icon--right"><el-icon-arrow-down/></el-icon>
@@ -49,25 +41,27 @@
 												</el-dropdown-menu>
 											</template>
 										</el-dropdown>
-									</div>
-								</div>
+									</el-col>
+								</el-row>
 							</div>
 							<div class="wiki-files">
 								<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px">
-									<el-table-column label="文件名">
+									<el-table-column label="文件名" show-overflow-tooltip>
 										<template v-slot="scope">
-											<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName }}</a>
+											<el-link target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName }}</el-link>
 										</template>
 									</el-table-column>
 									<el-table-column prop="createUserName" label="创建人"></el-table-column>
-									<el-table-column label="文件大小">
+									<el-table-column label="文件大小" width="120px">
 										<template v-slot="scope">{{computeFileSize(scope.row.fileSize) }}</template>
 									</el-table-column>
-									<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
-									<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
+									<el-table-column prop="createTime" label="创建时间" width="160px"></el-table-column>
+									<el-table-column prop="downloadNum" label="下载次数" width="100px">
+										<template v-slot="scope">{{scope.row.downloadNum || 0}}</template>
+									</el-table-column>
 									<el-table-column label="操作" width="100px" v-if="wikiPageAuth.canDeleteFile == 1">
 										<template v-slot="scope">
-											<el-button size="small" v-on:click="deletePageFile(scope.row)">删除</el-button>
+											<el-button v-on:click="deletePageFile(scope.row)">删除</el-button>
 										</template>
 									</el-table-column>
 								</el-table>
@@ -97,7 +91,7 @@
 							</div>
 						</div>
 					</el-col>
-					<el-col :xs="0" :sm="4" :md="4" :lg="6" :xl="6" v-if="navigationList.length > 0">
+					<el-col :span="navigationList.length > 0 ? 6 : 0" v-if="navigationList.length > 0">
 						<Navigation ref="navigationRef" :heading="navigationList"></Navigation>
 					</el-col>
 				</el-row>
@@ -108,43 +102,9 @@
 				</el-icon>
 				<el-tabs v-model="actionTabActiveName" @tab-click="actionTabClick">
 					<el-tab-pane label="评论" name="comment">
-						<div class="action-tab-box" ref="actionTabCommentRef" style="padding-bottom: 130px;box-sizing: border-box;height: calc(100vh - 80px);">
-							<div v-if="commentList.length <= 0" class="action-box-empty">
-								暂无评论
-							</div>
-							<el-timeline v-else>
-								<el-timeline-item :timestamp="comment.createTime" placement="top" v-for="comment in commentList">
-									<el-card class="box-card comment-card" :body-style="{ padding: '10px' }">
-										<div :style="'background-color: ' + comment.color" class="head">
-											{{ comment.createUserName.substr(0, 1) }}
-										</div>
-										<div class="comment-user-name">
-											{{ comment.createUserName }}
-											<el-popover placement="top" width="160" v-model="comment.visible" v-if="canDeleteComment(comment)">
-												<p>确定要除删此评论吗？</p>
-												<div style="text-align: right; margin: 0">
-													<el-link size="small" @click="comment.visible = false">取消</el-link>
-													<el-button type="primary" size="small" @click="deleteComment(comment.id)">确定</el-button>
-												</div>
-												<template v-slot:reference>
-													<el-icon>
-														<el-icon-delete/>
-													</el-icon>
-												</template>
-											</el-popover>
-										</div>
-										<pre class="comment-content">{{ comment.content }}</pre>
-									</el-card>
-								</el-timeline-item>
-							</el-timeline>
-						</div>
-						<div class="comment-input-box">
-                            <textarea rows="5" placeholder="发表评论" v-model="commentTextInput"></textarea>
-							<el-button style="float: right; margin: 2px 5px" type="primary" size="small" v-on:click="submitPageComment">发送</el-button>
-						</div>
+						<Comment/>
 					</el-tab-pane>
 					<el-tab-pane label="修改历史" name="history">
-<!--						<div class="action-tab-box" v-infinite-scroll="getPageHistoryByScroll">-->
 						<div class="action-tab-box">
 							<div v-if="pageHistoryList.length <= 0" class="action-box-empty">
 								暂无修改历史记录
@@ -248,14 +208,16 @@ import {toRefs, ref, reactive, onMounted, watch, defineProps, defineEmits, defin
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus';
 import QRCode from 'qrcode'
-import unitUtil from '../../common/lib/UnitUtil.js'
-import htmlUtil from '../../common/lib/HtmlUtil.js'
-import pageApi from '../../common/api/page'
-import userApi from '../../common/api/user'
+import unitUtil from '../../assets/lib/UnitUtil.js'
+import htmlUtil from '../../assets/lib/HtmlUtil.js'
+import pageApi from '../../assets/api/page'
+import userApi from '../../assets/api/user'
 import Navigation from './components/Navigation.vue'
+import Comment from './show/Comment.vue'
 import {mavonEditor} from 'mavon-editor'
 import 'mavon-editor/dist/markdown/github-markdown.min.css'
 import 'mavon-editor/dist/css/index.css'
+import {useStorePageData} from "@/store/pageData";
 
 let page = {
 	colorArr: ['#67C23A', '#409EFF', '#E6A23C', '#F56C6C', '#909399', '#303133'],
@@ -276,10 +238,6 @@ let parentPath = ref({});
 // 手机扫码
 let qrCodeUrl = ref('');
 let mobileScanDialogVisible = ref(false);
-// 评论相关
-let commentTextInput = ref('');
-let commentList = ref([]);
-let recommentInfo = ref({});
 let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/upload');
 // 页面权限
 let pageAuthDialogVisible = ref(false);
@@ -307,6 +265,8 @@ let downloadFormParam = ref({url: 'zyplayer-doc-wiki/page/download', param: {},}
 
 let route = useRoute();
 let router = useRouter();
+
+let storePage = useStorePageData();
 
 const props = defineProps({
 	spaceInfo: Object,
@@ -489,7 +449,6 @@ const closeActionTab = () => {
 const showCommentWiki = () => {
 	actionTabVisible.value = true
 	actionTabActiveName.value = 'comment'
-	scrollActionTabComment()
 	computeNavigationWidth()
 }
 const showPageHistory = () => {
@@ -611,9 +570,9 @@ const loadPageDetail = (pageId) => {
 		setTimeout(() => {
 			previewPageImage()
 			createNavigationHeading()
-		}, 500)
+		}, 500);
+		storePage.pageInfo = wikiPageRes;
 	})
-	loadCommentList(pageId)
 	getPageHistory(pageId, 1)
 }
 let wikiTitleRef = ref();
@@ -659,33 +618,6 @@ const initImageViewerMask = () => {
 		}
 	})
 }
-const loadCommentList = (pageId) => {
-	cancelCommentUser()
-	pageApi.pageCommentList({pageId: pageId}).then((json) => {
-		let commentList = json.data || []
-		for (let i = 0; i < commentList.length; i++) {
-			commentList[i].color = getUserHeadBgColor(
-				commentList[i].createUserId
-			)
-			let subCommentList = commentList[i].commentList || []
-			for (let j = 0; j < subCommentList.length; j++) {
-				let subItem = subCommentList[j]
-				subItem.color = getUserHeadBgColor.value(subItem.createUserId)
-			}
-			commentList[i].commentList = subCommentList
-			commentList[i].visible = false
-		}
-		commentList.value = commentList
-		scrollActionTabComment()
-	})
-}
-let actionTabCommentRef = ref();
-const scrollActionTabComment = () => {
-	setTimeout(() => {
-		let actionTabComment = actionTabCommentRef.value
-		actionTabComment.scrollTop = actionTabComment.scrollHeight
-	}, 0)
-}
 const zanPage = (yn) => {
 	let param = {yn: yn, pageId: wikiPage.value.id}
 	pageApi.updatePageZan(param).then(() => {
@@ -699,45 +631,6 @@ const showZanPageUser = () => {
 	let param = {pageId: wikiPage.value.id}
 	pageApi.pageZanList(param).then((json) => {
 		zanUserList.value = json.data
-	})
-}
-const recommentUser = (id, index) => {
-	recommentInfo.value = {
-		id: id,
-		index: index,
-		placeholder: '回复' + (index + 1) + '楼',
-	}
-}
-const canDeleteComment = (row) => {
-	return (
-		selfUserId.value == row.createUserId ||
-		wikiPage.value.createUserId == selfUserId.value
-	)
-}
-const deleteComment = (id) => {
-	pageApi.deletePageComment({id: id}).then(() => {
-		// ElMessage.success("删除成功！");
-		loadCommentList(parentPath.value.pageId)
-	})
-}
-const cancelCommentUser = () => {
-	recommentInfo.value = {}
-}
-const submitPageComment = () => {
-	if (commentTextInput.value.length <= 0) {
-		ElMessage.error('请输入评论内容')
-		return
-	}
-	let param = {
-		pageId: wikiPage.value.id,
-		content: commentTextInput.value,
-		parentId: recommentInfo.value.id,
-	}
-	pageApi.updatePageComment(param).then((json) => {
-		let data = json.data
-		data.color = getUserHeadBgColor(data.createUserId)
-		commentTextInput.value = ''
-		loadCommentList(parentPath.value.pageId)
 	})
 }
 const uploadFileError = (err) => {
@@ -787,7 +680,7 @@ const initQueryParam = (to) => {
 </script>
 
 <style>
-@import '../../common/lib/wangEditor.css';
+@import '../../assets/lib/wangEditor.css';
 
 .page-show-vue {
 	height: 100%;
@@ -905,56 +798,6 @@ const initQueryParam = (to) => {
 
 .page-show-vue .el-timeline {
 	padding-inline-start: 0;
-}
-
-.page-show-vue .comment-user-name {
-	margin-bottom: 10px;
-}
-
-.page-show-vue .comment-content {
-	padding: 0;
-	color: #666;
-	margin: 0;
-	white-space: pre-wrap;
-	word-wrap: break-word;
-	line-height: 20px;
-}
-
-.page-show-vue .comment-input-box {
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-	background: #fff;
-	border-top: 1px solid #f1f1f1;
-}
-
-.page-show-vue .comment-input-box textarea {
-	resize: none;
-	width: 100%;
-	box-sizing: border-box;
-	border: 0;
-	outline: none !important;
-	padding: 10px;
-}
-
-.page-show-vue .comment-card .comment-user-name .el-icon-delete {
-	color: #888;
-	font-size: 13px;
-	cursor: pointer;
-	float: right;
-	display: none;
-}
-
-.page-show-vue .comment-card .comment-user-name .el-icon-delete {
-	color: #888;
-	font-size: 13px;
-	cursor: pointer;
-	float: right;
-	display: none;
-}
-
-.page-show-vue .comment-card:hover .comment-user-name .el-icon-delete {
-	display: inline-block;
 }
 
 .mobile-qr {

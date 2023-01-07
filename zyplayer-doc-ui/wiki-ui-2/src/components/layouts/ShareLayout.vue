@@ -49,7 +49,7 @@ import {
 	Document as ElIconDocument,
 	Search as ElIconSearch,
 } from '@element-plus/icons-vue'
-import pageApi from '../../common/api/page'
+import pageApi from '../../assets/api/page'
 import RightResize from './RightResize.vue'
 
 let leftCollapse = ref(true);

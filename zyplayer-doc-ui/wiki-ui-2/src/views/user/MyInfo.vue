@@ -22,7 +22,7 @@
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
-import userApi from '../../common/api/user'
+import userApi from '../../assets/api/user'
 
 let userInfo = ref({});
 onMounted(() => {

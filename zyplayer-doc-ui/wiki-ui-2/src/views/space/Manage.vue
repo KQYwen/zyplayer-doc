@@ -96,8 +96,8 @@ import {
 	Refresh as ElIconRefresh,
 	Plus as ElIconPlus,
 } from '@element-plus/icons-vue'
-import pageApi from '../../common/api/page'
-import userApi from '../../common/api/user'
+import pageApi from '../../assets/api/page'
+import userApi from '../../assets/api/user'
 import CreateSpace from '../../components/space/CreateSpace'
 
 let spaceListLoading = ref(false);
@@ -105,16 +105,12 @@ let spaceOptions = ref([]);
 let spaceList = ref([]);
 let choiceSpace = ref('');
 let nowSpaceShow = ref({});
-let newSpaceDialogVisible = ref(false);
-let manageSpaceDialogVisible = ref(false);
 let newSpaceForm = ref({id: '', name: '', spaceExplain: '', treeLazyLoad: 0, openDoc: 0, uuid: '', type: 1,});
-let newSpaceFormRules = ref({name: [{required: true, message: '请输入空间名', trigger: 'blur'}, {min: 2, max: 25, message: '长度在 2 到 25 个字符', trigger: 'blur',},],});
 let userSelfInfo = ref({});
 // 空间授权
 let editSpaceId = ref('');
 let spaceAuthDialogVisible = ref(false);
 let spaceAuthNewGroupId = ref('');
-let spaceAuthGroupLoading = ref(false);
 let searchGroupList = ref([]);
 let searchGroupMap = ref({});
 let spaceAuthGroupList = ref([]);
@@ -125,7 +121,7 @@ let route = useRoute();
 let router = useRouter();
 let emit = defineEmits('loadSpace');
 
-onMounted(()=>{
+onMounted(() => {
 	loadSpaceList()
 	getSelfUserInfo()
 	getSpaceSettingList()

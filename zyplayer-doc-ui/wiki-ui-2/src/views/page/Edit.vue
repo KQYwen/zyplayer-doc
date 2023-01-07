@@ -60,7 +60,7 @@ import {
 	Check as ElIconCheck,
 	Back as ElIconBack,
 } from '@element-plus/icons-vue'
-import pageApi from '../../common/api/page'
+import pageApi from '../../assets/api/page'
 import {mavonEditor} from 'mavon-editor'
 import 'mavon-editor/dist/markdown/github-markdown.min.css'
 import 'mavon-editor/dist/css/index.css'

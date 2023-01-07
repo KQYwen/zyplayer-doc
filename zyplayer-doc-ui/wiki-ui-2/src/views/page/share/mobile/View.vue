@@ -38,7 +38,7 @@
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
-import pageApi from '../../../../common/api/page'
+import pageApi from '../../../../assets/api/page'
 import {mavonEditor} from 'mavon-editor'
 import {ImagePreview} from 'vant'
 import 'mavon-editor/dist/markdown/github-markdown.min.css'
@@ -130,7 +130,7 @@ const previewPageImage = () => {
 </script>
 
 <style>
-@import '../../../../common/lib/wangEditor.css';
+@import '../../../../assets/lib/wangEditor.css';
 
 .page-share-view-vue {
 }

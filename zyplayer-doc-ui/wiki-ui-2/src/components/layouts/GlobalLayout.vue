@@ -146,12 +146,13 @@ import {
 import {onBeforeUnmount, toRefs, ref, reactive, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
-import userApi from '../../common/api/user'
-import pageApi from '../../common/api/page'
+import userApi from '../../assets/api/user'
+import pageApi from '../../assets/api/page'
 import CreateSpace from '../space/CreateSpace'
 import RightResize from './RightResize.vue'
 import AboutDialog from '../../views/common/AboutDialog'
 import {useStoreDisplay} from '@/store/wikiDisplay.js'
+import {useStoreUserData} from "@/store/userData";
 
 let route = useRoute();
 let router = useRouter();
@@ -406,9 +407,11 @@ const userSignOut = () => {
 		location.reload()
 	})
 }
+let storeUser = useStoreUserData();
 const getSelfUserInfo = () => {
 	userApi.getSelfUserInfo().then((json) => {
-		userSelfInfo.value = json.data
+		userSelfInfo.value = json.data;
+		storeUser.userInfo = json.data;
 	})
 }
 const getSpaceInfo = (spaceId) => {

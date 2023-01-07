@@ -32,14 +32,19 @@ import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmi
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
 import {View as ElIconView} from '@element-plus/icons-vue'
-import pageApi from '../../common/api/page'
-
+import pageApi from '../../assets/api/page'
 
 let totalCount = ref(0);
 let searchParam = ref({spaceId: '', newsType: 1, pageNum: 1, pageSize: 20,});
 let spacePageNews = ref([]);
 // 列表类型
-let newsTypesArr = ref([{key: 1, val: '最近更新'}, {key: 2, val: '最新创建'}, {key: 3, val: '查看最多'}, {key: 4, val: '点赞最多'}, {key: 5, val: '查看+点赞最多'},]);
+let newsTypesArr = ref([
+	{key: 1, val: '最近更新'},
+	{key: 2, val: '最新创建'},
+	{key: 3, val: '查看最多'},
+	{key: 4, val: '点赞最多'},
+	{key: 5, val: '查看+点赞最多'},
+]);
 let newsTypesMap = ref({});
 
 onBeforeRouteUpdate((to) => {

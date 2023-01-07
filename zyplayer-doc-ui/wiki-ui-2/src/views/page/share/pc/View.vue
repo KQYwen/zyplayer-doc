@@ -48,10 +48,10 @@
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
-import pageApi from '../../../../common/api/page'
+import pageApi from '../../../../assets/api/page'
 import {mavonEditor} from 'mavon-editor'
-import unitUtil from '../../../../common/lib/UnitUtil.js'
-import htmlUtil from '../../../../common/lib/HtmlUtil.js'
+import unitUtil from '../../../../assets/lib/UnitUtil.js'
+import htmlUtil from '../../../../assets/lib/HtmlUtil.js'
 import Navigation from '../../components/Navigation.vue'
 import 'mavon-editor/dist/markdown/github-markdown.min.css'
 import 'mavon-editor/dist/css/index.css'
@@ -167,7 +167,7 @@ const initImageViewerMask = () => {
 </script>
 
 <style>
-@import '../../../../common/lib/wangEditor.css';
+@import '../../../../assets/lib/wangEditor.css';
 
 .page-share-view-vue .wiki-title {
 	font-size: 20px;

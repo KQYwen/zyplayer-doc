@@ -37,7 +37,7 @@ import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmi
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
 import {View as ElIconView} from '@element-plus/icons-vue'
-import pageApi from '../../../../common/api/page'
+import pageApi from '../../../../assets/api/page'
 
 let totalCount = ref(0);
 let searchParam = ref({spaceId: '', newsType: 1, pageNum: 1, pageSize: 20,});

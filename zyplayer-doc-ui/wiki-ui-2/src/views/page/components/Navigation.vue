@@ -36,12 +36,9 @@ onMounted(() => {
 	}
 	setTimeout(() => computeNavigationWidth(), 100)
 })
-watch(
-	() => storeDisplay.viewMenuWidth,
-	(newVal) => {
-		computeNavigationWidth()
-	}
-)
+watch(() => storeDisplay.viewMenuWidth, (newVal) => {
+	computeNavigationWidth()
+})
 let navigationRef = ref();
 const computeNavigationWidth = () => {
 	navigationWidth.value = window.getComputedStyle(
