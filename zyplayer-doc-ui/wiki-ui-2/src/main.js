@@ -16,20 +16,20 @@ import {createPinia} from 'pinia'
 const router = createRouter({
 	history: createWebHashHistory(),
 	routes,
-})
-const app = createApp(App)
-app.config.productionTip = false
+});
+const app = createApp(App);
+app.config.productionTip = false;
 app.use(ElementUI, {
 	locale: zhCn,
-})
-app.use(Vant)
-app.use(router)
-app.use(createPinia())
-app.mount('#app')
+});
+app.use(Vant);
+app.use(router);
+app.use(createPinia());
+app.mount('#app');
 
 app.directive('highlight', function (el) {
-	let blocks = el.querySelectorAll('pre code')
+	let blocks = el.querySelectorAll('pre code');
 	blocks.forEach((block) => {
-		hljs.highlightBlock(block)
-	})
-})
+		hljs.highlightBlock(block);
+	});
+});

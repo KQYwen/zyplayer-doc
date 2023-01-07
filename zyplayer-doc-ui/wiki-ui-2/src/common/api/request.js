@@ -37,7 +37,7 @@ service.interceptors.response.use(
 			} else if (response.data.errCode == 400) {
 				ElMessage.error('请先登录')
 				let href = encodeURIComponent(window.location.href)
-				window.location = process.env.VUE_APP_BASE_API + '#/user/login?redirect=' + href
+				window.location = import.meta.env.VITE_APP_BASE_API + '#/user/login?redirect=' + href
 			} else if (response.data.errCode !== 200) {
 				ElMessage.error(response.data.errMsg || '未知错误')
 			}

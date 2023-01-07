@@ -1,21 +1,11 @@
 <template>
-	<div id="app">
-		<router-view></router-view>
-	</div>
+	<router-view></router-view>
 </template>
 
-<script>
-export default {
-	name: 'app',
-	components: {},
-	data() {
-		return {}
-	},
-	mounted() {
-		// console.log("VUE_APP_TEST_ENV：" + process.env.VUE_APP_TEST_ENV);
-	},
-	methods: {},
-}
+<script setup>
+import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
+import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
+import {ElMessageBox, ElMessage} from 'element-plus'
 </script>
 
 <style>

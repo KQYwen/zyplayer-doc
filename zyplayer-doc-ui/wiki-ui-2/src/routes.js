@@ -22,19 +22,19 @@ let routes = [
 	{path: '/common/noAuth', name: 'WIKI-没有权限', component: NoAuth},
 	{
 		path: '/',
-		name: '页面管理',
+		name: '文档管理',
 		component: GlobalLayout,
 		children: [
 			{path: '/home', name: 'WIKI文档管理', component: Home},
 			{path: '/user/myInfo', name: 'WIKI-我的信息', component: MyInfo},
-			{path: '/page/show', name: 'WIKI-内容展示', component: Show},
+			{path: '/page/show', name: 'WIKI-页面查看', component: Show},
 			{path: '/page/edit', name: 'WIKI-编辑内容', component: Edit},
 			{path: '/space/manage', name: 'WIKI-空间管理', component: spaceManage},
 		],
 	},
 	{
 		path: '/',
-		name: '页面管理',
+		name: 'PC端开放文档',
 		component: ShareLayout,
 		children: [
 			{
@@ -51,7 +51,7 @@ let routes = [
 	},
 	{
 		path: '/',
-		name: '页面管理',
+		name: 'APP端开放文档',
 		component: ShareMobileLayout,
 		children: [
 			{
