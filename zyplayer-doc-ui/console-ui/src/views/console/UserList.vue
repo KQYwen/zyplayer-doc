@@ -62,7 +62,7 @@
             </el-pagination>
         </div>
         <!--修改用户权限弹窗-->
-        <el-dialog title="权限编辑" :visible.sync="editUserAuthDialogVisible" width="600px">
+        <el-dialog title="权限编辑" :visible.sync="editUserAuthDialogVisible" width="600px" :close-on-click-modal="false">
             <el-form ref="form" label-width="80px">
                 <el-form-item label="账号">
                     <el-input v-model="editUserForm.userNo" disabled></el-input>
@@ -82,7 +82,7 @@
             </el-form>
         </el-dialog>
         <!--修改用户弹窗-->
-        <el-dialog :title="editUserForm.id > 0 ? '修改用户':'创建用户'" :visible.sync="editUserDialogVisible" width="600px">
+        <el-dialog :title="editUserForm.id > 0 ? '修改用户':'创建用户'" :visible.sync="editUserDialogVisible" width="600px" :close-on-click-modal="false">
             <el-form ref="form" :model="editUserForm" label-width="80px">
                 <el-form-item label="账号">
                     <el-input v-model="editUserForm.userNo"></el-input>
