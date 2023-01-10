@@ -470,7 +470,7 @@ body {
 }
 
 .fold-btn {
-	color: #ccc;
+	color: #ccc !important;
 	font-size: 18px;
 }
 

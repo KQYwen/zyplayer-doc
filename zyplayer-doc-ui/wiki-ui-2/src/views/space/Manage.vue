@@ -1,5 +1,5 @@
 <template>
-	<div style="min-height: 100%" class="space-manage-vue">
+	<div style="min-height: 100%;" class="space-manage-vue">
 		<el-breadcrumb separator-class="el-icon-arrow-right" style="padding: 20px 10px">
 			<el-breadcrumb-item>WIKI文档</el-breadcrumb-item>
 			<el-breadcrumb-item>空间管理</el-breadcrumb-item>
@@ -48,9 +48,20 @@
 					</template>
 				</el-table-column>
 			</el-table>
+			<div class="page-info-box">
+				<el-pagination
+						@size-change="handleSizeChange"
+						@current-change="handleCurrentChange"
+						:page-sizes="[10, 30, 50]"
+						:page-size="10"
+						:current-page="searchParam.pageNum"
+						layout="prev, pager, next, jumper, sizes, total"
+						:total="totalCount">
+				</el-pagination>
+			</div>
 		</div>
 		<!--分组权限弹窗-->
-		<el-dialog title="权限管理" v-model="spaceAuthDialogVisible" width="900px">
+		<el-dialog title="权限管理" v-model="spaceAuthDialogVisible" width="900px" :close-on-click-modal="false">
 			<el-row>
 				<el-select v-model="spaceAuthNewGroupId" filterable placeholder="请选择分组" style="width: 750px; margin-right: 10px">
 					<el-option v-for="item in searchGroupList" :key="item.id" :label="searchGroupMap[item.id]" :value="item.id"></el-option>
@@ -167,11 +178,9 @@ const addSpaceAuthUserGroup = () => {
 }
 const updateSpaceFavorite = (row) => {
 	let delFlag = row.favorite == 1 ? 1 : 0
-	pageApi
-		.spaceFavoriteUpdate({spaceId: row.id, delFlag: delFlag})
-		.then((json) => {
-			row.favorite = row.favorite == 1 ? 0 : 1
-		})
+	pageApi.spaceFavoriteUpdate({spaceId: row.id, delFlag: delFlag}).then((json) => {
+		row.favorite = row.favorite == 1 ? 0 : 1
+	})
 }
 const saveGroupSpaceAuth = () => {
 	let param = {
@@ -183,9 +192,7 @@ const saveGroupSpaceAuth = () => {
 	})
 }
 const manageUserGroup = () => {
-	let manageUrl =
-		location.href.substring(0, location.href.indexOf('/doc-wiki')) +
-		'#/console/userGroupList'
+	let manageUrl = location.href.substring(0, location.href.indexOf('/doc-wiki')) + '#/console/userGroupList'
 	window.open(manageUrl, '_blank')
 }
 const deleteGroupSpaceAuth = (row) => {
@@ -199,9 +206,7 @@ const editSpaceAuth = (row) => {
 	spaceAuthGroupList.value = []
 	userApi.userGroupList().then((json) => {
 		searchGroupList.value = json.data || []
-		searchGroupList.value.forEach(
-			(item) => (searchGroupMap.value[item.id] = item.name)
-		)
+		searchGroupList.value.forEach((item) => (searchGroupMap.value[item.id] = item.name))
 	})
 	pageApi.spaceAuthList({spaceId: row.id}).then((json) => {
 		spaceAuthGroupList.value = json.data || []
@@ -222,12 +227,29 @@ const deleteSpaceInfo = (row) => {
 		})
 	})
 }
+let totalCount = ref(0);
+let searchParam = ref({
+	ignoreFavorite: 1,
+	pageNum: 1,
+	pageSize: 10,
+});
 const loadSpaceList = () => {
 	spaceListLoading.value = true
-	pageApi.spaceList({ignoreFavorite: 1}).then((json) => {
+	pageApi.spaceList(searchParam.value).then((json) => {
 		spaceList.value = json.data || []
+		if (searchParam.value.pageNum === 1) {
+			totalCount.value = json.total;
+		}
 		setTimeout(() => (spaceListLoading.value = false), 500)
 	})
+}
+const handleSizeChange = (val) => {
+	searchParam.value.pageSize = val
+	loadSpaceList()
+}
+const handleCurrentChange = (val) => {
+	searchParam.value.pageNum = val
+	loadSpaceList()
 }
 const wikiOnlyShowFavoriteChange = () => {
 	let param = {
@@ -252,6 +274,18 @@ const getSelfUserInfo = () => {
 	})
 }
 </script>
+
+<style lang="scss">
+.space-manage-vue {
+  .page-info-box {
+	margin-top: 10px;
+
+	.el-pagination {
+	  justify-content: end;
+	}
+  }
+}
+</style>
 
 <style>
 .space-manage-vue .empty-news {

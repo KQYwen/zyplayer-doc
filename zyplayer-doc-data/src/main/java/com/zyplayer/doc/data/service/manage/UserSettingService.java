@@ -12,5 +12,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2021-02-09
  */
 public interface UserSettingService extends IService<UserSetting> {
-
+	
+	String getMySettingValue(String name);
 }

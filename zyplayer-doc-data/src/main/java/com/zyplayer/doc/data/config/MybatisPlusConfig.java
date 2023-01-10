@@ -25,11 +25,6 @@ import javax.sql.DataSource;
 public class MybatisPlusConfig {
 	
 	/**
-	 * sql日志
-	 **/
-	private static final SqlLogInterceptor SQL_LOG_INTERCEPTOR = new SqlLogInterceptor();
-	
-	/**
 	 * 数据库配置
 	 */
 	@Configuration
@@ -57,7 +52,7 @@ public class MybatisPlusConfig {
 		public MybatisSqlSessionFactoryBean manageSqlSessionFactory() throws Exception {
 			MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
 			sqlSessionFactoryBean.setDataSource(manageDatasource());
-			sqlSessionFactoryBean.setPlugins(SQL_LOG_INTERCEPTOR, paginationInterceptor);
+			sqlSessionFactoryBean.setPlugins(new SqlLogInterceptor(), paginationInterceptor);
 			
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 			sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/manage/*Mapper.xml"));
