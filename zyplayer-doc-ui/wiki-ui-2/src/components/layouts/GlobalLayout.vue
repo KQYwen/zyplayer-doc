@@ -63,7 +63,7 @@
 						</el-col>
 						<el-col :span="12" style="text-align: right;">
 							<span class="header-right-user-name">{{userSelfInfo.userName}}</span>
-							<el-popover v-model="userMessagePopVisible" placement="bottom" trigger="click" width="600">
+							<el-popover v-model:visible="userMessagePopVisible" placement="bottom" trigger="click" width="600">
 								<template v-slot:reference>
 									<el-badge :is-dot="haveNotReadUserMessage" style="margin: 0 20px">
 										<el-icon class="head-icon" style="margin-right: 0">

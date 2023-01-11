@@ -86,7 +86,7 @@
 				                  </span>
 				                </span>
 								<span style="margin-left: 10px">
-                                    <el-icon style="font-size: 16px; color: #666"><el-icon-view/></el-icon>{{ wikiPage.viewNum }}次阅读
+                                    <el-icon style="font-size: 16px; color: #666;vertical-align: middle;"><el-icon-view/></el-icon>{{ wikiPage.viewNum }}次阅读
 								</span>
 							</div>
 						</div>
