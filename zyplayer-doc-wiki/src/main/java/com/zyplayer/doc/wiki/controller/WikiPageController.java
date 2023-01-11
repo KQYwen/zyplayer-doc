@@ -333,6 +333,9 @@ public class WikiPageController {
 		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
 		wrapper.eq("page_id", pageId);
 		WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
+		if (pageContent == null || StringUtils.isBlank(pageContent.getContent())) {
+			return DocResponseJson.warn("文档内容为空，不能导出！");
+		}
 		try {
 			ByteArrayInputStream bais = new ByteArrayInputStream(pageContent.getContent().getBytes("GBK"));
 			POIFSFileSystem poifs = new POIFSFileSystem();

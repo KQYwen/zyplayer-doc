@@ -18,7 +18,9 @@ CREATE TABLE `system_config` (
 	yn tinyint default 1 not null comment '是否有效 1=有效',
 	UNIQUE INDEX idx_config_key(config_key),
 	PRIMARY KEY (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COMMENT ='系统配置表';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT ='系统配置表';
 
-ALTER TABLE `wiki_page_history` add COLUMN content mediumblob null;
+ALTER TABLE wiki_page_history add COLUMN content mediumblob null;
+ALTER TABLE wiki_page_content convert to character SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 

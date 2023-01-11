@@ -1,5 +1,4 @@
-SET NAMES utf8;
-SET FOREIGN_KEY_CHECKS = 0;
+SET NAMES utf8mb4;
 
 CREATE TABLE `auth_info`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -10,7 +9,7 @@ CREATE TABLE `auth_info`  (
   `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `auth_type` tinyint(4) NOT NULL DEFAULT 0 COMMENT '权限类型 0=隐藏权限 1=可使用',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '权限信息表' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '权限信息表';
 
 CREATE TABLE `db_datasource`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -25,7 +24,7 @@ CREATE TABLE `db_datasource`  (
   `name` varchar(50) NULL DEFAULT NULL COMMENT '数据源名称',
   `group_name` varchar(50) DEFAULT NULL COMMENT '数据源分组名',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `db_favorite`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -38,7 +37,7 @@ CREATE TABLE `db_favorite`  (
   `datasource_id` bigint(20) NULL DEFAULT NULL COMMENT '数据源ID',
   `param_json` varchar(1024) DEFAULT NULL COMMENT '执行参数JSON',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `db_history`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -50,7 +49,7 @@ CREATE TABLE `db_history`  (
   `datasource_id` bigint(20) NULL DEFAULT NULL COMMENT '数据源ID',
   `param_json` varchar(1024) DEFAULT NULL COMMENT '执行参数JSON',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `user_auth`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -65,7 +64,7 @@ CREATE TABLE `user_auth`  (
   `sys_module_type` int NULL COMMENT '系统模块类型，DocSysModuleType',
   `sys_module_id` bigint(20) NULL COMMENT '系统模块ID',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户权限表' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户权限表';
 
 CREATE TABLE `user_info`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -82,7 +81,7 @@ CREATE TABLE `user_info`  (
   `sex` tinyint(4) NOT NULL DEFAULT 0 COMMENT '性别 0=女 1=男',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_userNo`(`user_no`) USING BTREE COMMENT '登录用户名'
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户信息表' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户信息表';
 
 CREATE TABLE `wiki_page`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -103,7 +102,7 @@ CREATE TABLE `wiki_page`  (
   `seq_no` int(11) NOT NULL DEFAULT 0 COMMENT '顺序',
   `editor_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '编辑框类型 1=HTML 2=Markdown',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `wiki_page_comment`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -116,7 +115,7 @@ CREATE TABLE `wiki_page_comment`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NULL DEFAULT 0 COMMENT '0=有效 1=删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `wiki_page_content`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -131,7 +130,7 @@ CREATE TABLE `wiki_page_content`  (
   `preview` varchar(16000) NULL DEFAULT NULL COMMENT '预览内容',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_page_id`(`page_id`) USING BTREE COMMENT '页面ID'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `wiki_page_file`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -150,7 +149,7 @@ CREATE TABLE `wiki_page_file`  (
   `file_size` bigint NULL COMMENT '文件大小',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_uuid`(`uuid`) USING BTREE COMMENT '文件ID'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `wiki_page_history`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -162,7 +161,7 @@ CREATE TABLE `wiki_page_history`  (
   `content` mediumblob null,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_page_id`(`page_id`) USING BTREE COMMENT '页面ID索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `wiki_page_zan`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -173,7 +172,7 @@ CREATE TABLE `wiki_page_zan`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) NULL DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `wiki_space`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -189,7 +188,7 @@ CREATE TABLE `wiki_space`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT 0 COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `db_transfer_task` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -207,7 +206,7 @@ CREATE TABLE `db_transfer_task` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `user_message`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -224,7 +223,7 @@ CREATE TABLE `user_message`  (
   `accept_user_id` bigint(20) NULL DEFAULT NULL COMMENT '接收人用户ID',
   `creation_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户消息表' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户消息表';
 
 CREATE TABLE `user_group` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -234,7 +233,7 @@ CREATE TABLE `user_group` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户组';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='用户组';
 
 CREATE TABLE `user_group_relation` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -245,7 +244,7 @@ CREATE TABLE `user_group_relation` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户和用户组关系表';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='用户和用户组关系表';
 
 CREATE TABLE `user_group_auth` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -258,7 +257,7 @@ CREATE TABLE `user_group_auth` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户组在各项目内的授权关系';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='用户组在各项目内的授权关系';
 
 CREATE TABLE `wiki_space_favorite` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -267,7 +266,7 @@ CREATE TABLE `wiki_space_favorite` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户空间收藏记录表';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='用户空间收藏记录表';
 
 CREATE TABLE `user_setting` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -277,7 +276,7 @@ CREATE TABLE `user_setting` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `del_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记 0=正常 1=已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户设置表';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='用户设置表';
 
 CREATE TABLE `db_proc_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -291,7 +290,7 @@ CREATE TABLE `db_proc_log` (
   `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='数据库函数修改日志';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='数据库函数修改日志';
 
 CREATE TABLE `db_table_relation` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -306,7 +305,7 @@ CREATE TABLE `db_table_relation` (
   `create_user_name` varchar(20) DEFAULT NULL COMMENT '创建人名字',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='表关系';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='表关系';
 
 CREATE TABLE `api_doc` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -324,7 +323,7 @@ CREATE TABLE `api_doc` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='api文档地址';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='api文档地址';
 
 CREATE TABLE `api_request_param` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -339,7 +338,7 @@ CREATE TABLE `api_request_param` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='文档请求参数记录';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='文档请求参数记录';
 
 CREATE TABLE `api_global_param` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -353,7 +352,7 @@ CREATE TABLE `api_global_param` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `yn` tinyint(4) DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='api文档全局参数记录';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='api文档全局参数记录';
 
 CREATE TABLE `api_custom_node` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -369,7 +368,7 @@ CREATE TABLE `api_custom_node` (
   `yn` tinyint(4) DEFAULT NULL COMMENT '是否有效 0=无效 1=有效',
   PRIMARY KEY (`id`),
   KEY `idx_doc_id` (`doc_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='自建接口文档节点';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='自建接口文档节点';
 
 CREATE TABLE `api_custom_params` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -388,7 +387,7 @@ CREATE TABLE `api_custom_params` (
   PRIMARY KEY (`id`),
   KEY `idx_doc_id` (`doc_id`),
   KEY `idx_node_id` (`node_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='自建接口参数';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='自建接口参数';
 
 CREATE TABLE `system_config` (
 	id bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
@@ -404,7 +403,7 @@ CREATE TABLE `system_config` (
 	yn tinyint default 1 not null comment '是否有效 1=有效',
 	UNIQUE INDEX idx_config_key(config_key),
 	PRIMARY KEY (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COMMENT ='系统配置表';
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT ='系统配置表';
 
 -- -------------------插入必要的数据-------------------
 -- 用户信息
