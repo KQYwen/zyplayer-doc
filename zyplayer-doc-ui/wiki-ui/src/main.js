@@ -1,56 +1,35 @@
-import Vue from 'vue'
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
-import App from './App.vue'
-
-import VueRouter from 'vue-router'
-import routes from './routes'
-import store from './store/index'
-import axios from 'axios'
-import VueAxios from 'vue-axios'
-// 注册一个全局自定义指令
 import hljs from 'highlight.js'
 import 'highlight.js/styles/googlecode.css'
 
-Vue.use(ElementUI);
-Vue.use(VueRouter);
-Vue.use(VueAxios, axios);
+import {createApp} from 'vue'
+import App from './App.vue'
+import {createRouter, createWebHashHistory} from 'vue-router'
 
-// 公用方法
-Vue.prototype.$store = store;
-// 路由重复点击报错处理
-const originalPush = VueRouter.prototype.push
-VueRouter.prototype.push = function push(location) {
-	return originalPush.call(this, location).catch(err => err)
-}
+import ElementUI from 'element-plus'
+import 'element-plus/dist/index.css'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import routes from './routes'
+import Vant from 'vant'
+import 'highlight.js/styles/monokai-sublime.css'
+import {createPinia} from 'pinia'
 
-const router = new VueRouter({routes});
-// 路由跳转时判断处理
-router.beforeEach((to, from, next) => {
-	if (to.name) {
-		document.title = to.name;
-	}
-	next();
+const router = createRouter({
+	history: createWebHashHistory(),
+	routes,
 });
-
-
-
-let vue = new Vue({
-	el: '#app',
-	router,
-	render(h) {
-		return h(App);
-	}
+const app = createApp(App);
+app.config.productionTip = false;
+app.use(ElementUI, {
+	locale: zhCn,
 });
+app.use(Vant);
+app.use(router);
+app.use(createPinia());
+app.mount('#app');
 
-Vue.directive('highlight', function (el) {
+app.directive('highlight', function (el) {
 	let blocks = el.querySelectorAll('pre code');
 	blocks.forEach((block) => {
 		hljs.highlightBlock(block);
-	})
+	});
 });
-
-export default vue;
-
-
-

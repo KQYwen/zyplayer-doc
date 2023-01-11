@@ -48,9 +48,7 @@ export default defineConfig({
 				        }
 			        }
 		        },
-		        entryFileNames: 'js/[name].[hash].js',
-		        chunkFileNames: 'js/[name].[hash].js',
-		        assetFileNames: '[ext]/[name].[hash].[ext]',
+		        assetFileNames: 'assets/[name].[hash].[ext]',
 	        }
         }
     },

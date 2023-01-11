@@ -2,105 +2,105 @@
 	<div class="wang-editor-box">
 		<div class="editor-toolbar-box fix-top">
 			<Toolbar class="editor-toolbar"
-					:editorId="editorId"
-					:defaultConfig="toolbarConfig"
-					:mode="mode"
+			         :defaultConfig="toolbarConfig"
+			         :mode="mode"
+			         :editor="editorRef"
 			/>
 		</div>
 		<div class="wang-editor-content">
 			<div class="editor-container">
 				<div class="title-container">
-					<input v-model="pageTitle" placeholder="请输入标题">
+					<input v-model="pageTitle" placeholder="请输入标题" :maxlength="50">
 				</div>
-				<Editor ref="editorTextArea" class="editor-text-area"
-						:editorId="editorId"
-						:defaultConfig="editorConfig"
-						:mode="mode"
-				/>
+				<div @click="pageEditorBodyClick" class="page-editor-body">
+					<Editor :defaultConfig="editorConfig" :mode="mode" @onCreated="handleCreated"/>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script>
-	import '@wangeditor/editor/dist/css/style.css'
-	import { Editor, Toolbar, getEditor, removeEditor } from '@wangeditor/editor-for-vue'
-	export default {
-		props: ['spaceId'],
-		data() {
-			return {
-				editorId: `w-e-${Math.random().toString().slice(-5)}`,
-				toolbarConfig: {
-					excludeKeys: [
-						"fullScreen", "undo" , "redo"
-					],
-				},
-				editorConfig: {
-					placeholder: '请输入文档内容',
-					scroll: false,
-					MENU_CONF: {
-						uploadImage: {
-							server: process.env.VUE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload',
-							fieldName: 'files',
-							// 最大支持50M图片上传
-							maxFileSize: 50 * 1024 * 1024,
-							withCredentials: true,
-						}
-					}
-				},
-				mode: 'default', // or 'simple'
-				defaultHtml: '',
-				editor: {},
-				pageTitle: '',
-			};
+<script setup>
+import '@wangeditor/editor/dist/css/style.css'
+import {DomEditor} from '@wangeditor/editor'
+import {onBeforeUnmount, ref, shallowRef, onMounted, watch, defineProps, defineExpose} from 'vue'
+import {Editor, Toolbar} from '@wangeditor/editor-for-vue'
+import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
+
+const props = defineProps({
+});
+
+let toolbarConfig = {
+	excludeKeys: [
+		"fullScreen", "undo", "redo", "emotion", "|", "lineHeight", "fontFamily"
+	],
+};
+
+let route = useRoute();
+let editorConfig = ref({
+	placeholder: '请输入文档内容',
+	scroll: false,
+	MENU_CONF: {
+		uploadImage: {
+			server: import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload',
+			fieldName: 'files',
+			// 最大支持50M图片上传
+			maxFileSize: 50 * 1024 * 1024,
+			withCredentials: true,
+			meta: {pageId: route.params.pageId},
 		},
-		components: {
-			Editor, Toolbar,
-		},
-		beforeDestroy() {
-			let editor = getEditor(this.editorId);
-			if (editor == null) return;
-			editor.destroy();
-			removeEditor(this.editorId);
-		},
-		mounted: function () {
-			setTimeout(() => {
-				this.initEditor();
-			}, 0);
-		},
-		methods: {
-			initEditor() {
-				// 点击空白处 focus 编辑器
-				let editorTextArea = this.$refs.editorTextArea.$el;
-				editorTextArea.addEventListener('click', e => {
-					if (e.target.className === 'editor-text-area') {
-						let editor = getEditor(this.editorId);
-						editor.blur();
-						editor.focus(true); // focus 到末尾
-					}
-				});
-			},
-			getPageData() {
-				let editor = getEditor(this.editorId);
-				return {
-					title: this.pageTitle,
-					html: editor.getHtml(),
-					text: editor.getText(),
-				};
-			},
-			setTitle(title) {
-				this.pageTitle = title;
-			},
-			setHtml(content) {
-				let editor = getEditor(this.editorId);
-				editor.select([]);
-				editor.deleteFragment();
-				editor.dangerouslyInsertHtml(content);
-			},
+		uploadVideo: {
+			server: import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload',
+			fieldName: 'files',
+			// 最大支持300M图片上传
+			maxFileSize: 300 * 1024 * 1024,
+			withCredentials: true,
+			meta: {pageId: route.params.pageId},
 		}
 	}
+});
+let mode = 'default';
+let defaultHtml = '';
+const editorRef = shallowRef()
+let pageTitle = ref('');
 
+const handleCreated = (editor) => {
+	editorRef.value = editor;
+}
+
+const pageEditorBodyClick = (e) => {
+	if (e.target.classList && e.target.classList.contains('page-editor-body')) {
+		editorRef.value.blur();
+		editorRef.value.focus(true);
+	}
+}
+
+const getPageData = () => {
+	return {
+		title: pageTitle.value,
+		html: editorRef.value.getHtml(),
+		text: editorRef.value.getText(),
+	};
+}
+const setTitle = (title) => {
+	pageTitle.value = title;
+}
+
+const setHtml = (content) => {
+	editorRef.value.select([]);
+	editorRef.value.deleteFragment();
+	editorRef.value.dangerouslyInsertHtml(content);
+}
+
+onBeforeUnmount(() => {
+	const editor = editorRef.value;
+	if (editor == null) return;
+	editor.destroy();
+});
+
+defineExpose({setTitle, setHtml, getPageData});
 </script>
+
 <style>
 .wang-editor-box {
 	background-color: #f5f5f5;
@@ -110,8 +110,12 @@
 	padding-left: 30px;
 }
 
+.wang-editor-box .editor-toolbar .w-e-bar {
+	background: #FCFCFC;
+}
+
 .wang-editor-box .editor-toolbar {
-	width: 1200px;
+	width: 980px;
 	background-color: #FCFCFC;
 	margin: 0 auto;
 }
@@ -130,7 +134,10 @@
 .wang-editor-box .wang-editor-content {
 	padding: 20px 0;
 	overflow: auto;
-	height: calc(100vh - 170px);
+	height: calc(100vh - 136px);
+}
+.wang-editor-box .w-e-bar-item {
+	height: 39px;
 }
 
 .wang-editor-box .editor-container {
@@ -155,7 +162,7 @@
 	line-height: 1;
 }
 
-.wang-editor-box .editor-text-area {
+.wang-editor-box .page-editor-body {
 	margin-top: 20px;
 	min-height: 600px;
 }
