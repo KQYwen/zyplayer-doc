@@ -132,6 +132,7 @@ const initQueryParam = (to) => {
 .home-vue .view-img {
 	font-size: 16px;
 	color: #666;
+	vertical-align: middle;
 }
 
 .home-vue .page-info-box {

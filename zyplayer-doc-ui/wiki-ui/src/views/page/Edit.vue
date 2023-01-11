@@ -12,9 +12,9 @@
 							</el-select>
 						</template>
 						<template v-else>
-                            <span style="margin-right: 20px">父级：{{ parentWikiPage.name || '/' }}</span>
+                            <span class="parent-name">父级：{{ parentWikiPage.name || '/' }}</span>
 							<el-tooltip class="item" content="在根目录创建文档" v-if="parentId">
-								<el-link @click="changeToRootPath" size="small" style="padding: 0 10px">根目录</el-link>
+								<el-link @click="changeToRootPath" type="primary" size="small" style="padding: 0 10px">根目录</el-link>
 							</el-tooltip>
 							<span style="margin-left: 50px">编辑方式：</span>
 							<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId" size="small">
@@ -31,13 +31,13 @@
 				</el-row>
 			</div>
 			<div v-show="wikiPageEdit.editorType === 2" style="padding: 0 10px 10px 10px; background: #fff">
-				<el-input v-model="wikiPageEdit.pageTitle" placeholder="请输入标题" class="page-title-input"></el-input>
+				<el-input v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input"></el-input>
 				<mavonEditor
 					ref="mavonEditorRef"
 					v-model="markdownContent"
 					:toolbars="toolbars"
 					:externalLink="false"
-					style="height: calc(100vh - 165px)"
+					style="height: calc(100vh - 155px)"
 					@save="createWikiSave(0)"
 					@imgAdd="addMarkdownImage"
 					placeholder="请录入文档内容"
@@ -281,6 +281,20 @@ const addMarkdownImage = (pos, file) => {
 const initEditor = () => {
 }
 </script>
+
+<style lang="scss" scoped>
+.page-edit-vue {
+  .parent-name {
+	margin-right: 20px;
+    max-width: 300px;
+    display: inline-block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: middle;
+  }
+}
+</style>
 
 <style>
 .page-edit-vue .icon-collapse {

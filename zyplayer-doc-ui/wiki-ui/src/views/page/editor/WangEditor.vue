@@ -10,7 +10,7 @@
 		<div class="wang-editor-content">
 			<div class="editor-container">
 				<div class="title-container">
-					<input v-model="pageTitle" placeholder="请输入标题" :maxlength="50">
+					<input v-model="pageTitle" placeholder="请输入标题" :maxlength="40">
 				</div>
 				<div @click="pageEditorBodyClick" class="page-editor-body">
 					<Editor :defaultConfig="editorConfig" :mode="mode" @onCreated="handleCreated"/>

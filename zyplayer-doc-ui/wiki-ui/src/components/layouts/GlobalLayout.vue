@@ -41,13 +41,16 @@
 								style="background-color: #fafafa"
 								@node-click="handleNodeClick"
 								@node-expand="handleNodeExpand"
-								@node-drop="handlePageDrop"
-						>
+								@node-drop="handlePageDrop">
 							<template v-slot="{ node, data }">
-				                <span style="font-size: 14px">
-				                  <el-icon><el-icon-document/></el-icon>
-				                  <span style="margin-left: 6px">{{ node.label }}</span>
-				                </span>
+								<div class="page-tree-node">
+									<el-tooltip :content="node.label" placement="top-start" :show-after="1000">
+										<span class="label">
+											<el-icon><el-icon-document/></el-icon>
+											<span class="text">{{ node.label }}</span>
+										</span>
+									</el-tooltip>
+								</div>
 							</template>
 						</el-tree>
 					</div>
@@ -520,15 +523,31 @@ body {
 
 <style lang="scss">
 .wiki-page-tree-box {
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: 30px;
 
-  .el-tree-node {
-	.el-tree-node__content {
-	  height: 35px;
+  .el-tree-node__content {
+	height: 35px;
 
-	  .el-tree-node__label {
-		width: 100%;
+	.page-tree-node {
+	  width: 100%;
+
+	  .label {
+		.el-icon {
+		  vertical-align: middle;
+		}
+
+		.text {
+		  margin-left: 5px;
+		  vertical-align: middle;
+
+		  max-width: calc(100% - 40px);
+		  display: inline-block;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  white-space: nowrap;
+		}
 	  }
 	}
   }

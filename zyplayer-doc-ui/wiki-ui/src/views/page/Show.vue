@@ -48,18 +48,18 @@
 								<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px">
 									<el-table-column label="文件名" show-overflow-tooltip>
 										<template v-slot="scope">
-											<el-link target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName }}</el-link>
+											<el-link target="_blank" :href="scope.row.fileUrl" type="primary">{{scope.row.fileName }}</el-link>
 										</template>
 									</el-table-column>
-									<el-table-column prop="createUserName" label="创建人"></el-table-column>
+									<el-table-column prop="createUserName" label="创建人" width="110px" show-overflow-tooltip></el-table-column>
 									<el-table-column label="文件大小" width="120px">
 										<template v-slot="scope">{{computeFileSize(scope.row.fileSize) }}</template>
 									</el-table-column>
 									<el-table-column prop="createTime" label="创建时间" width="160px"></el-table-column>
-									<el-table-column prop="downloadNum" label="下载次数" width="100px">
+									<el-table-column prop="downloadNum" label="下载次数" width="90px">
 										<template v-slot="scope">{{scope.row.downloadNum || 0}}</template>
 									</el-table-column>
-									<el-table-column label="操作" width="100px" v-if="wikiPageAuth.canDeleteFile == 1">
+									<el-table-column label="操作" width="90px" v-if="wikiPageAuth.canDeleteFile == 1">
 										<template v-slot="scope">
 											<el-button v-on:click="deletePageFile(scope.row)">删除</el-button>
 										</template>
@@ -678,6 +678,14 @@ const initQueryParam = (to) => {
 	}
 }
 </script>
+
+<style lang="scss" scoped>
+.page-show-vue {
+  .wiki-page-content {
+    margin-top: 20px;
+  }
+}
+</style>
 
 <style>
 @import '../../assets/lib/wangEditor.css';
