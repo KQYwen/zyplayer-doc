@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  */
 public enum SystemConfigEnum {
 	// 系统相关
-	SYSTEM_VERSION("system_version", "系统当前的版本号"),
+	DOC_SYSTEM_VERSION("doc_system_version", "系统当前的版本号"),
 	;
 	
 	private String key;

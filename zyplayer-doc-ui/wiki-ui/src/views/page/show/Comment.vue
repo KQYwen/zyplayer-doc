@@ -30,7 +30,7 @@
 		</div>
 	</div>
 	<div class="comment-input-box">
-		<textarea rows="5" placeholder="发表评论" v-model="commentTextInput"></textarea>
+		<textarea rows="5" placeholder="发表评论" v-model="commentTextInput" :maxlength="500"></textarea>
 		<el-button style="float: right; margin: 2px 5px" type="primary" size="small" v-on:click="submitPageComment">发送</el-button>
 	</div>
 </template>

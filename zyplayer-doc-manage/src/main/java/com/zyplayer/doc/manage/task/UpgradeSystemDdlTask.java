@@ -47,7 +47,7 @@ public class UpgradeSystemDdlTask {
 	@PostConstruct
 	public void init() {
 		try {
-			String nowVersion = systemConfigService.getConfigValue(SystemConfigEnum.SYSTEM_VERSION);
+			String nowVersion = systemConfigService.getConfigValue(SystemConfigEnum.DOC_SYSTEM_VERSION);
 			if (Objects.equals(nowVersion, ZyplayerDocVersion.version)) {
 				logger.info("当前数据库DDL已是最新版本：" + nowVersion);
 				return;
@@ -66,7 +66,7 @@ public class UpgradeSystemDdlTask {
 				upgradeByNowVersion(nowVersion, tableList);
 			}
 			// 更新当前版本
-			systemConfigService.setConfigValue(SystemConfigEnum.SYSTEM_VERSION, ZyplayerDocVersion.version);
+			systemConfigService.setConfigValue(SystemConfigEnum.DOC_SYSTEM_VERSION, ZyplayerDocVersion.version);
 		} catch (Exception e) {
 			logger.error("执行升级SQL失败，请手动执行升级SQL或修改：system_config表中的system_version记录行的版本为：{}，异常信息：{}", ZyplayerDocVersion.version, e.getMessage());
 		}
