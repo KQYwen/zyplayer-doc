@@ -28,12 +28,26 @@ import java.util.Optional;
  */
 @Service
 public class MysqlServiceImpl extends DbBaseService {
-	
+
 	@Override
 	public DatabaseProductEnum getDatabaseProduct() {
 		return DatabaseProductEnum.MYSQL;
 	}
-	
+
+	/**
+	 * mysql数据库名中含有 - 等特殊字符,需要用反引号包裹
+	 *
+	 * @author diantu
+	 * @since 2023年1月16日
+	 */
+	@Override
+	public String getUseDbSql(String dbName) {
+		if (StringUtils.isNotBlank(dbName)) {
+			return "use " + "`" + dbName + "`";
+		}
+		return null;
+	}
+
 	@Override
 	public TableDdlVo getTableDdl(Long sourceId, String dbName, String tableName) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
@@ -48,7 +62,7 @@ public class MysqlServiceImpl extends DbBaseService {
 		}
 		return tableDdlVo;
 	}
-	
+
 	@Override
 	public void updateTableColumnDesc(Long sourceId, String dbName, String tableName, String columnName, String newDesc) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
@@ -67,7 +81,7 @@ public class MysqlServiceImpl extends DbBaseService {
 		columnInfo.setExtra(StringUtils.isBlank(extra) ? "" : extra);
 		baseMapper.updateTableColumnDesc(dbName, tableName, columnName, newDesc, columnInfo);
 	}
-	
+
 	@Override
 	public ProcedureDto getProcedureDetail(Long sourceId, String dbName, String typeName, String procName) {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
@@ -105,7 +119,7 @@ public class MysqlServiceImpl extends DbBaseService {
 		procedureDetail.setBody(createStr + "\r\n" + procedureDetail.getBody());
 		return procedureDetail;
 	}
-	
+
 	@Override
 	public ExecuteResult saveProcedure(Long sourceId, String dbName, String typeName, String procName, String procSql) {
 		String firstLine = procSql.split("\n")[0];
