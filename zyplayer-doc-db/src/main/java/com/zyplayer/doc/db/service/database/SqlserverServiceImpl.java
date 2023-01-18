@@ -22,15 +22,15 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SqlserverServiceImpl extends DbBaseService {
-	
+
 	@Resource
 	SqlserverDownloadService sqlserverDownloadService;
-	
+
 	@Override
 	public DatabaseProductEnum getDatabaseProduct() {
 		return DatabaseProductEnum.SQLSERVER;
 	}
-	
+
 	@Override
 	public TableColumnVo getTableColumnList(Long sourceId, String dbName, String tableName) {
 		TableColumnVo tableColumnVo = super.getTableColumnList(sourceId, dbName, tableName);
@@ -47,29 +47,50 @@ public class SqlserverServiceImpl extends DbBaseService {
 		}
 		return tableColumnVo;
 	}
-	
+
+//	/**
+//	 * 获取分页查询的SQL(fetch next只适用SQL Server 2012及以上版本)
+//	 *
+//	 * @return 分页查询的SQL
+//	 * @author 暮光：城中城
+//	 * @since 2021年6月13日
+//	 */
+//	@Override
+//	public String getQueryPageSql(DataViewParam dataViewParam) {
+//		String queryColumns = StringUtils.defaultIfBlank(dataViewParam.getRetainColumn(), "*");
+//		StringBuilder sqlSb = new StringBuilder();
+//		sqlSb.append(String.format("select %s from %s..%s", queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName()));
+//		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
+//			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
+//		}
+//		if (StringUtils.isNotBlank(dataViewParam.getOrderColumn()) && StringUtils.isNotBlank(dataViewParam.getOrderType())) {
+//			sqlSb.append(String.format(" order by %s %s", dataViewParam.getOrderColumn(), dataViewParam.getOrderType()));
+//		}
+//		sqlSb.append(String.format(" offset %s row fetch next %s rows only", dataViewParam.getOffset(), dataViewParam.getPageSize()));
+//		return sqlSb.toString();
+//	}
+
 	/**
-	 * 获取分页查询的SQL
+	 * 获取分页查询的SQL(兼容写法,支持SQL Server 2005及以上版本)
 	 *
 	 * @return 分页查询的SQL
-	 * @author 暮光：城中城
-	 * @since 2021年6月13日
+	 * @author diantu
+	 * @since 2023年1月18日
 	 */
 	@Override
 	public String getQueryPageSql(DataViewParam dataViewParam) {
 		String queryColumns = StringUtils.defaultIfBlank(dataViewParam.getRetainColumn(), "*");
+		Integer pageNum = dataViewParam.getPageNum();
+		Integer pageSize = dataViewParam.getPageSize();
+		Integer rownumber = (pageNum-1)*pageSize;
 		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append(String.format("select %s from %s..%s", queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName()));
+		sqlSb.append(String.format("select top %s * from (select row_number()  OVER(order by %s %s) as rowid, %s from %s..%s )A where rowid> %s",pageSize,dataViewParam.getOrderColumn(), dataViewParam.getOrderType(), queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName(),rownumber));
 		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
-			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
+			sqlSb.append(String.format(" and %s", dataViewParam.getCondition()));
 		}
-		if (StringUtils.isNotBlank(dataViewParam.getOrderColumn()) && StringUtils.isNotBlank(dataViewParam.getOrderType())) {
-			sqlSb.append(String.format(" order by %s %s", dataViewParam.getOrderColumn(), dataViewParam.getOrderType()));
-		}
-		sqlSb.append(String.format(" offset %s row fetch next %s rows only", dataViewParam.getOffset(), dataViewParam.getPageSize()));
 		return sqlSb.toString();
 	}
-	
+
 	/**
 	 * 获取查询总条数的SQL
 	 *
@@ -85,7 +106,7 @@ public class SqlserverServiceImpl extends DbBaseService {
 		}
 		return sqlSb.toString();
 	}
-	
+
 	/**
 	 * 获取全量数据查询的SQL
 	 *
