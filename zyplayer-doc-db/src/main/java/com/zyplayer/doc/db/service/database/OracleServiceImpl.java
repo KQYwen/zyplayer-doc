@@ -48,8 +48,8 @@ public class OracleServiceImpl extends DbBaseService {
         }
         StringBuilder sqlSbFinal = new StringBuilder();
         Integer pageSize = dataViewParam.getPageSize() * dataViewParam.getPageNum();
-        Integer offsetSize = dataViewParam.getPageSize() * (dataViewParam.getPageNum() - 1) + 1;
-        sqlSbFinal.append(String.format("select * from ( select %s from %s", queryColumns + ",rownum rn", "(" + sqlSb + ") where rownum<=" + pageSize + " ) t2 where t2.rn >=" + offsetSize));
+        Integer pageNum = dataViewParam.getPageSize() * (dataViewParam.getPageNum() - 1) + 1;
+        sqlSbFinal.append(String.format("select * from ( select %s from %s", queryColumns + ",rownum rn", "(" + sqlSb + ") where rownum<=" + pageSize + " ) t2 where t2.rn >=" + pageNum));
         return sqlSbFinal.toString();
     }
 }
