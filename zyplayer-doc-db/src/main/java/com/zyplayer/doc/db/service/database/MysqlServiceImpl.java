@@ -106,7 +106,7 @@ public class MysqlServiceImpl extends DbBaseService {
     @Override
     public TableDdlVo getTableDdl(Long sourceId, String dbName, String tableName) {
         BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
-        List<Map<String, String>> tableDdlList = baseMapper.getTableDdl(dbName, tableName);
+        List<Map<String, Object>> tableDdlList = baseMapper.getTableDdl(dbName, tableName);
         TableDdlVo tableDdlVo = new TableDdlVo();
         tableDdlVo.setCurrent(DatabaseProductEnum.MYSQL.name().toLowerCase());
         tableDdlVo.setMysql("// 生成失败");
