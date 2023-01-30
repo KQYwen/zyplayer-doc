@@ -16,7 +16,7 @@ import java.util.Map;
  * @since 2018年8月8日
  */
 public interface BaseMapper {
-	
+
 	/**
 	 * 获取库列表
 	 *
@@ -24,8 +24,8 @@ public interface BaseMapper {
 	 * @author 暮光：城中城
 	 * @since 2018年8月8日
 	 */
-	List<Map<String, String>> getTableDdl(@Param("dbName") String dbName, @Param("tableName") String tableName);
-	
+	List<Map<String, Object>> getTableDdl(@Param("dbName") String dbName, @Param("tableName") String tableName);
+
 	/**
 	 * 获取库列表
 	 *
@@ -34,7 +34,7 @@ public interface BaseMapper {
 	 * @since 2018年8月8日
 	 */
 	List<DatabaseInfoDto> getDatabaseList();
-	
+
 	/**
 	 * 获取表列表
 	 *
@@ -44,7 +44,7 @@ public interface BaseMapper {
 	 * @since 2018年8月8日
 	 */
 	List<TableInfoDto> getTableList(@Param("dbName") String dbName);
-	
+
 	/**
 	 * 获取字段列表
 	 *
@@ -55,7 +55,7 @@ public interface BaseMapper {
 	 * @since 2018年8月8日
 	 */
 	List<TableColumnDescDto> getTableColumnList(@Param("dbName") String dbName, @Param("tableName") String tableName);
-	
+
 	/**
 	 * 模糊搜索表和字段
 	 *
@@ -66,7 +66,7 @@ public interface BaseMapper {
 	 * @since 2018年8月8日
 	 */
 	List<QueryTableColumnDescDto> getTableAndColumnBySearch(@Param("dbName") String dbName, @Param("searchText") String searchText);
-	
+
 	/**
 	 * 获取表注释
 	 *
@@ -76,7 +76,7 @@ public interface BaseMapper {
 	 * @since 2018年8月8日
 	 */
 	List<TableDescDto> getTableDescList(@Param("dbName") String dbName, @Param("tableName") String tableName);
-	
+
 	/**
 	 * 增加表注释
 	 *
@@ -86,7 +86,7 @@ public interface BaseMapper {
 	 * @since 2018年8月8日
 	 */
 	void updateTableDesc(@Param("dbName") String dbName, @Param("tableName") String tableName, @Param("newDesc") String newDesc);
-	
+
 	/**
 	 * 增加字段注释
 	 *
@@ -101,7 +101,7 @@ public interface BaseMapper {
 	void updateTableColumnDesc(@Param("dbName") String dbName, @Param("tableName") String tableName,
 	                           @Param("columnName") String columnName, @Param("newDesc") String newDesc,
 	                           @Param("columnInfo") ColumnInfoDto columnInfo);
-	
+
 	/**
 	 * 获取表基本信息
 	 *
@@ -111,7 +111,7 @@ public interface BaseMapper {
 	 * @since 2019年9月1日
 	 */
 	TableStatusVo getTableStatus(@Param("dbName") String dbName, @Param("tableName") String tableName);
-	
+
 	/**
 	 * 获取存储过程总条数
 	 *
@@ -120,7 +120,7 @@ public interface BaseMapper {
 	 * @since 2020年4月24日
 	 */
 	Long getProcedureCount(@Param("param") ProcedureListParam procedureParam);
-	
+
 	/**
 	 * 获取存储过程列表
 	 *
@@ -129,7 +129,7 @@ public interface BaseMapper {
 	 * @since 2020年4月24日
 	 */
 	List<ProcedureDto> getProcedureList(@Param("param") ProcedureListParam procedureParam);
-	
+
 	/**
 	 * 获取存储过程详情
 	 *
@@ -140,7 +140,7 @@ public interface BaseMapper {
 	 * @since 2020年4月24日
 	 */
 	ProcedureDto getProcedureDetail(@Param("dbName") String dbName, @Param("typeName") String typeName, @Param("procName") String procName);
-	
+
 	/**
 	 * 删除存储过程
 	 *
@@ -151,7 +151,7 @@ public interface BaseMapper {
 	 * @since 2020年4月24日
 	 */
 	void deleteProcedure(@Param("dbName") String dbName, @Param("typeName") String typeName, @Param("procName") String procName);
-	
+
 	/**
 	 * 删除行数
 	 * @author 暮光：城中城

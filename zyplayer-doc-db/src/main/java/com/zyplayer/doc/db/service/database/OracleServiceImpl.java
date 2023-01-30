@@ -1,9 +1,19 @@
 package com.zyplayer.doc.db.service.database;
 
 import com.zyplayer.doc.db.controller.param.DataViewParam;
+import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
+import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
+import com.zyplayer.doc.db.framework.utils.SQLTransformUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.sql.Clob;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Oracle数据查询服务实现类
@@ -51,5 +61,36 @@ public class OracleServiceImpl extends DbBaseService {
         Integer pageNum = dataViewParam.getPageSize() * (dataViewParam.getPageNum() - 1) + 1;
         sqlSbFinal.append(String.format("select * from ( select %s from %s", queryColumns + ",rownum rn", "(" + sqlSb + ") where rownum<=" + pageSize + " ) t2 where t2.rn >=" + pageNum));
         return sqlSbFinal.toString();
+    }
+
+    /**
+     * 获取建表语句
+     *
+     * @author diantu
+     * @since 2023年1月29日
+     */
+    @Override
+    public TableDdlVo getTableDdl(Long sourceId, String dbName, String tableName) {
+        BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+        List<Map<String, Object>> tableDdlList = baseMapper.getTableDdl(dbName, tableName);
+        TableDdlVo tableDdlVo = new TableDdlVo();
+        tableDdlVo.setCurrent(DatabaseProductEnum.MYSQL.name().toLowerCase());
+        if (CollectionUtils.isNotEmpty(tableDdlList)) {
+            String oracleSql = "";
+            try {
+                oracleSql = SQLTransformUtils.ClobToString((Clob)tableDdlList.get(0).get("CREATETABLE"));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            //String oracleSql = tableDdlList.get(0).get("CREATETABLE") + ";";
+            tableDdlVo.setOracle(oracleSql);
+            //oracle建表语句转换为mysql建表语句
+            String mysqlSql = SQLTransformUtils.translateOracleToMySql(oracleSql);
+            tableDdlVo.setMysql(mysqlSql);
+            // TODO sqlserver等数据库同理
+        }
+        return tableDdlVo;
     }
 }

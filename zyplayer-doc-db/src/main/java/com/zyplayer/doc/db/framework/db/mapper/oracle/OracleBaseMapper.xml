@@ -71,6 +71,10 @@
         </where>
     </select>
 
+    <select id="getTableDdl" resultType="java.util.Map">
+        SELECT DBMS_METADATA.GET_DDL('TABLE','${tableName}','${dbName}') createTable FROM DUAL
+    </select>
+
     <!-- 增加表注释 -->
     <insert id="updateTableDesc">
         comment on table ${dbName}.${tableName} is #{new Desc}
