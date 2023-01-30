@@ -44,8 +44,10 @@
 
     <!-- 获取表字段集合 -->
     <select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
-        select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then '1' when 'N' then '0' end NULLABLE, c.COMMENTS
-        from user_tab_columns t left join user_col_comments c  on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
+        select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then '1' when 'N' then '0' end NULLABLE, c.COMMENTS,
+        s.POSITION as primaryKey from user_tab_columns t
+        left join user_col_comments c  on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
+        left join user_cons_columns s  on t.COLUMN_NAME = s.COLUMN_NAME and t.TABLE_NAME = s.TABLE_NAME and s.POSITION = 1
         <where>
             t.table_name in (select table_name from all_tables where owner = #{dbName} )
             <if test="tableName != null"> and t.TABLE_NAME = #{tableName}</if>
