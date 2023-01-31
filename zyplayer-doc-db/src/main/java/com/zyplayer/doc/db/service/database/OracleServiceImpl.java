@@ -84,7 +84,6 @@ public class OracleServiceImpl extends DbBaseService {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            //String oracleSql = tableDdlList.get(0).get("CREATETABLE") + ";";
             tableDdlVo.setOracle(oracleSql);
             //oracle建表语句转换为mysql建表语句
             String mysqlSql = SQLTransformUtils.translateOracleToMySql(oracleSql);

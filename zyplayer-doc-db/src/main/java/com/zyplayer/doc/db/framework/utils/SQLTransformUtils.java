@@ -3,6 +3,7 @@ package com.zyplayer.doc.db.framework.utils;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
+import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.MySqlToOracleOutputVisitor;
 import com.zyplayer.doc.db.framework.db.sql.dialect.oracle.OracleToMySqlOutputVisitor;
 
 import java.io.BufferedReader;
@@ -35,6 +36,24 @@ public class SQLTransformUtils {
 
         String mysqlSql = out.toString();
         return mysqlSql;
+    }
+
+    /**
+     * mysql sql语句转换为oracle sql语句
+     * @param sql
+     * @return
+     */
+    public static String translateMySqlToOracle(String sql) {
+        List<SQLStatement> stmtList = SQLUtils.toStatementList(sql, DbType.mysql);
+        StringBuilder out = new StringBuilder();
+        MySqlToOracleOutputVisitor visitor = new MySqlToOracleOutputVisitor(out, false);
+
+        for(int i = 0; i < stmtList.size(); ++i) {
+            ((SQLStatement)stmtList.get(i)).accept(visitor);
+        }
+
+        String oracleSql = out.toString();
+        return oracleSql;
     }
 
     /**

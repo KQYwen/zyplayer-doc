@@ -12,6 +12,7 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.mysql.MysqlMapper;
+import com.zyplayer.doc.db.framework.utils.SQLTransformUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -109,11 +110,11 @@ public class MysqlServiceImpl extends DbBaseService {
         List<Map<String, Object>> tableDdlList = baseMapper.getTableDdl(dbName, tableName);
         TableDdlVo tableDdlVo = new TableDdlVo();
         tableDdlVo.setCurrent(DatabaseProductEnum.MYSQL.name().toLowerCase());
-        tableDdlVo.setMysql("// 生成失败");
-        tableDdlVo.setOracle("// TODO 等待大佬来实现转换");
-        // TODO 将建表语句转换为其他数据库的，还不知道怎么做，先这样留着，看有没大佬来实现
         if (CollectionUtils.isNotEmpty(tableDdlList)) {
-            tableDdlVo.setMysql(tableDdlList.get(0).get("Create Table") + ";");
+            String mysqlSql = tableDdlList.get(0).get("Create Table") + ";";
+            tableDdlVo.setMysql(mysqlSql);
+            tableDdlVo.setOracle(SQLTransformUtils.translateMySqlToOracle(mysqlSql));
+            // TODO sqlserver等数据库同理
         }
         return tableDdlVo;
     }
