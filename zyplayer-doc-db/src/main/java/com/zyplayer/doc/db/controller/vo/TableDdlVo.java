@@ -17,6 +17,7 @@ public class TableDdlVo {
 	private String mysql;
 	private String sqlserver;
 	private String oracle;
+	private String dm;
 	private String postgresql;
 	private String hive;
 
@@ -30,6 +31,9 @@ public class TableDdlVo {
 		}
 		if (Objects.equals(current, DatabaseProductEnum.ORACLE.name().toLowerCase())) {
 			return oracle;
+		}
+		if (Objects.equals(current, DatabaseProductEnum.DM.name().toLowerCase())) {
+			return dm;
 		}
 		if (Objects.equals(current, DatabaseProductEnum.POSTGRESQL.name().toLowerCase())) {
 			return postgresql;

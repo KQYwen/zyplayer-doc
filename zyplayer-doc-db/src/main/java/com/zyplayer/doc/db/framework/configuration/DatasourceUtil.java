@@ -29,10 +29,11 @@ public class DatasourceUtil {
 		put(DatabaseProductEnum.MYSQL.getDriverClassName(), new MysqlAnalysis());
 		put(DatabaseProductEnum.HIVE.getDriverClassName(), new HiveAnalysis());
 		put(DatabaseProductEnum.ORACLE.getDriverClassName(), new OracleAnalysis());
+		put(DatabaseProductEnum.DM.getDriverClassName(), new DmAnalysis());
 		put(DatabaseProductEnum.POSTGRESQL.getDriverClassName(), new PostgresqlAnalysis());
 		put(DatabaseProductEnum.SQLSERVER.getDriverClassName(), new SqlserverAnalysis());
 	}};
-	
+
 	public static DatabaseFactoryBean createDatabaseFactoryBean(DbDatasource dbDatasource, boolean breakAfterAcquireFailure) throws Exception {
 		// 描述连接信息的对象
 		DatabaseFactoryBean databaseFactoryBean = new DatabaseFactoryBean();

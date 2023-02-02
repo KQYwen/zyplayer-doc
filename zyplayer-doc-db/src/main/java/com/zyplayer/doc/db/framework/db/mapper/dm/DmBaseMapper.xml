@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper">
+
+    <resultMap id="TableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto" >
+        <result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
+        <result column="COLUMN_NAME" property="name" jdbcType="VARCHAR" />
+        <result column="DATA_TYPE" property="type" jdbcType="VARCHAR" />
+        <result column="NULLABLE" property="nullable" jdbcType="VARCHAR" />
+        <result column="COMMENTS" property="description" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="QueryTableColumnDescDtoMap" type="com.zyplayer.doc.db.framework.db.dto.QueryTableColumnDescDto" >
+        <result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
+        <result column="COLUMN_NAME" property="columnName" jdbcType="VARCHAR" />
+        <result column="COMMENTS" property="description" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!-- 获取用户列表 -->
+    <select id="getDatabaseList" resultType="com.zyplayer.doc.db.framework.db.dto.DatabaseInfoDto">
+        select USERNAME dbName from all_users
+    </select>
+
+    <select id="getTableStatus" resultType="com.zyplayer.doc.db.controller.vo.TableStatusVo">
+        select dt.TABLE_NAME as name,
+               dt.NUM_ROWS as "rows",
+               dt.AVG_ROW_LEN as avgRowLength,
+               do.CREATED as createTime,
+               do.LAST_DDL_TIME as updateTime,
+               dtc.COMMENTS as "comment"
+        from dba_tables dt
+                 left join dba_objects do on do.owner = dt.owner and do.object_name = dt.table_name
+                 left join dba_tab_comments dtc on dtc.owner = dt.owner and dtc.table_name = dt.table_name
+        where dt.owner = #{dbName} and dt.table_name = #{tableName}
+    </select>
+
+    <!-- 获取表列表 -->
+    <select id="getTableList" resultType="com.zyplayer.doc.db.framework.db.dto.TableInfoDto">
+        select t.OWNER as dbName,t.TABLE_NAME as tableName,c.COMMENTS as tableComment from all_tables t left join user_tab_comments c on t.TABLE_NAME = c.TABLE_NAME
+        <where>
+            <if test="dbName != null">t.owner = #{dbName}</if>
+        </where>
+    </select>
+
+    <!-- 获取表字段集合 -->
+    <select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
+        select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then '1' when 'N' then '0' end NULLABLE, c.COMMENTS,
+        s.POSITION as primaryKey from user_tab_columns t
+        left join user_col_comments c  on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
+        left join user_cons_columns s  on t.COLUMN_NAME = s.COLUMN_NAME and t.TABLE_NAME = s.TABLE_NAME and s.POSITION = 1
+        <where>
+            t.table_name in (select table_name from all_tables where owner = #{dbName} )
+            <if test="tableName != null"> and t.TABLE_NAME = #{tableName}</if>
+        </where>
+    </select>
+
+    <!-- 条件查询表字段 -->
+    <select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
+        select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then 1 when 'N' then 0 end NULLABLE, c.COMMENTS
+        from user_tab_columns t
+                 left join user_col_comments c on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
+        where t.TABLE_NAME = #{tableName} AND (t.COLUMN_NAME like #{searchText} or c.COMMENTS like #{searchText})
+    </select>
+
+    <!-- 条件查询表 -->
+    <select id="getTableDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableDescDto">
+        select t.OWNER,t.TABLE_NAME as tableName,c.COMMENTS as description
+        from all_tables t
+        left join user_tab_comments c on t.TABLE_NAME = c.TABLE_NAME
+        <where>
+            <if test="dbName != null">and t.owner = #{dbName}</if>
+            <if test="tableName != null">and t.TABLE_NAME = #{tableName}</if>
+        </where>
+    </select>
+
+    <select id="getTableDdl" resultType="java.util.Map">
+        SELECT DBMS_METADATA.GET_DDL('TABLE','${tableName}','${dbName}') createTable FROM DUAL
+    </select>
+
+    <!-- 增加表注释 -->
+    <insert id="updateTableDesc">
+        comment on table ${dbName}.${tableName} is #{new Desc}
+    </insert>
+
+    <!-- 增加表字段注释 -->
+    <insert id="updateTableColumnDesc">
+        comment on column ${dbName}.${tableName}.${columnName} is #{new Desc}
+    </insert>
+
+    <delete id="deleteTableLineData">
+        delete from ${dbName}.${tableName} where
+        <foreach collection="lineParam.entrySet()" index="key" item="value">
+            ${key} = #{value}
+        </foreach>
+    </delete>
+
+</mapper>

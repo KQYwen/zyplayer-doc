@@ -57,6 +57,7 @@
                         <el-option label="oracle.jdbc.driver.OracleDriver" value="oracle.jdbc.driver.OracleDriver"></el-option>
                         <el-option label="org.postgresql.Driver" value="org.postgresql.Driver"></el-option>
                         <el-option label="org.apache.hive.jdbc.HiveDriver" value="org.apache.hive.jdbc.HiveDriver"></el-option>
+												<el-option label="dm.jdbc.driver.DmDriver" value="dm.jdbc.driver.DmDriver"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="数据源URL：">
@@ -278,7 +279,9 @@
                     this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
                 } else if (this.newDatasource.driverClassName == 'org.apache.hive.jdbc.HiveDriver') {
                     this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
-                }
+                } else if (this.newDatasource.driverClassName == 'dm.jdbc.driver.DmDriver'){
+										this.urlPlaceholder = "例：jdbc:dm://127.0.0.1:5236?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf-8";
+								}
             },
 			handleCurrentChange(to) {
 				this.currentPage = to;
