@@ -235,14 +235,8 @@ public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
                 }
             }
 
-            /*if (len >= 0) {
-                if (len > 6) {
-                    len = 6;
-                }
-                dataType = new SQLDataTypeImpl("datetime", len);
-            } else {*/
             dataType = new SQLDataTypeImpl("datetime");
-            /* }*/
+
         } else if (nameHash == FnvHash.Constants.BLOB
                 || nameHash == FnvHash.Constants.LONG_RAW) {
             argumentns.clear();

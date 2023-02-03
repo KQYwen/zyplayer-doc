@@ -1,9 +1,7 @@
 package com.zyplayer.doc.db.framework.db.sql.dialect.mysql;
 
 import com.alibaba.druid.DbType;
-import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
@@ -21,8 +19,8 @@ import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.util.FnvHash;
 import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.function.MySqlToOracleFunctionTransform;
 import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.util.MySqlSQLDataTypeTransformUtil;
-import com.zyplayer.doc.db.framework.db.sql.dialect.oracle.function.OracleUtil;
 import com.zyplayer.doc.db.framework.utils.MapCacheUtil;
+import com.zyplayer.doc.db.framework.utils.SQLTransformUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -67,7 +65,7 @@ public class MySqlToOracleOutputVisitor extends MySqlOutputVisitor {
                 String columnName = sqlColumnDefinition.getName().getSimpleName().replaceAll("\"", "");
                 columnName = columnName.replaceAll("`", "");
                 sqlColumnDefinition.setName(columnName);
-                if(OracleUtil.containsKeyWords(columnName)){
+                if(SQLTransformUtils.containsKeyWords(columnName,DbType.oracle)){
                     sqlColumnDefinition.setName("\""+columnName+"\"");
                 }
                 sqlColumnDefinition.setDataType(MySqlSQLDataTypeTransformUtil.transformMySqlToOracle(SQLParserUtils.createExprParser(sqlColumnDefinition.getDataType().toString(), DbType.mysql).parseDataType()));

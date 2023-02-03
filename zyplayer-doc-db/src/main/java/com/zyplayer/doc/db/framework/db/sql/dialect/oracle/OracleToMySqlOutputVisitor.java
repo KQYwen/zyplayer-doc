@@ -17,10 +17,10 @@ import com.alibaba.druid.sql.dialect.oracle.ast.stmt.OracleUnique;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleOutputVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.util.FnvHash;
-import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.util.MySqlUtil;
 import com.zyplayer.doc.db.framework.db.sql.dialect.oracle.function.OracleToMySqlFunctionTransform;
 import com.zyplayer.doc.db.framework.db.sql.dialect.oracle.util.OracleSQLDataTypeTransformUtil;
 import com.zyplayer.doc.db.framework.utils.MapCacheUtil;
+import com.zyplayer.doc.db.framework.utils.SQLTransformUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -62,7 +62,7 @@ public class OracleToMySqlOutputVisitor extends OracleOutputVisitor {
                 SQLColumnDefinition sqlColumnDefinition = ((SQLColumnDefinition)sqlTableElement);
                 String columnName = sqlColumnDefinition.getName().getSimpleName().replaceAll("\"", "");
                 sqlColumnDefinition.setName(columnName);
-                if(MySqlUtil.containsKeyWords(columnName)){
+                if(SQLTransformUtils.containsKeyWords(columnName,DbType.mysql)){
                     sqlColumnDefinition.setName("`"+columnName+"`");
                 }
                 sqlColumnDefinition.setDataType(OracleSQLDataTypeTransformUtil.transformOracleToMySql(SQLParserUtils.createExprParser(sqlColumnDefinition.getDataType().toString(), DbType.oracle).parseDataType()));

@@ -74,7 +74,7 @@ public class OracleServiceImpl extends DbBaseService {
         BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
         List<Map<String, Object>> tableDdlList = baseMapper.getTableDdl(dbName, tableName);
         TableDdlVo tableDdlVo = new TableDdlVo();
-        tableDdlVo.setCurrent(DatabaseProductEnum.MYSQL.name().toLowerCase());
+        tableDdlVo.setCurrent(DatabaseProductEnum.ORACLE.name().toLowerCase());
         if (CollectionUtils.isNotEmpty(tableDdlList)) {
             String oracleSql = "";
             try {

@@ -2,14 +2,21 @@ package com.zyplayer.doc.db.service.database;
 
 import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.vo.TableColumnVo;
+import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.framework.db.dto.TableColumnDescDto;
 import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
+import com.zyplayer.doc.db.framework.db.mapper.base.BaseMapper;
 import com.zyplayer.doc.db.framework.db.mapper.sqlserver.SqlServerMapper;
+import com.zyplayer.doc.db.framework.utils.SQLTransformUtils;
 import com.zyplayer.doc.db.service.download.SqlserverDownloadService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -122,5 +129,37 @@ public class SqlserverServiceImpl extends DbBaseService {
 			sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
 		}
 		return sqlSb.toString();
+	}
+
+	/**
+	 * 获取建表语句
+	 *
+	 * @author diantu
+	 * @since 2023年2月2日
+	 */
+	@Override
+	public TableDdlVo getTableDdl(Long sourceId, String dbName, String tableName) {
+		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
+		List<Map<String, Object>> tableDdlList = baseMapper.getTableDdl(dbName, tableName);
+		TableDdlVo tableDdlVo = new TableDdlVo();
+		tableDdlVo.setCurrent(DatabaseProductEnum.SQLSERVER.name().toLowerCase());
+		if (CollectionUtils.isNotEmpty(tableDdlList)) {
+			String sqlserverSql = "";
+			try {
+				sqlserverSql = SQLTransformUtils.ClobToString((Clob)tableDdlList.get(0).get(""));
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			//String sqlserverSql = (String) tableDdlList.get(0).get("");
+			tableDdlVo.setSqlserver(sqlserverSql);
+//			tableDdlVo.setOracle(oracleSql);
+			//oracle建表语句转换为mysql建表语句
+			String mysqlSql = SQLTransformUtils.translateSqlServerToMySql(sqlserverSql);
+			tableDdlVo.setMysql(mysqlSql);
+			// TODO 其他数据库同理
+		}
+		return tableDdlVo;
 	}
 }

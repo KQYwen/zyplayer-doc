@@ -3,8 +3,15 @@ package com.zyplayer.doc.db.framework.utils;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.dialect.mysql.parser.MySqlLexer;
+import com.alibaba.druid.sql.dialect.oracle.parser.OracleLexer;
+import com.alibaba.druid.sql.dialect.sqlserver.parser.SQLServerLexer;
+import com.alibaba.druid.sql.parser.Keywords;
+import com.alibaba.druid.sql.parser.Lexer;
 import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.MySqlToOracleOutputVisitor;
 import com.zyplayer.doc.db.framework.db.sql.dialect.oracle.OracleToMySqlOutputVisitor;
+import com.zyplayer.doc.db.framework.db.sql.dialect.sqlserver.SqlServerToMySqlOutputVisitor;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,6 +36,24 @@ public class SQLTransformUtils {
         List<SQLStatement> stmtList = SQLUtils.toStatementList(sql, DbType.oracle);
         StringBuilder out = new StringBuilder();
         OracleToMySqlOutputVisitor visitor = new OracleToMySqlOutputVisitor(out, false);
+
+        for(int i = 0; i < stmtList.size(); ++i) {
+            ((SQLStatement)stmtList.get(i)).accept(visitor);
+        }
+
+        String mysqlSql = out.toString();
+        return mysqlSql;
+    }
+
+    /**
+     * sqlserver sql语句转换为mysql sql语句
+     * @param sql
+     * @return
+     */
+    public static String translateSqlServerToMySql(String sql) {
+        List<SQLStatement> stmtList = SQLUtils.toStatementList(sql, DbType.sqlserver);
+        StringBuilder out = new StringBuilder();
+        SqlServerToMySqlOutputVisitor visitor = new SqlServerToMySqlOutputVisitor(out, false);
 
         for(int i = 0; i < stmtList.size(); ++i) {
             ((SQLStatement)stmtList.get(i)).accept(visitor);
@@ -78,5 +103,27 @@ public class SQLTransformUtils {
         }
         reString = sb.toString();
         return reString;
+    }
+
+    /**
+     * 是否包含关键词
+     * @param name 字段名
+     * @param dbType 数据库类型
+     * @return
+     */
+    public static boolean containsKeyWords(String name,DbType dbType) {
+        if (StringUtils.isEmpty(name)) {
+            return false;
+        }
+        if(dbType == DbType.mysql){
+            return MySqlLexer.DEFAULT_MYSQL_KEYWORDS.getKeywords().containsKey(name.toUpperCase());
+        }else if(dbType == DbType.oracle){
+            return OracleLexer.DEFAULT_ORACLE_KEYWORDS.getKeywords().containsKey(name.toUpperCase());
+        }else if(dbType == DbType.sqlserver){
+            return SQLServerLexer.DEFAULT_SQL_SERVER_KEYWORDS.getKeywords().containsKey(name.toUpperCase());
+        }else if(dbType == DbType.dm){
+            return Keywords.DM_KEYWORDS.getKeywords().containsKey(name.toUpperCase());
+        }
+        return Keywords.DEFAULT_KEYWORDS.getKeywords().containsKey(name.toUpperCase());
     }
 }
