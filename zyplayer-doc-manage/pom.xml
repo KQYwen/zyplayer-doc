@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>com.zyplayer</groupId>
 		<artifactId>zyplayer-doc</artifactId>
-		<version>1.1.1</version>
+		<version>1.1.2</version>
 	</parent>
 
 	<properties>
@@ -63,7 +63,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc14</artifactId>
+			<artifactId>ojdbc6</artifactId>
 		</dependency>
 		<!--达梦数据库驱动-->
 		<dependency>
