@@ -73,7 +73,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>zyplayer-doc-manage</finalName>
+		<finalName>zyplayer-doc</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources/dist</directory>

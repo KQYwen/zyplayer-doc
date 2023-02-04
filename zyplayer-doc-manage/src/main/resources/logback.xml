@@ -9,25 +9,10 @@
 			<pattern>${outPattern}</pattern>
 		</encoder>
 	</appender>
-	<appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>./logs/zyplayer-doc-manage/error.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>./logs/zyplayer-doc-manage/error.%d{yyyy-MM-dd}.log</fileNamePattern>
-			<maxHistory>${maxHistory}</maxHistory>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${outPattern}</pattern>
-		</encoder>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
-			<level>ERROR</level>
-			<onMatch>ACCEPT</onMatch>
-			<onMismatch>DENY</onMismatch>
-		</filter>
-	</appender>
 	<appender name="INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>./logs/zyplayer-doc-manage/common.log</file>
+		<file>./logs/zyplayer-doc/output.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>./logs/zyplayer-doc-manage/common.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>./logs/zyplayer-doc/output.%d{yyyy-MM-dd}.log</fileNamePattern>
 			<maxHistory>${maxHistory}</maxHistory>
 		</rollingPolicy>
 		<encoder>
@@ -38,6 +23,5 @@
 	<root level="info">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="INFO" />
-		<appender-ref ref="ERROR" />
 	</root>
 </configuration>

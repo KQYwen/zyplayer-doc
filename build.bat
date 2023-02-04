@@ -18,7 +18,7 @@ rd /q /s %target_dir%
 
 md %target_dir%
 
-copy zyplayer-doc-manage\target\zyplayer-doc-manage.jar %target_dir%
+copy zyplayer-doc-manage\target\zyplayer-doc.jar %target_dir%
 copy zyplayer-doc-manage\src\main\resources\application.yml %target_dir%
 
 xcopy /e /y /q zyplayer-doc-other\script  %target_dir%

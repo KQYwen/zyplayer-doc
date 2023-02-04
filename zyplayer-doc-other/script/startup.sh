@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # 执行文件名称
-app_name="zyplayer-doc-manage"
+app_name="zyplayer-doc"
 
 # 先关闭服务
 sh shutdown.sh

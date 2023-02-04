@@ -13,9 +13,7 @@
 						<div>文档：<a target="_blank" href="http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d">http://doc.zyplayer.com</a></div>
 						<div>主页：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">https://gitee.com/zyplayer/zyplayer-doc</a></div>
 						<div>反馈：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc/issues">https://gitee.com/zyplayer/zyplayer-doc/issues</a></div>
-						<div>特性关注&技术交流QQ群：466363173</div>
-						<el-divider content-position="left">UI/设计/开发/测试</el-divider>
-						<div><a target="_blank" href="http://zyplayer.com">暮光：城中城</a></div>
+						<div>新功能关注&技术交流QQ群：466363173</div>
 					</div>
 				</el-tab-pane>
 				<el-tab-pane label="开源软件">

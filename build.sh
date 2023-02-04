@@ -23,7 +23,7 @@ fi
 rm -rf $target_dir/*
 
 # 复制服务端资源
-cp -r zyplayer-doc-manage/target/zyplayer-doc-manage.jar $target_dir
+cp -r zyplayer-doc-manage/target/zyplayer-doc.jar $target_dir
 cp -r zyplayer-doc-manage/src/main/resources/application.yml $target_dir
 cp -r zyplayer-doc-other/script/* $target_dir
 

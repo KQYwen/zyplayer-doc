@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # 执行文件名称
-app_name="zyplayer-doc-manage"
+app_name="zyplayer-doc"
 
 pid=$(ps -ef | grep $app_name.jar | grep -v grep | awk '{print $2}')
 if [ -n "$pid" ]; then

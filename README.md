@@ -12,21 +12,21 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 
 # 快速启动
 ## 数据库依赖
-你得有一个MySQL数据库，建议版本号为：5.7.25，建库：zyplayer_doc_manage，再执行脚本建表：[全量建表语句.sql](https://gitee.com/zyplayer/zyplayer-doc/blob/master/zyplayer-doc-manage/src/main/resources/sql/全量建表语句.sql)
+你得有一个MySQL数据库，建议版本号为：5.7.25，建库：zyplayer_doc_manage
 
 ## main方法启动
 1. 修改 zyplayer-doc/zyplayer-doc-manage/src/main/resources/application.yml 配置文件里面的数据库账号密码
-2. 执行 com.zyplayer.doc.manage.Application.main 方法启动项目，启动后访问：http://127.0.0.1:8083/zyplayer-doc-manage/
+2. 执行 com.zyplayer.doc.manage.Application.main 方法启动项目，启动后访问：http://127.0.0.1:8083/zyplayer-doc/
 
 ## jar方式启动
-1. 直接下载：直接下载编译好的jar打包文件，下载地址：https://pan.baidu.com/s/1yMmnle01XR4TDjo2hfvw-Q 提取码: 3adf，下载最新版后解压
+1. 直接下载：直接下载编译好的jar打包文件，加入QQ群即可下载编译好的最新版，QQ群号：466363173
 2. 自行编译：也可以自己动手编译，双击执行：zyplayer-doc\build.bat，将使用maven编译整个项目为可执行的jar文件，编译结果文件放在：zyplayer-doc\dist\version 文件夹下，如果电脑没有安装maven则需要先安装
 3. 修改第一步或第二步结果文件夹下的 application.yml 文件里面数据库帐号密码
-4. 双击第一步或第二步结果文件夹下的 startup.bat 启动项目，启动后访问：http://127.0.0.1:8083/zyplayer-doc-manage/
+4. 双击第一步或第二步结果文件夹下的 startup.bat 启动项目，启动后访问：http://127.0.0.1:8083/zyplayer-doc/
 
 ## Tomcat容器启动
-1. 直接下载编译好的war打包文件，下载地址：https://pan.baidu.com/s/1yMmnle01XR4TDjo2hfvw-Q 提取码: 3adf，下载最新版后解压
-2. 修改配置文件：zyplayer-doc.zip\apache-tomcat\webapps\zyplayer-doc-manage\WEB-INF\classes\application.yml 配置文件里面的数据库账号密码
+1. 直接下载编译好的war打包文件，加入QQ群即可下载编译好的最新版，QQ群号：466363173
+2. 修改配置文件：zyplayer-doc.zip\apache-tomcat\webapps\zyplayer-doc\WEB-INF\classes\application.yml 配置文件里面的数据库账号密码
 3. 双击tomcat\bin\startup.bat启动即可
 
 默认登录账号：zyplayer 密码：123456
