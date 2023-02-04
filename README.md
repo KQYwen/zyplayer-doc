@@ -1,42 +1,54 @@
 # 项目介绍
 zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同时还包含数据库文档、Api接口文档。
 
-体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/) 账号：zyplayer 密码：123456
+体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/) 账号：**zyplayer**  密码：**123456** 
 
-各模块的详细使用文档地址，可参考：
-[详细部署文档](http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d) 
+详细的使用文档地址，可参考：
+[详细部署使用文档](http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d) 
 
-欢迎有想法的一起来完善，如果觉得不错就给个Star鼓励下呗！作为给作者快速更新的动力！
+欢迎有想法的同学一起来完善，如果觉得不错就给个Star鼓励下呗！作为给项目快速更新的动力！
 
 欢迎加群讨论，QQ群号：466363173
 
 # 快速启动
-## 数据库依赖
-你得有一个MySQL数据库，建议版本号为：5.7.25，建库：zyplayer_doc_manage
+## 相关依赖
+启动本系统仅依赖JAVA和MySQL
+- JAVA1.8+
+- MySQL5.7.x
 
-## main方法启动
-1. 修改 zyplayer-doc/zyplayer-doc-manage/src/main/resources/application.yml 配置文件里面的数据库账号密码
-2. 执行 com.zyplayer.doc.manage.Application.main 方法启动项目，启动后访问：http://127.0.0.1:8083/zyplayer-doc/
+建表SQL脚本无需手动执行，每次启动或更新之后都会检查当前版本，然后自动执行升级SQL脚本，所以每次有版本更新需求只需要下载最新版本启动即可，无需其他特殊操作
 
-## jar方式启动
-1. 直接下载：直接下载编译好的jar打包文件，加入QQ群即可下载编译好的最新版，QQ群号：466363173
-2. 自行编译：也可以自己动手编译，双击执行：zyplayer-doc\build.bat，将使用maven编译整个项目为可执行的jar文件，编译结果文件放在：zyplayer-doc\dist\version 文件夹下，如果电脑没有安装maven则需要先安装
-3. 修改第一步或第二步结果文件夹下的 application.yml 文件里面数据库帐号密码
-4. 双击第一步或第二步结果文件夹下的 startup.bat 启动项目，启动后访问：http://127.0.0.1:8083/zyplayer-doc/
+## Main方法启动
+1. 修改`zyplayer-doc/zyplayer-doc-manage/src/main/resources/application.yml`配置文件里面的数据库账号密码
+2. 执行`com.zyplayer.doc.manage.Application.main`方法启动项目，启动后访问：http://127.0.0.1:8083/zyplayer-doc/
+
+## JAR方式启动
+1. 直接下载：直接下载编译好的jar打包文件，加入QQ群即可下载编译后的最新版
+2. 自行编译：也可以自己动手编译，双击执行：`zyplayer-doc\build.bat`，将使用maven编译整个项目为可执行的jar文件，编译结果文件放在：`zyplayer-doc\dist\version`文件夹下
+3. 修改第一步或第二步结果文件夹下的`application.yml`文件里面数据库帐号密码
+4. 双击第一步或第二步结果文件夹下的`startup.bat`启动项目，启动后访问：http://127.0.0.1:8083/zyplayer-doc/
 
 ## Tomcat容器启动
-1. 直接下载编译好的war打包文件，加入QQ群即可下载编译好的最新版，QQ群号：466363173
-2. 修改配置文件：zyplayer-doc.zip\apache-tomcat\webapps\zyplayer-doc\WEB-INF\classes\application.yml 配置文件里面的数据库账号密码
-3. 双击tomcat\bin\startup.bat启动即可
+1. 直接下载编译好的war打包文件，加入QQ群即可下载编译后的最新版
+2. 修改配置文件：`zyplayer-doc.zip\apache-tomcat\webapps\zyplayer-doc\WEB-INF\classes\application.yml`配置文件里面的数据库账号密码
+3. 双击`tomcat\bin\startup.bat`启动即可
 
-默认登录账号：zyplayer 密码：123456
+默认登录账号： **zyplayer**  密码： **123456** 
 
 # 各模块介绍
 ## zyplayer-doc-manage 文档管理后台
 1. 具有项目模块导航，人员及权限管理功能，分组管理等功能。
 2. 集成了本项目内的各个子模块功能，是各模块的协调管理模块。
 
-## zyplayer-doc-db 数据库文档
+## zyplayer-doc-wiki wiki文档工具
+1. 在线管理公司、项目及任意形式的文档
+2. 文档支持按空间划分，按人员分组授权，支持空间收藏和空间内的文档开放访问。
+3. 文档支持编辑、查看、评论、上传附件、历史版本查看、页面权限控制、文档搜索等功能。
+4. 文档编辑支持html富文本方式编辑和markdown的方式编辑。
+5. 本工具使用的开源工具有：vue、element-ui、mavon-editor、wangeditor等。
+6. 参考学习了Atlassian Confluence文档工具进行开发，争取作为该软件的开源免费替代产品，同时作为内部文档管理工具最好的存在。
+
+## zyplayer-doc-db 数据库工具
 一款在线管理数据库的工具，你可以将所有的数据源统一管理到这里面，团队间的各成员就不必每人在自己电脑上装一个数据库管理软件，
 然后再添加数据源，可以统一修改数据库账号密码而不用群广播通知，新员工进入后对他使用到的数据源进行授权即可使用。
 
@@ -46,14 +58,6 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 4. 支持按人员、按数据源对用户授权，可给用户 库表注释查看、注释修改、SQL执行、函数修改等粒度的授权。
 5. 支持库函数和存储过程的增删改查，修改记录查询等。
 6. 目标是取代Navicat，做一个小而精的开源免费的在线数据库管理工具。
-
-## zyplayer-doc-wiki wiki文档工具
-1. 在线管理公司、项目及任意形式的文档
-2. 文档支持按空间划分，按人员分组授权，支持空间收藏和空间内的文档开放访问。
-3. 文档支持编辑、查看、评论、上传附件、历史版本查看、页面权限控制、文档搜索等功能。
-4. 文档编辑支持html富文本方式编辑和markdown的方式编辑。
-5. 本工具使用的开源工具有：vue、element-ui、mavon-editor、wangeditor等。
-6. 参考学习了Atlassian Confluence文档工具进行开发，争取作为该软件的开源免费替代产品，同时作为内部文档管理工具最好的存在。
 
 ## zyplayer-doc-api API接口文档管理工具
 一款支持统一管理Swagger文档、OpenApi文档、自建接口文档的管理工具，具有文档查看、接口请求、全局参数管理等功能，设计走心，前端代码使用最新技术构建，每一行代码都是全新手动敲出来的，超级简单明了，代码简洁美观可读性好、易维护。
@@ -69,10 +73,10 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 5. zyplayer-doc-other 一些测试
 
 # 用爱发电
-如果您正在使用这个项目并感觉良好，或者是想支持我继续开发，您可以通过如下`任意`方式支持我：
+如果您正在使用这个项目并感觉良好，或者是想支持项目继续开发，您可以通过如下`任意`方式支持我们：
 1. Star并分享 [zyplayer-doc](https://gitee.com/zyplayer/zyplayer-doc)
 2. 保留`关于页面`的项目链接
-3. 通过[一次性捐赠](http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d/359) 支持，我会去买一杯咖啡或攒着去植发
+3. 通过[一次性捐赠](http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d/359) 支持，我们会去买一杯咖啡或攒着去植发
 
 # 界面展示
 控制台页面
