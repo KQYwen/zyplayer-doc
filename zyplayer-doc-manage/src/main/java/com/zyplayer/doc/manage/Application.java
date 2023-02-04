@@ -1,7 +1,11 @@
 package com.zyplayer.doc.manage;
 
+import com.zyplayer.doc.core.util.ZyplayerDocVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -22,7 +26,7 @@ import java.util.Optional;
  */
 @EnableScheduling
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.zyplayer.doc.manage", "com.zyplayer.doc.data"})
+@ComponentScan(basePackages = {"com.zyplayer.doc"})
 public class Application extends SpringBootServletInitializer {
 	
 	private static Logger logger = LoggerFactory.getLogger(Application.class);
@@ -41,13 +45,11 @@ public class Application extends SpringBootServletInitializer {
 		String hostAddress = InetAddress.getLocalHost().getHostAddress();
 		String serverPort = env.getProperty("server.port");
 		String urlCtx = hostAddress + ":" + serverPort + "/" + contextPath;
-		String localCtx = "local.zyplayer.com:" + serverPort + "/" + contextPath;
 		logger.info("\n----------------------------------------------------------\n\t" +
-						"\t\t地址列表\n" +
-						"\t管理地址：http://{}\n" +
-						"\t域名访问：http://{}\n" +
+						"\tzyplayer-doc启动完成，当前版本：{}\n" +
+						"\t访问地址：http://{}\n" +
 						"----------------------------------------------------------",
-				urlCtx, localCtx
+				ZyplayerDocVersion.version, urlCtx
 		);
 	}
 }
