@@ -22,5 +22,4 @@ CREATE TABLE `system_config` (
 
 ALTER TABLE wiki_page_history add COLUMN content mediumblob null;
 ALTER TABLE wiki_page_content convert to character SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-
+alter table wiki_page_file modify column `file_name` varchar(256) NULL DEFAULT NULL COMMENT '文件名';

@@ -135,7 +135,7 @@ CREATE TABLE `wiki_page_content`  (
 CREATE TABLE `wiki_page_file`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键自增ID',
   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '页面ID',
-  `file_name` varchar(50) NULL DEFAULT NULL COMMENT '文件名',
+  `file_name` varchar(256) NULL DEFAULT NULL COMMENT '文件名',
   `file_url` varchar(256) NULL DEFAULT NULL COMMENT '文件URL',
   `uuid` varchar(40) NULL DEFAULT NULL COMMENT '文件UUID',
   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
