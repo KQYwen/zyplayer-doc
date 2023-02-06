@@ -13,13 +13,16 @@ import com.alibaba.druid.util.FnvHash;
 import java.util.List;
 
 /**
- * mysql sql转换工具类
+ * mysql sql字段类型转换工具类
  *
  * @author diantu
  * @since 2023年1月30日
  */
 public class MySqlSQLDataTypeTransformUtil extends SQLTransformUtils {
 
+    /**
+     * MySql->Oracle字段类型转换
+     */
     public static SQLDataType transformMySqlToOracle(SQLDataType x) {
         final String name = x.getName();
         final long nameHash = x.nameHashCode64();
@@ -92,6 +95,48 @@ public class MySqlSQLDataTypeTransformUtil extends SQLTransformUtils {
             dataType = new SQLDataTypeImpl("NUMBER",1);
 
         } else {
+            dataType = x;
+        }
+
+        if (dataType != x) {
+            dataType.setParent(x.getParent());
+        }
+
+        return dataType;
+    }
+
+    /**
+     * MySql->SqlServer字段类型转换
+     */
+    public static SQLDataType transformMySqlToSqlServer(SQLDataType x) {
+        final String name = x.getName();
+        final long nameHash = x.nameHashCode64();
+        if (name == null) {
+            return x;
+        }
+        List<SQLExpr> argumentns = x.getArguments();
+        SQLDataType dataType;
+        if (nameHash == FnvHash.Constants.ENUM) {
+            argumentns.clear();
+            dataType = new SQLCharacterDataType("enum");
+
+        } else if(nameHash == FnvHash.Constants.SET){
+            argumentns.clear();
+            dataType = new SQLCharacterDataType("set");
+
+        }else if(nameHash == FnvHash.Constants.BIGINT){
+            dataType = new SQLCharacterDataType("bigint");
+
+        }else if(nameHash == FnvHash.Constants.INT){
+            dataType = new SQLCharacterDataType("int");
+
+        }else if(nameHash == FnvHash.Constants.TINYINT){
+            dataType = new SQLCharacterDataType("tinyint");
+
+        }else if(nameHash == FnvHash.Constants.SMALLINT){
+            dataType = new SQLCharacterDataType("smallint");
+
+        }else {
             dataType = x;
         }
 

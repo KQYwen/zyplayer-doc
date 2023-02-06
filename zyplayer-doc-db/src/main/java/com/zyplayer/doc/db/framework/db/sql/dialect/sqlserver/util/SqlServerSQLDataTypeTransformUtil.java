@@ -10,13 +10,16 @@ import com.alibaba.druid.util.FnvHash;
 import java.util.List;
 
 /**
- * sqlserver sql转换工具类
+ * sqlserver sql字段类型转换工具类
  *
  * @author diantu
  * @since 2023年2月2日
  */
 public class SqlServerSQLDataTypeTransformUtil extends SQLTransformUtils {
 
+    /**
+     * SqlServer->MySql字段类型转换
+     */
     public static SQLDataType transformSqlServerToMySql(SQLDataType x) {
         final String name = x.getName();
         final long nameHash = x.nameHashCode64();

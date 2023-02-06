@@ -8,5 +8,5 @@ import com.zyplayer.doc.db.framework.db.sql.MethodInvoke;
  * @author diantu
  * @since 2023年1月29日
  */
-public interface MySqlFunction extends MethodInvoke {
+public interface MySqlToOracleFunction extends MethodInvoke {
 }

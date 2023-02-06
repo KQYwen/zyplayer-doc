@@ -6,6 +6,6 @@ package com.zyplayer.doc.db.framework.db.sql.dialect.sqlserver.function;
  * @author diantu
  * @since 2023年2月2日
  */
-public class SqlServerToMySqlFunctionTransform implements SqlServerFunction {
+public class SqlServerToMySqlFunctionTransform implements SqlServerToMySqlFunction {
 
 }

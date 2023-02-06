@@ -8,7 +8,7 @@ import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
  * @author diantu
  * @since 2023年1月29日
  */
-public class OracleToMySqlFunctionTransform implements OracleFunction{
+public class OracleToMySqlFunctionTransform implements OracleToMySqlFunction {
 
     @Override
     public void sys_guid(SQLMethodInvokeExpr expr) {

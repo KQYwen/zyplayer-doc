@@ -9,6 +9,7 @@ import com.alibaba.druid.sql.dialect.sqlserver.parser.SQLServerLexer;
 import com.alibaba.druid.sql.parser.Keywords;
 import com.alibaba.druid.sql.parser.Lexer;
 import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.MySqlToOracleOutputVisitor;
+import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.MySqlToSqlServerOutputVisitor;
 import com.zyplayer.doc.db.framework.db.sql.dialect.oracle.OracleToMySqlOutputVisitor;
 import com.zyplayer.doc.db.framework.db.sql.dialect.sqlserver.SqlServerToMySqlOutputVisitor;
 import org.springframework.util.StringUtils;
@@ -79,6 +80,24 @@ public class SQLTransformUtils {
 
         String oracleSql = out.toString();
         return oracleSql;
+    }
+
+    /**
+     * mysql sql语句转换为sqlserver sql语句
+     * @param sql
+     * @return
+     */
+    public static String translateMySqlToSqlServer(String sql) {
+        List<SQLStatement> stmtList = SQLUtils.toStatementList(sql, DbType.mysql);
+        StringBuilder out = new StringBuilder();
+        MySqlToSqlServerOutputVisitor visitor = new MySqlToSqlServerOutputVisitor(out, false);
+
+        for(int i = 0; i < stmtList.size(); ++i) {
+            ((SQLStatement)stmtList.get(i)).accept(visitor);
+        }
+
+        String sqlserverSql = out.toString();
+        return sqlserverSql;
     }
 
     /**

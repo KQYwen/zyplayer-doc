@@ -8,6 +8,6 @@ import com.zyplayer.doc.db.framework.db.sql.MethodInvoke;
  * @author diantu
  * @since 2023年2月2日
  */
-public interface SqlServerFunction extends MethodInvoke{
+public interface SqlServerToMySqlFunction extends MethodInvoke{
 
 }

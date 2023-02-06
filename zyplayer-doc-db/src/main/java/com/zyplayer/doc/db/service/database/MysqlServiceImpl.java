@@ -114,7 +114,8 @@ public class MysqlServiceImpl extends DbBaseService {
             String mysqlSql = tableDdlList.get(0).get("Create Table") + ";";
             tableDdlVo.setMysql(mysqlSql);
             tableDdlVo.setOracle(SQLTransformUtils.translateMySqlToOracle(mysqlSql));
-            // TODO sqlserver等数据库同理
+            tableDdlVo.setSqlserver(SQLTransformUtils.translateMySqlToSqlServer(mysqlSql));
+            // TODO 其他数据库同理
         }
         return tableDdlVo;
     }

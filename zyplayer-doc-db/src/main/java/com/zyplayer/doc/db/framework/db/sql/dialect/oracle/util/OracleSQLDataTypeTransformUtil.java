@@ -15,13 +15,16 @@ import java.util.List;
 
 
 /**
- * oracle sql转换工具类
+ * oracle sql字段类型转换工具类
  *
  * @author diantu
  * @since 2023年1月29日
  */
 public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
 
+    /**
+     * Oracle->MySql字段类型转换
+     */
     public static SQLDataType transformOracleToMySql(SQLDataType x) {
         final String name = x.getName();
         final long nameHash = x.nameHashCode64();

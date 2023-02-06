@@ -6,5 +6,5 @@ package com.zyplayer.doc.db.framework.db.sql.dialect.mysql.function;
  * @author diantu
  * @since 2023年1月29日
  */
-public class MySqlToOracleFunctionTransform implements MySqlFunction{
+public class MySqlToOracleFunctionTransform implements MySqlToOracleFunction {
 }

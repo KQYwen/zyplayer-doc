@@ -1,4 +1,4 @@
-package com.zyplayer.doc.db.framework.db.sql.dialect.oracle.function;
+package com.zyplayer.doc.db.framework.db.sql.dialect.mysql.function;
 
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
@@ -9,26 +9,26 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.zyplayer.doc.db.framework.db.sql.MethodInvoke;
 
 /**
- * oracle2mysql需要转换的函数
+ * mysql2sqlserver需要转换的函数
  *
  * @author diantu
- * @since 2023年1月29日
+ * @since 2023年2月6日
  */
-public interface OracleFunction extends MethodInvoke {
+public interface MySqlToSqlServerFunction extends MethodInvoke {
 
     /**
-     * 转换 sys_guid 函数
+     * 转换 AUTO_INCREMENT 函数
      * @author diantu
-     * @date 2023年1月29日
+     * @date 2023年2月6日
      * @param expr
      * @return void
      */
-    void sys_guid(SQLMethodInvokeExpr expr);
+    void auto_increment(SQLMethodInvokeExpr expr);
 
     /**
      * 整体替换当前类型
      * @author diantu
-     * @date 2023年1月29日
+     * @date 2023年2月6日
      * @param name
      * @param expr
      * @return void
@@ -46,4 +46,5 @@ public interface OracleFunction extends MethodInvoke {
             ((SQLColumnDefinition) parent).setName(name);
         }
     }
+
 }
