@@ -1,5 +1,6 @@
 import hljs from 'highlight.js'
 import 'highlight.js/styles/googlecode.css'
+// import 'highlight.js/styles/monokai-sublime.css'
 
 import {createApp} from 'vue'
 import App from './App.vue'
@@ -10,7 +11,6 @@ import 'element-plus/dist/index.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import routes from './routes'
 import Vant from 'vant'
-import 'highlight.js/styles/monokai-sublime.css'
 import {createPinia} from 'pinia'
 
 const router = createRouter({
