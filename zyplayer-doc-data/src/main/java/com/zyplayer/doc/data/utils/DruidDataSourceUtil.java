@@ -14,9 +14,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 2020-04-08
  */
 public class DruidDataSourceUtil {
-	
+
 	private static AtomicLong nameId = new AtomicLong(0);
-	
+
 	public static DruidDataSource createDataSource(String driverClassName, String url, String username, String password, boolean breakAfterAcquireFailure) throws Exception {
 		// 数据源配置
 		DruidDataSource dataSource = new DruidDataSource();
@@ -43,11 +43,18 @@ public class DruidDataSourceUtil {
 		if (Objects.equals("oracle.jdbc.driver.OracleDriver", driverClassName)) {
 			dataSource.setValidationQuery("select 1 from dual");
 		}
-		DruidPooledConnection connection = dataSource.getConnection(3000);
-		if (connection == null) {
+		try {
+			DruidPooledConnection connection = dataSource.getConnection(3000);
+			if (connection == null) {
+				dataSource.close();
+				throw new ConfirmException("尝试获取该数据源连接失败：" + url);
+			}
+			connection.recycle();
+		}catch (Exception e){
+			dataSource.close();
 			throw new ConfirmException("尝试获取该数据源连接失败：" + url);
 		}
-		connection.recycle();
+
 		return dataSource;
 	}
 }
