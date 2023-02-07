@@ -19,6 +19,7 @@
 		"js-cookie": "^2.2.1",
 		"pouchdb": "^7.1.1",
 		"sql-formatter": "^2.3.3",
+		"umy-ui": "^1.1.6",
 		"vue": "^2.6.10",
 		"vue-axios": "^2.1.5",
 		"vue-clipboard2": "^0.3.1",

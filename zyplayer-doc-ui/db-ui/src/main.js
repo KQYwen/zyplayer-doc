@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import UmyUi from 'umy-ui';
+import 'umy-ui/lib/theme-chalk/index.css';
 import App from './App.vue';
 
 import VueRouter from 'vue-router';
@@ -16,6 +18,7 @@ import VueClipboard from 'vue-clipboard2';
 
 Vue.use(VueClipboard);
 Vue.use(ElementUI);
+Vue.use(UmyUi);
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
 Vue.use(vueHljs);
