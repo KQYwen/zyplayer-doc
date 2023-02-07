@@ -29,7 +29,7 @@
                do.LAST_DDL_TIME as updateTime,
                dtc.COMMENTS as "comment"
         from dba_tables dt
-                 left join dba_objects do on do.owner = dt.owner and do.object_name = dt.table_name
+                 left join dba_objects do on do.owner = dt.owner and do.object_name = dt.table_name and do.object_type='TABLE'
                  left join dba_tab_comments dtc on dtc.owner = dt.owner and dtc.table_name = dt.table_name
         where dt.owner = #{dbName} and dt.table_name = #{tableName}
     </select>
