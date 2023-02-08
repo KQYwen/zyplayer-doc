@@ -2,17 +2,30 @@
 	<div class="data-executor-vue">
 		<div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
 			<el-card style="margin-bottom: 10px;">
-				<ace-editor v-model="sqlExecutorContent" @init="sqlExecutorInit" lang="sql" theme="monokai" width="100%"
-										height="60" :options="sqlEditorConfig" :source="executorSource"
-										style="margin-bottom: 10px;"></ace-editor>
+				<div v-show="aceEditorShow">
+					<el-alert
+							title="筛选示例 (支持 and , or 等连接符)"
+							type="info"
+							:description="executorDesc"
+							show-icon>
+					</el-alert>
+					<ace-editor v-model="sqlExecutorContent" @init="sqlExecutorInit" lang="sql" theme="monokai" width="100%"
+											height="60" :options="sqlEditorConfig" :source="executorSource"
+											style="margin-bottom: 10px;">
+					</ace-editor>
+				</div>
 				<div>
+					<el-button v-on:click="doAceEditorShow" type="primary" plain size="small" icon="el-icon-search">筛选
+					</el-button>
 					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="small"
 										 icon="el-icon-video-pause">取消执行
 					</el-button>
-					<el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
-						<el-button v-on:click="doExecutorClick" type="primary" plain size="small" icon="el-icon-video-play">筛选
+					<el-tooltip v-show="aceEditorShow" v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
+						<el-button v-on:click="doExecutorClick" type="primary" plain size="small"
+											 icon="el-icon-video-play">执行
 						</el-button>
 					</el-tooltip>
+
 					<el-button icon="el-icon-refresh-left" size="small" @click="refreshData">重置</el-button>
 					<el-button @click="downloadTableData" type="success" size="small" icon="el-icon-download" plain
 										 style="margin-left: 30px;">导出
@@ -67,8 +80,8 @@
 										:default-sort="tableSort">
 									<ux-table-column type="checkbox" width="55"></ux-table-column>
 									<ux-table-column type="index" width="50" title=" "></ux-table-column>
-									<ux-table-column sortable v-for="item in resultItem.dataCols" :prop="item.prop" :title="item.prop"
-																	 :width="item.width">
+									<ux-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :title="item.prop"
+																	 :width="item.width" sortable>
 										<template slot="header" slot-scope="scope">
 											<el-tooltip effect="dark" :content="item.desc" placement="top">
 												<span>{{ item.prop }}</span>
@@ -183,6 +196,8 @@ export default {
 	name: 'dataPreview',
 	data() {
 		return {
+			executorDesc: "",
+			aceEditorShow: false,
 			height: 0,
 			sqlExecuting: false,
 			executeResultList: [],
@@ -277,6 +292,7 @@ export default {
 				}
 			});
 			this.tableDataColumns = columnList;
+			this.executorDesc = columnList[0].name + " = ?";
 			// 设置选择展示的列
 			this.storageKey.subKey = param.sourceId + '-' + param.dbName + '-' + param.tableName;
 			let storageShowColumns = storageUtil.set.get(this.storageKey.key, this.storageKey.subKey);
@@ -318,8 +334,8 @@ export default {
 			this.doExecutorSqlCommon();
 		},
 		tableSortChange(sort) {
-			if (this.tableSort.prop === sort.prop && this.tableSort.order === sort.order) return;
-			this.tableSort = {prop: sort.prop, order: sort.order};
+			if (this.tableSort.prop === sort.column.title && this.tableSort.order === sort.order) return;
+			this.tableSort = {prop: sort.column.title, order: sort.order};
 			this.doExecutorSqlCommon();
 		},
 		refreshData() {
@@ -339,13 +355,16 @@ export default {
 			this.currentPage = 1;
 			this.doExecutorSqlCommon();
 		},
+		doAceEditorShow() {
+			this.aceEditorShow = !this.aceEditorShow
+		},
 		doExecutorSqlCommon() {
 			if (!this.pageParam.sourceId) {
 				this.$message.error("请先选择数据源");
 				return;
 			}
 			if (!this.tableSort.prop) {
-				this.tableSort = {prop: this.pageParam.orderColumn, order: 'ascending'};
+				this.tableSort = {prop: this.pageParam.orderColumn, order: 'asc'};
 			}
 			let conditionSql = this.sqlExecutorEditor.getSelectedText();
 			conditionSql = conditionSql || this.sqlExecutorEditor.getValue();
@@ -366,7 +385,7 @@ export default {
 				pageNum: this.currentPage,
 				pageSize: this.pageSize,
 				orderColumn: this.tableSort.prop,
-				orderType: (this.tableSort.order === 'ascending' ? 'asc' : 'desc'),
+				orderType: this.tableSort.order,
 				params: '',
 			};
 			datasourceApi.dataViewQuery(param).then(json => {
