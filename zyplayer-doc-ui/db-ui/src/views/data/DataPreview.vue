@@ -261,7 +261,7 @@ export default {
 		'ace-editor': aceEditor
 	},
 	mounted: function () {
-		this.height = 500;
+		this.height = 360;
 		// 延迟设置展开的目录，edit比app先初始化
 		// setTimeout(() => {
 		// 	this.doExecutorSqlCommon();
@@ -610,7 +610,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .data-executor-vue .ace-monokai .ace_print-margin {
 	display: none;
 }
@@ -653,5 +653,13 @@ export default {
 .data-executor-vue-out .el-table__body-wrapper {
 	height: calc(100vh - 180px);
 	overflow-y: auto;
+}
+
+/deep/ .elx-table .elx-body--column.col--ellipsis {
+	height: 38px;
+}
+
+/deep/ .elx-table .elx-header--column.col--ellipsis {
+	height: 38px;
 }
 </style>

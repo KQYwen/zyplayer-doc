@@ -4,7 +4,8 @@
 			<el-card style="margin-bottom: 10px;">
 				<ace-editor v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit" lang="sql" theme="monokai"
 										width="100%" height="500" :options="sqlEditorConfig" :source="executorSource"
-										style="margin-bottom: 10px;"></ace-editor>
+										style="margin-bottom: 10px;">
+				</ace-editor>
 				<div>
 					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="small"
 										 icon="el-icon-video-pause">取消执行
@@ -193,8 +194,8 @@ export default {
 				enableBasicAutocompletion: true,
 				enableSnippets: true,
 				enableLiveAutocompletion: true,
-				minLines: 15,
-				maxLines: 40,
+				minLines: 10,
+				maxLines: 10,
 			},
 			executorSource: {},
 			// sql参数
@@ -207,7 +208,7 @@ export default {
 		'ace-editor': aceEditor
 	},
 	mounted: function () {
-	  this.height = 500;
+	  this.height = 270;
 		this.loadDatasourceList();
 	},
 	methods: {
@@ -503,7 +504,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .data-executor-vue .ace-monokai .ace_print-margin {
 	display: none;
 }
@@ -567,5 +568,13 @@ export default {
 .data-executor-vue-out .el-table__body-wrapper {
 	height: calc(100vh - 180px);
 	overflow-y: auto;
+}
+
+/deep/ .elx-table .elx-body--column.col--ellipsis {
+	height: 38px;
+}
+
+/deep/ .elx-table .elx-header--column.col--ellipsis {
+	height: 38px;
 }
 </style>
