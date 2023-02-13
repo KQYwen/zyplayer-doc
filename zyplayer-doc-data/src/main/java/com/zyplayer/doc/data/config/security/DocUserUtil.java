@@ -40,7 +40,7 @@ public class DocUserUtil {
 		if (currentUser == null) {
 			return false;
 		}
-		Set<String> authCodeSet = currentUser.getUserAuthList().stream().map(UserAuthVo::getAuthCode).collect(Collectors.toSet());
+		Set<String> authCodeSet = currentUser.getUserAuthList().stream().map(UserAuthInfo::getAuthCode).collect(Collectors.toSet());
 		for (String authName : authNames) {
 			if (!authCodeSet.contains(authName)) {
 				return false;
@@ -77,7 +77,7 @@ public class DocUserUtil {
 	/**
 	 * 设置当前用户权限
 	 */
-	public static void setUserAuth(Long userId, List<UserAuthVo> userAuthList) {
+	public static void setUserAuth(Long userId, List<UserAuthInfo> userAuthList) {
 		String userToken = CacheUtil.get(CachePrefix.LOGIN_USER_ID_TOKEN + userId);
 		if (userToken != null) {
 			DocUserDetails docUser = CacheUtil.get(userToken);

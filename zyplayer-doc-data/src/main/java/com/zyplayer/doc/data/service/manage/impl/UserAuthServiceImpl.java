@@ -2,14 +2,10 @@ package com.zyplayer.doc.data.service.manage.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zyplayer.doc.core.exception.ConfirmException;
-import com.zyplayer.doc.data.config.security.UserAuthVo;
+import com.zyplayer.doc.data.config.security.UserAuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.manage.mapper.UserAuthMapper;
-import com.zyplayer.doc.data.repository.support.consts.DocAuthConst;
-import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
-import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.AuthInfoService;
 import com.zyplayer.doc.data.service.manage.UserAuthService;
 import org.apache.commons.collections.CollectionUtils;
@@ -34,7 +30,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
 	AuthInfoService authInfoService;
 	
 	@Override
-	public List<UserAuthVo> getUserAuthSet(Long userId) {
+	public List<UserAuthInfo> getUserAuthSet(Long userId) {
 		QueryWrapper<UserAuth> authWrapper = new QueryWrapper<>();
 		authWrapper.eq("user_id", userId).eq("del_flag", "0");
 		List<UserAuth> userAuthList = this.list(authWrapper);
@@ -45,8 +41,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
 		Collection<AuthInfo> authInfoList = authInfoService.listByIds(authIdList);
 		Map<Long, String> authNameMap = authInfoList.stream().collect(Collectors.toMap(AuthInfo::getId, AuthInfo::getAuthName));
 		// 组装
-		List<UserAuthVo> userAuthVoList = userAuthList.stream().map(UserAuthVo::new).collect(Collectors.toList());
-		for (UserAuthVo userAuthVo : userAuthVoList) {
+		List<UserAuthInfo> userAuthVoList = userAuthList.stream().map(UserAuthInfo::new).collect(Collectors.toList());
+		for (UserAuthInfo userAuthVo : userAuthVoList) {
 			userAuthVo.setAuthCode(authNameMap.get(userAuthVo.getAuthId()));
 		}
 		return userAuthVoList;

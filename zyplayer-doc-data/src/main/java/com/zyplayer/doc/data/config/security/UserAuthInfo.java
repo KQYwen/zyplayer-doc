@@ -18,11 +18,11 @@ import java.io.Serializable;
  */
 @Data
 @NoArgsConstructor
-public class UserAuthVo implements Serializable {
+public class UserAuthInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public UserAuthVo(UserAuth userAuth) {
+	public UserAuthInfo(UserAuth userAuth) {
 		this.authId = userAuth.getAuthId();
 		this.sysType = userAuth.getSysType();
 		this.sysModuleType = userAuth.getSysModuleType();

@@ -7,7 +7,7 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
-import com.zyplayer.doc.data.config.security.UserAuthVo;
+import com.zyplayer.doc.data.config.security.UserAuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
@@ -126,7 +126,7 @@ public class WikiPageAuthController {
             userMessage.setAffectUserName(userInfo.getUserName());
             userMessageService.addWikiMessage(userMessage);
             // 刷新用户权限
-            List<UserAuthVo> userAuthListNew = userAuthService.getUserAuthSet(authVo.getUserId());
+            List<UserAuthInfo> userAuthListNew = userAuthService.getUserAuthSet(authVo.getUserId());
             DocUserUtil.setUserAuth(authVo.getUserId(), userAuthListNew);
         }
         return DocResponseJson.ok();

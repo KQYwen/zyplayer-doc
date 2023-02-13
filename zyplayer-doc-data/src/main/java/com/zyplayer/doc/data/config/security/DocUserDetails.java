@@ -16,7 +16,7 @@ public class DocUserDetails {
 	private String username;
 	private String password;
 	private boolean enabled;
-	private List<UserAuthVo> userAuthList;
+	private List<UserAuthInfo> userAuthList;
 
 	public DocUserDetails(Long userId, String username) {
 		this.userId = userId;
@@ -31,7 +31,7 @@ public class DocUserDetails {
 		this.enabled = enabled;
 	}
 
-	public DocUserDetails(Long userId, String username, String password, boolean enabled, List<UserAuthVo> userAuthList) {
+	public DocUserDetails(Long userId, String username, String password, boolean enabled, List<UserAuthInfo> userAuthList) {
 		super();
 		this.userId = userId;
 		this.username = username;

@@ -9,6 +9,7 @@ import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
+import com.zyplayer.doc.data.config.security.UserAuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.AuthInfo;
 import com.zyplayer.doc.data.repository.manage.entity.UserAuth;
 import com.zyplayer.doc.data.repository.manage.entity.UserInfo;
@@ -227,26 +228,22 @@ public class UserInfoController {
 			authIdsList = Arrays.stream(authIds.split(",")).map(Long::valueOf).collect(Collectors.toList());
 		}
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		
-		UserAuth userAuthUp = new UserAuth();
-		userAuthUp.setDelFlag(1);
-		userAuthUp.setUpdateTime(new Date());
-		userAuthUp.setUpdateUid(currentUser.getUserId());
 		QueryWrapper<UserAuth> queryWrapper = new QueryWrapper<>();
 		queryWrapper.in("user_id", userIdsList);
-		userAuthService.update(userAuthUp, queryWrapper);
-		
+		userAuthService.remove(queryWrapper);
 		List<UserAuth> createList = new LinkedList<>();
-		for (int i = 0; i < userIdsList.size(); i++) {
-			for (int j = 0; j < authIdsList.size(); j++) {
+		for (Long userId : userIdsList) {
+			for (Long authId : authIdsList) {
 				UserAuth userAuth = new UserAuth();
-				userAuth.setUserId(userIdsList.get(i));
-				userAuth.setAuthId(authIdsList.get(j));
+				userAuth.setUserId(userId);
+				userAuth.setAuthId(authId);
 				userAuth.setCreateUid(currentUser.getUserId());
 				userAuth.setCreationTime(new Date());
 				userAuth.setDelFlag(0);
 				createList.add(userAuth);
 			}
+			List<UserAuthInfo> userAuthListNew = userAuthService.getUserAuthSet(userId);
+			DocUserUtil.setUserAuth(userId, userAuthListNew);
 		}
 		userAuthService.saveBatch(createList);
 		return DocResponseJson.ok();
