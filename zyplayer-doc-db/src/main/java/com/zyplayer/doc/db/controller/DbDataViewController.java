@@ -127,7 +127,7 @@ public class DbDataViewController {
 			e.printStackTrace();
 			return DocDbResponseJson.error("导出失败：" + e.getMessage());
 		}
-		return DocDbResponseJson.ok();
+		return null;
 	}
 
 	/**

@@ -48,6 +48,9 @@ public class DmServiceImpl extends DbBaseService {
                 if(queryColumnsArray[i].equalsIgnoreCase("IDENTITY")){
                     queryColumnsArray[i] = "\"IDENTITY\"";
                 }
+                if(queryColumnsArray[i].equalsIgnoreCase("DOMAIN")){
+                    queryColumnsArray[i] = "\"DOMAIN\"";
+                }
                 if(i < queryColumnsArray.length-1){
                     resultString +=queryColumnsArray[i] + ",";
                 }else{

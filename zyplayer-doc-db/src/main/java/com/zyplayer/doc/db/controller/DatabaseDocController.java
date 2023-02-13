@@ -189,10 +189,13 @@ public class DatabaseDocController {
 			DatabaseExportVo exportVo = new DatabaseExportVo(columnList, tableList);
 			if (Objects.equals(exportFormat, 1)) {
 				PoiUtil.exportByText(exportVo, response);
+				return null;
 			} else if (Objects.equals(exportFormat, 2)) {
 				PoiUtil.exportByXlsx(exportVo, response);
+				return null;
 			} else if (Objects.equals(exportFormat, 3)) {
 				PoiUtil.exportByDocx(dbName, exportVo, response);
+				return null;
 			}
 			return DocDbResponseJson.error("导出失败：请先选择导出类型");
 		} catch (Exception e) {

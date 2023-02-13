@@ -15,6 +15,7 @@ import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
 import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
 import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
+import com.zyplayer.doc.db.framework.utils.SQLTransformUtils;
 import com.zyplayer.doc.db.service.common.ExecuteAuthService;
 import com.zyplayer.doc.db.service.database.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.database.DbBaseService;
@@ -24,11 +25,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
+import java.sql.Clob;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ import java.util.stream.Stream;
 @Service(FormatDownloadConst.EXCEL)
 public class ExcelFormatDownloadService implements FormatDownloadService {
 	private static Logger logger = LoggerFactory.getLogger(ExcelFormatDownloadService.class);
-	
+
 	@Resource
 	ExecuteAuthService executeAuthService;
 	@Resource
@@ -52,7 +53,7 @@ public class ExcelFormatDownloadService implements FormatDownloadService {
 	BaseDownloadService baseDownloadService;
 	@Resource
 	SqlExecutor sqlExecutor;
-	
+
 	@Override
 	public void download(HttpServletResponse response, DataViewParam param, String[] tableNameArr) throws Exception {
 		DbBaseService dbBaseService = databaseServiceFactory.getDbBaseService(param.getSourceId());
@@ -112,6 +113,12 @@ public class ExcelFormatDownloadService implements FormatDownloadService {
 					downloadDataList.add(new LinkedList<Object>() {{
 						for (TableColumnDescDto columnDto : columnListRetain) {
 							Object data = dataMap.get(columnDto.getName());
+							//CLOB类型数据处理
+							if(columnDto.getType().equals("CLOB")){
+								if(data!=null){
+									data = SQLTransformUtils.ClobToString((Clob) data);
+								}
+							}
 							// 数据格式处理，不处理有些格式会造成乱码，打不开文件
 							if (!(data == null || data instanceof Number || data instanceof CharSequence)) {
 								if (data instanceof Timestamp) {
@@ -147,7 +154,7 @@ public class ExcelFormatDownloadService implements FormatDownloadService {
 			}
 		}
 	}
-	
+
 	private List<List<String>> getSheetHeadList(List<TableColumnDescDto> columnListRetain) {
 		List<List<String>> sheetHeadList = new ArrayList<>();
 		for (TableColumnDescDto dataCol : columnListRetain) {
