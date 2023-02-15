@@ -1,9 +1,13 @@
 package com.zyplayer.doc.db.controller;
 
+import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbFavorite;
@@ -14,10 +18,7 @@ import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.DbFavoriteService;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
-import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteParam;
-import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteResult;
-import com.zyplayer.doc.db.framework.db.mapper.base.ExecuteType;
-import com.zyplayer.doc.db.framework.db.mapper.base.SqlExecutor;
+import com.zyplayer.doc.db.framework.db.mapper.base.*;
 import com.zyplayer.doc.db.framework.db.transfer.SqlParseUtil;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
 import com.zyplayer.doc.db.framework.utils.JSONUtil;
@@ -47,7 +48,7 @@ public class DbSqlExecutorController {
 	private static Logger logger = LoggerFactory.getLogger(DbSqlExecutorController.class);
 
 	@Resource
-	SqlExecutor sqlExecutor;
+	ColumnSqlExecutor columnSqlExecutor;
 	@Resource
 	DbHistoryService dbHistoryService;
 	@Resource
@@ -72,44 +73,44 @@ public class DbSqlExecutorController {
 		dbHistoryService.saveHistory(sql.trim(), params, sourceId);
 		// 参数处理
 		Map<String, Object> paramMap = JSON.parseObject(params);
-		List<String> resultList = new LinkedList<>();
-		// 支持;分割的多个sql执行
-		String[] sqlArr = sql.split(";");
-		// 执行条数太多，反应慢，展示结果栏太多，也不应该在这一次执行很多条语句，应该使用导入
-		if (sqlArr.length > 20) {
-			return DocDbResponseJson.warn("单次执行最多支持20条语句同时执行，当前语句条数：" + sqlArr.length);
-		}
-		for (String sqlItem : sqlArr) {
-			if (StringUtils.isBlank(sqlItem)) {
-				continue;
+		// 解析出多个执行的SQL
+		List<String> analysisQuerySqlList = new LinkedList<>();
+		try {
+			List<SQLStatement> sqlStatements = new MySqlStatementParser(sql).parseStatementList();
+			for (SQLStatement sqlStatement : sqlStatements) {
+				analysisQuerySqlList.add(sqlStatement.toString());
 			}
-			sqlItem = sqlItem.trim();
-			ExecuteResult executeResult;
-			ExecuteParam executeParam = new ExecuteParam();
+		} catch (Exception e) {
+			return DocDbResponseJson.warn("SQL解析失败：" + e.getMessage());
+		}
+		// 执行条数太多，反应慢，展示结果栏太多，也不应该在这一次执行很多条语句，应该使用导入
+		if (analysisQuerySqlList.size() > 20) {
+			return DocDbResponseJson.warn("单次执行最多支持20条语句同时执行，当前语句条数：" + analysisQuerySqlList.size());
+		}
+		List<ColumnExecuteResult> resultList = new LinkedList<>();
+		for (String singleSql : analysisQuerySqlList) {
+			ColumnExecuteResult executeResult;
 			try {
 				ExecuteType executeType = (manageAuth || update) ? ExecuteType.ALL : ExecuteType.SELECT;
-				executeParam = SqlParseUtil.getSingleExecuteParam(sqlItem, paramMap);
+				ExecuteParam executeParam = SqlParseUtil.getSingleExecuteParam(singleSql, paramMap);
 				executeParam.setDatasourceId(sourceId);
 				executeParam.setExecuteId(executeId);
 				executeParam.setExecuteType(executeType);
 				executeParam.setPrefixSql(useDbSql);
 				executeParam.setMaxRows(1000);
-				executeResult = sqlExecutor.execute(executeParam);
+				executeResult = columnSqlExecutor.execute(executeParam);
 			} catch (Exception e) {
 				logger.error("执行出错", e);
-				executeResult = ExecuteResult.error(e.getMessage(), sqlItem);
+				executeResult = ColumnExecuteResult.error(singleSql, e.getMessage(), e);
 			}
-			// 执行的sql处理
-			String executeSqlLog = SqlLogUtil.parseLogSql(executeParam.getSql(), executeParam.getParameterMappings(), executeParam.getParamList());
-			executeResult.setSql(executeSqlLog);
-			resultList.add(JSON.toJSONString(executeResult, JSONUtil.serializeConfig, SerializerFeature.WriteMapNullValue));
+			resultList.add(executeResult);
 		}
 		return DocDbResponseJson.ok(resultList);
 	}
 
 	@PostMapping(value = "/cancel")
 	public DocDbResponseJson cancel(String executeId) {
-		sqlExecutor.cancel(executeId);
+		columnSqlExecutor.cancel(executeId);
 		return DocDbResponseJson.ok();
 	}
 

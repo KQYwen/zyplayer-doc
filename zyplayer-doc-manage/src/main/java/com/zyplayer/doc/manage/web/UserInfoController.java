@@ -242,10 +242,12 @@ public class UserInfoController {
 				userAuth.setDelFlag(0);
 				createList.add(userAuth);
 			}
+		}
+		userAuthService.saveBatch(createList);
+		for (Long userId : userIdsList) {
 			List<UserAuthInfo> userAuthListNew = userAuthService.getUserAuthSet(userId);
 			DocUserUtil.setUserAuth(userId, userAuthListNew);
 		}
-		userAuthService.saveBatch(createList);
 		return DocResponseJson.ok();
 	}
 }

@@ -14,21 +14,19 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.Resource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * sql执行器
+ * 新版的SQL执行类，返回结果有比较大的差异，为了兼容之前的代码就不在原有基础上修改
  *
  * @author 暮光：城中城
- * @since 2019年8月18日
+ * @since 2023-02-12
  */
 @Repository
-public class SqlExecutor {
+public class ColumnSqlExecutor {
 	private static Logger logger = LoggerFactory.getLogger(SqlExecutor.class);
 	
 	@Resource
@@ -63,7 +61,7 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public ExecuteResult execute(ExecuteParam param) {
+	public ColumnExecuteResult execute(ExecuteParam param) {
 		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(param.getDatasourceId());
 		return this.execute(factoryBean, param, null);
 	}
@@ -74,7 +72,7 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public ExecuteResult execute(ExecuteParam param, ResultHandler handler) {
+	public ColumnExecuteResult execute(ExecuteParam param, ResultHandler handler) {
 		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(param.getDatasourceId());
 		return this.execute(factoryBean, param, handler);
 	}
@@ -85,10 +83,7 @@ public class SqlExecutor {
 	 * @author 暮光：城中城
 	 * @since 2019年8月18日
 	 */
-	public ExecuteResult execute(DatabaseFactoryBean factoryBean, ExecuteParam executeParam, ResultHandler handler) {
-		if (factoryBean == null) {
-			return ExecuteResult.error("未找到数据库连接", executeParam.getSql());
-		}
+	public ColumnExecuteResult execute(DatabaseFactoryBean factoryBean, ExecuteParam executeParam, ResultHandler handler) {
 		// 有参数的时候不输出日志，暂时只有导数据才有参数
 		if (CollectionUtils.isEmpty(executeParam.getParamList())) {
 			if (StringUtils.isNotBlank(executeParam.getPrefixSql())) {
@@ -96,13 +91,17 @@ public class SqlExecutor {
 			}
 			logger.info("sql ==> {}", executeParam.getSql());
 		}
+		if (factoryBean == null) {
+			return ColumnExecuteResult.error(executeParam.getSql(), "未找到数据库连接", null);
+		}
+		long startExecuteTime = System.currentTimeMillis();
+		ColumnExecuteResult executeResult = ColumnExecuteResult.ok(executeParam.getSql());
 		PreparedStatement preparedStatement = null;
 		PreparedStatement prefixStatement = null;
 		DruidPooledConnection connection = null;
 		ResultSet resultSet = null;
 		// 执行查询
 		try {
-			long startTime = System.currentTimeMillis();
 			connection = factoryBean.getDataSource().getConnection();
 			if (StringUtils.isNotBlank(executeParam.getPrefixSql())) {
 				prefixStatement = connection.prepareStatement(executeParam.getPrefixSql());
@@ -113,9 +112,15 @@ public class SqlExecutor {
 			statementMap.put(executeParam.getExecuteId(), preparedStatement);
 			List<ParameterMapping> parameterMappings = executeParam.getParameterMappings();
 			List<Object> paramDataList = executeParam.getParamList();
-			if (parameterMappings != null && paramDataList != null && parameterMappings.size() > 0 && paramDataList.size() > 0) {
-				for (int i = 0; i < parameterMappings.size(); i++) {
-					preparedStatement.setObject(i + 1, paramDataList.get(i));
+			if (parameterMappings.size() > 0 && paramDataList.size() > 0) {
+				int parameterCount = 99999;
+				try {
+					parameterCount = preparedStatement.getParameterMetaData().getParameterCount();
+				} catch (Exception e) {
+					logger.info("不支持获取总数：" + e.getMessage());
+				}
+				for (int paramIndex = 0; paramIndex < parameterMappings.size() && paramIndex < parameterCount; paramIndex++) {
+					preparedStatement.setObject(paramIndex + 1, paramDataList.get(paramIndex));
 				}
 			}
 			// 最大限制1分钟
@@ -131,28 +136,30 @@ public class SqlExecutor {
 			}
 			// 查询的结果集
 			resultSet = preparedStatement.getResultSet();
-			List<Map<String, Object>> resultList = new LinkedList<>();
+			List<String> headerList = new LinkedList<>();
+			List<List<Object>> dataList = new LinkedList<>();
 			if (resultSet != null) {
+				int columnCount = resultSet.getMetaData().getColumnCount();
+				for (int i = 0; i < columnCount; i++) {
+					headerList.add(resultSet.getMetaData().getColumnLabel(i + 1));
+				}
 				while (resultSet.next()) {
-					Map<String, Object> resultMap = new LinkedHashMap<>();
-					ResultSetMetaData metaData = resultSet.getMetaData();
-					for (int i = 1; i < metaData.getColumnCount() + 1; i++) {
-						resultMap.put(metaData.getColumnName(i), resultSet.getObject(i));
+					List<Object> tempList = new LinkedList<>();
+					for (int i = 0; i < columnCount; i++) {
+						tempList.add(resultSet.getObject(i + 1));
 					}
-					if (handler != null) {
-						handler.handleResult(resultMap);
-					} else {
-						resultList.add(resultMap);
-					}
+					dataList.add(tempList);
 				}
 			}
-			// 更新的数量，小于0代表不是更新语句
-			int updateCount = preparedStatement.getUpdateCount();
-			long useTime = System.currentTimeMillis() - startTime;
-			return new ExecuteResult(updateCount, resultList, useTime, executeParam.getSql());
+			// 更新的数量
+			executeResult.setData(dataList);
+			executeResult.setHeader(headerList);
+			executeResult.setUpdateCount(Math.max(preparedStatement.getUpdateCount(), 0));
 		} catch (Exception e) {
 			logger.error("执行出错", e);
-			throw new RuntimeException(e);
+			executeResult.setException(e);
+			executeResult.setErrMsg(e.getMessage());
+			executeResult.setErrCode(ColumnExecuteResult.ExecuteResultCode.ERROR);
 		} finally {
 			statementMap.remove(executeParam.getExecuteId());
 			IoUtil.close(resultSet);
@@ -160,5 +167,7 @@ public class SqlExecutor {
 			IoUtil.close(preparedStatement);
 			IoUtil.close(connection);
 		}
+		executeResult.setQueryTime(System.currentTimeMillis() - startExecuteTime);
+		return executeResult;
 	}
 }
