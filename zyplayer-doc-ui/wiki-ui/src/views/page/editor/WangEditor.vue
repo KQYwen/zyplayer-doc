@@ -47,7 +47,6 @@ let editorConfig = ref({
 			// 最大支持50M图片上传
 			maxFileSize: 50 * 1024 * 1024,
 			withCredentials: true,
-			meta: {pageId: route.query.pageId},
 		},
 		uploadVideo: {
 			server: import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload',
@@ -55,7 +54,6 @@ let editorConfig = ref({
 			// 最大支持300M图片上传
 			maxFileSize: 300 * 1024 * 1024,
 			withCredentials: true,
-			meta: {pageId: route.query.pageId},
 		}
 	}
 });
