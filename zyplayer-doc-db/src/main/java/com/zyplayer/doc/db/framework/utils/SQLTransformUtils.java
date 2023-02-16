@@ -7,7 +7,7 @@ import com.alibaba.druid.sql.dialect.mysql.parser.MySqlLexer;
 import com.alibaba.druid.sql.dialect.oracle.parser.OracleLexer;
 import com.alibaba.druid.sql.dialect.sqlserver.parser.SQLServerLexer;
 import com.alibaba.druid.sql.parser.Keywords;
-import com.alibaba.druid.sql.parser.Lexer;
+import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
 import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.MySqlToOracleOutputVisitor;
 import com.zyplayer.doc.db.framework.db.sql.dialect.mysql.MySqlToSqlServerOutputVisitor;
 import com.zyplayer.doc.db.framework.db.sql.dialect.oracle.OracleToMySqlOutputVisitor;
@@ -144,5 +144,30 @@ public class SQLTransformUtils {
             return Keywords.DM_KEYWORDS.getKeywords().containsKey(name.toUpperCase());
         }
         return Keywords.DEFAULT_KEYWORDS.getKeywords().containsKey(name.toUpperCase());
+    }
+
+    /**
+     *  根据驱动程序类名获取数据库类型
+     * @param driverClassName 驱动程序类名
+     * @return DbType 数据库类型
+     */
+    public static DbType getDbTypeByDriverClassName(String driverClassName) {
+        DbType dbType;
+        if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.MYSQL.name())){
+            dbType = DbType.mysql;
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.ORACLE.name())){
+            dbType = DbType.oracle;
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.DM.name())){
+            dbType = DbType.dm;
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.SQLSERVER.name())){
+            dbType = DbType.sqlserver;
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.POSTGRESQL.name())){
+            dbType = DbType.postgresql;
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.HIVE.name())){
+            dbType = DbType.hive;
+        }else{
+            dbType = DbType.other;
+        }
+        return dbType;
     }
 }

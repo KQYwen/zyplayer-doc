@@ -1,13 +1,11 @@
 package com.zyplayer.doc.db.controller;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
+import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
-import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.DbFavorite;
@@ -21,8 +19,7 @@ import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.mapper.base.*;
 import com.zyplayer.doc.db.framework.db.transfer.SqlParseUtil;
 import com.zyplayer.doc.db.framework.json.DocDbResponseJson;
-import com.zyplayer.doc.db.framework.utils.JSONUtil;
-import com.zyplayer.doc.db.framework.utils.SqlLogUtil;
+import com.zyplayer.doc.db.framework.utils.SQLTransformUtils;
 import com.zyplayer.doc.db.service.database.DatabaseServiceFactory;
 import com.zyplayer.doc.db.service.database.DbBaseService;
 import org.apache.commons.lang3.StringUtils;
@@ -76,7 +73,11 @@ public class DbSqlExecutorController {
 		// 解析出多个执行的SQL
 		List<String> analysisQuerySqlList = new LinkedList<>();
 		try {
-			List<SQLStatement> sqlStatements = new MySqlStatementParser(sql).parseStatementList();
+			String driverClassName = dbBaseService.getDatabaseProduct().getDriverClassName();
+			List<SQLStatement> sqlStatements = new ArrayList<SQLStatement>();
+			//根据驱动程序类名获取数据库类型
+			DbType dbType = SQLTransformUtils.getDbTypeByDriverClassName(driverClassName);
+			sqlStatements = new SQLStatementParser(sql,dbType).parseStatementList();
 			for (SQLStatement sqlStatement : sqlStatements) {
 				analysisQuerySqlList.add(sqlStatement.toString());
 			}
