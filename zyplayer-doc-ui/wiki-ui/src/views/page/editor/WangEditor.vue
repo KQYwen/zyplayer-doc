@@ -47,7 +47,7 @@ let editorConfig = ref({
 			// 最大支持50M图片上传
 			maxFileSize: 50 * 1024 * 1024,
 			withCredentials: true,
-			meta: {pageId: route.params.pageId},
+			meta: {pageId: route.query.pageId},
 		},
 		uploadVideo: {
 			server: import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload',
@@ -55,7 +55,7 @@ let editorConfig = ref({
 			// 最大支持300M图片上传
 			maxFileSize: 300 * 1024 * 1024,
 			withCredentials: true,
-			meta: {pageId: route.params.pageId},
+			meta: {pageId: route.query.pageId},
 		}
 	}
 });
@@ -100,6 +100,15 @@ onBeforeUnmount(() => {
 
 defineExpose({setTitle, setHtml, getPageData});
 </script>
+
+<style lang="scss">
+.w-e-bar-item-group {
+  .w-e-bar-item-menus-container {
+    /**不知为何按钮和下拉之间总是差了那么一点，导致没法点击到下拉框，给他移上去一点*/
+	top: -2px;
+  }
+}
+</style>
 
 <style>
 .wang-editor-box {
