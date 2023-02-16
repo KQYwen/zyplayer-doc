@@ -273,7 +273,7 @@ const props = defineProps({
 });
 let emit = defineEmits(['switchSpace', 'changeExpandedKeys', 'loadPageList']);
 onBeforeRouteUpdate((to) => {
-	loadPageDetail(to.query.pageId);
+	initQueryParam(to);
 });
 onMounted(() => {
 	initQueryParam(route);
