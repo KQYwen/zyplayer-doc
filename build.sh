@@ -4,7 +4,7 @@ dist_dir="dist"
 
 app_name="zyplayer-doc"
 
-version="1.1.2"
+version="1.1.3"
 
 build_folder="${app_name}-${version}"
 

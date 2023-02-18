@@ -10,12 +10,13 @@ import java.util.List;
  * @since 2021-06-06
  */
 public class ZyplayerDocVersion {
-	public static final String version = "1.1.2";
+	public static final String version = "1.1.3";
 	
 	/**
 	 * 每次升级必须添加一条记录，用于执行它的升级SQL
 	 */
 	public static final List<String> versionUpgrade = new LinkedList<String>() {{
+		add("1.1.3");
 		add("1.1.2");
 	}};
 }

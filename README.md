@@ -1,10 +1,9 @@
-# 项目介绍
+# 项目简介
 zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同时还包含数据库文档、Api接口文档。
 
-体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com/) 账号：**zyplayer**  密码：**123456** 
+在线文档：[zyplayer-doc使用文档](http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d)
 
-详细的使用文档地址，可参考：
-[详细部署使用文档](http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d) 
+体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com)
 
 欢迎有想法的同学一起来完善，如果觉得不错就给个Star鼓励下呗！作为给项目快速更新的动力！
 
@@ -13,8 +12,8 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 # 快速启动
 ## 相关依赖
 启动本系统仅依赖JAVA和MySQL
-- JAVA1.8+
-- MySQL5.7.x
+- JAVA 1.8+
+- MySQL 5.7.x
 
 建表SQL脚本无需手动执行，每次启动或更新之后都会检查当前版本，然后自动执行升级SQL脚本，所以每次有版本更新需求只需要下载最新版本启动即可，无需其他特殊操作
 
@@ -33,7 +32,7 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 2. 修改配置文件：`zyplayer-doc.zip\apache-tomcat\webapps\zyplayer-doc\WEB-INF\classes\application.yml`配置文件里面的数据库账号密码
 3. 双击`tomcat\bin\startup.bat`启动即可
 
-启动后访问：[http://127.0.0.1:8083/zyplayer-doc](http://127.0.0.1:8083/zyplayer-doc)，默认登录账号： **zyplayer**  密码： **123456** 
+启动后访问：[http://127.0.0.1:8083/zyplayer-doc](http://127.0.0.1:8083/zyplayer-doc) ，默认登录账号： **zyplayer**  密码： **123456** 
 
 # 各模块介绍
 ## zyplayer-doc-manage 文档管理后台
