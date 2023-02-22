@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @since 2019年9月28日
  */
 public class SqlParseUtil {
-	
+
 	/**
 	 * 通过SQL和参数列表获取处理后的SQL和参数
 	 * @param sql
@@ -58,7 +58,7 @@ public class SqlParseUtil {
 		}
 		return executeParamList;
 	}
-	
+
 	/**
 	 * 解析sql，如果是insert则把values拼成多个，用于支持批量插入
 	 * 不是insert则返回null
@@ -145,7 +145,7 @@ public class SqlParseUtil {
 		executeParam.setParamList(resultParamList);
 		return executeParam;
 	}
-	
+
 	/**
 	 * 解析单条操作的SQL
 	 * @param sql
@@ -168,7 +168,29 @@ public class SqlParseUtil {
 		executeParam.setParamList(resultParamList);
 		return executeParam;
 	}
-	
+
+	/**
+	 * 解析单条操作的SQL
+	 * @param sql
+	 * @param paramMap
+	 * @return
+	 */
+	public static ExecuteParam getSingleExecuteParam(ExecuteParam executeParam,String sql, Map<String, Object> paramMap) {
+		sql = FillParamUtil.fillSqlParam(sql, paramMap);
+		SqlSourceBuilder sqlSourceBuilder = new SqlSourceBuilder(new Configuration());
+		StaticSqlSource parse = (StaticSqlSource) sqlSourceBuilder.parse(sql, Object.class, paramMap);
+		BoundSql boundSql =  parse.getBoundSql(new Object());
+		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+		List<Object> resultParamList = new LinkedList<>();
+		for (ParameterMapping parameterMapping : parameterMappings) {
+			resultParamList.add(paramMap.get(parameterMapping.getProperty()));
+		}
+		executeParam.setSql(boundSql.getSql());
+		executeParam.setParameterMappings(parameterMappings);
+		executeParam.setParamList(resultParamList);
+		return executeParam;
+	}
+
 	/**
 	 * 获取sql语句里面查询的列
 	 *
@@ -190,7 +212,7 @@ public class SqlParseUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 获取sql语句里面查询的列
 	 *
@@ -239,7 +261,7 @@ public class SqlParseUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 获取sql语句里面查询的列
 	 *
@@ -285,7 +307,7 @@ public class SqlParseUtil {
 		}
 		return Collections.emptyList();
 	}
-	
+
 	public static void main(String[] args) {
 		String storageSql = "select * from zyplayer_doc_manage.wiki_space where id=1 group by id";
 		storageSql = storageSql.replaceAll("(#\\{\\w+})", "'$1'");

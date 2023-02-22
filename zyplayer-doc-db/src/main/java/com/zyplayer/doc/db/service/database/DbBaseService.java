@@ -43,7 +43,7 @@ import java.util.Set;
  */
 public abstract class DbBaseService {
 	private static Logger logger = LoggerFactory.getLogger(DbBaseService.class);
-	
+
 	@Resource
 	SqlExecutor sqlExecutor;
 	@Resource
@@ -52,7 +52,7 @@ public abstract class DbBaseService {
 	BaseDownloadService baseDownloadService;
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
-	
+
 	/**
 	 * 判断查看权和获取BaseMapper
 	 *
@@ -66,7 +66,7 @@ public abstract class DbBaseService {
 		}
 		return baseMapper;
 	}
-	
+
 	/**
 	 * 权限判断
 	 *
@@ -78,14 +78,14 @@ public abstract class DbBaseService {
 			throw new ConfirmException(noAuthInfo);
 		}
 	}
-	
+
 	/**
 	 * 获取当前是什么数据源服务
 	 *
 	 * @return 服务类型
 	 */
 	public abstract DatabaseProductEnum getDatabaseProduct();
-	
+
 	/**
 	 * 获取库列表
 	 *
@@ -97,7 +97,7 @@ public abstract class DbBaseService {
 		// 需要各数据服务自己实现，各数据库产品的实现都不一样
 		throw new ConfirmException("暂未支持的数据库类型");
 	}
-	
+
 	/**
 	 * 获取库列表
 	 *
@@ -109,7 +109,7 @@ public abstract class DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		return baseMapper.getDatabaseList();
 	}
-	
+
 	/**
 	 * 获取表列表
 	 *
@@ -122,7 +122,7 @@ public abstract class DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		return baseMapper.getTableList(dbName);
 	}
-	
+
 	/**
 	 * 获取字段列表
 	 *
@@ -151,7 +151,7 @@ public abstract class DbBaseService {
 		tableColumnVo.setTableInfo(tableInfoVo);
 		return tableColumnVo;
 	}
-	
+
 	/**
 	 * 模糊搜索表和字段
 	 *
@@ -166,7 +166,7 @@ public abstract class DbBaseService {
 		searchText = "%" + searchText + "%";
 		return baseMapper.getTableAndColumnBySearch(dbName, searchText);
 	}
-	
+
 	/**
 	 * 获取表注释
 	 *
@@ -179,7 +179,7 @@ public abstract class DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		return baseMapper.getTableDescList(dbName, tableName);
 	}
-	
+
 	/**
 	 * 增加表注释
 	 *
@@ -192,7 +192,7 @@ public abstract class DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		baseMapper.updateTableDesc(dbName, tableName, newDesc);
 	}
-	
+
 	/**
 	 * 增加字段注释
 	 *
@@ -207,7 +207,7 @@ public abstract class DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		baseMapper.updateTableColumnDesc(dbName, tableName, columnName, newDesc, null);
 	}
-	
+
 	/**
 	 * 获取表基本信息
 	 *
@@ -223,7 +223,7 @@ public abstract class DbBaseService {
 		tableStatusVo.setDbType(factoryBean.getDatabaseProduct().name().toLowerCase());
 		return tableStatusVo;
 	}
-	
+
 	/**
 	 * 获取存储过程列表
 	 *
@@ -235,7 +235,7 @@ public abstract class DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(procedureParam.getSourceId());
 		return baseMapper.getProcedureCount(procedureParam);
 	}
-	
+
 	/**
 	 * 获取存储过程列表
 	 *
@@ -251,7 +251,7 @@ public abstract class DbBaseService {
 		}
 		return baseMapper.getProcedureList(procedureParam);
 	}
-	
+
 	/**
 	 * 获取存储过程详情
 	 *
@@ -263,7 +263,7 @@ public abstract class DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		return baseMapper.getProcedureDetail(dbName, typeName, procName);
 	}
-	
+
 	/**
 	 * 删除存储过程
 	 *
@@ -275,7 +275,7 @@ public abstract class DbBaseService {
 		BaseMapper baseMapper = this.getViewAuthBaseMapper(sourceId);
 		baseMapper.deleteProcedure(dbName, typeName, procName);
 	}
-	
+
 	/**
 	 * 保存存储过程
 	 *
@@ -288,7 +288,7 @@ public abstract class DbBaseService {
 		// 需要各数据服务自己实现，各数据库产品的实现都不一样
 		throw new ConfirmException("暂未支持的数据库类型");
 	}
-	
+
 	/**
 	 * 获取全量数据查询的SQL
 	 *
@@ -305,7 +305,7 @@ public abstract class DbBaseService {
 		}
 		return sqlSb.toString();
 	}
-	
+
 	/**
 	 * 获取分页查询的SQL
 	 *
@@ -326,7 +326,22 @@ public abstract class DbBaseService {
 		sqlSb.append(String.format(" limit %s offset %s", dataViewParam.getPageSize(), dataViewParam.getOffset()));
 		return sqlSb.toString();
 	}
-	
+
+	/**
+	 * 获取分页查询的SQL
+	 *
+	 * @return 分页查询的SQL
+	 * @author diantu
+	 * @since 2023年2月22日
+	 */
+	public String getQueryPageSqlBySql(String sql,Integer pageSize,Integer pageNum) {
+		StringBuilder sqlSb = new StringBuilder();
+		sqlSb.append(String.format("select * from (%s) r", sql));
+		Integer offset = (pageNum-1)*pageSize;
+		sqlSb.append(String.format(" limit %s offset %s", pageSize, offset));
+		return sqlSb.toString();
+	}
+
 	/**
 	 * 获取指定数据库的SQL
 	 *
@@ -340,7 +355,7 @@ public abstract class DbBaseService {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 获取查询总条数的SQL
 	 *
@@ -356,7 +371,7 @@ public abstract class DbBaseService {
 		}
 		return sqlSb.toString();
 	}
-	
+
 	/**
 	 * 获取表数据
 	 *
@@ -375,7 +390,7 @@ public abstract class DbBaseService {
 		}
 		return null;
 	}
-	
+
 	public void deleteTableLineData(Long sourceId, String dbName, String tableName, JSONArray lineJsonArr) {
 		for (int i = 0; i < lineJsonArr.size(); i++) {
 			JSONObject lineParam = lineJsonArr.getJSONObject(i);

@@ -28,13 +28,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class ColumnSqlExecutor {
 	private static Logger logger = LoggerFactory.getLogger(SqlExecutor.class);
-	
+
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
-	
+
 	// 执行中的PreparedStatement信息，用于强制取消执行
 	private static final Map<String, PreparedStatement> statementMap = new ConcurrentHashMap<>();
-	
+
 	/**
 	 * 取消执行
 	 *
@@ -54,7 +54,7 @@ public class ColumnSqlExecutor {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 执行sql，返回结果
 	 *
@@ -65,7 +65,7 @@ public class ColumnSqlExecutor {
 		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(param.getDatasourceId());
 		return this.execute(factoryBean, param, null);
 	}
-	
+
 	/**
 	 * 执行sql，返回结果
 	 *
@@ -76,7 +76,7 @@ public class ColumnSqlExecutor {
 		DatabaseFactoryBean factoryBean = databaseRegistrationBean.getOrCreateFactoryById(param.getDatasourceId());
 		return this.execute(factoryBean, param, handler);
 	}
-	
+
 	/**
 	 * 执行sql，可通过handler回调每一行的结果
 	 *

@@ -45,12 +45,7 @@ public class DmServiceImpl extends DbBaseService {
             String[] queryColumnsArray = queryColumns.split(",");
             String resultString = "";
             for(int i=0;i<queryColumnsArray.length;i++){
-                if(queryColumnsArray[i].equalsIgnoreCase("IDENTITY")){
-                    queryColumnsArray[i] = "\"IDENTITY\"";
-                }
-                if(queryColumnsArray[i].equalsIgnoreCase("DOMAIN")){
-                    queryColumnsArray[i] = "\"DOMAIN\"";
-                }
+                queryColumnsArray[i] = "\""+queryColumnsArray[i]+"\"";
                 if(i < queryColumnsArray.length-1){
                     resultString +=queryColumnsArray[i] + ",";
                 }else{

@@ -99,6 +99,22 @@ public class SqlserverServiceImpl extends DbBaseService {
 	}
 
 	/**
+	 * 获取分页查询的SQL(兼容写法,支持SQL Server 2005及以上版本)
+	 *
+	 * @return 分页查询的SQL
+	 * @author diantu
+	 * @since 2023年2月22日
+	 */
+	@Override
+	public String getQueryPageSqlBySql(String sql,Integer pageSize,Integer pageNum) {
+		StringBuilder sqlSb = new StringBuilder();
+		Integer rownumber = (pageNum-1)*pageSize;
+		Integer top = pageSize*pageNum;
+		sqlSb.append(String.format("select * from ( select row_number()over(order by tempColumn)rownumber,* from (select top %s tempColumn=0,* from (%s) r where 1=1 )a)b where rownumber > %s",top,sql,rownumber));
+		return sqlSb.toString();
+	}
+
+	/**
 	 * 获取查询总条数的SQL
 	 *
 	 * @return 查询总条数的SQL

@@ -64,6 +64,22 @@ public class OracleServiceImpl extends DbBaseService {
     }
 
     /**
+     * 获取分页查询的SQL
+     *
+     * @return 分页查询的SQL
+     * @author diantu
+     * @since 2023年2月22日
+     */
+    @Override
+    public String getQueryPageSqlBySql(String sql,Integer pageSize,Integer pageNum) {
+        StringBuilder sqlSb = new StringBuilder();
+        Integer pageSizeFinal = pageSize * pageNum;
+        Integer pageNumFinal = pageSize * (pageNum - 1) + 1;
+        sqlSb.append(String.format("select * from ( select r.*,rownum rn from %s",  "(" + sql + ") r where rownum<=" + pageSizeFinal + " ) t2 where t2.rn >=" + pageNumFinal));
+        return sqlSb.toString();
+    }
+
+    /**
      * 获取建表语句
      *
      * @author diantu

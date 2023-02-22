@@ -2,20 +2,29 @@
 	<div class="data-executor-vue">
 		<div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
 			<el-card style="margin-bottom: 10px;">
-				<ace-editor v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit" lang="sql" theme="monokai" width="100%" height="500" :options="sqlEditorConfig" :source="executorSource" style="margin-bottom: 10px;"></ace-editor>
+				<ace-editor v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit" lang="sql" theme="monokai"
+										width="100%" height="500" :options="sqlEditorConfig" :source="executorSource"
+										style="margin-bottom: 10px;"></ace-editor>
 				<div>
-					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="small" icon="el-icon-video-pause">取消执行</el-button>
+					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="small"
+										 icon="el-icon-video-pause">取消执行
+					</el-button>
 					<el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
-						<el-button v-on:click="doExecutorSql" type="primary" plain size="small" icon="el-icon-video-play">执行</el-button>
+						<el-button v-on:click="doExecutorSql" type="primary" plain size="small" icon="el-icon-video-play">执行
+						</el-button>
 					</el-tooltip>
 					<el-button icon="el-icon-brush" size="small" @click="formatterSql">SQL美化</el-button>
 					<el-button v-on:click="addFavorite('')" plain size="small" icon="el-icon-star-off">收藏</el-button>
 					<div style="float: right;">
-						<el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="small" filterable placeholder="请选择数据源" style="width: 300px;margin-left: 10px;">
-							<el-option v-for="item in datasourceOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
+						<el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="small" filterable
+											 placeholder="请选择数据源" style="width: 300px;margin-left: 10px;">
+							<el-option v-for="item in datasourceOptions" :key="item.id" :label="item.name"
+												 :value="item.id"></el-option>
 						</el-select>
-						<el-select v-model="choiceDatabase" @change="databaseChangeEvents" size="small" filterable placeholder="请选择数据库" style="width: 200px;margin-left: 10px;">
-							<el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>
+						<el-select v-model="choiceDatabase" @change="databaseChangeEvents" size="small" filterable
+											 placeholder="请选择数据库" style="width: 200px;margin-left: 10px;">
+							<el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName"
+												 :value="item.dbName"></el-option>
 						</el-select>
 					</div>
 				</div>
@@ -29,7 +38,8 @@
 				<div style="position: relative;">
 					<div style="position: absolute;right: 0;z-index: 1;">
 						<!-- 复制选中行 -->
-						<el-dropdown @command="handleCopyCheckLineCommand" v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
+						<el-dropdown @command="handleCopyCheckLineCommand"
+												 v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
 							<el-button type="primary" size="small" icon="el-icon-document-copy">
 								复制选中行<i class="el-icon-arrow-down el-icon--right"></i>
 							</el-button>
@@ -40,19 +50,22 @@
 							</el-dropdown-menu>
 						</el-dropdown>
 					</div>
-					<el-tabs v-model="executeShowTable">
+					<el-tabs v-model="executeShowTable" @tab-click="tabHandleClick">
 						<el-tab-pane label="执行历史" name="tabHistory">
 							<el-table :data="myHistoryListList" stripe border style="width: 100%; margin-bottom: 5px;">
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
-										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row)" :title="scope.row.content">{{ scope.row.content }}</pre>
+										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row)"
+												 :title="scope.row.content">{{ scope.row.content }}</pre>
 									</template>
 								</el-table-column>
 								<el-table-column label="操作" width="160px">
 									<template slot-scope="scope">
 										<el-button size="mini" type="primary" @click="inputFavoriteSql(scope.row)">输入</el-button>
-										<el-button size="mini" type="success" @click="addFavorite(scope.row.content)" style="margin-left: 10px;">收藏</el-button>
+										<el-button size="mini" type="success" @click="addFavorite(scope.row.content)"
+															 style="margin-left: 10px;">收藏
+										</el-button>
 									</template>
 								</el-table-column>
 							</el-table>
@@ -62,13 +75,16 @@
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
-										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row)" :title="scope.row.content">{{ scope.row.content }}</pre>
+										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row)"
+												 :title="scope.row.content">{{ scope.row.content }}</pre>
 									</template>
 								</el-table-column>
 								<el-table-column label="操作" width="160px">
 									<template slot-scope="scope">
 										<el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row)">输入</el-button>
-										<el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)" style="margin-left: 10px;">删除</el-button>
+										<el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)" style="margin-left: 10px;">
+											删除
+										</el-button>
 									</template>
 								</el-table-column>
 							</el-table>
@@ -80,22 +96,34 @@
 							<div style="color: #f00;">{{ executeError }}</div>
 						</el-tab-pane>
 						<template v-else>
-							<el-tab-pane :label="resultItem.label" :name="resultItem.name" v-for="resultItem in executeResultList" lazy>
+							<el-tab-pane :label="resultItem.label" :name="resultItem.name" v-for="resultItem in executeResultList"
+													 lazy>
 								<div v-if="!!resultItem.errMsg" style="color: #f00;">{{ resultItem.errMsg }}</div>
 								<ux-grid v-else :data="resultItem.dataList"
-								         @table-body-scroll="scroll"
-								         @selection-change="handleSelectionChange"
-								         :checkboxConfig="{checkMethod: selectable, highlight: true}"
-								         stripe border :height="height" max-height="600"
-								         style="width: 100%; margin-bottom: 5px;" class="execute-result-table">
+												 @table-body-scroll="scroll"
+												 @selection-change="handleSelectionChange"
+												 :checkboxConfig="{checkMethod: selectable, highlight: true}"
+												 stripe border :height="height" max-height="600"
+												 style="width: 100%; margin-bottom: 5px;" class="execute-result-table">
 									<ux-table-column type="checkbox" width="55"></ux-table-column>
 									<ux-table-column type="index" width="50" title=" "></ux-table-column>
-									<ux-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :title="item.label" :width="item.width">
+									<ux-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :title="item.label"
+																	 :width="item.width">
 										<template slot-scope="scope">
 											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
 										</template>
 									</ux-table-column>
 								</ux-grid>
+								<el-pagination
+										v-if="resultItem.selectCount"
+										style="margin-top: 10px;"
+										@current-change="handleCurrentChange"
+										:current-page="currentPage"
+										:page-size="pageSize"
+										:page-sizes="[1000]"
+										layout="total, sizes, prev, pager, next, jumper"
+										:total="resultItem.selectCount">
+								</el-pagination>
 							</el-tab-pane>
 						</template>
 					</el-tabs>
@@ -107,7 +135,8 @@
 			<div>
 				更新条件列：
 				<el-select v-model="conditionDataColsChoice" multiple placeholder="请选择" style="width: 370px;">
-					<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.label" :value="item.prop"></el-option>
+					<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.label"
+										 :value="item.prop"></el-option>
 				</el-select>
 			</div>
 			<span slot="footer" class="dialog-footer">
@@ -143,6 +172,9 @@ export default {
 			editorDbInfo: [],
 			editorDbTableInfo: {},
 			editorColumnInfo: {},
+
+			pageSize: 1000,
+		  currentPage: 1,
 
 			sqlExecuting: false,
 			executeResultList: [],
@@ -214,12 +246,12 @@ export default {
 				}
 			});
 		},
-	  scroll ({scrollTop, scrollLeft}) {
-		  this.scrollTop = scrollTop
-	  },
-	  selectable ({row}) {
-		  return row.id !== 2
-	  },
+		scroll({scrollTop, scrollLeft}) {
+			this.scrollTop = scrollTop
+		},
+		selectable({row}) {
+			return row.id !== 2
+		},
 		cancelExecutorSql() {
 			datasourceApi.executeSqlCancel({executeId: this.nowExecutorId}).then(() => {
 				this.$message.success("取消成功");
@@ -317,6 +349,8 @@ export default {
 				sourceId: this.choiceDatasourceId,
 				dbName: this.choiceDatabase,
 				executeId: this.nowExecutorId,
+		    pageNum: this.currentPage,
+		    pageSize: this.pageSize,
 				sql: sqlValue,
 				params: JSON.stringify(sqlParamObj),
 			}).then(response => {
@@ -368,6 +402,7 @@ export default {
 						errMsg: result.errMsg,
 						errCode: result.errCode,
 						queryTime: result.queryTime,
+						selectCount: result.selectCount,
 						dataCols: previewColumns,
 						dataList: dataListRes
 					});
@@ -379,6 +414,10 @@ export default {
 				this.loadHistoryList();
 			});
 		},
+	  handleCurrentChange(to) {
+		  this.currentPage = to;
+		  this.doExecutorSql();
+	  },
 		loadDatasourceList() {
 			datasourceApi.datasourceList({}).then(json => {
 				this.datasourceList = json.data || [];
@@ -432,12 +471,14 @@ export default {
 		},
 		datasourceChangeEvents() {
 			this.executorSource = {sourceId: this.choiceDatasourceId};
+		  this.currentPage = 1;
 			this.loadDatabaseList();
 			this.loadSourceBaseInfo();
 			this.loadHistoryAndFavoriteList();
 		},
 		databaseChangeEvents() {
 			this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
+		  this.currentPage = 1;
 		},
 		getExecuteInfoStr(resultData) {
 			var resultStr = resultData.executeSql;
@@ -476,6 +517,11 @@ export default {
 		},
 		handleSelectionChange(val) {
 			this.$set(this.choiceResultObj, this.executeShowTable, val);
+		},
+	  tabHandleClick(t){
+			if(this.executeShowTable.includes("result")){
+		  	this.currentPage = 1;
+			}
 		},
 		doCopyCheckLineUpdate() {
 			let choiceData = this.choiceResultObj[this.executeShowTable] || [];

@@ -19,22 +19,23 @@ public class ColumnExecuteResult {
 	private Exception exception;
 	private String executeSql;
 	private Integer updateCount;
+	private long selectCount;
 	// 查询结果表头
 	private List<String> header;
 	// 查询结果数据
 	private List<List<Object>> data;
-	
+
 	public ColumnExecuteResult() {
 		this.updateCount = 0;
 	}
-	
+
 	public static ColumnExecuteResult ok(String sql) {
 		ColumnExecuteResult result = new ColumnExecuteResult();
 		result.setExecuteSql(sql);
 		result.setErrCode(ExecuteResultCode.SUCCESS);
 		return result;
 	}
-	
+
 	public static ColumnExecuteResult warn(String sql, String errMsg) {
 		ColumnExecuteResult result = new ColumnExecuteResult();
 		result.setExecuteSql(sql);
@@ -42,7 +43,7 @@ public class ColumnExecuteResult {
 		result.setErrCode(ExecuteResultCode.WARN);
 		return result;
 	}
-	
+
 	public static ColumnExecuteResult error(String sql, String errMsg, Exception e) {
 		ColumnExecuteResult result = new ColumnExecuteResult();
 		result.setExecuteSql(sql);
@@ -51,13 +52,13 @@ public class ColumnExecuteResult {
 		result.setErrCode(ExecuteResultCode.ERROR);
 		return result;
 	}
-	
+
 	public static class ExecuteResultCode {
 		public static Integer SUCCESS = 0;
 		public static Integer WARN = -1;
 		public static Integer ERROR = -2;
 	}
-	
+
 	/**
 	 * 判断错误并抛出异常
 	 */

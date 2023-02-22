@@ -153,17 +153,17 @@ public class SQLTransformUtils {
      */
     public static DbType getDbTypeByDriverClassName(String driverClassName) {
         DbType dbType;
-        if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.MYSQL.name())){
+        if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.MYSQL.getDriverClassName())){
             dbType = DbType.mysql;
-        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.ORACLE.name())){
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.ORACLE.getDriverClassName())){
             dbType = DbType.oracle;
-        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.DM.name())){
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.DM.getDriverClassName())){
             dbType = DbType.dm;
-        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.SQLSERVER.name())){
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.SQLSERVER.getDriverClassName())){
             dbType = DbType.sqlserver;
-        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.POSTGRESQL.name())){
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.POSTGRESQL.getDriverClassName())){
             dbType = DbType.postgresql;
-        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.HIVE.name())){
+        }else if(driverClassName.equalsIgnoreCase(DatabaseProductEnum.HIVE.getDriverClassName())){
             dbType = DbType.hive;
         }else{
             dbType = DbType.other;

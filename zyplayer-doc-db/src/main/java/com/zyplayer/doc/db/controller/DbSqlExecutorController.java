@@ -2,6 +2,9 @@ package com.zyplayer.doc.db.controller;
 
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSelect;
+import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
+import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -15,6 +18,7 @@ import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
 import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.DbFavoriteService;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
+import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.mapper.base.*;
 import com.zyplayer.doc.db.framework.db.transfer.SqlParseUtil;
@@ -54,7 +58,7 @@ public class DbSqlExecutorController {
 	DatabaseServiceFactory databaseServiceFactory;
 
 	@PostMapping(value = "/execute")
-	public DocDbResponseJson execute(Long sourceId, String executeId, String dbName, String sql, String params) {
+	public DocDbResponseJson execute(Long sourceId, String executeId, String dbName, String sql, String params,Integer pageSize,Integer pageNum) {
 		if (StringUtils.isBlank(sql)) {
 			return DocDbResponseJson.warn("执行的SQL不能为空");
 		}
@@ -71,7 +75,7 @@ public class DbSqlExecutorController {
 		// 参数处理
 		Map<String, Object> paramMap = JSON.parseObject(params);
 		// 解析出多个执行的SQL
-		List<String> analysisQuerySqlList = new LinkedList<>();
+		List<Map<String,Object>> analysisQuerySqlList = new LinkedList<Map<String,Object>>();
 		try {
 			String driverClassName = dbBaseService.getDatabaseProduct().getDriverClassName();
 			List<SQLStatement> sqlStatements = new ArrayList<SQLStatement>();
@@ -79,7 +83,23 @@ public class DbSqlExecutorController {
 			DbType dbType = SQLTransformUtils.getDbTypeByDriverClassName(driverClassName);
 			sqlStatements = new SQLStatementParser(sql,dbType).parseStatementList();
 			for (SQLStatement sqlStatement : sqlStatements) {
-				analysisQuerySqlList.add(sqlStatement.toString());
+				StringBuffer sb = new StringBuffer(sqlStatement.toString());
+				if(sb.length()>0&&';' == (sb.charAt(sb.length()-1))){
+					sb.deleteCharAt(sb.length()-1);
+				}
+				Map<String,Object> map = new HashMap<String,Object>();
+				//原始sql
+				map.put("originalSql",sb);
+				//sql解析类型
+				map.put("sqlType","");
+				//获取数据总量sql
+				map.put("getAllCountSql","");
+				//判断sql解析类型
+				if(sqlStatement instanceof SQLSelectStatement){
+					map.put("getAllCountSql","select count(1) from ("+sb+") r");
+					map.put("sqlType","select");
+				}
+				analysisQuerySqlList.add(map);
 			}
 		} catch (Exception e) {
 			return DocDbResponseJson.warn("SQL解析失败：" + e.getMessage());
@@ -89,20 +109,42 @@ public class DbSqlExecutorController {
 			return DocDbResponseJson.warn("单次执行最多支持20条语句同时执行，当前语句条数：" + analysisQuerySqlList.size());
 		}
 		List<ColumnExecuteResult> resultList = new LinkedList<>();
-		for (String singleSql : analysisQuerySqlList) {
+		for (Map<String, Object> map : analysisQuerySqlList) {
 			ColumnExecuteResult executeResult;
+			ColumnExecuteResult executeCountResult;
+			//原始sql
+			String originalSql = map.get("originalSql").toString();
 			try {
 				ExecuteType executeType = (manageAuth || update) ? ExecuteType.ALL : ExecuteType.SELECT;
-				ExecuteParam executeParam = SqlParseUtil.getSingleExecuteParam(singleSql, paramMap);
+				ExecuteParam executeParam = new ExecuteParam();
 				executeParam.setDatasourceId(sourceId);
 				executeParam.setExecuteId(executeId);
 				executeParam.setExecuteType(executeType);
 				executeParam.setPrefixSql(useDbSql);
 				executeParam.setMaxRows(1000);
+				//sql解析类型为select
+				if(map.get("sqlType").equals("select")){
+					//获取总数据量sql
+					String getAllCountSql = map.get("getAllCountSql").toString();
+					executeParam = SqlParseUtil.getSingleExecuteParam(executeParam,getAllCountSql, paramMap);
+					executeCountResult = columnSqlExecutor.execute(executeParam);
+					List<List<Object>> data = executeCountResult.getData();
+					long count = Long.parseLong(data.get(0).get(0)+"");
+					//总数据量大于1000进行分页
+					if(count>1000){
+						String pageSql = dbBaseService.getQueryPageSqlBySql(originalSql,pageSize,pageNum);
+						executeParam = SqlParseUtil.getSingleExecuteParam(executeParam,pageSql, paramMap);
+						executeResult = columnSqlExecutor.execute(executeParam);
+						executeResult.setSelectCount(count);
+						resultList.add(executeResult);
+						continue;
+					}
+				}
+				executeParam = SqlParseUtil.getSingleExecuteParam(executeParam,originalSql, paramMap);
 				executeResult = columnSqlExecutor.execute(executeParam);
 			} catch (Exception e) {
 				logger.error("执行出错", e);
-				executeResult = ColumnExecuteResult.error(singleSql, e.getMessage(), e);
+				executeResult = ColumnExecuteResult.error(originalSql, e.getMessage(), e);
 			}
 			resultList.add(executeResult);
 		}
