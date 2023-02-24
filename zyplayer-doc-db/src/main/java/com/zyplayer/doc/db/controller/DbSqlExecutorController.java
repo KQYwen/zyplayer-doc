@@ -2,8 +2,6 @@ package com.zyplayer.doc.db.controller;
 
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSelect;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.fastjson.JSON;
@@ -18,7 +16,6 @@ import com.zyplayer.doc.data.repository.support.consts.DocSysModuleType;
 import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.service.manage.DbFavoriteService;
 import com.zyplayer.doc.data.service.manage.DbHistoryService;
-import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.framework.consts.DbAuthType;
 import com.zyplayer.doc.db.framework.db.mapper.base.*;
 import com.zyplayer.doc.db.framework.db.transfer.SqlParseUtil;

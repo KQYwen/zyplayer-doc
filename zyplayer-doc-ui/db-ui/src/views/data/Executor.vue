@@ -324,7 +324,7 @@ export default {
 				this.sqlExecutorEditor.insert(dataSql);
 			}
 		},
-		doExecutorSql() {
+		doExecutorSql(init) {
 			if (!this.choiceDatasourceId) {
 				this.$message.error("请先选择数据源");
 				return;
@@ -355,6 +355,11 @@ export default {
 				params: JSON.stringify(sqlParamObj),
 			}).then(response => {
 				this.sqlExecuting = false;
+		  	if (response.errCode != 200) {
+			  	this.executeShowTable = 'tabError';
+			  	this.executeError = response.errMsg;
+			  	return;
+		  	}
 				let resIndex = 1;
 				let executeResultList = [];
 				let resData = response.data || [];
@@ -407,8 +412,17 @@ export default {
 						dataList: dataListRes
 					});
 					resIndex++;
+					//动态设置表格高度,尽量避免出现滚动条
+					if(result.selectCount){
+						this.height = 235;
+					}else{
+			  		this.height = 270;
+					}
 				});
-				this.executeShowTable = (resIndex === 1) ? "tabInfo" : "result_1";
+				//多个结果情况下,且点击分页
+				if(init!=1){
+					this.executeShowTable = (resIndex === 1) ? "tabInfo" : "result_1";
+				}
 				this.executeResultInfo = executeResultInfo;
 				this.executeResultList = executeResultList;
 				this.loadHistoryList();
@@ -416,7 +430,8 @@ export default {
 		},
 	  handleCurrentChange(to) {
 		  this.currentPage = to;
-		  this.doExecutorSql();
+		  let init = 1;
+		  this.doExecutorSql(init);
 	  },
 		loadDatasourceList() {
 			datasourceApi.datasourceList({}).then(json => {
@@ -519,9 +534,7 @@ export default {
 			this.$set(this.choiceResultObj, this.executeShowTable, val);
 		},
 	  tabHandleClick(t){
-			if(this.executeShowTable.includes("result")){
-		  	this.currentPage = 1;
-			}
+
 		},
 		doCopyCheckLineUpdate() {
 			let choiceData = this.choiceResultObj[this.executeShowTable] || [];
