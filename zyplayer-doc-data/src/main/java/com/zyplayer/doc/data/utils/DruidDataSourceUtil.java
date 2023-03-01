@@ -24,8 +24,8 @@ public class DruidDataSourceUtil {
 		dataSource.setUrl(url);
 		dataSource.setUsername(username);
 		dataSource.setPassword(password);
-		dataSource.setInitialSize(2);
-		dataSource.setMinIdle(2);
+		dataSource.setInitialSize(1);
+		dataSource.setMinIdle(1);
 		dataSource.setMaxActive(50);
 		dataSource.setTestWhileIdle(true);
 		dataSource.setTestOnBorrow(false);

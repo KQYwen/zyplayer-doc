@@ -1,6 +1,5 @@
 package com.zyplayer.doc.db.framework.db.mapper.base;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.List;

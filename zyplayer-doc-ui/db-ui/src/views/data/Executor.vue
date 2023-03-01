@@ -415,8 +415,6 @@ export default {
 					//动态设置表格高度,尽量避免出现滚动条
 					if(result.selectCount){
 						this.height = 235;
-					}else{
-			  		this.height = 270;
 					}
 				});
 				//多个结果情况下,且点击分页

@@ -45,12 +45,7 @@ public class DatasourceUtil {
 		}
 		Resource[] resources = analysisApi.process(dbUrl, databaseFactoryBean);
 		// 数据源配置
-		DruidDataSource dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword(), false);
-		if (breakAfterAcquireFailure) {
-			dataSource.close();
-			// 先关闭会自动关闭的数据源，再创建一个会重连的
-			dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword(), true);
-		}
+		DruidDataSource dataSource = DruidDataSourceUtil.createDataSource(dbDatasource.getDriverClassName(), dbDatasource.getSourceUrl(), dbDatasource.getSourceName(), dbDatasource.getSourcePassword(), breakAfterAcquireFailure);
 		// 创建sqlSessionTemplate
 		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
 		sqlSessionFactoryBean.setDataSource(dataSource);
