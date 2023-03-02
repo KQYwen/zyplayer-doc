@@ -1,5 +1,5 @@
 <template>
-	<div class="page-share-view-vue">
+	<div class="mobile-share-view-vue">
 		<van-nav-bar :title="wikiPage.name" class="header">
 			<template v-slot:left>
 				<van-icon name="wap-nav" size="20" @click="popupShowChange"></van-icon>
@@ -132,45 +132,46 @@ const previewPageImage = () => {
 <style>
 @import '../../../../assets/lib/wangEditor.css';
 
-.page-share-view-vue {
+.mobile-share-view-vue {
 }
 
-.page-share-view-vue .wiki-title {
-	font-size: 20px;
+.mobile-share-view-vue .wiki-title {
+	font-size: 2em;
 	text-align: center;
+	font-weight: bold;
 }
 
-.page-share-view-vue .wiki-author {
+.mobile-share-view-vue .wiki-author {
 	font-size: 14px;
 	color: #888;
 	height: 40px;
 	line-height: 40px;
 }
 
-.page-share-view-vue .wiki-page-content img {
+.mobile-share-view-vue .wiki-page-content img {
 	cursor: pointer;
 	max-width: 100%;
 }
 
-.page-share-view-vue .wiki-page-content img:hover {
+.mobile-share-view-vue .wiki-page-content img:hover {
 	box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.3);
 }
 
-.page-share-view-vue .upload-page-file .el-upload-list {
+.mobile-share-view-vue .upload-page-file .el-upload-list {
 	display: none;
 }
 
-.page-share-view-vue .is-link {
+.mobile-share-view-vue .is-link {
 	color: #1e88e5;
 	cursor: pointer;
 }
 
-.page-share-view-vue .header {
+.mobile-share-view-vue .header {
 	width: 100%;
 	height: 46px;
 }
 
-.page-share-view-vue .main {
+.mobile-share-view-vue .main {
 	position: absolute;
 	top: 46px;
 	bottom: 0;
@@ -180,7 +181,7 @@ const previewPageImage = () => {
 	padding: 10px;
 }
 
-.page-share-view-vue .footer {
+.mobile-share-view-vue .footer {
 	width: 100%;
 	height: 26px;
 	position: fixed;

@@ -1,38 +1,36 @@
 <template>
 	<div class="page-share-view-vue">
 		<el-row type="border-card">
-			<el-row>
-				<el-col :xs="0" :sm="4" :md="4" :lg="6" :xl="6" v-if="navigationList.length > 0">
-					<Navigation :heading="navigationList"></Navigation>
-				</el-col>
-				<el-col :xs="24" :sm="navigationList.length > 0 ? 20 : 24" :md="navigationList.length > 0 ? 20 : 24" :lg="navigationList.length > 0 ? 18 : 24" :xl="navigationList.length > 0 ? 18 : 24">
-					<div style="max-width: 1000px; padding-left: 10px; margin: 0 auto">
-						<div class="wiki-title" ref="wikiTitleRef">{{ wikiPage.name }}</div>
-						<div class="wiki-author">
-                            <span v-if="wikiPage.updateTime">最后修改：{{ wikiPage.updateTime }}</span>
-							<span v-else>创建时间：{{ wikiPage.createTime }}</span>
-						</div>
-						<div class="wiki-files">
-							<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px">
-								<el-table-column label="文件名">
-									<template v-slot="scope">
-										<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName }}</a>
-									</template>
-								</el-table-column>
-								<el-table-column label="文件大小">
-									<template v-slot="scope">{{computeFileSize(scope.row.fileSize) }}</template>
-								</el-table-column>
-								<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
-								<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
-							</el-table>
-						</div>
-						<div ref="pageContentRef" class="wiki-page-content">
-							<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2"></div>
-							<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
-						</div>
+			<el-col :xs="24" :sm="navigationList.length > 0 ? 20 : 24" :md="navigationList.length > 0 ? 20 : 24" :lg="navigationList.length > 0 ? 18 : 24" :xl="navigationList.length > 0 ? 18 : 24">
+				<div style="max-width: 1000px; padding-left: 10px; margin: 0 auto">
+					<div class="wiki-title" ref="wikiTitleRef">{{ wikiPage.name }}</div>
+					<div class="wiki-author">
+                        <span v-if="wikiPage.updateTime">最后修改：{{ wikiPage.updateTime }}</span>
+						<span v-else>创建时间：{{ wikiPage.createTime }}</span>
 					</div>
-				</el-col>
-			</el-row>
+					<div class="wiki-files">
+						<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px">
+							<el-table-column label="文件名">
+								<template v-slot="scope">
+									<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName }}</a>
+								</template>
+							</el-table-column>
+							<el-table-column label="文件大小">
+								<template v-slot="scope">{{computeFileSize(scope.row.fileSize) }}</template>
+							</el-table-column>
+							<el-table-column prop="createTime" label="创建时间" width="180px"></el-table-column>
+							<el-table-column prop="downloadNum" label="下载次数" width="80px"></el-table-column>
+						</el-table>
+					</div>
+					<div ref="pageContentRef" class="wiki-page-content">
+						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2"></div>
+						<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
+					</div>
+				</div>
+			</el-col>
+			<el-col :xs="0" :sm="4" :md="4" :lg="6" :xl="6" v-if="navigationList.length > 0">
+				<Navigation :heading="navigationList"></Navigation>
+			</el-col>
 		</el-row>
 		<div ref="imagePreviewRef">
 			<el-image-viewer v-if="showImagePreview"
@@ -168,8 +166,9 @@ const initImageViewerMask = () => {
 @import '../../../../assets/lib/wangEditor.css';
 
 .page-share-view-vue .wiki-title {
-	font-size: 20px;
+	font-size: 2em;
 	text-align: center;
+	font-weight: bold;
 }
 
 .page-share-view-vue .wiki-author {

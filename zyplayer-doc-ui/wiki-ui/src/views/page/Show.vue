@@ -13,7 +13,7 @@
 										<span v-else class="create-user-time">{{ wikiPage.createUserName }}　于　{{wikiPage.createTime}}　创建</span>
 									</el-col>
 									<el-col :span="12" style="text-align: right;">
-										<el-link type="primary" :icon="ElIconChatLineRound" :underline="false" @click="showCommentWiki" style="margin-right: 15px">评论</el-link>
+										<el-link type="primary" :icon="ElIconChatLineRound" :underline="false" @click="showCommentWiki" style="margin-right: 15px"> 评论</el-link>
 										<el-upload v-if="wikiPageAuth.canUploadFile === 1"
 										           :on-success="uploadFileSuccess"
 										           :on-error="uploadFileError"
@@ -22,9 +22,9 @@
 										           :with-credentials="true" class="upload-page-file" name="files"
 										           show-file-list multiple :limit="999"
 										           style="display: inline; margin-right: 15px;vertical-align: middle;">
-											<el-link type="primary" :underline="false" :icon="ElIconUpload">上传附件</el-link>
+											<el-link type="primary" :underline="false" :icon="ElIconUpload"> 上传附件</el-link>
 										</el-upload>
-										<el-link v-if="wikiPageAuth.canEdit === 1" type="primary" :underline="false" :icon="ElIconEdit" @click="editWiki" style="margin-right: 15px;">编辑</el-link>
+										<el-link v-if="wikiPageAuth.canEdit === 1" type="primary" :underline="false" :icon="ElIconEdit" @click="editWiki" style="margin-right: 15px;"> 编辑</el-link>
 										<el-dropdown style="margin-right: 15px;vertical-align: middle;" trigger="click" @command="handleMoreCommand">
 											<el-link type="primary" :underline="false">
 												更多
@@ -72,8 +72,8 @@
 							</div>
 							<div style="margin-top: 40px; font-size: 14px">
 				                <span style="vertical-align: top" class="is-link">
-				                  <span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle"/>赞</span>
-				                  <span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle; transform: rotateX(180deg)"/>踩</span>
+				                  <span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle"/> 赞</span>
+				                  <span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle; transform: rotateX(180deg)"/> 踩</span>
 				                </span>
 								<span style="margin-left: 10px; vertical-align: top">
 				                  <span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
@@ -86,7 +86,7 @@
 				                  </span>
 				                </span>
 								<span style="margin-left: 10px">
-                                    <el-icon style="font-size: 16px; color: #666;vertical-align: middle;"><el-icon-view/></el-icon>{{ wikiPage.viewNum }}次阅读
+                                    <el-icon style="font-size: 16px; color: #666;vertical-align: middle;"><el-icon-view/></el-icon> {{ wikiPage.viewNum }}次阅读
 								</span>
 							</div>
 						</div>
@@ -708,7 +708,7 @@ const initQueryParam = (to) => {
 }
 
 .page-show-vue .wiki-title {
-	font-size: 20px;
+	font-size: 2em;
 	text-align: center;
 	font-weight: bold;
 }

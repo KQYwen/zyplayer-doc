@@ -9,24 +9,32 @@
 							<el-button :icon="ElIconSearch" v-on:click="searchByKeywords"></el-button>
 						</template>
 					</el-input>
-					<el-tree
-						:props="defaultProps"
-						:data="wikiPageList"
-						@node-click="handleNodeClick"
-						ref="wikiPageTreeRef"
-						:filter-node-method="filterPageNode"
-						highlight-current
-						:expand-on-click-node="true"
-						:default-expanded-keys="wikiPageExpandedKeys"
-						node-key="id"
-						style="background-color: #fafafa; padding-bottom: 30px">
-						<template v-slot="{ node, data }">
-			              <span style="font-size: 14px">
-			                <el-icon><el-icon-document/></el-icon>&nbsp;
-			                <span>{{ node.label }}</span>
-			              </span>
-						</template>
-					</el-tree>
+					<div class="wiki-page-tree-box">
+						<el-tree
+								ref="wikiPageTreeRef"
+								:current-node-key="nowPageId"
+								:data="wikiPageList"
+								:default-expanded-keys="wikiPageExpandedKeys"
+								:expand-on-click-node="true"
+								:filter-node-method="filterPageNode"
+								:props="defaultProps"
+								draggable
+								highlight-current
+								node-key="id"
+								style="background-color: #fafafa"
+								@node-click="handleNodeClick">
+							<template v-slot="{ node, data }">
+								<div class="page-tree-node">
+									<el-tooltip :content="node.label" placement="top-start" :show-after="1000">
+										<span class="label">
+											<el-icon><el-icon-document/></el-icon>
+											<span class="text">{{ node.label }}</span>
+										</span>
+									</el-tooltip>
+								</div>
+							</template>
+						</el-tree>
+					</div>
 					<!--请保留申明-->
 					<div class="build-info">本文档使用<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">zyplayer-doc</a>构建</div>
 				</div>
