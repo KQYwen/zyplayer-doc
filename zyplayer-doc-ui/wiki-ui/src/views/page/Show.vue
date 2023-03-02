@@ -577,17 +577,17 @@ const loadPageDetail = (pageId) => {
 }
 let wikiTitleRef = ref();
 const createNavigationHeading = () => {
-	let navigationList = htmlUtil.createNavigationHeading()
+	let navigationListVal = htmlUtil.createNavigationHeading()
 	// 标题加到导航里面去
-	if (navigationList.length > 0) {
+	if (navigationListVal.length > 0) {
 		let wikiTile = wikiPage.value.name || 'WIKI-内容展示'
-		navigationList.unshift({
+		navigationListVal.unshift({
 			level: 1,
 			node: wikiTitleRef.value,
 			text: wikiTile,
 		})
 	}
-	navigationList.value = navigationList
+	navigationList.value = navigationListVal;
 }
 const closeImagePreview = () => {
 	showImagePreview.value = false

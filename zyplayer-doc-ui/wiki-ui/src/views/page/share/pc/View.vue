@@ -80,31 +80,29 @@ let wikiTitleRef = ref();
 const loadPageDetail = (pageId) => {
 	let param = {pageId: pageId, space: spaceUuid.value}
 	pageApi.openPageDetail(param).then((json) => {
-		let wikiPage = json.data.wikiPage || {}
-		wikiPage.selfZan = json.data.selfZan || 0
-		wikiPage.value = wikiPage
+		let wikiPageRes = json.data.wikiPage || {}
+		wikiPageRes.selfZan = json.data.selfZan || 0
+		wikiPage.value = wikiPageRes
 		let pageContent = json.data.pageContent || {}
 		pageFileList.value = json.data.fileList || []
 		if (wikiPage.value.editorType === 2) {
-			pageContent.content = mavonEditor
-				.getMarkdownIt()
-				.render(pageContent.content)
+			pageContent.content = mavonEditor.getMarkdownIt().render(pageContent.content)
 		}
 		pageShowDetail.value = pageContent.content
-		let wikiTile = wikiPage.name || 'WIKI-内容展示'
+		let wikiTile = wikiPageRes.name || 'WIKI-内容展示'
 		document.title = wikiTile
 		setTimeout(() => {
 			previewPageImage()
-			let navigationList = htmlUtil.createNavigationHeading()
+			let navigationListVal = htmlUtil.createNavigationHeading()
 			// 标题加到导航里面去
 			if (navigationList.length > 0) {
-				navigationList.unshift({
+				navigationListVal.unshift({
 					level: 1,
 					node: wikiTitleRef.value,
 					text: wikiTile,
 				})
 			}
-			navigationList.value = navigationList
+			navigationList.value = navigationListVal
 		}, 500)
 	})
 }
