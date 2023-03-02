@@ -15,8 +15,8 @@ public class ZyplayerDocVersion {
 	/**
 	 * 每次升级必须添加一条记录，用于执行它的升级SQL
 	 */
-	public static final List<String> versionUpgrade = new LinkedList<String>() {{
-		add("1.1.3");
-		add("1.1.2");
+	public static final List<UpgradeInfo> versionUpgrade = new LinkedList<UpgradeInfo>() {{
+		add(new UpgradeInfo("1.1.3", false));
+		add(new UpgradeInfo("1.1.2", true));
 	}};
 }

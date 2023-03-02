@@ -4,6 +4,7 @@ import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.zyplayer.doc.core.enums.SystemConfigEnum;
+import com.zyplayer.doc.core.util.UpgradeInfo;
 import com.zyplayer.doc.core.util.ZyplayerDocVersion;
 import com.zyplayer.doc.data.repository.manage.mapper.UserInfoMapper;
 import com.zyplayer.doc.data.service.manage.SystemConfigService;
@@ -107,13 +108,15 @@ public class UpgradeSystemDdlTask {
 		logger.info("升级数据库DDL脚本：{} --> {}", nowVersion, ZyplayerDocVersion.version);
 		boolean isStart = false;
 		for (int i = ZyplayerDocVersion.versionUpgrade.size() - 1; i >= 0; i--) {
-			String version = ZyplayerDocVersion.versionUpgrade.get(i);
+			UpgradeInfo upgradeInfo = ZyplayerDocVersion.versionUpgrade.get(i);
 			if (!isStart) {
-				if (Objects.equals(version, nowVersion)) {
+				if (Objects.equals(upgradeInfo.getVersion(), nowVersion)) {
 					isStart = true;
 				}
+			} else if (!upgradeInfo.isHaveUpgradeSql()) {
+				logger.info("该版本无DDL脚本，跳过此版本：" + upgradeInfo.getVersion());
 			} else {
-				upgradeByVersion(version, tableList);
+				upgradeByVersion(upgradeInfo.getVersion(), tableList);
 			}
 		}
 	}
@@ -156,8 +159,12 @@ public class UpgradeSystemDdlTask {
 	public void upgradeByStart() {
 		logger.info("初始升级数据库DDL脚本：{} --> {}", "1.1.1", ZyplayerDocVersion.version);
 		for (int i = ZyplayerDocVersion.versionUpgrade.size() - 1; i >= 0; i--) {
-			String version = ZyplayerDocVersion.versionUpgrade.get(i);
-			String sql = loadDDLFile("sql/upgrade/" + version + ".sql");
+			UpgradeInfo upgradeInfo = ZyplayerDocVersion.versionUpgrade.get(i);
+			if (!upgradeInfo.isHaveUpgradeSql()) {
+				logger.info("该版本无DDL脚本，跳过此版本：" + upgradeInfo.getVersion());
+				continue;
+			}
+			String sql = loadDDLFile("sql/upgrade/" + upgradeInfo.getVersion() + ".sql");
 			if (StringUtils.isBlank(sql)) {
 				return;
 			}
