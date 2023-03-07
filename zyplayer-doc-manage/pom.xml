@@ -34,10 +34,6 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-ldap</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.zyplayer</groupId>
 			<artifactId>zyplayer-doc-core</artifactId>
 		</dependency>

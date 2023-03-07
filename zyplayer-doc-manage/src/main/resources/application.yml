@@ -16,7 +16,7 @@ zyplayer:
       originDomainRegex: .*\.zyplayer\.com(:\d+|)$
       # 管理端的数据库配置
       datasource:
-        driverClassName: com.mysql.jdbc.Driver
+        driverClassName: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
         username: root
         password: root
@@ -54,10 +54,3 @@ spring:
       max-request-size: 100MB
   datasource:
     continue-on-error: true
-  # 域账号登录，暂未严格测试
-  ldap:
-    enable: false
-    urls: ldap://10.0.1.1:10389
-    base: dc=xx,dc=net
-    username: cn=Manager,dc=xx,dc=net
-    password: MKDSHYDNIS

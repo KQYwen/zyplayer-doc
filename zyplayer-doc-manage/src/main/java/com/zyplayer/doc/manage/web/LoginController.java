@@ -14,8 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,8 +38,6 @@ public class LoginController {
 	private UserInfoService userInfoService;
 	@Resource
 	private UserAuthService userAuthService;
-	@Resource
-	private LdapTemplate ldapTemplate;
 	
 	@Value("${spring.ldap.enable:false}")
 	private boolean ldapLoginEnable;
@@ -119,15 +115,7 @@ public class LoginController {
 	 * 参考项目：https://gitee.com/durcframework/torna，方法：cn.torna.service.login.form.impl.LdapLoginManager#ldapAuth
 	 */
 	public LdapPerson getUserFromLdap(String username, String password) {
-		try {
-			return ldapTemplate.authenticate(
-					LdapQueryBuilder.query().where("uid").is(username),
-					password,
-					(dirContext, ldapEntryIdentification) ->
-							ldapTemplate.findOne(LdapQueryBuilder.query().where("uid").is(username), LdapPerson.class));
-		} catch (Exception e) {
-			logger.error("LDAP登录失败", e);
-		}
+		// TODO 暂未实现
 		return null;
 	}
 }
