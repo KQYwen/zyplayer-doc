@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zyplayer.doc.data.repository.manage.entity.BackupTask;
 
 /**
- * <p>
- *  Mapper 接口
- * </p>
+ *  备份任务Mapper 接口
  *
  * @author diantu
  * @since 2023-03-03
