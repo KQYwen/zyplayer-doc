@@ -309,7 +309,7 @@ public class SqlParseUtil {
 	}
 
 	public static void main(String[] args) {
-		String storageSql = "select * from zyplayer_doc_manage.wiki_space where id=1 group by id";
+		String storageSql = "select * from zyplayer_doc.wiki_space where id=1 group by id";
 		storageSql = storageSql.replaceAll("(#\\{\\w+})", "'$1'");
 		String selectCountSql = getSelectCountSql(storageSql);
 		System.out.println(selectCountSql);

@@ -17,7 +17,7 @@ public class CodeGenerator {
 	
 	public static void main(String[] args) {
 		final String[] tableName = {"api_custom_node", "api_custom_params"};
-		String url = "jdbc:mysql://127.0.0.1:3306/zyplayer_doc_manage?useUnicode=true&useSSL=false&characterEncoding=utf8";
+		String url = "jdbc:mysql://127.0.0.1:3306/zyplayer_doc?useUnicode=true&useSSL=false&characterEncoding=utf8";
 		String projectPath = System.getProperty("user.dir") + "/zyplayer-doc-data";
 		String outputDir = projectPath + "/src/main/java";
 		String mapperDir = projectPath + "/src/main/resources/mapper/manage/";
