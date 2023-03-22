@@ -1,7 +1,7 @@
 # 项目简介
 zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同时还包含数据库文档、Api接口文档。
 
-在线文档：[zyplayer-doc使用文档](http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d)
+在线文档：[zyplayer-doc使用文档](http://doc.zyplayer.com/doc-wiki#/integrate/zyplayer-doc)
 
 体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com)
 
