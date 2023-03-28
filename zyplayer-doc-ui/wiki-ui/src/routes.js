@@ -56,7 +56,7 @@ let routes = [
 		children: [
 			{
 				path: '/page/share/mobile/view',
-				name: 'WIKI-开放文档',
+				name: 'WIKI-开放文档-APP',
 				component: shareMobileView,
 			},
 		],

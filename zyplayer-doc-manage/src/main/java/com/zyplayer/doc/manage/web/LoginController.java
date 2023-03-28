@@ -62,7 +62,8 @@ public class LoginController {
 			}
 		} else {
 			if (userInfo == null) {
-				return DocResponseJson.warn("用户名'" + username + "'没有找到！");
+				// 不应该明确告诉是没用户还是密码错误，防止密码暴力破解
+				return DocResponseJson.warn("用户名或密码错误");
 			}
 			String pwdMd5 = DigestUtils.md5DigestAsHex(password.getBytes());
 			if (!Objects.equals(userInfo.getPassword(), pwdMd5)) {
