@@ -32,13 +32,13 @@
 				<Navigation :heading="navigationList"></Navigation>
 			</el-col>
 		</el-row>
-		<div ref="imagePreviewRef">
-			<el-image-viewer v-if="showImagePreview"
-			                 :url-list="showImagePreviewList"
-			                 :on-close="closeImagePreview"
-			                 :initial-index="previewInitialIndex">
-			</el-image-viewer>
-		</div>
+		<el-image-viewer
+				v-if="showImagePreview"
+				:url-list="showImagePreviewList"
+				:initial-index="previewInitialIndex"
+				@close="closeImagePreview"
+				hide-on-click-modal
+		/>
 	</div>
 </template>
 
@@ -105,59 +105,48 @@ const loadPageDetail = (pageId) => {
 	})
 }
 const initQueryParam = (to) => {
-	spaceUuid.value = to.query.space
-	nowPageId.value = to.query.pageId
+	spaceUuid.value = to.query.space;
+	nowPageId.value = to.query.pageId;
 	if (!!nowPageId.value) {
-		loadPageDetail(nowPageId.value)
+		loadPageDetail(nowPageId.value);
 	}
 }
 const computeFileSize = (fileSize) => {
 	if (!fileSize) {
-		return '-'
+		return '-';
 	}
-	let size = ''
+	let size = '';
 	if (fileSize < 0.1 * 1024) {
-		size = fileSize.toFixed(2) + 'B'
+		size = fileSize.toFixed(2) + 'B';
 	} else if (fileSize < 0.1 * 1024 * 1024) {
-		size = (fileSize / 1024).toFixed(2) + 'KB'
+		size = (fileSize / 1024).toFixed(2) + 'KB';
 	} else if (fileSize < 0.1 * 1024 * 1024 * 1024) {
-		size = (fileSize / (1024 * 1024)).toFixed(2) + 'MB'
+		size = (fileSize / (1024 * 1024)).toFixed(2) + 'MB';
 	} else {
-		size = (fileSize / (1024 * 1024 * 1024)).toFixed(2) + 'GB'
+		size = (fileSize / (1024 * 1024 * 1024)).toFixed(2) + 'GB';
 	}
-	let sizeStr = size + ''
-	let index = sizeStr.indexOf('.')
-	let dou = sizeStr.substr(index + 1, 2)
+	let sizeStr = size + '';
+	let index = sizeStr.indexOf('.');
+	let dou = sizeStr.substr(index + 1, 2);
 	if (dou == '00') {
-		return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
+		return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2);
 	}
-	return size
+	return size;
 }
 const closeImagePreview = () => {
-	showImagePreview.value = false
+	showImagePreview.value = false;
 }
 let pageContentRef = ref();
 const previewPageImage = () => {
-	const imgArr = []
-	const imgSelector = pageContentRef.value.querySelectorAll('img')
+	const imgArr = [];
+	const imgSelector = pageContentRef.value.querySelectorAll('img');
 	imgSelector.forEach((item, index) => {
-		imgArr.push(item.src)
+		imgArr.push(item.src);
 		item.onclick = () => {
-			previewInitialIndex.value = index
-			showImagePreviewList.value = imgArr
-			showImagePreview.value = true
-			setTimeout(() => initImageViewerMask.value(), 0)
+			previewInitialIndex.value = index;
+			showImagePreviewList.value = imgArr;
+			showImagePreview.value = true;
 		}
-	})
-}
-let imagePreviewRef = ref();
-const initImageViewerMask = () => {
-	// 图片预览遮罩点击隐藏预览框
-	let imageViewerMask = imagePreviewRef.value.querySelectorAll(
-		'.el-image-viewer__mask'
-	)
-	imageViewerMask.forEach((item) => {
-		item.onclick = () => (showImagePreview.value = false)
 	})
 }
 </script>

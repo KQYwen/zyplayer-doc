@@ -172,14 +172,13 @@
 				<el-button type="primary" v-on:click="saveUserPageAuth">保存配置</el-button>
 			</div>
 		</el-dialog>
-		<div ref="imagePreviewRef">
-			<el-image-viewer
-					v-if="showImagePreview"
-					:url-list="showImagePreviewList"
-					:on-close="closeImagePreview"
-					:initial-index="previewInitialIndex"
-			/>
-		</div>
+		<el-image-viewer
+				v-if="showImagePreview"
+				:url-list="showImagePreviewList"
+				:initial-index="previewInitialIndex"
+				@close="closeImagePreview"
+				hide-on-click-modal
+		/>
 		<form method="post" ref="downloadFormRef" :action="downloadFormParam.url" target="_blank">
 			<input type="hidden" :name="key" :value="val" v-for="(val, key) in downloadFormParam.param"/>
 		</form>
@@ -602,19 +601,6 @@ const previewPageImage = () => {
 			previewInitialIndex.value = index
 			showImagePreviewList.value = imgArr
 			showImagePreview.value = true
-			setTimeout(() => initImageViewerMask(), 0)
-		}
-	})
-}
-let imagePreviewRef = ref();
-const initImageViewerMask = () => {
-	// 图片预览遮罩点击隐藏预览框
-	let imageViewerMask = imagePreviewRef.value.querySelectorAll(
-		'.el-image-viewer__mask'
-	)
-	imageViewerMask.forEach((item) => {
-		item.onclick = () => {
-			showImagePreview.value = false
 		}
 	})
 }
