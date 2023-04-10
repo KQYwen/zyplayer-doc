@@ -75,11 +75,11 @@
 				<artifactId>DmJdbcDriver18</artifactId>
 				<version>8.1.2.192</version>
 			</dependency>
-			<dependency>
-				<groupId>com.oracle</groupId>
-				<artifactId>ojdbc6</artifactId>
-				<version>12.1.0.1-atlassian-hosted</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>com.oracle</groupId>-->
+<!--				<artifactId>ojdbc6</artifactId>-->
+<!--				<version>12.1.0.1-atlassian-hosted</version>-->
+<!--			</dependency>-->
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
