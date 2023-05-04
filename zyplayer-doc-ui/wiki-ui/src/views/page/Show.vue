@@ -806,6 +806,10 @@ const initQueryParam = (to) => {
 	padding-inline-start: 0;
 }
 
+.page-show-vue .markdown-body table {
+	display: table;
+}
+
 .mobile-qr {
 	width: 250px;
 	height: 250px;

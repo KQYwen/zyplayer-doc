@@ -375,4 +375,8 @@ const initEditor = () => {
 .page-edit-vue .page-title-input {
 	padding-bottom: 10px;
 }
+
+.page-edit-vue .markdown-body table {
+	display: table;
+}
 </style>
