@@ -668,18 +668,30 @@ const initQueryParam = (to) => {
 <style lang="scss" scoped>
 .page-show-vue {
   .wiki-page-content {
-    margin-top: 20px;
+	margin-top: 20px;
+  }
+}
+</style>
+
+<style lang="scss">
+.page-show-vue {
+  height: 100%;
+  overflow: hidden;
+
+  .wiki-page-content {
+	ol {
+	  list-style: decimal;
+	}
+
+	ul {
+	  list-style: disc;
+	}
   }
 }
 </style>
 
 <style>
 @import '../../assets/lib/wangEditor.css';
-
-.page-show-vue {
-	height: 100%;
-	overflow: hidden;
-}
 
 .page-show-vue .icon-collapse {
 	float: left;

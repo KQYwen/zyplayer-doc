@@ -86,7 +86,7 @@ const loadCommentList = () => {
 			let subCommentList = commentListRes[i].commentList || []
 			for (let j = 0; j < subCommentList.length; j++) {
 				let subItem = subCommentList[j]
-				subItem.color = getUserHeadBgColor.value(subItem.createUserId)
+				subItem.color = getUserHeadBgColor(subItem.createUserId)
 			}
 			commentListRes[i].commentList = subCommentList
 			commentListRes[i].visible = false

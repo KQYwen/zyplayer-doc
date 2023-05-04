@@ -199,7 +199,7 @@ const createWikiSave = (saveAfter) => {
 				query: {pageId: pageId.value},
 			})
 		} else {
-			loadPageDetail.value(pageId.value)
+			loadPageDetail(pageId.value)
 		}
 	})
 }
@@ -292,6 +292,20 @@ const initEditor = () => {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	vertical-align: middle;
+  }
+}
+</style>
+
+<style lang="scss">
+.page-edit-vue {
+  .page-content-editor {
+	ol {
+	  list-style: decimal;
+	}
+
+	ul {
+	  list-style: disc;
+	}
   }
 }
 </style>
