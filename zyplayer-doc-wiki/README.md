@@ -7,4 +7,4 @@ vant前端框架：https://vant-contrib.gitee.io/vant/#/zh-CN/home
 
 模块的详细使用文档地址，部署必看：
 
-http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d
+http://doc.zyplayer.com

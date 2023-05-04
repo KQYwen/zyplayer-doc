@@ -5,14 +5,14 @@
 			<div style="font-weight: bold;font-size: 25px;">zyplayer-doc</div>
 			<div style="line-height: 30px;padding: 10px 0;">
 				<div>版本 {{upgradeInfo.nowVersion || '1.0.0'}}</div>
-				<div>版权所有 © 2018-2021 <a target="_blank" href="http://doc.zyplayer.com">doc.zyplayer.com</a></div>
+				<div>版权所有 © 2018-2021 <a target="_blank" href="http://zyplayer.com">zyplayer.com</a></div>
 			</div>
 			<a-tabs type="card">
 				<a-tab-pane tab="支持" key="support">
 					<div style="line-height: 30px;">
-						<div>文档：<a target="_blank" href="http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d">http://doc.zyplayer.com</a></div>
-						<div>主页：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc">https://gitee.com/zyplayer/zyplayer-doc</a></div>
-						<div>反馈：<a target="_blank" href="https://gitee.com/zyplayer/zyplayer-doc/issues">https://gitee.com/zyplayer/zyplayer-doc/issues</a></div>
+						<div>文档：<a target="_blank" href="http://doc.zyplayer.com">http://doc.zyplayer.com</a></div>
+						<div>主页：<a target="_blank" href="https://gitee.com/dromara/zyplayer-doc">https://gitee.com/dromara/zyplayer-doc</a></div>
+						<div>反馈：<a target="_blank" href="https://gitee.com/dromara/zyplayer-doc/issues">https://gitee.com/dromara/zyplayer-doc/issues</a></div>
 						<div>新功能关注&技术交流QQ群：466363173</div>
 					</div>
 				</a-tab-pane>

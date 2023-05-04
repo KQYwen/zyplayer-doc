@@ -4,7 +4,7 @@
             <el-card>
                 <div slot="header" class="clearfix">
                     <span>数据互导工具</span>
-                    <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d"><i class="el-icon-info" style="color: #999;"></i></a>
+                    <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/#/integrate/zyplayer-doc/opensource/128"><i class="el-icon-info" style="color: #999;"></i></a>
                 </div>
                 <div style="margin-bottom: 10px;text-align: right;">
                     <el-button type="success" icon="el-icon-plus" v-on:click="createNewTask">新建</el-button>

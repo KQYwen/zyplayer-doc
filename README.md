@@ -1,9 +1,9 @@
 # 项目简介
 zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同时还包含数据库文档、Api接口文档。
 
-在线文档：[zyplayer-doc使用文档](http://doc.zyplayer.com/doc-wiki#/integrate/zyplayer-doc)
+体验地址：[http://zyplayer.com](http://zyplayer.com)
 
-体验地址：[http://doc.zyplayer.com](http://doc.zyplayer.com)
+在线文档：[http://doc.zyplayer.com](http://doc.zyplayer.com)
 
 欢迎有想法的同学一起来完善，如果觉得不错就给个Star鼓励下呗！作为给项目快速更新的动力！
 
@@ -77,7 +77,7 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 如果您正在使用这个项目并感觉良好，或者是想支持项目继续开发，您可以通过如下`任意`方式支持我们：
 1. Star并分享 [zyplayer-doc](https://gitee.com/zyplayer/zyplayer-doc)
 2. 保留`关于页面`的项目链接
-3. 通过[一次性捐赠](http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d/359) 支持，我们会去买一杯咖啡或攒着去植发
+3. 你也可以选择使用 [商业版](http://doc.zyplayer.com/#/integrate/zyplayer-doc/commercial) 来支持我们
 
 # 界面展示
 控制台页面

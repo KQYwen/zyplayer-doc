@@ -12,7 +12,7 @@
                     <el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName" :value="item.dbName"></el-option>
                 </el-select>
                 <el-button v-on:click="showExportTypeChoice" type="primary" style="margin: 0 10px 0 20px;">导出选中的表</el-button>
-                <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/doc-wiki#/docs/w4eSzPWvQRSBvaCHZS8t6d"><i class="el-icon-info" style="color: #999;"></i></a>
+                <a target="_blank" title="点击查看如何使用" href="http://doc.zyplayer.com/#/integrate/zyplayer-doc/opensource/117"><i class="el-icon-info" style="color: #999;"></i></a>
             </div>
             <el-table :data="tableList" stripe border @selection-change="handleSelectionChange" style="width: 100%; margin-bottom: 5px;">
                 <el-table-column type="selection" width="55"></el-table-column>

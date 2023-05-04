@@ -18,9 +18,9 @@
                 查看文档地址
                 <a-popover title="文档地址支持以下任一格式">
                     <template #content>
-                        <p>格式一：http://doc.zyplayer.com/v2/api-docs</p>
-                        <p>格式二：http://doc.zyplayer.com/swagger-resources</p>
-                        <p>格式三：http://doc.zyplayer.com/swagger-ui.html</p>
+                        <p>格式一：http://zyplayer.com/v2/api-docs</p>
+                        <p>格式二：http://zyplayer.com/swagger-resources</p>
+                        <p>格式三：http://zyplayer.com/swagger-ui.html</p>
                     </template>
                     <a>示例</a>
                 </a-popover>
@@ -49,7 +49,7 @@
                 查看文档地址
                 <a-popover title="文档地址支持以下任一格式">
                     <template #content>
-                        <p>格式一：http://doc.zyplayer.com/v3/api-docs</p>
+                        <p>格式一：http://zyplayer.com/v3/api-docs</p>
                     </template>
                     <a>示例</a>
                 </a-popover>
@@ -78,7 +78,7 @@
                 <a-popover title="目标域名说明">
                     <template #content>
                         <p>在文档的在线调试界面，访问的域名可以初始为此处录入的域名，而非文档本身的域名地址</p>
-                        <p>可便于不同环境间的接口测试，例：http://doc.zyplayer.com</p>
+                        <p>可便于不同环境间的接口测试，例：http://zyplayer.com</p>
                     </template>
                     <a>说明</a>
                 </a-popover>
