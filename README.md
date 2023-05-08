@@ -8,6 +8,7 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 欢迎有想法的同学一起来完善，如果觉得不错就给个Star鼓励下呗！作为给项目快速更新的动力！
 
 欢迎加入微信群与我们一起交流
+> 微信群员超过限制只能加好友拉进群，添加微信好友，回复：`加群` 即可
 
 ![weixinqun.jpg](https://zyplayer.oss-cn-beijing.aliyuncs.com/doc/weixin/weixinqun.png)
 
