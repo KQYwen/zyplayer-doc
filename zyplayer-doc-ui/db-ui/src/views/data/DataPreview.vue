@@ -60,7 +60,7 @@
 					</div>
 					<el-tabs v-model="executeShowTable">
 						<el-tab-pane label="信息" name="table0">
-							<pre>{{ executeResultInfo }}</pre>
+							<pre class="xxpre">{{ executeResultInfo }}</pre>
 						</el-tab-pane>
 						<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name"
 												 v-for="resultItem in executeResultList" v-if="!!resultItem.index">
@@ -661,5 +661,13 @@ export default {
 
 /deep/ .elx-table .elx-header--column.col--ellipsis {
 	height: 38px;
+}
+
+.xxpre{
+  overflow: auto;
+}
+
+.el-textarea__inner::-webkit-scrollbar {
+  display: none;
 }
 </style>
