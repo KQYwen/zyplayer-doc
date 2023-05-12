@@ -651,4 +651,8 @@ export default {
 /deep/ .elx-table .elx-header--column.col--ellipsis {
 	height: 38px;
 }
+
+.el-textarea__inner::-webkit-scrollbar {
+  display: none;
+}
 </style>
