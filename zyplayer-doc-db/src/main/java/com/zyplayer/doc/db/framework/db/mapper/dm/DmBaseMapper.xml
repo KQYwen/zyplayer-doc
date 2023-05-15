@@ -57,9 +57,9 @@
     <!-- 条件查询表字段 -->
     <select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
         select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then 1 when 'N' then 0 end NULLABLE, c.COMMENTS
-        from user_tab_columns t
-                 left join user_col_comments c on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
-        where t.TABLE_NAME = #{tableName} AND (t.COLUMN_NAME like #{searchText} or c.COMMENTS like #{searchText})
+        from all_tab_columns t
+                 left join all_col_comments c on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
+        where t.OWNER = #{dbName} AND (upper(t.COLUMN_NAME) like upper(#{searchText}) or upper(c.COMMENTS) like upper(#{searchText}))
     </select>
 
     <!-- 条件查询表 -->
