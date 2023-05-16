@@ -312,6 +312,7 @@
 	}
 	#app, .el-container, .el-menu {
 		height: 100%;
+	font-size: 12px;
 	}
 	.el-header {
 		background-color: #1D4E89 !important;

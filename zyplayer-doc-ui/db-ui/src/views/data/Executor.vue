@@ -1,27 +1,27 @@
 <template>
 	<div class="data-executor-vue">
 		<div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
-			<el-card style="margin-bottom: 10px;">
+			<el-card style="margin-bottom: 5px;">
 				<ace-editor v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit" lang="sql" theme="monokai"
-										width="100%" height="500" :options="sqlEditorConfig" :source="executorSource"
-										style="margin-bottom: 10px;"></ace-editor>
+										width="100%" height="20" :options="sqlEditorConfig" :source="executorSource"
+										@cursorSelection="cursorSelection" style="margin-bottom: 5px;"></ace-editor>
 				<div>
-					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="small"
+					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="mini"
 										 icon="el-icon-video-pause">取消执行
 					</el-button>
 					<el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
-						<el-button v-on:click="doExecutorSql" type="primary" plain size="small" icon="el-icon-video-play">执行
+						<el-button v-on:click="doExecutorSql" type="primary" plain size="mini" icon="el-icon-video-play">{{executeButtonText}}
 						</el-button>
 					</el-tooltip>
-					<el-button icon="el-icon-brush" size="small" @click="formatterSql">SQL美化</el-button>
-					<el-button v-on:click="addFavorite('')" plain size="small" icon="el-icon-star-off">收藏</el-button>
+					<el-button icon="el-icon-brush" size="mini" @click="formatterSql">SQL美化</el-button>
+					<el-button v-on:click="addFavorite('')" plain size="mini" icon="el-icon-star-off">收藏</el-button>
 					<div style="float: right;">
-						<el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="small" filterable
+						<el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="mini" filterable
 											 placeholder="请选择数据源" style="width: 300px;margin-left: 10px;">
 							<el-option v-for="item in datasourceOptions" :key="item.id" :label="item.name"
 												 :value="item.id"></el-option>
 						</el-select>
-						<el-select v-model="choiceDatabase" @change="databaseChangeEvents" size="small" filterable
+						<el-select v-model="choiceDatabase" @change="databaseChangeEvents" size="mini" filterable
 											 placeholder="请选择数据库" style="width: 200px;margin-left: 10px;">
 							<el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName"
 												 :value="item.dbName"></el-option>
@@ -50,7 +50,7 @@
 							</el-dropdown-menu>
 						</el-dropdown>
 					</div>
-					<el-tabs v-model="executeShowTable" @tab-click="tabHandleClick">
+					<el-tabs v-model="executeShowTable" type="border-card" @tab-click="tabHandleClick">
 						<el-tab-pane label="执行历史" name="tabHistory">
 							<el-table :data="myHistoryListList" stripe border style="width: 100%; margin-bottom: 5px;">
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
@@ -102,6 +102,8 @@
 								<ux-grid v-else :data="resultItem.dataList"
 												 @table-body-scroll="scroll"
 												 @selection-change="handleSelectionChange"
+												 @cell-click="mouseOnFocus"
+												 @cell-mouse-leave="mouseLeave"
 												 :checkboxConfig="{checkMethod: selectable, highlight: true}"
 												 stripe border :height="height" max-height="600"
 												 style="width: 100%; margin-bottom: 5px;" class="execute-result-table">
@@ -110,13 +112,12 @@
 									<ux-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :title="item.label"
 																	 :width="item.width">
 										<template slot-scope="scope">
-											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
+											<textarea readonly :value="scope.row[item.prop]" ref="tabletextarea" class="el-textarea__inner" rows="1"></textarea>
 										</template>
 									</ux-table-column>
 								</ux-grid>
 								<el-pagination
 										v-if="resultItem.selectCount"
-										style="margin-top: 10px;"
 										@current-change="handleCurrentChange"
 										:current-page="currentPage"
 										:page-size="pageSize"
@@ -173,6 +174,9 @@ export default {
 			editorDbTableInfo: {},
 			editorColumnInfo: {},
 
+			//选中的单元格
+	  	uxGridCell: "",
+
 			pageSize: 1000,
 		  currentPage: 1,
 
@@ -192,6 +196,8 @@ export default {
 			exportConditionVisible: false,
 			conditionDataCols: [],
 			conditionDataColsChoice: [],
+			//执行按钮文本
+	    executeButtonText: '执行',
 			// 编辑器
 			sqlExecutorContent: '',
 			sqlEditorConfig: {
@@ -200,8 +206,8 @@ export default {
 				enableBasicAutocompletion: true,
 				enableSnippets: true,
 				enableLiveAutocompletion: true,
-				minLines: 10,
-				maxLines: 10,
+				minLines: 15,
+				maxLines: 15,
 			},
 			executorSource: {},
 			// sql参数
@@ -214,7 +220,7 @@ export default {
 		'ace-editor': aceEditor
 	},
 	mounted: function () {
-		this.height = 270;
+		this.height = 200;
 		this.loadDatasourceList();
 	},
 	methods: {
@@ -245,6 +251,13 @@ export default {
 					}, 300);
 				}
 			});
+		},
+		cursorSelection(sqlValue){
+			if(sqlValue){
+				this.executeButtonText = '执行已选择的'
+			}else{
+				this.executeButtonText = '执行'
+	  	}
 		},
 		scroll({scrollTop, scrollLeft}) {
 			this.scrollTop = scrollTop
@@ -414,7 +427,7 @@ export default {
 					resIndex++;
 					//动态设置表格高度,尽量避免出现滚动条
 					if(result.selectCount){
-						this.height = 235;
+						this.height = 170;
 					}
 				});
 				//多个结果情况下,且点击分页
@@ -563,6 +576,20 @@ export default {
 						err => this.$message.error("抱歉，复制失败！")
 				);
 			}
+		},
+		//表格单元格鼠标焦点事件
+		mouseOnFocus(row, column, cell, event){
+		  if(this.uxGridCell){
+				this.uxGridCell.style.border = 'none'
+			}
+	  	cell.style.border = '2px solid #0078d7'
+			this.uxGridCell = cell;
+		},
+		//表格单元格 hover 退出
+		mouseLeave(row, column, cell, event){
+	  	// if(this.uxGridCell){
+			// 	this.uxGridCell.style.border = 'none'
+	  	// }
 		}
 	}
 }
@@ -574,7 +601,7 @@ export default {
 }
 
 .data-executor-vue .el-card__body {
-	padding: 10px;
+	padding: 5px;
 }
 
 .data-executor-vue .sql-params {
@@ -645,14 +672,20 @@ export default {
 }
 
 /deep/ .elx-table .elx-body--column.col--ellipsis {
-	height: 38px;
+	height: 20px;
 }
 
 /deep/ .elx-table .elx-header--column.col--ellipsis {
-	height: 38px;
+	height: 20px;
 }
-
+.el-textarea__inner{
+  border: none;
+  background-color: #f0f8ff00;
+}
 .el-textarea__inner::-webkit-scrollbar {
   display: none;
+}
+/deep/ .el-tabs--border-card>.el-tabs__content {
+  padding: 5px;
 }
 </style>

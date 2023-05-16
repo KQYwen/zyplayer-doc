@@ -89,5 +89,11 @@
 </script>
 
 <style scoped>
-
+/deep/ .el-tabs--card>.el-tabs__header{
+  margin: 0 0 5px;
+}
+/deep/ .el-tabs--card>.el-tabs__header .el-tabs__item{
+  height: 30px;
+  line-height: 30px;
+}
 </style>

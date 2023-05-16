@@ -93,6 +93,10 @@ export default {
 			// console.log('change content：' + content);
 			// editor.execCommand("startAutocomplete");
 		});
+		editor.getSession().selection.on('changeSelection', function (e) {
+			let sqlValue = editor.session.getTextRange(editor.getSelectionRange());
+			vm.$emit('cursorSelection',sqlValue)
+		})
 		editor.commands.addCommand({
 			name: "start-autocomplete",
 			bindKey: {win: "Alt-Enter", mac: "Alt-Enter"},

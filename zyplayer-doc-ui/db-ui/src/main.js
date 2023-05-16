@@ -17,7 +17,10 @@ import "vue-hljs/dist/vue-hljs.min.css";
 import VueClipboard from 'vue-clipboard2';
 
 Vue.use(VueClipboard);
-Vue.use(ElementUI);
+//Vue.use(ElementUI);
+Vue.use(ElementUI,{
+	size:'mini'
+});
 Vue.use(UmyUi);
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
