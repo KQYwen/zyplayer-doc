@@ -29,7 +29,7 @@
 					</div>
 				</div>
 				<div v-if="sqlParams.length > 0" class="sql-params">
-					<el-input :placeholder="'请输入'+param.key+'的值'" v-model="param.value" v-for="param in sqlParams">
+					<el-input :placeholder="'请输入'+param.key+'的值'" v-model="param.value" v-for="(param,index) in sqlParams" :key="index">
 						<template slot="prepend">{{ param.key }}</template>
 					</el-input>
 				</div>
@@ -96,10 +96,12 @@
 							<div style="color: #f00;">{{ executeError }}</div>
 						</el-tab-pane>
 						<template v-else>
-							<el-tab-pane :label="resultItem.label" :name="resultItem.name" v-for="resultItem in executeResultList"
+							<el-tab-pane :label="resultItem.label" :name="resultItem.name" v-for="(resultItem,index) in executeResultList" :key="index"
 													 lazy>
 								<div v-if="!!resultItem.errMsg" style="color: #f00;">{{ resultItem.errMsg }}</div>
-								<ux-grid v-else :data="resultItem.dataList"
+								<ux-grid v-else
+												 v-clickoutside="handleClickOutside"
+												 :data="resultItem.dataList"
 												 @table-body-scroll="scroll"
 												 @selection-change="handleSelectionChange"
 												 @cell-click="mouseOnFocus"
@@ -108,11 +110,11 @@
 												 stripe border :height="height" max-height="600"
 												 style="width: 100%; margin-bottom: 5px;" class="execute-result-table">
 									<ux-table-column type="checkbox" width="55"></ux-table-column>
-									<ux-table-column type="index" width="50" title=" "></ux-table-column>
-									<ux-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :title="item.label"
+									<ux-table-column type="index" width="55" title=" "></ux-table-column>
+									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index" :prop="item.prop" :title="item.label"
 																	 :width="item.width">
 										<template slot-scope="scope">
-											<textarea readonly :value="scope.row[item.prop]" ref="tabletextarea" class="el-textarea__inner" rows="1"></textarea>
+											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
 										</template>
 									</ux-table-column>
 								</ux-grid>
@@ -125,8 +127,18 @@
 										layout="total, sizes, prev, pager, next, jumper"
 										:total="resultItem.selectCount">
 								</el-pagination>
+								<div v-if="resultItem.selectCount" style="position: absolute;right: 5px;bottom: 5px;">
+									<el-button type="primary" plain v-on:click="viewAllData()">查看所有</el-button>
+								</div>
+								<div></div>
 							</el-tab-pane>
 						</template>
+						<el-main v-loading="loadingAll"
+										 v-show="loadingAll"
+					 					 element-loading-text="正在加载中"
+					 					 element-loading-spinner="el-icon-loading"
+						style="height: 175px;">
+						</el-main>
 					</el-tabs>
 				</div>
 			</el-card>
@@ -155,10 +167,15 @@ import sqlFormatter from "sql-formatter"
 import datasourceApi from '../../common/api/datasource'
 import aceEditor from "../../common/lib/ace-editor";
 import sqlParser from "./parser/SqlParser";
+import Clickoutside from 'element-ui/src/utils/clickoutside'
 
 export default {
+  directives: { Clickoutside },
 	data() {
 		return {
+		  //遮罩层
+	  	loadingAll: false,
+
 			height: 0,
 			scrollTop: 0,
 			datasourceList: [],
@@ -439,6 +456,112 @@ export default {
 				this.loadHistoryList();
 			});
 		},
+		//查看所有数据
+		viewAllData(init){
+		  this.loadingAll = true;
+			if (!this.choiceDatasourceId) {
+			this.$message.error("请先选择数据源");
+			return;
+			}
+			this.executeError = "";
+			this.executeUseTime = "";
+			this.executeResultList = [];
+			let sqlParamObj = {};
+			this.sqlParams.forEach(item => {
+			if (!!item.value) {
+				sqlParamObj[item.key] = item.value;
+				this.sqlParamHistory[item.key] = item.value;
+			}
+			});
+			this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
+			let sqlValue = this.sqlExecutorEditor.getSelectedText();
+			if (!sqlValue) {
+			sqlValue = this.sqlExecutorEditor.getValue();
+			}
+			this.sqlExecuting = true;
+			datasourceApi.queryExecuteSql({
+			sourceId: this.choiceDatasourceId,
+			dbName: this.choiceDatabase,
+			executeId: this.nowExecutorId,
+			pageNum: this.currentPage,
+			pageSize: this.pageSize,
+			sql: sqlValue,
+			type: 'noPage',
+			params: JSON.stringify(sqlParamObj),
+			}).then(response => {
+			this.sqlExecuting = false;
+		  this.loadingAll = false;
+			if (response.errCode != 200) {
+				this.executeShowTable = 'tabError';
+				this.executeError = response.errMsg;
+				return;
+			}
+			let resIndex = 1;
+			let executeResultList = [];
+			let resData = response.data || [];
+			let executeResultInfo = "";
+			resData.forEach(result => {
+				let dataListRes = [];
+				let previewColumns = [];
+				executeResultInfo += this.getExecuteInfoStr(result);
+				if (result.errCode === 0) {
+				let dataListTemp = result.data || [];
+				let headerList = result.header || [];
+				// 组装表头
+				let columnSet = {};
+				if (headerList.length > 0) {
+					let headerIndex = 0;
+					headerList.forEach(item => {
+					let key = 'value_' + (headerIndex++);
+					columnSet[key] = item;
+					previewColumns.push({prop: key, label: item});
+					});
+					dataListTemp.forEach(item => {
+					let dataItem = {}, dataIndex = 0;
+					previewColumns.forEach(column => {
+						let key = column.prop;
+						dataItem[key] = item[dataIndex++];
+						if ((dataItem[key] + '').length > columnSet[key].length) {
+						columnSet[key] = dataItem[key] + '';
+						}
+					});
+					dataListRes.push(dataItem);
+					});
+					previewColumns.forEach(item => {
+					// 动态计算宽度~自己想的一个方法，666
+					document.getElementById("widthCalculate").innerText = columnSet[item.prop];
+					let width = document.getElementById("widthCalculate").offsetWidth;
+					width = width + (columnSet[item.prop] === item.label ? 35 : 55);
+					width = (width < 50) ? 50 : width;
+					item.width = (width > 200) ? 200 : width;
+					});
+				}
+				}
+				executeResultList.push({
+				label: '结果' + resIndex,
+				name: 'result_' + resIndex,
+				errMsg: result.errMsg,
+				errCode: result.errCode,
+				queryTime: result.queryTime,
+				selectCount: result.selectCount,
+				dataCols: previewColumns,
+				dataList: dataListRes
+				});
+				resIndex++;
+				//动态设置表格高度,尽量避免出现滚动条
+				if(result.selectCount){
+				this.height = 170;
+				}
+			});
+			//多个结果情况下,且点击分页
+			if(init!=1){
+				this.executeShowTable = (resIndex === 1) ? "tabInfo" : "result_1";
+			}
+			this.executeResultInfo = executeResultInfo;
+			this.executeResultList = executeResultList;
+			this.loadHistoryList();
+			});
+		},
 	  handleCurrentChange(to) {
 		  this.currentPage = to;
 		  let init = 1;
@@ -590,7 +713,13 @@ export default {
 	  	// if(this.uxGridCell){
 			// 	this.uxGridCell.style.border = 'none'
 	  	// }
-		}
+		},
+		// 点击区域外
+		handleClickOutside() {
+	  	if(this.uxGridCell){
+			this.uxGridCell.style.border = 'none'
+	  	}
+		},
 	}
 }
 </script>
@@ -627,10 +756,10 @@ export default {
 }
 
 .data-executor-vue .execute-result-table .el-textarea__inner {
-	height: 27px;
-	min-height: 27px;
-	line-height: 25px;
-	padding: 0 5px;
+	height: 26px;
+	min-height: 26px;
+	line-height: 26px;
+	padding: 0;
 	resize: none;
 }
 
@@ -672,11 +801,12 @@ export default {
 }
 
 /deep/ .elx-table .elx-body--column.col--ellipsis {
-	height: 20px;
+	height: 30px;
 }
 
 /deep/ .elx-table .elx-header--column.col--ellipsis {
-	height: 20px;
+	height: 30px;
+  //padding-left: 5px;
 }
 .el-textarea__inner{
   border: none;
@@ -687,5 +817,14 @@ export default {
 }
 /deep/ .el-tabs--border-card>.el-tabs__content {
   padding: 5px;
+}
+/deep/ .elx-table .elx-body--column.col--ellipsis>.elx-cell,
+.elx-table .elx-footer--column.col--ellipsis>.elx-cell,
+.elx-table .elx-header--column.col--ellipsis>.elx-cell{
+  overflow: auto;
+  text-overflow: unset;
+}
+/deep/ .elx-table .elx-body--column.col--ellipsis>.elx-cell::-webkit-scrollbar {
+  display: none;
 }
 </style>

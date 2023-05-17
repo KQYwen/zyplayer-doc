@@ -1,5 +1,6 @@
 package com.zyplayer.doc.db.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
@@ -54,8 +55,20 @@ public class DbSqlExecutorController {
 	@Resource
 	DatabaseServiceFactory databaseServiceFactory;
 
+	/**
+	 * sql执行器
+	 * @param sourceId
+	 * @param executeId
+	 * @param dbName
+	 * @param sql
+	 * @param params
+	 * @param pageSize
+	 * @param pageNum
+	 * @param type  noPage:无分页   其他:有分页
+	 * @return
+	 */
 	@PostMapping(value = "/execute")
-	public DocDbResponseJson execute(Long sourceId, String executeId, String dbName, String sql, String params,Integer pageSize,Integer pageNum) {
+	public DocDbResponseJson execute(Long sourceId, String executeId, String dbName, String sql, String params,Integer pageSize,Integer pageNum,String type) {
 		if (StringUtils.isBlank(sql)) {
 			return DocDbResponseJson.warn("执行的SQL不能为空");
 		}
@@ -118,9 +131,17 @@ public class DbSqlExecutorController {
 				executeParam.setExecuteId(executeId);
 				executeParam.setExecuteType(executeType);
 				executeParam.setPrefixSql(useDbSql);
-				executeParam.setMaxRows(1000);
+				if(!StrUtil.equals(type,"noPage")){
+					executeParam.setMaxRows(1000);
+				}
 				//sql解析类型为select
 				if(map.get("sqlType").equals("select")){
+					if(StrUtil.equals(type,"noPage")){
+						executeParam = SqlParseUtil.getSingleExecuteParam(executeParam,originalSql, paramMap);
+						executeResult = columnSqlExecutor.execute(executeParam);
+						resultList.add(executeResult);
+						continue;
+					}
 					//获取总数据量sql
 					String getAllCountSql = map.get("getAllCountSql").toString();
 					executeParam = SqlParseUtil.getSingleExecuteParam(executeParam,getAllCountSql, paramMap);

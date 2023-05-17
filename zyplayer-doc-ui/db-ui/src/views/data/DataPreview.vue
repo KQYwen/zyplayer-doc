@@ -63,24 +63,27 @@
 							<pre class="xxpre">{{ executeResultInfo }}</pre>
 						</el-tab-pane>
 						<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name"
-												 v-for="resultItem in executeResultList" v-if="!!resultItem.index">
+												 v-for="(resultItem,index) in executeResultList" :key="index" v-if="!!resultItem.index">
 							<div v-if="!!resultItem.errMsg" style="color: #f00;">{{ resultItem.errMsg }}</div>
 							<div v-else-if="resultItem.dataList.length <= 0"
 									 style="text-align: center; color: #aaa; padding: 20px 0;">暂无数据
 							</div>
 							<template v-else>
 								<ux-grid
+				  					v-clickoutside="handleClickOutside"
 										:data="resultItem.dataList"
 										stripe
 										border
 										:height="height"
 										style="width: 100%; margin-bottom: 5px;" class="execute-result-table" :max-height="tableMaxHeight"
 										@selection-change="handleSelectionChange"
+										@cell-click="mouseOnFocus"
+										@cell-mouse-leave="mouseLeave"
 										@sort-change="tableSortChange"
 										:default-sort="tableSort">
 									<ux-table-column type="checkbox" width="55"></ux-table-column>
 									<ux-table-column type="index" width="50" title=" "></ux-table-column>
-									<ux-table-column v-for="item in resultItem.dataCols" :prop="item.prop" :title="item.prop"
+									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index" :prop="item.prop" :title="item.prop"
 																	 :width="item.width" sortable>
 										<template slot="header" slot-scope="scope">
 											<el-tooltip effect="dark" :content="item.desc" placement="top">
@@ -191,9 +194,11 @@ import copyFormatter from './copy/index'
 import sqlFormatter from "sql-formatter";
 import aceEditor from "../../common/lib/ace-editor";
 import storageUtil from "../../common/lib/zyplayer/storageUtil";
+import Clickoutside from 'element-ui/src/utils/clickoutside'
 
 export default {
 	name: 'dataPreview',
+  directives: { Clickoutside },
 	data() {
 		return {
 			executorDesc: "",
@@ -457,6 +462,26 @@ export default {
 		handleSelectionChange(val) {
 			this.$set(this.choiceResultObj, this.executeShowTable, val);
 		},
+		//表格单元格鼠标焦点事件
+		mouseOnFocus(row, column, cell, event){
+	  	if(this.uxGridCell){
+			this.uxGridCell.style.border = 'none'
+	  	}
+	  	cell.style.border = '2px solid #0078d7'
+	  	this.uxGridCell = cell;
+		},
+		//表格单元格 hover 退出
+		mouseLeave(row, column, cell, event){
+	  	// if(this.uxGridCell){
+	  	// 	this.uxGridCell.style.border = 'none'
+	  	// }
+		},
+		// 点击区域外
+		handleClickOutside() {
+	  	if(this.uxGridCell){
+	  		this.uxGridCell.style.border = 'none'
+	  	}
+		},
 		doCopyCheckLineUpdate() {
 			let choiceData = this.choiceResultObj[this.executeShowTable] || [];
 			if (choiceData.length > 0) {
@@ -630,10 +655,10 @@ export default {
 }
 
 .data-executor-vue .execute-result-table .el-textarea__inner {
-	height: 27px;
-	min-height: 27px;
-	line-height: 25px;
-	padding: 0 5px;
+	height: 26px;
+	min-height: 26px;
+	line-height: 26px;
+	padding: 0;
 	resize: none;
 }
 
@@ -656,17 +681,21 @@ export default {
 }
 
 /deep/ .elx-table .elx-body--column.col--ellipsis {
-	height: 38px;
+	height: 30px;
 }
 
 /deep/ .elx-table .elx-header--column.col--ellipsis {
-	height: 38px;
+	height: 30px;
+  //padding-left: 5px;
 }
 
 .xxpre{
   overflow: auto;
 }
-
+.el-textarea__inner{
+  border: none;
+  background-color: #f0f8ff00;
+}
 .el-textarea__inner::-webkit-scrollbar {
   display: none;
 }

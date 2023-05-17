@@ -19,7 +19,7 @@ import VueClipboard from 'vue-clipboard2';
 Vue.use(VueClipboard);
 //Vue.use(ElementUI);
 Vue.use(ElementUI,{
-	size:'mini'
+	size:'small'
 });
 Vue.use(UmyUi);
 Vue.use(VueRouter);
