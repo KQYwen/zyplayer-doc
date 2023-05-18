@@ -130,14 +130,16 @@
 								<div v-if="resultItem.selectCount" style="position: absolute;right: 5px;bottom: 5px;">
 									<el-button type="primary" plain v-on:click="viewAllData()">查看所有</el-button>
 								</div>
-								<div></div>
+								<div v-if="!resultItem.selectCount" style="height: 20px;font-size: 13px;font-weight: 400;color: #606266;padding-left: 5px;">
+				  				共 {{resultItem.totalCount}} 条
+								</div>
 							</el-tab-pane>
 						</template>
 						<el-main v-loading="loadingAll"
 										 v-show="loadingAll"
 					 					 element-loading-text="正在加载中"
 					 					 element-loading-spinner="el-icon-loading"
-						style="height: 175px;">
+										 style="height: 175px;">
 						</el-main>
 					</el-tabs>
 				</div>
@@ -237,7 +239,7 @@ export default {
 		'ace-editor': aceEditor
 	},
 	mounted: function () {
-		this.height = 200;
+		this.height = 190;
 		this.loadDatasourceList();
 	},
 	methods: {
@@ -438,6 +440,7 @@ export default {
 						errCode: result.errCode,
 						queryTime: result.queryTime,
 						selectCount: result.selectCount,
+						totalCount: dataListRes.length,
 						dataCols: previewColumns,
 						dataList: dataListRes
 					});
@@ -544,6 +547,7 @@ export default {
 				errCode: result.errCode,
 				queryTime: result.queryTime,
 				selectCount: result.selectCount,
+		    totalCount: dataListRes.length,
 				dataCols: previewColumns,
 				dataList: dataListRes
 				});

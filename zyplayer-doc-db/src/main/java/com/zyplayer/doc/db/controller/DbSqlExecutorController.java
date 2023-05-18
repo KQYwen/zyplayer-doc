@@ -1,6 +1,8 @@
 package com.zyplayer.doc.db.controller;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
@@ -166,7 +168,9 @@ public class DbSqlExecutorController {
 			}
 			resultList.add(executeResult);
 		}
-		return DocDbResponseJson.ok(resultList);
+		//预处理返回数据(解决大数据量下的性能问题)
+		JSONArray array = JSONUtil.parseArray(resultList);
+		return DocDbResponseJson.ok(array);
 	}
 
 	@PostMapping(value = "/cancel")
