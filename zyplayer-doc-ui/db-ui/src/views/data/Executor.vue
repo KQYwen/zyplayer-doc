@@ -169,7 +169,8 @@ import sqlFormatter from "sql-formatter"
 import datasourceApi from '../../common/api/datasource'
 import aceEditor from "../../common/lib/ace-editor";
 import sqlParser from "./parser/SqlParser";
-import Clickoutside from 'element-ui/src/utils/clickoutside'
+import Clickoutside from 'element-ui/src/utils/clickoutside';
+import merge from 'webpack-merge';
 
 export default {
   directives: { Clickoutside },
@@ -242,6 +243,9 @@ export default {
 		this.height = 190;
 		this.loadDatasourceList();
 	},
+  activated(){
+		this.loadDatasourceList();
+  },
 	methods: {
 		sqlExecutorInit(editor) {
 			this.sqlExecutorEditor = editor;
@@ -575,19 +579,33 @@ export default {
 			datasourceApi.datasourceList({}).then(json => {
 				this.datasourceList = json.data || [];
 				this.datasourceOptions = this.datasourceList;
+
+				//子组件向父组件传值
+				//this.$emit('listenToChildEvent',this.datasourceList);
+
 				let datasourceGroupList = [];
 				this.datasourceList.filter(item => !!item.groupName).forEach(item => datasourceGroupList.push(item.groupName || ''));
 				this.datasourceGroupList = Array.from(new Set(datasourceGroupList));
+
 				if (this.datasourceList.length > 0) {
 					this.choiceDatasourceId = this.datasourceList[0].id;
+					//初次加载根据query值设置对应数据源
+					if(this.$route.query.datasourceId){
+						this.choiceDatasourceId = parseInt(this.$route.query.datasourceId);
+					}
+					//初次加载根据query值设置对应数据库
+					if(this.$route.query.database){
+						this.choiceDatabase = this.$route.query.database;
+					}
 					this.executorSource = {sourceId: this.choiceDatasourceId};
-					this.loadDatabaseList();
+					this.loadDatabaseList(true);
 					this.loadSourceBaseInfo();
 					this.loadHistoryAndFavoriteList();
 				}
 			});
 		},
-		loadDatabaseList() {
+		//initFlag: 初次加载状态
+		loadDatabaseList(initFlag) {
 			datasourceApi.databaseList({sourceId: this.choiceDatasourceId}).then(json => {
 				this.databaseList = json.data || [];
 				if (this.databaseList.length > 0) {
@@ -596,6 +614,11 @@ export default {
 					let notSysDbItem = this.databaseList.find(item => sysDbName.indexOf(item.dbName) < 0);
 					this.choiceDatabase = (!!notSysDbItem) ? notSysDbItem.dbName : this.databaseList[0].dbName;
 					this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
+		  		// 非初次加载，动态改变url参数
+					if(!initFlag){
+						this.$router.replace({ query: { datasourceId: this.choiceDatasourceId,database:this.choiceDatabase } })
+
+		  }
 				}
 			});
 		},

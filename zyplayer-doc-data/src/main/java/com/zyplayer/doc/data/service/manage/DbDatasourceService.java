@@ -18,4 +18,9 @@ public interface DbDatasourceService extends IService<DbDatasource> {
 	 * @return List<DbDatasource>
 	 */
 	List<DbDatasource> getDataSourceList();
+
+	/**
+	 * 获取数据源
+	 */
+	DbDatasource getDataSource(Long sourceId);
 }

@@ -4,13 +4,15 @@
             <el-tab-pane :label="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)" :fullPath="item.fullPath" :key="item.fullPath" v-for="item in pageList"/>
         </el-tabs>
         <keep-alive>
-            <router-view :key="$route.fullPath" @initLoadDataList="initLoadDataList" @loadDatasourceList="loadDatasourceList"/>
+            <router-view v-on:listenToChildEvent = "getDatafromChild" :key="$route.fullPath" @initLoadDataList="initLoadDataList" @loadDatasourceList="loadDatasourceList"/>
         </keep-alive>
     </div>
 </template>
 
 <script>
-    export default {
+    import datasourceApi from "@/common/api/datasource";
+
+	export default {
         name: 'PageTableView',
         components: {},
         data() {
@@ -18,6 +20,7 @@
                 pageList: [],
                 linkList: [],
                 activePage: '',
+			  datasourceList: [],
 				multiPage: true,
 				ignoreParamPath: [
 					"/data/export",
@@ -31,11 +34,31 @@
 		},
 		created() {
 			let {name, path, fullPath} = this.$route;
-			this.pageList.push({name, path, fullPath});
-			let activePage = this.getRouteRealPath(this.$route);
-			this.linkList.push(activePage);
-			this.activePage = activePage;
-			this.$router.push(this.$route.fullPath);
+			//sql执行器tab页名称动态变化
+			if(path === '/data/executor'){
+				let database = this.$route.query.database;
+				let datasourceId = this.$route.query.datasourceId;
+				if(datasourceId){
+					datasourceApi.datasource({sourceId: datasourceId}).then(json => {
+						let dataname = json.data.name;
+						let groupName = json.data.name;
+						if(dataname){
+			  			name = name+"("+dataname+")"
+						}
+						this.pageList.push({name, path, fullPath});
+						let activePage = this.getRouteRealPath(this.$route);
+						this.linkList.push(activePage);
+						this.activePage = activePage;
+						this.$router.push(this.$route.fullPath);
+					})
+		  		return false;
+				}
+			}
+				this.pageList.push({name, path, fullPath});
+				let activePage = this.getRouteRealPath(this.$route);
+				this.linkList.push(activePage);
+				this.activePage = activePage;
+				this.$router.push(this.$route.fullPath);
 		},
 		watch: {
 			'$route': function (newRoute, oldRoute) {
@@ -44,13 +67,36 @@
 				if (this.linkList.indexOf(activePage) < 0) {
 					this.linkList.push(activePage);
 					let {name, path, fullPath} = newRoute;
-					this.pageList.push({name, path, fullPath});
+
+					//sql执行器tab页名称动态变化
+					if(path === '/data/executor'){
+						let database = newRoute.query.database;
+						let datasourceId = newRoute.query.datasourceId;
+						if(datasourceId) {
+							datasourceApi.datasource({sourceId: datasourceId}).then(json => {
+							let dataname = json.data.name;
+							let groupName = json.data.name;
+							if (dataname) {
+								name = name + "(" + dataname + ")"
+							}
+								this.pageList.push({name, path, fullPath});
+							})
+						}else{
+			  			this.pageList.push({name, path, fullPath});
+						}
+					}else{
+						this.pageList.push({name, path, fullPath});
+					}
+
                 }
 				let pageRoute = this.pageList.find(item => this.getRouteRealPath(item) === activePage);
 				pageRoute.fullPath = newRoute.fullPath;
             },
         },
         methods: {
+		  getDatafromChild(data){
+				this.datasourceList = data;
+			},
 			initLoadDataList(param) {
                 this.$emit('initLoadDataList', param);
             },
@@ -66,6 +112,7 @@
             changePage(tab) {
                 this.activePage = tab.name;
 				this.$router.push(tab.$attrs.fullPath);
+
             },
             editPage(key, action) {
                 this[action](key);

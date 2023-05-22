@@ -61,7 +61,9 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="数据源URL：">
-                    <el-input v-model="newDatasource.sourceUrl" :placeholder="urlPlaceholder"></el-input>
+                    <el-input v-model="newDatasource.sourceUrl" :placeholder="urlPlaceholder" :disabled="sourceUrlDisabled&&!newDatasource.id>0">
+					  					<el-button slot="append" @click="autoFillDialog" :disabled="sourceUrlDisabled&&!newDatasource.id>0">智能填入</el-button>
+										</el-input>
                 </el-form-item>
                 <el-form-item label="账号：">
                     <el-input v-model="newDatasource.sourceName" placeholder="账号"></el-input>
@@ -96,12 +98,12 @@
                 <el-table-column prop="userName" label="用户" width="150"></el-table-column>
                 <el-table-column label="权限">
                     <template slot-scope="scope">
-						<el-select v-model="scope.row.executeAuth" placeholder="选择权限" style="width: 150px;margin-right: 10px;">
-							<el-option value="">无权限</el-option>
-							<el-option :value="1" label="库表查看权"></el-option>
-							<el-option :value="2" label="数据查询权"></el-option>
-							<el-option :value="3" label="所有权限"></el-option>
-						</el-select>
+												<el-select v-model="scope.row.executeAuth" placeholder="选择权限" style="width: 150px;margin-right: 10px;">
+													<el-option value="">无权限</el-option>
+													<el-option :value="1" label="库表查看权"></el-option>
+													<el-option :value="2" label="数据查询权"></el-option>
+													<el-option :value="3" label="所有权限"></el-option>
+												</el-select>
                         <el-checkbox :true-label="1" :false-label="0" v-model="scope.row.descEditAuth">表字段注释修改权</el-checkbox>
                         <el-checkbox :true-label="1" :false-label="0" v-model="scope.row.procEditAuth">函数修改权</el-checkbox>
                     </template>
@@ -122,6 +124,43 @@
                 <pre><code v-html="testDatasourceErrInfo"></code></pre>
             </div>
         </el-dialog>
+	  		<!--数据源url地址自动输入弹窗-->
+	  		<el-dialog
+					title="智能填入"
+					:visible.sync="autoFillDialogVisible"
+					width="30%" :close-on-click-modal="false">
+		  		<el-form :model="autoFillForm" :rules="rules" label-width="90px" ref="autoFillForm">
+							<el-form-item label="主机地址" prop="hostIp">
+								<el-input v-model="autoFillForm.hostIp" placeholder="请输入主机地址" ></el-input>
+							</el-form-item>
+							<el-form-item label="端口号" prop="port">
+								<el-input v-model="autoFillForm.port" placeholder="请输入数据库端口号" ></el-input>
+							</el-form-item>
+							<el-form-item label="服务名" prop="serverName" v-if="oracleServerNameShow" >
+								<template slot="label">
+										<span>服务名
+											<el-tooltip class="item" effect="dark" placement="right">
+												<i class="el-icon-question" style="font-size: 16px; vertical-align: middle;"></i>
+												<div slot="content">
+													<p>oracle数据库服务名默认为ORCL</p>
+													<p>可使用下面的命令来查看服务名</p>
+													<p>select global_name from global_name;</p>
+												</div>
+											</el-tooltip>
+										</span>
+								</template>
+
+								<el-input v-model="autoFillForm.serverName" placeholder="请输入服务名" ></el-input>
+								<el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start">
+				  				<i class="el-icon-question-solid" />
+								</el-tooltip>
+							</el-form-item>
+	  			</el-form>
+					<span slot="footer" class="dialog-footer">
+    				<el-button @click="autoFillDialogVisible = false">取 消</el-button>
+    				<el-button type="primary" @click="autoFill('autoFillForm')">确 定</el-button>
+  				</span>
+	  		</el-dialog>
     </div>
 </template>
 
@@ -132,15 +171,16 @@
         data() {
             return {
                 loadDataListLoading: false,
-				datasourceDialogVisible: false,
-				datasourceList: [],
-				searchParam: {
-					name: '',
-					groupName: ''
-				},
-				pageSize: 30,
-				currentPage: 1,
-				tableTotalCount: 0,
+								datasourceDialogVisible: false,
+			  				autoFillDialogVisible: false,
+								datasourceList: [],
+								searchParam: {
+									name: '',
+									groupName: ''
+								},
+								pageSize: 30,
+								currentPage: 1,
+								tableTotalCount: 0,
                 newDatasource: {},
                 urlPlaceholder: "数据源URL",
 
@@ -153,8 +193,32 @@
                 testDatasourceErrInfo: "",
                 testDatasourceErrVisible: false,
                 testDatasourceErrLoading: false,
-				// 数据源分组
-				datasourceGroupList: [],
+								// 数据源分组
+								datasourceGroupList: [],
+
+			  				sourceUrlDisabled: true,
+
+								//自动填入参数
+			  				autoFillForm: {
+									hostIp: null,
+									port: null,
+									serverName: null,
+								},
+								//oracle数据库服务名是否显示
+			  				oracleServerNameShow: false,
+
+								rules: {
+				  				hostIp: [
+										{ required: true, message: '请输入主机地址', trigger: 'blur' }
+									],
+				  				port: [
+										{ required: true, message: '请输入数据库端口号', trigger: 'blur' }
+									],
+				  				serverName: [
+										{ required: true, message: '请输入数据库服务名', trigger: 'blur' }
+									],
+								}
+
             };
         },
         mounted: function () {
@@ -178,9 +242,68 @@
             saveUserDbSourceAuth() {
                 let param = {sourceId: this.newDatasource.id, authList: JSON.stringify(this.dbSourceAuthUserList)};
                 datasourceApi.assignDbUserAuth(param).then(() => {
-					this.$message.success("保存成功");
+									this.$message.success("保存成功");
                 });
             },
+
+		  			autoFillDialog(){
+			  			this.autoFillDialogVisible = true;
+						  let thatClassName = this.newDatasource.driverClassName;
+							if (thatClassName === 'com.mysql.jdbc.Driver') {
+								//this.urlPlaceholder = "例：jdbc:mysql://127.0.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8";
+								this.autoFillForm.port = "3306";
+							} else if (thatClassName === 'net.sourceforge.jtds.jdbc.Driver') {
+								//this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:33434;DatabaseName=user_info;socketTimeout=60;";
+								this.autoFillForm.port = "33434";
+							} else if (thatClassName === 'oracle.jdbc.driver.OracleDriver') {
+								//this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
+								this.autoFillForm.port = "1521";
+								this.oracleServerNameShow = true;
+							} else if (thatClassName === 'org.postgresql.Driver') {
+								//this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
+								this.autoFillForm.port = "5432";
+							} else if (thatClassName === 'org.apache.hive.jdbc.HiveDriver') {
+								//this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
+								this.autoFillForm.port = "21050";
+							} else if (thatClassName === 'dm.jdbc.driver.DmDriver'){
+								//this.urlPlaceholder = "例：jdbc:dm://127.0.0.1:5236?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf-8";
+								this.autoFillForm.port = "5236";
+							}
+						},
+		  			autoFill(formName){
+								this.$refs[formName].validate((valid) => {
+									if (valid) {
+										this.autoFillDialogVisible = false;
+										//拼接地址
+										let thatClassName = this.newDatasource.driverClassName;
+										let hostIp = this.autoFillForm.hostIp;
+										let port = this.autoFillForm.port;
+										let serverName = this.autoFillForm.serverName;
+										if (thatClassName === 'com.mysql.jdbc.Driver') {
+											//this.urlPlaceholder = "例：jdbc:mysql://127.0.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8";
+					  					this.newDatasource.sourceUrl = "jdbc:mysql://"+hostIp+":"+port;
+										} else if (thatClassName === 'net.sourceforge.jtds.jdbc.Driver') {
+											//this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:33434;DatabaseName=user_info;socketTimeout=60;";
+					  					this.newDatasource.sourceUrl = "jdbc:jtds:sqlserver://"+hostIp+":"+port;
+										} else if (thatClassName === 'oracle.jdbc.driver.OracleDriver') {
+											//this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
+					  					this.newDatasource.sourceUrl = "jdbc:oracle:thin:@"+hostIp+":"+port+"/"+serverName;
+										} else if (thatClassName === 'org.postgresql.Driver') {
+											//this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
+					  					this.newDatasource.sourceUrl = "jdbc:postgresql://"+hostIp+":"+port;
+										} else if (thatClassName === 'org.apache.hive.jdbc.HiveDriver') {
+											//this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
+					  					this.newDatasource.sourceUrl = "jdbc:hive2://"+hostIp+":"+port;
+										} else if (thatClassName === 'dm.jdbc.driver.DmDriver'){
+											//this.urlPlaceholder = "例：jdbc:dm://127.0.0.1:5236?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf-8";
+					  					this.newDatasource.sourceUrl = "jdbc:dm://"+hostIp+":"+port;
+										}
+									} else {
+										return false;
+									}
+								});
+
+						},
             deleteUserDbSourceAuth(row) {
                 var dbSourceAuthUserList = [];
                 for (var i = 0; i < this.dbSourceAuthUserList.length; i++) {
@@ -193,7 +316,7 @@
             },
             addDbSourceAuthUser() {
                 if (this.dbSourceAuthNewUser.length <= 0) {
-					this.$message.warning("请先选择用户");
+										this.$message.warning("请先选择用户");
                     return;
                 }
                 var userName = "";
@@ -208,7 +331,7 @@
                     userId: this.dbSourceAuthNewUser,
                     executeAuth: '',
                     descEditAuth: 0,
-					procEditAuth: 0,
+										procEditAuth: 0,
                 });
                 this.dbSourceAuthNewUser = "";
             },
@@ -216,19 +339,20 @@
                 if (!query) return;
                 this.dbSourceAuthUserLoading = true;
                 userApi.getUserBaseInfo({search: query}).then(json => {
-					this.searchUserList = json.data || [];
-					this.dbSourceAuthUserLoading = false;
+									this.searchUserList = json.data || [];
+									this.dbSourceAuthUserLoading = false;
                 });
             },
             addDatasource() {
                 this.datasourceDialogVisible = true;
-				this.testDatasourceErrLoading = false;
+								this.testDatasourceErrLoading = false;
                 this.newDatasource = {name: "", driverClassName: "", sourceUrl: "", sourceName: "", sourcePassword: "", groupName: ""};
+			  				this.sourceUrlDisabled = true;
             },
             editDatasource(row) {
                 this.newDatasource = JSON.parse(JSON.stringify(row));
                 this.datasourceDialogVisible = true;
-				this.testDatasourceErrLoading = false;
+								this.testDatasourceErrLoading = false;
             },
             deleteDatasource(row) {
                 this.$confirm('确定要删除此数据源吗？', '提示', {
@@ -239,16 +363,16 @@
                     row.yn = 0;
                     datasourceApi.manageUpdateDatasource(row).then(() => {
                         this.$message.success("删除成功！");
-						this.$emit('loadDatasourceList');
+												this.$emit('loadDatasourceList');
                         this.getDatasourceList();
                     });
                 }).catch(()=>{});
             },
             saveDatasource() {
                 datasourceApi.manageUpdateDatasource(this.newDatasource).then(() => {
-					this.datasourceDialogVisible = false;
+										this.datasourceDialogVisible = false;
                     this.$message.success("保存成功！");
-					this.$emit('loadDatasourceList');
+										this.$emit('loadDatasourceList');
                     this.getDatasourceList();
                 });
             },
@@ -282,6 +406,8 @@
                 } else if (this.newDatasource.driverClassName == 'dm.jdbc.driver.DmDriver'){
 										this.urlPlaceholder = "例：jdbc:dm://127.0.0.1:5236?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf-8";
 								}
+								this.sourceUrlDisabled = false;
+			  				this.oracleServerNameShow = false;
             },
 			handleCurrentChange(to) {
 				this.currentPage = to;
@@ -314,7 +440,13 @@
         }
     }
 </script>
-<style>
-
+<style scoped>
+.demo-input-suffix{
+  display: flex;
+  margin-bottom: 10px;
+}
+.demo-input-suffix>span{
+  width: 90px;
+}
 </style>
 

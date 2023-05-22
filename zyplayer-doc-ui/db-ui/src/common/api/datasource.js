@@ -14,6 +14,9 @@ export default {
     datasourceList: data => {
         return request({url: '/zyplayer-doc-db/doc-db/getDataSourceList', method: 'post', data: Qs.stringify(data)});
     },
+	datasource: data => {
+		return request({url: '/zyplayer-doc-db/doc-db/getDataSource', method: 'post', data: Qs.stringify(data)});
+	},
     databaseList: data => {
         return request({url: '/zyplayer-doc-db/doc-db/getDatabaseList', method: 'post', data: Qs.stringify(data)});
     },

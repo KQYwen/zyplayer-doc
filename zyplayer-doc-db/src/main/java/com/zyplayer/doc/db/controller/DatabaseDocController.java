@@ -62,6 +62,15 @@ public class DatabaseDocController {
 	}
 
 	/**
+	 * 获取数据源
+	 */
+	@PostMapping("/getDataSource")
+	public DocDbResponseJson getDataSource(Long sourceId) {
+		DbDatasource dataSource = dbDatasourceService.getDataSource(sourceId);
+		return DocDbResponseJson.ok(dataSource);
+	}
+
+	/**
 	 * 获取数据源基本信息
 	 *
 	 * @param sourceId 数据源ID

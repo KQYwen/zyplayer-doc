@@ -62,7 +62,7 @@
 				<el-header>
 					<span class="header-right-user-name">{{userSelfInfo.userName}}</span>
 					<el-dropdown @command="userSettingDropdown" trigger="click">
-						<i class="el-icon-setting" style="margin-right: 15px; font-size: 16px;cursor: pointer;color: #fff;"> </i>
+						<i class="el-icon-setting" style="margin-right: 15px; font-size: 12px;cursor: pointer;color: #fff;"> </i>
 						<el-dropdown-menu slot="dropdown">
 							<el-dropdown-item command="console">控制台</el-dropdown-item>
 							<el-dropdown-item command="aboutDoc" divided>关于</el-dropdown-item>
@@ -323,7 +323,8 @@
 		overflow: unset;
 	}
 	.header-right-user-name{color: #fff;padding-right: 5px;}
-	.el-menu-vertical{border-right: 0;background: #fafafa;}
+	.el-menu-vertical{border-right: 0;background: #fafafa}
+  .el-menu-item, .el-submenu__title{font-size: 12px;}
 	.el-menu-vertical .el-menu{background: #fafafa;}
 	.el-header {background-color: #409EFF; color: #333; line-height: 40px; text-align: right;height: 40px !important;}
 
