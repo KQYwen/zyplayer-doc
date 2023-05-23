@@ -365,6 +365,10 @@ export default {
 				this.$message.error("请先选择数据源");
 				return;
 			}
+			if(!this.choiceDatabase){
+				this.$message.error("请先选择数据库");
+				return;
+			}
 			this.executeError = "";
 			this.executeUseTime = "";
 			this.executeResultList = [];
@@ -612,13 +616,12 @@ export default {
 					// 排除系统库
 					let sysDbName = ["information_schema", "master", "model", "msdb", "tempdb"];
 					let notSysDbItem = this.databaseList.find(item => sysDbName.indexOf(item.dbName) < 0);
-					this.choiceDatabase = (!!notSysDbItem) ? notSysDbItem.dbName : this.databaseList[0].dbName;
-					this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
-		  		// 非初次加载，动态改变url参数
+					// 非初次加载，动态改变url参数
 					if(!initFlag){
+						this.choiceDatabase = (!!notSysDbItem) ? notSysDbItem.dbName : this.databaseList[0].dbName;
 						this.$router.replace({ query: { datasourceId: this.choiceDatasourceId,database:this.choiceDatabase } })
-
-		  }
+					}
+					this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
 				}
 			});
 		},
@@ -653,6 +656,7 @@ export default {
 			this.loadHistoryAndFavoriteList();
 		},
 		databaseChangeEvents() {
+	  	this.$router.replace({ query: { datasourceId: this.choiceDatasourceId,database:this.choiceDatabase } })
 			this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
 		  this.currentPage = 1;
 		},

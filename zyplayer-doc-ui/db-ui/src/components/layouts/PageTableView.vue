@@ -43,13 +43,35 @@
 						let dataname = json.data.name;
 						let groupName = json.data.name;
 						if(dataname){
-			  			name = name+"("+dataname+")"
+			  			name = name+"( "+dataname+"["+database+"] )"
 						}
 						this.pageList.push({name, path, fullPath});
 						let activePage = this.getRouteRealPath(this.$route);
 						this.linkList.push(activePage);
 						this.activePage = activePage;
 						this.$router.push(this.$route.fullPath);
+					})
+		  		return false;
+				}else{
+		  		datasourceApi.datasourceList({}).then(json => {
+						this.datasourceList = json.data || [];
+						if (this.datasourceList.length > 0) {
+			  			let dataname = this.datasourceList[0].name;
+						  if(this.datasourceList[0].id){
+								datasourceApi.databaseList({sourceId: this.datasourceList[0].id}).then(json => {
+									if (json.data.length > 0) {
+										// 排除系统库
+										let sysDbName = ["information_schema", "master", "model", "msdb", "tempdb"];
+										let notSysDbItem = json.data.find(item => sysDbName.indexOf(item.dbName) < 0);
+										let choiceDatabase = (!!notSysDbItem) ? notSysDbItem.dbName : json.data[0].dbName;
+										if(dataname&&choiceDatabase){
+											name = name+"( "+dataname+"["+choiceDatabase+"] )"
+										}
+										this.$router.replace({ query: { datasourceId: this.datasourceList[0].id,database:choiceDatabase } })
+				  				}
+								})
+							}
+						}
 					})
 		  		return false;
 				}
@@ -67,7 +89,7 @@
 				if (this.linkList.indexOf(activePage) < 0) {
 					this.linkList.push(activePage);
 					let {name, path, fullPath} = newRoute;
-
+		  		this.pageList.push({name, path, fullPath});
 					//sql执行器tab页名称动态变化
 					if(path === '/data/executor'){
 						let database = newRoute.query.database;
@@ -75,22 +97,46 @@
 						if(datasourceId) {
 							datasourceApi.datasource({sourceId: datasourceId}).then(json => {
 							let dataname = json.data.name;
-							let groupName = json.data.name;
+							let groupName = json.data.groupName;
 							if (dataname) {
-								name = name + "(" + dataname + ")"
+								name = name+"( "+dataname+"["+database+"] )"
 							}
-								this.pageList.push({name, path, fullPath});
+								//this.pageList.push({name, path, fullPath});
+								let pageRoute = this.pageList.find(item => this.getRouteRealPath(item) === activePage);
+								pageRoute.name = name;
+
 							})
 						}else{
-			  			this.pageList.push({name, path, fullPath});
+							datasourceApi.datasourceList({}).then(json => {
+								this.datasourceList = json.data || [];
+								if (this.datasourceList.length > 0) {
+									let dataname = this.datasourceList[0].name;
+									if(this.datasourceList[0].id){
+									datasourceApi.databaseList({sourceId: this.datasourceList[0].id}).then(json => {
+										if (json.data.length > 0) {
+											// 排除系统库
+											let sysDbName = ["information_schema", "master", "model", "msdb", "tempdb"];
+											let notSysDbItem = json.data.find(item => sysDbName.indexOf(item.dbName) < 0);
+											let choiceDatabase = (!!notSysDbItem) ? notSysDbItem.dbName : json.data[0].dbName;
+											if(dataname&&choiceDatabase){
+												name = name+"( "+dataname+"["+choiceDatabase+"] )"
+											}
+											console.log("this.pageList+++++++++"+JSON.stringify(this.pageList))
+					  					this.pageList.splice(this.pageList.findIndex(item => item.fullPath === path),1);
+					  					this.linkList.splice(this.linkList.findIndex(item => item === path),1);
+					  					console.log("this.pageList+++++++++"+JSON.stringify(this.pageList))
+											this.$router.replace({ query: { datasourceId: this.datasourceList[0].id,database:choiceDatabase } })
+										}
+									})
+									}
+								}
+							})
 						}
-					}else{
-						this.pageList.push({name, path, fullPath});
 					}
 
                 }
-				let pageRoute = this.pageList.find(item => this.getRouteRealPath(item) === activePage);
-				pageRoute.fullPath = newRoute.fullPath;
+				//let pageRoute = this.pageList.find(item => this.getRouteRealPath(item) === activePage);
+				//pageRoute.fullPath = newRoute.fullPath;
             },
         },
         methods: {
@@ -142,5 +188,13 @@
 /deep/ .el-tabs--card>.el-tabs__header .el-tabs__item{
   height: 30px;
   line-height: 30px;
+}
+/deep/ .el-tabs__nav-next{
+  line-height: 33px;
+  font-size: 20px;
+}
+/deep/ .el-tabs__nav-prev{
+  line-height: 33px;
+  font-size: 20px;
 }
 </style>
