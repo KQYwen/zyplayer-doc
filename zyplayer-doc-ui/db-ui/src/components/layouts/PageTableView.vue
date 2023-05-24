@@ -219,7 +219,9 @@ export default {
 		openContextMenu(e) {
 			let obj = e.srcElement ? e.srcElement : e.target;
 			if (obj.id) {
-				let currentContextTabId = obj.id.split("-")[1];
+				//let currentContextTabId = obj.id.split("-")[1];
+				//数据源与数据库名可能携带 "-" ,只截取第一次出现之后的部分
+				let currentContextTabId = obj.id.split('-').slice(1).join('-');
 				this.contextMenuVisible = true;
 				this.$store.commit("saveCurContextTabId", currentContextTabId);
 				this.left = e.clientX;
@@ -266,6 +268,7 @@ export default {
 					this.linkList.splice(0, currTabIndex);
 					this.activePage = this.linkList[0];
 					this.$router.push(this.activePage);
+					console.log(currTabIndex+'删除左侧')
 					break;
 				}
 				case "right": {
@@ -274,6 +277,7 @@ export default {
 					this.linkList.splice(currTabIndex + 1, this.linkList.length);
 					this.activePage = this.linkList[currTabIndex];
 					this.$router.push(this.activePage);
+					console.log(currTabIndex+'删除右侧')
 					break;
 				}
 				case "other": {
@@ -284,6 +288,7 @@ export default {
 					this.linkList.splice(currTabIndex + 1, this.linkList.length);
 					this.activePage = this.linkList[0];
 					this.$router.push(this.activePage);
+					console.log(currTabIndex+'删除其他')
 					break;
 				}
 			}
