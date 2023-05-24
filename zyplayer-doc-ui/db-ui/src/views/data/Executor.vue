@@ -2,34 +2,37 @@
 	<div class="data-executor-vue">
 		<div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
 			<el-card style="margin-bottom: 5px;">
-				<ace-editor v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit" lang="sql" theme="monokai"
-										width="100%" height="20" :options="sqlEditorConfig" :source="executorSource"
-										@cursorSelection="cursorSelection" style="margin-bottom: 5px;"></ace-editor>
+				<ace-editor v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit" lang="sql"
+							theme="monokai"
+							width="100%" height="20" :options="sqlEditorConfig" :source="executorSource"
+							@cursorSelection="cursorSelection" style="margin-bottom: 5px;"></ace-editor>
 				<div>
 					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="mini"
-										 icon="el-icon-video-pause">取消执行
+							   icon="el-icon-video-pause">取消执行
 					</el-button>
 					<el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
-						<el-button v-on:click="doExecutorSql" type="primary" plain size="mini" icon="el-icon-video-play">{{executeButtonText}}
+						<el-button v-on:click="doExecutorSql" type="primary" plain size="mini"
+								   icon="el-icon-video-play">{{ executeButtonText }}
 						</el-button>
 					</el-tooltip>
 					<el-button icon="el-icon-brush" size="mini" @click="formatterSql">SQL美化</el-button>
 					<el-button v-on:click="addFavorite('')" plain size="mini" icon="el-icon-star-off">收藏</el-button>
 					<div style="float: right;">
 						<el-select v-model="choiceDatasourceId" @change="datasourceChangeEvents" size="mini" filterable
-											 placeholder="请选择数据源" style="width: 300px;margin-left: 10px;">
+								   placeholder="请选择数据源" style="width: 300px;margin-left: 10px;">
 							<el-option v-for="item in datasourceOptions" :key="item.id" :label="item.name"
-												 :value="item.id"></el-option>
+									   :value="item.id"></el-option>
 						</el-select>
 						<el-select v-model="choiceDatabase" @change="databaseChangeEvents" size="mini" filterable
-											 placeholder="请选择数据库" style="width: 200px;margin-left: 10px;">
+								   placeholder="请选择数据库" style="width: 200px;margin-left: 10px;">
 							<el-option v-for="item in databaseList" :key="item.dbName" :label="item.dbName"
-												 :value="item.dbName"></el-option>
+									   :value="item.dbName"></el-option>
 						</el-select>
 					</div>
 				</div>
 				<div v-if="sqlParams.length > 0" class="sql-params">
-					<el-input :placeholder="'请输入'+param.key+'的值'" v-model="param.value" v-for="(param,index) in sqlParams" :key="index">
+					<el-input :placeholder="'请输入'+param.key+'的值'" v-model="param.value"
+							  v-for="(param,index) in sqlParams" :key="index">
 						<template slot="prepend">{{ param.key }}</template>
 					</el-input>
 				</div>
@@ -39,7 +42,7 @@
 					<div style="position: absolute;right: 0;z-index: 1;">
 						<!-- 复制选中行 -->
 						<el-dropdown @command="handleCopyCheckLineCommand"
-												 v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
+									 v-show="this.choiceResultObj[this.executeShowTable] && this.choiceResultObj[this.executeShowTable].length > 0">
 							<el-button type="primary" size="small" icon="el-icon-document-copy">
 								复制选中行<i class="el-icon-arrow-down el-icon--right"></i>
 							</el-button>
@@ -57,32 +60,38 @@
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
 										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row)"
-												 :title="scope.row.content">{{ scope.row.content }}</pre>
+											 :title="scope.row.content">{{ scope.row.content }}</pre>
 									</template>
 								</el-table-column>
 								<el-table-column label="操作" width="160px">
 									<template slot-scope="scope">
-										<el-button size="mini" type="primary" @click="inputFavoriteSql(scope.row)">输入</el-button>
+										<el-button size="mini" type="primary" @click="inputFavoriteSql(scope.row)">
+											输入
+										</el-button>
 										<el-button size="mini" type="success" @click="addFavorite(scope.row.content)"
-															 style="margin-left: 10px;">收藏
+												   style="margin-left: 10px;">收藏
 										</el-button>
 									</template>
 								</el-table-column>
 							</el-table>
 						</el-tab-pane>
 						<el-tab-pane label="我的收藏" name="tabFavorite">
-							<el-table :data="myFavoriteList" stripe border style="width: 100%; margin-bottom: 5px;" v-infinite-scroll>
+							<el-table :data="myFavoriteList" stripe border style="width: 100%; margin-bottom: 5px;"
+									  v-infinite-scroll>
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
 										<pre class="sql-content-line" @dblclick="inputFavoriteSql(scope.row)"
-												 :title="scope.row.content">{{ scope.row.content }}</pre>
+											 :title="scope.row.content">{{ scope.row.content }}</pre>
 									</template>
 								</el-table-column>
 								<el-table-column label="操作" width="160px">
 									<template slot-scope="scope">
-										<el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row)">输入</el-button>
-										<el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)" style="margin-left: 10px;">
+										<el-button size="mini" type="primary" v-on:click="inputFavoriteSql(scope.row)">
+											输入
+										</el-button>
+										<el-button size="mini" type="danger" v-on:click="delFavorite(scope.row)"
+												   style="margin-left: 10px;">
 											删除
 										</el-button>
 									</template>
@@ -96,50 +105,59 @@
 							<div style="color: #f00;">{{ executeError }}</div>
 						</el-tab-pane>
 						<template v-else>
-							<el-tab-pane :label="resultItem.label" :name="resultItem.name" v-for="(resultItem,index) in executeResultList" :key="index"
-													 lazy>
+							<el-tab-pane :label="resultItem.label" :name="resultItem.name"
+										 v-for="(resultItem,index) in executeResultList" :key="index"
+										 lazy>
 								<div v-if="!!resultItem.errMsg" style="color: #f00;">{{ resultItem.errMsg }}</div>
 								<ux-grid v-else
-												 v-clickoutside="handleClickOutside"
-												 :data="resultItem.dataList"
-												 @table-body-scroll="scroll"
-												 @selection-change="handleSelectionChange"
-												 @cell-click="mouseOnFocus"
-												 @cell-mouse-leave="mouseLeave"
-												 :checkboxConfig="{checkMethod: selectable, highlight: true}"
-												 stripe border :height="height" max-height="600"
-												 style="width: 100%; margin-bottom: 5px;" class="execute-result-table">
+										 v-clickoutside="handleClickOutside"
+										 :data="resultItem.dataList"
+										 @table-body-scroll="scroll"
+										 @selection-change="handleSelectionChange"
+										 @cell-click="mouseOnFocus"
+										 @cell-mouse-leave="mouseLeave"
+										 :checkboxConfig="{checkMethod: selectable, highlight: true}"
+										 stripe border :height="height" max-height="600"
+										 style="width: 100%; margin-bottom: 5px;" class="execute-result-table">
 									<ux-table-column type="checkbox" width="55"></ux-table-column>
 									<ux-table-column type="index" width="55" title=" "></ux-table-column>
-									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index" :prop="item.prop" :title="item.label"
-																	 :width="item.width">
+									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index"
+													 :prop="item.prop" :title="item.label"
+													 :width="item.width">
+										<template slot="header" slot-scope="scope">
+											<el-tooltip effect="dark" :content="item.desc" placement="top">
+												<span>{{ item.label }}</span>
+											</el-tooltip>
+										</template>
 										<template slot-scope="scope">
-											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
+											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner"
+													  rows="1"></textarea>
 										</template>
 									</ux-table-column>
 								</ux-grid>
 								<el-pagination
-										v-if="resultItem.selectCount"
-										@current-change="handleCurrentChange"
-										:current-page="currentPage"
-										:page-size="pageSize"
-										:page-sizes="[1000]"
-										layout="total, sizes, prev, pager, next, jumper"
-										:total="resultItem.selectCount">
+									v-if="resultItem.selectCount"
+									@current-change="handleCurrentChange"
+									:current-page="currentPage"
+									:page-size="pageSize"
+									:page-sizes="[1000]"
+									layout="total, sizes, prev, pager, next, jumper"
+									:total="resultItem.selectCount">
 								</el-pagination>
 								<div v-if="resultItem.selectCount" style="position: absolute;right: 5px;bottom: 5px;">
 									<el-button type="primary" plain v-on:click="viewAllData()">查看所有</el-button>
 								</div>
-								<div v-if="!resultItem.selectCount" style="height: 20px;font-size: 13px;font-weight: 400;color: #606266;padding-left: 5px;">
-				  				共 {{resultItem.totalCount}} 条
+								<div v-if="!resultItem.selectCount"
+									 style="height: 20px;font-size: 13px;font-weight: 400;color: #606266;padding-left: 5px;">
+									共 {{ resultItem.totalCount }} 条
 								</div>
 							</el-tab-pane>
 						</template>
 						<el-main v-loading="loadingAll"
-										 v-show="loadingAll"
-					 					 element-loading-text="正在加载中"
-					 					 element-loading-spinner="el-icon-loading"
-										 style="height: 175px;">
+								 v-show="loadingAll"
+								 element-loading-text="正在加载中"
+								 element-loading-spinner="el-icon-loading"
+								 style="height: 175px;">
 						</el-main>
 					</el-tabs>
 				</div>
@@ -151,7 +169,7 @@
 				更新条件列：
 				<el-select v-model="conditionDataColsChoice" multiple placeholder="请选择" style="width: 370px;">
 					<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.label"
-										 :value="item.prop"></el-option>
+							   :value="item.prop"></el-option>
 				</el-select>
 			</div>
 			<span slot="footer" class="dialog-footer">
@@ -173,11 +191,11 @@ import Clickoutside from 'element-ui/src/utils/clickoutside';
 import merge from 'webpack-merge';
 
 export default {
-  directives: { Clickoutside },
+	directives: {Clickoutside},
 	data() {
 		return {
-		  //遮罩层
-	  	loadingAll: false,
+			//遮罩层
+			loadingAll: false,
 
 			height: 0,
 			scrollTop: 0,
@@ -195,10 +213,10 @@ export default {
 			editorColumnInfo: {},
 
 			//选中的单元格
-	  	uxGridCell: "",
+			uxGridCell: "",
 
 			pageSize: 1000,
-		  currentPage: 1,
+			currentPage: 1,
 
 			sqlExecuting: false,
 			executeResultList: [],
@@ -217,7 +235,7 @@ export default {
 			conditionDataCols: [],
 			conditionDataColsChoice: [],
 			//执行按钮文本
-	    executeButtonText: '执行',
+			executeButtonText: '执行',
 			// 编辑器
 			sqlExecutorContent: '',
 			sqlEditorConfig: {
@@ -243,9 +261,9 @@ export default {
 		this.height = 190;
 		this.loadDatasourceList();
 	},
-  activated(){
+	activated() {
 		this.loadDatasourceList();
-  },
+	},
 	methods: {
 		sqlExecutorInit(editor) {
 			this.sqlExecutorEditor = editor;
@@ -275,12 +293,12 @@ export default {
 				}
 			});
 		},
-		cursorSelection(sqlValue){
-			if(sqlValue){
+		cursorSelection(sqlValue) {
+			if (sqlValue) {
 				this.executeButtonText = '执行已选择的'
-			}else{
+			} else {
 				this.executeButtonText = '执行'
-	  	}
+			}
 		},
 		scroll({scrollTop, scrollLeft}) {
 			this.scrollTop = scrollTop
@@ -365,7 +383,7 @@ export default {
 				this.$message.error("请先选择数据源");
 				return;
 			}
-			if(!this.choiceDatabase){
+			if (!this.choiceDatabase) {
 				this.$message.error("请先选择数据库");
 				return;
 			}
@@ -389,17 +407,124 @@ export default {
 				sourceId: this.choiceDatasourceId,
 				dbName: this.choiceDatabase,
 				executeId: this.nowExecutorId,
-		    pageNum: this.currentPage,
-		    pageSize: this.pageSize,
+				pageNum: this.currentPage,
+				pageSize: this.pageSize,
 				sql: sqlValue,
 				params: JSON.stringify(sqlParamObj),
 			}).then(response => {
 				this.sqlExecuting = false;
-		  	if (response.errCode != 200) {
-			  	this.executeShowTable = 'tabError';
-			  	this.executeError = response.errMsg;
-			  	return;
-		  	}
+				if (response.errCode != 200) {
+					this.executeShowTable = 'tabError';
+					this.executeError = response.errMsg;
+					return;
+				}
+				let resIndex = 1;
+				let executeResultList = [];
+				let resData = response.data || [];
+				let executeResultInfo = "";
+				resData.forEach(result => {
+					let dataListRes = [];
+					let previewColumns = [];
+					executeResultInfo += this.getExecuteInfoStr(result);
+					if (result.errCode === 0) {
+						let dataListTemp = result.data || [];
+						let headerList = result.header || [];
+						// 组装表头
+						let columnSet = {};
+						if (headerList.length > 0) {
+							let headerIndex = 0;
+							headerList.forEach(item => {
+								let key = 'value_' + (headerIndex++);
+								columnSet[key] = item;
+								previewColumns.push({prop: key, label: item, desc: item});
+							});
+							dataListTemp.forEach(item => {
+								let dataItem = {}, dataIndex = 0;
+								previewColumns.forEach(column => {
+									let key = column.prop;
+									dataItem[key] = item[dataIndex++];
+									if ((dataItem[key] + '').length > columnSet[key].length) {
+										columnSet[key] = dataItem[key] + '';
+									}
+								});
+								dataListRes.push(dataItem);
+							});
+							previewColumns.forEach(item => {
+								// 动态计算宽度~自己想的一个方法，666
+								document.getElementById("widthCalculate").innerText = columnSet[item.prop];
+								let width = document.getElementById("widthCalculate").offsetWidth;
+								width = width + (columnSet[item.prop] === item.label ? 35 : 55);
+								width = (width < 50) ? 50 : width;
+								item.width = (width > 200) ? 200 : width;
+							});
+						}
+					}
+					executeResultList.push({
+						label: '结果' + resIndex,
+						name: 'result_' + resIndex,
+						errMsg: result.errMsg,
+						errCode: result.errCode,
+						queryTime: result.queryTime,
+						selectCount: result.selectCount,
+						totalCount: dataListRes.length,
+						dataCols: previewColumns,
+						dataList: dataListRes
+					});
+					resIndex++;
+					//动态设置表格高度,尽量避免出现滚动条
+					if (result.selectCount) {
+						this.height = 170;
+					}
+				});
+				//多个结果情况下,且点击分页
+				if (init != 1) {
+					this.executeShowTable = (resIndex === 1) ? "tabInfo" : "result_1";
+				}
+				this.executeResultInfo = executeResultInfo;
+				this.executeResultList = executeResultList;
+				this.loadHistoryList();
+			});
+		},
+		//查看所有数据
+		viewAllData(init) {
+			this.loadingAll = true;
+			if (!this.choiceDatasourceId) {
+				this.$message.error("请先选择数据源");
+				return;
+			}
+			this.executeError = "";
+			this.executeUseTime = "";
+			this.executeResultList = [];
+			let sqlParamObj = {};
+			this.sqlParams.forEach(item => {
+				if (!!item.value) {
+					sqlParamObj[item.key] = item.value;
+					this.sqlParamHistory[item.key] = item.value;
+				}
+			});
+			this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
+			let sqlValue = this.sqlExecutorEditor.getSelectedText();
+			if (!sqlValue) {
+				sqlValue = this.sqlExecutorEditor.getValue();
+			}
+			this.sqlExecuting = true;
+			datasourceApi.queryExecuteSql({
+				sourceId: this.choiceDatasourceId,
+				dbName: this.choiceDatabase,
+				executeId: this.nowExecutorId,
+				pageNum: this.currentPage,
+				pageSize: this.pageSize,
+				sql: sqlValue,
+				type: 'noPage',
+				params: JSON.stringify(sqlParamObj),
+			}).then(response => {
+				this.sqlExecuting = false;
+				this.loadingAll = false;
+				if (response.errCode != 200) {
+					this.executeShowTable = 'tabError';
+					this.executeError = response.errMsg;
+					return;
+				}
 				let resIndex = 1;
 				let executeResultList = [];
 				let resData = response.data || [];
@@ -454,12 +579,12 @@ export default {
 					});
 					resIndex++;
 					//动态设置表格高度,尽量避免出现滚动条
-					if(result.selectCount){
+					if (result.selectCount) {
 						this.height = 170;
 					}
 				});
 				//多个结果情况下,且点击分页
-				if(init!=1){
+				if (init != 1) {
 					this.executeShowTable = (resIndex === 1) ? "tabInfo" : "result_1";
 				}
 				this.executeResultInfo = executeResultInfo;
@@ -467,118 +592,11 @@ export default {
 				this.loadHistoryList();
 			});
 		},
-		//查看所有数据
-		viewAllData(init){
-		  this.loadingAll = true;
-			if (!this.choiceDatasourceId) {
-			this.$message.error("请先选择数据源");
-			return;
-			}
-			this.executeError = "";
-			this.executeUseTime = "";
-			this.executeResultList = [];
-			let sqlParamObj = {};
-			this.sqlParams.forEach(item => {
-			if (!!item.value) {
-				sqlParamObj[item.key] = item.value;
-				this.sqlParamHistory[item.key] = item.value;
-			}
-			});
-			this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
-			let sqlValue = this.sqlExecutorEditor.getSelectedText();
-			if (!sqlValue) {
-			sqlValue = this.sqlExecutorEditor.getValue();
-			}
-			this.sqlExecuting = true;
-			datasourceApi.queryExecuteSql({
-			sourceId: this.choiceDatasourceId,
-			dbName: this.choiceDatabase,
-			executeId: this.nowExecutorId,
-			pageNum: this.currentPage,
-			pageSize: this.pageSize,
-			sql: sqlValue,
-			type: 'noPage',
-			params: JSON.stringify(sqlParamObj),
-			}).then(response => {
-			this.sqlExecuting = false;
-		  this.loadingAll = false;
-			if (response.errCode != 200) {
-				this.executeShowTable = 'tabError';
-				this.executeError = response.errMsg;
-				return;
-			}
-			let resIndex = 1;
-			let executeResultList = [];
-			let resData = response.data || [];
-			let executeResultInfo = "";
-			resData.forEach(result => {
-				let dataListRes = [];
-				let previewColumns = [];
-				executeResultInfo += this.getExecuteInfoStr(result);
-				if (result.errCode === 0) {
-				let dataListTemp = result.data || [];
-				let headerList = result.header || [];
-				// 组装表头
-				let columnSet = {};
-				if (headerList.length > 0) {
-					let headerIndex = 0;
-					headerList.forEach(item => {
-					let key = 'value_' + (headerIndex++);
-					columnSet[key] = item;
-					previewColumns.push({prop: key, label: item});
-					});
-					dataListTemp.forEach(item => {
-					let dataItem = {}, dataIndex = 0;
-					previewColumns.forEach(column => {
-						let key = column.prop;
-						dataItem[key] = item[dataIndex++];
-						if ((dataItem[key] + '').length > columnSet[key].length) {
-						columnSet[key] = dataItem[key] + '';
-						}
-					});
-					dataListRes.push(dataItem);
-					});
-					previewColumns.forEach(item => {
-					// 动态计算宽度~自己想的一个方法，666
-					document.getElementById("widthCalculate").innerText = columnSet[item.prop];
-					let width = document.getElementById("widthCalculate").offsetWidth;
-					width = width + (columnSet[item.prop] === item.label ? 35 : 55);
-					width = (width < 50) ? 50 : width;
-					item.width = (width > 200) ? 200 : width;
-					});
-				}
-				}
-				executeResultList.push({
-				label: '结果' + resIndex,
-				name: 'result_' + resIndex,
-				errMsg: result.errMsg,
-				errCode: result.errCode,
-				queryTime: result.queryTime,
-				selectCount: result.selectCount,
-		    totalCount: dataListRes.length,
-				dataCols: previewColumns,
-				dataList: dataListRes
-				});
-				resIndex++;
-				//动态设置表格高度,尽量避免出现滚动条
-				if(result.selectCount){
-				this.height = 170;
-				}
-			});
-			//多个结果情况下,且点击分页
-			if(init!=1){
-				this.executeShowTable = (resIndex === 1) ? "tabInfo" : "result_1";
-			}
-			this.executeResultInfo = executeResultInfo;
-			this.executeResultList = executeResultList;
-			this.loadHistoryList();
-			});
+		handleCurrentChange(to) {
+			this.currentPage = to;
+			let init = 1;
+			this.doExecutorSql(init);
 		},
-	  handleCurrentChange(to) {
-		  this.currentPage = to;
-		  let init = 1;
-		  this.doExecutorSql(init);
-	  },
 		loadDatasourceList() {
 			datasourceApi.datasourceList({}).then(json => {
 				this.datasourceList = json.data || [];
@@ -594,11 +612,11 @@ export default {
 				if (this.datasourceList.length > 0) {
 					this.choiceDatasourceId = this.datasourceList[0].id;
 					//初次加载根据query值设置对应数据源
-					if(this.$route.query.datasourceId){
+					if (this.$route.query.datasourceId) {
 						this.choiceDatasourceId = parseInt(this.$route.query.datasourceId);
 					}
 					//初次加载根据query值设置对应数据库
-					if(this.$route.query.database){
+					if (this.$route.query.database) {
 						this.choiceDatabase = this.$route.query.database;
 					}
 					this.executorSource = {sourceId: this.choiceDatasourceId};
@@ -617,9 +635,14 @@ export default {
 					let sysDbName = ["information_schema", "master", "model", "msdb", "tempdb"];
 					let notSysDbItem = this.databaseList.find(item => sysDbName.indexOf(item.dbName) < 0);
 					// 非初次加载，动态改变url参数
-					if(!initFlag){
+					if (!initFlag) {
 						this.choiceDatabase = (!!notSysDbItem) ? notSysDbItem.dbName : this.databaseList[0].dbName;
-						this.$router.replace({ query: { datasourceId: this.choiceDatasourceId,database:this.choiceDatabase } })
+						this.$router.replace({
+							query: {
+								datasourceId: this.choiceDatasourceId,
+								database: this.choiceDatabase
+							}
+						})
 					}
 					this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
 				}
@@ -650,15 +673,15 @@ export default {
 		},
 		datasourceChangeEvents() {
 			this.executorSource = {sourceId: this.choiceDatasourceId};
-		  this.currentPage = 1;
+			this.currentPage = 1;
 			this.loadDatabaseList();
 			this.loadSourceBaseInfo();
 			this.loadHistoryAndFavoriteList();
 		},
 		databaseChangeEvents() {
-	  	this.$router.replace({ query: { datasourceId: this.choiceDatasourceId,database:this.choiceDatabase } })
+			this.$router.replace({query: {datasourceId: this.choiceDatasourceId, database: this.choiceDatabase}})
 			this.executorSource = {sourceId: this.choiceDatasourceId, dbName: this.choiceDatabase};
-		  this.currentPage = 1;
+			this.currentPage = 1;
 		},
 		getExecuteInfoStr(resultData) {
 			var resultStr = resultData.executeSql;
@@ -698,7 +721,7 @@ export default {
 		handleSelectionChange(val) {
 			this.$set(this.choiceResultObj, this.executeShowTable, val);
 		},
-	  tabHandleClick(t){
+		tabHandleClick(t) {
 
 		},
 		doCopyCheckLineUpdate() {
@@ -709,8 +732,8 @@ export default {
 				this.conditionDataColsChoice = [];
 				this.exportConditionVisible = false;
 				this.$copyText(copyData).then(
-						res => this.$message.success("内容已复制到剪切板！"),
-						err => this.$message.error("抱歉，复制失败！")
+					res => this.$message.success("内容已复制到剪切板！"),
+					err => this.$message.error("抱歉，复制失败！")
 				);
 			}
 		},
@@ -726,30 +749,30 @@ export default {
 				}
 				let copyData = copyFormatter.format(type, this.editorDbProduct, dataCols, choiceData, '');
 				this.$copyText(copyData).then(
-						res => this.$message.success("内容已复制到剪切板！"),
-						err => this.$message.error("抱歉，复制失败！")
+					res => this.$message.success("内容已复制到剪切板！"),
+					err => this.$message.error("抱歉，复制失败！")
 				);
 			}
 		},
 		//表格单元格鼠标焦点事件
-		mouseOnFocus(row, column, cell, event){
-		  if(this.uxGridCell){
+		mouseOnFocus(row, column, cell, event) {
+			if (this.uxGridCell) {
 				this.uxGridCell.style.border = 'none'
 			}
-	  	cell.style.border = '2px solid #0078d7'
+			cell.style.border = '2px solid #0078d7'
 			this.uxGridCell = cell;
 		},
 		//表格单元格 hover 退出
-		mouseLeave(row, column, cell, event){
-	  	// if(this.uxGridCell){
+		mouseLeave(row, column, cell, event) {
+			// if(this.uxGridCell){
 			// 	this.uxGridCell.style.border = 'none'
-	  	// }
+			// }
 		},
 		// 点击区域外
 		handleClickOutside() {
-	  	if(this.uxGridCell){
-			this.uxGridCell.style.border = 'none'
-	  	}
+			if (this.uxGridCell) {
+				this.uxGridCell.style.border = 'none'
+			}
 		},
 	}
 }
@@ -837,25 +860,30 @@ export default {
 
 /deep/ .elx-table .elx-header--column.col--ellipsis {
 	height: 30px;
-  //padding-left: 5px;
+//padding-left: 5px;
 }
-.el-textarea__inner{
-  border: none;
-  background-color: #f0f8ff00;
+
+.el-textarea__inner {
+	border: none;
+	background-color: #f0f8ff00;
 }
+
 .el-textarea__inner::-webkit-scrollbar {
-  display: none;
+	display: none;
 }
-/deep/ .el-tabs--border-card>.el-tabs__content {
-  padding: 5px;
+
+/deep/ .el-tabs--border-card > .el-tabs__content {
+	padding: 5px;
 }
-/deep/ .elx-table .elx-body--column.col--ellipsis>.elx-cell,
-.elx-table .elx-footer--column.col--ellipsis>.elx-cell,
-.elx-table .elx-header--column.col--ellipsis>.elx-cell{
-  overflow: auto;
-  text-overflow: unset;
+
+/deep/ .elx-table .elx-body--column.col--ellipsis > .elx-cell,
+.elx-table .elx-footer--column.col--ellipsis > .elx-cell,
+.elx-table .elx-header--column.col--ellipsis > .elx-cell {
+	overflow: auto;
+	text-overflow: unset;
 }
-/deep/ .elx-table .elx-body--column.col--ellipsis>.elx-cell::-webkit-scrollbar {
-  display: none;
+
+/deep/ .elx-table .elx-body--column.col--ellipsis > .elx-cell::-webkit-scrollbar {
+	display: none;
 }
 </style>

@@ -4,43 +4,47 @@
 			<el-card style="margin-bottom: 10px;">
 				<div v-show="aceEditorShow">
 					<el-alert
-							title="筛选示例 (支持 and , or 等连接符)"
-							type="info"
-							:description="executorDesc"
-							show-icon>
+						title="筛选示例 (支持 and , or 等连接符)"
+						type="info"
+						:description="executorDesc"
+						show-icon>
 					</el-alert>
-					<ace-editor v-model="sqlExecutorContent" @init="sqlExecutorInit" lang="sql" theme="monokai" width="100%"
-											height="60" :options="sqlEditorConfig" :source="executorSource"
-											style="margin-bottom: 10px;">
+					<ace-editor v-model="sqlExecutorContent" @init="sqlExecutorInit" lang="sql" theme="monokai"
+								width="100%"
+								height="60" :options="sqlEditorConfig" :source="executorSource"
+								style="margin-bottom: 10px;">
 					</ace-editor>
 				</div>
 				<div>
 					<el-button v-on:click="doAceEditorShow" type="primary" plain size="small" icon="el-icon-search">筛选
 					</el-button>
 					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="small"
-										 icon="el-icon-video-pause">取消执行
+							   icon="el-icon-video-pause">取消执行
 					</el-button>
 					<el-tooltip v-show="aceEditorShow" v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
 						<el-button v-on:click="doExecutorClick" type="primary" plain size="small"
-											 icon="el-icon-video-play">执行
+								   icon="el-icon-video-play">执行
 						</el-button>
 					</el-tooltip>
 
 					<el-button icon="el-icon-refresh-left" size="small" @click="refreshData">重置</el-button>
 					<el-button @click="downloadTableData" type="success" size="small" icon="el-icon-download" plain
-										 style="margin-left: 30px;">导出
+							   style="margin-left: 30px;">导出
 					</el-button>
 				</div>
 			</el-card>
 			<el-card>
 				<div v-if="!!executeError" style="color: #f00;">{{ executeError }}</div>
 				<div v-else-if="sqlExecuting" v-loading="sqlExecuting" style="padding: 20px 0;">数据加载中...</div>
-				<div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting" style="padding: 20px 0;">暂无数据</div>
+				<div v-else-if="executeResultList.length <= 0" v-loading="sqlExecuting" style="padding: 20px 0;">
+					暂无数据
+				</div>
 				<div v-else style="position: relative;">
 					<div style="position: absolute;right: 0;z-index: 1;" v-show="executeShowTable !== 'table0'">
-						<span v-show="choiceResultObj[executeShowTable] && choiceResultObj[executeShowTable].length > 0">
+						<span
+							v-show="choiceResultObj[executeShowTable] && choiceResultObj[executeShowTable].length > 0">
 							<el-button icon="el-icon-delete" size="small" @click="deleteCheckLine" type="danger" plain
-												 style="margin-right: 10px;">删除</el-button>
+									   style="margin-right: 10px;">删除</el-button>
 							<!-- 复制选中行 -->
 							<el-dropdown @command="handleCopyCheckLineCommand">
 								<el-button type="primary" size="small" icon="el-icon-document-copy">
@@ -55,7 +59,7 @@
 						</span>
 						<el-tooltip effect="dark" content="选择展示列" placement="top">
 							<el-button icon="el-icon-setting" size="small" style="margin-left: 10px;"
-												 @click="choiceShowColumnDrawerShow"></el-button>
+									   @click="choiceShowColumnDrawerShow"></el-button>
 						</el-tooltip>
 					</div>
 					<el-tabs v-model="executeShowTable">
@@ -63,47 +67,51 @@
 							<pre class="xxpre">{{ executeResultInfo }}</pre>
 						</el-tab-pane>
 						<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name"
-												 v-for="(resultItem,index) in executeResultList" :key="index" v-if="!!resultItem.index">
+									 v-for="(resultItem,index) in executeResultList" :key="index"
+									 v-if="!!resultItem.index">
 							<div v-if="!!resultItem.errMsg" style="color: #f00;">{{ resultItem.errMsg }}</div>
 							<div v-else-if="resultItem.dataList.length <= 0"
-									 style="text-align: center; color: #aaa; padding: 20px 0;">暂无数据
+								 style="text-align: center; color: #aaa; padding: 20px 0;">暂无数据
 							</div>
 							<template v-else>
 								<ux-grid
-				  					v-clickoutside="handleClickOutside"
-										:data="resultItem.dataList"
-										stripe
-										border
-										:height="height"
-										style="width: 100%; margin-bottom: 5px;" class="execute-result-table" :max-height="tableMaxHeight"
-										@selection-change="handleSelectionChange"
-										@cell-click="mouseOnFocus"
-										@cell-mouse-leave="mouseLeave"
-										@sort-change="tableSortChange"
-										:default-sort="tableSort">
+									v-clickoutside="handleClickOutside"
+									:data="resultItem.dataList"
+									stripe
+									border
+									:height="height"
+									style="width: 100%; margin-bottom: 5px;" class="execute-result-table"
+									:max-height="tableMaxHeight"
+									@selection-change="handleSelectionChange"
+									@cell-click="mouseOnFocus"
+									@cell-mouse-leave="mouseLeave"
+									@sort-change="tableSortChange"
+									:default-sort="tableSort">
 									<ux-table-column type="checkbox" width="55"></ux-table-column>
 									<ux-table-column type="index" width="50" title=" "></ux-table-column>
-									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index" :prop="item.prop" :title="item.prop"
-																	 :width="item.width" sortable>
+									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index"
+													 :prop="item.prop" :title="item.prop"
+													 :width="item.width" sortable>
 										<template slot="header" slot-scope="scope">
 											<el-tooltip effect="dark" :content="item.desc" placement="top">
 												<span>{{ item.prop }}</span>
 											</el-tooltip>
 										</template>
 										<template slot-scope="scope">
-											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner" rows="1"></textarea>
+											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner"
+													  rows="1"></textarea>
 										</template>
 									</ux-table-column>
 								</ux-grid>
 								<el-pagination
-										style="margin-top: 10px;"
-										@size-change="handlePageSizeChange"
-										@current-change="handleCurrentChange"
-										:current-page="currentPage"
-										:page-sizes="[50, 100, 300, 500]"
-										:page-size="pageSize"
-										layout="total, sizes, prev, pager, next, jumper"
-										:total="tableTotalCount">
+									style="margin-top: 10px;"
+									@size-change="handlePageSizeChange"
+									@current-change="handleCurrentChange"
+									:current-page="currentPage"
+									:page-sizes="[50, 100, 300, 500]"
+									:page-size="pageSize"
+									layout="total, sizes, prev, pager, next, jumper"
+									:total="tableTotalCount">
 								</el-pagination>
 							</template>
 						</el-tab-pane>
@@ -117,7 +125,7 @@
 				更新条件列：
 				<el-select v-model="conditionDataColsChoice" multiple placeholder="请选择" style="width: 370px;">
 					<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop"
-										 :value="item.prop"></el-option>
+							   :value="item.prop"></el-option>
 				</el-select>
 			</div>
 			<span slot="footer" class="dialog-footer">
@@ -130,7 +138,7 @@
 			<el-form label-width="120px">
 				<el-form-item label="导出类型：">
 					<el-select v-model="downloadDataParam.downloadType" filterable placeholder="请选择导出类型"
-										 style="width: 370px;">
+							   style="width: 370px;">
 						<el-option label="SQL Inserts" value="insert"></el-option>
 						<el-option label="SQL Updates" value="update"></el-option>
 						<el-option label="JSON" value="json"></el-option>
@@ -139,17 +147,20 @@
 				</el-form-item>
 				<el-form-item label="数据表：" v-if="downloadDataParam.downloadType === 'insert'">
 					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.dropTableFlag"
-											 @change="dropTableFlagChange">删除表{{ downloadDataParam.dropTableFlag == 1 ? '!!' : '' }}
+								 @change="dropTableFlagChange">删除表{{
+							downloadDataParam.dropTableFlag == 1 ? '!!' : ''
+						}}
 					</el-checkbox>
 					<el-checkbox :true-label="1" :false-label="0" v-model="downloadDataParam.createTableFlag"
-											 @change="createTableFlagChange">创建表
+								 @change="createTableFlagChange">创建表
 					</el-checkbox>
 				</el-form-item>
 				<el-form-item label="更新条件列：" v-if="downloadDataParam.downloadType === 'update'">
-					<el-select v-model="downloadDataParam.conditionColumnArr" multiple placeholder="不选则是没有条件的更新"
-										 style="width: 370px;">
+					<el-select v-model="downloadDataParam.conditionColumnArr" multiple
+							   placeholder="不选则是没有条件的更新"
+							   style="width: 370px;">
 						<el-option v-for="item in conditionDataCols" :key="item.prop" :label="item.prop"
-											 :value="item.prop"></el-option>
+								   :value="item.prop"></el-option>
 					</el-select>
 				</el-form-item>
 			</el-form>
@@ -159,16 +170,17 @@
 			</span>
 		</el-dialog>
 		<el-drawer
-				size="350px"
-				:with-header="false"
-				:visible.sync="choiceShowColumnDrawer"
-				:before-close="choiceShowColumnDrawerClose"
-				direction="rtl">
+			size="350px"
+			:with-header="false"
+			:visible.sync="choiceShowColumnDrawer"
+			:before-close="choiceShowColumnDrawerClose"
+			direction="rtl">
 			<div style="padding: 10px;">
 				<el-row>
 					<el-col :span="12">选择展示列</el-col>
 					<el-col :span="12" style="text-align: right;">
-						<el-checkbox v-model="choiceShowColumnAll" @change="choiceShowColumnAllChange">全选</el-checkbox>
+						<el-checkbox v-model="choiceShowColumnAll" @change="choiceShowColumnAllChange">全选
+						</el-checkbox>
 						<el-button type="primary" size="mini" @click="choiceShowColumnOk" style="margin-left: 10px;">确定
 						</el-button>
 					</el-col>
@@ -176,8 +188,8 @@
 			</div>
 			<div style="overflow: auto; height: calc(100vh - 50px);">
 				<el-tree ref="showColumnTree" node-key="name" :props="showColumnProps" :data="tableDataColumns"
-								 check-on-click-node show-checkbox
-								 @check-change="tableDataColumnsCheckChange">
+						 check-on-click-node show-checkbox
+						 @check-change="tableDataColumnsCheckChange">
 				</el-tree>
 			</div>
 		</el-drawer>
@@ -198,7 +210,7 @@ import Clickoutside from 'element-ui/src/utils/clickoutside'
 
 export default {
 	name: 'dataPreview',
-  directives: { Clickoutside },
+	directives: {Clickoutside},
 	data() {
 		return {
 			executorDesc: "",
@@ -463,24 +475,24 @@ export default {
 			this.$set(this.choiceResultObj, this.executeShowTable, val);
 		},
 		//表格单元格鼠标焦点事件
-		mouseOnFocus(row, column, cell, event){
-	  	if(this.uxGridCell){
-			this.uxGridCell.style.border = 'none'
-	  	}
-	  	cell.style.border = '2px solid #0078d7'
-	  	this.uxGridCell = cell;
+		mouseOnFocus(row, column, cell, event) {
+			if (this.uxGridCell) {
+				this.uxGridCell.style.border = 'none'
+			}
+			cell.style.border = '2px solid #0078d7'
+			this.uxGridCell = cell;
 		},
 		//表格单元格 hover 退出
-		mouseLeave(row, column, cell, event){
-	  	// if(this.uxGridCell){
-	  	// 	this.uxGridCell.style.border = 'none'
-	  	// }
+		mouseLeave(row, column, cell, event) {
+			// if(this.uxGridCell){
+			// 	this.uxGridCell.style.border = 'none'
+			// }
 		},
 		// 点击区域外
 		handleClickOutside() {
-	  	if(this.uxGridCell){
-	  		this.uxGridCell.style.border = 'none'
-	  	}
+			if (this.uxGridCell) {
+				this.uxGridCell.style.border = 'none'
+			}
 		},
 		doCopyCheckLineUpdate() {
 			let choiceData = this.choiceResultObj[this.executeShowTable] || [];
@@ -490,8 +502,8 @@ export default {
 				this.conditionDataColsChoice = [];
 				this.exportConditionVisible = false;
 				this.$copyText(copyData).then(
-						res => this.$message.success("内容已复制到剪切板！"),
-						err => this.$message.error("抱歉，复制失败！")
+					res => this.$message.success("内容已复制到剪切板！"),
+					err => this.$message.error("抱歉，复制失败！")
 				);
 			}
 		},
@@ -546,8 +558,8 @@ export default {
 				}
 				let copyData = copyFormatter.format(type, this.pageParam.dbType, dataCols, choiceData, this.conditionDataColsChoice, this.pageParam.dbName, this.pageParam.tableName);
 				this.$copyText(copyData).then(
-						res => this.$message.success("内容已复制到剪切板！"),
-						err => this.$message.error("抱歉，复制失败！")
+					res => this.$message.success("内容已复制到剪切板！"),
+					err => this.$message.error("抱歉，复制失败！")
 				);
 			}
 		},
@@ -686,17 +698,19 @@ export default {
 
 /deep/ .elx-table .elx-header--column.col--ellipsis {
 	height: 30px;
-  //padding-left: 5px;
+//padding-left: 5px;
 }
 
-.xxpre{
-  overflow: auto;
+.xxpre {
+	overflow: auto;
 }
-.el-textarea__inner{
-  border: none;
-  background-color: #f0f8ff00;
+
+.el-textarea__inner {
+	border: none;
+	background-color: #f0f8ff00;
 }
+
 .el-textarea__inner::-webkit-scrollbar {
-  display: none;
+	display: none;
 }
 </style>
