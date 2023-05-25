@@ -1,5 +1,6 @@
 package com.zyplayer.doc.db.service.database;
 
+import com.alibaba.druid.sql.SQLUtils;
 import com.zyplayer.doc.db.controller.param.DataViewParam;
 import com.zyplayer.doc.db.controller.vo.TableDdlVo;
 import com.zyplayer.doc.db.framework.db.enums.DatabaseProductEnum;
@@ -114,7 +115,7 @@ public class OracleServiceImpl extends DbBaseService {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            tableDdlVo.setOracle(oracleSql);
+            tableDdlVo.setOracle(SQLUtils.formatOracle(oracleSql));
             //oracle建表语句转换为mysql建表语句
             String mysqlSql = SQLTransformUtils.translateOracleToMySql(oracleSql);
             tableDdlVo.setMysql(mysqlSql);
