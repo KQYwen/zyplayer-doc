@@ -68,7 +68,7 @@
 						</el-tab-pane>
 						<el-tab-pane :label="'结果'+resultItem.index" :name="resultItem.name"
 									 v-for="(resultItem,index) in executeResultList" :key="index"
-									 v-if="!!resultItem.index">
+									 v-if="!!resultItem.index" lazy>
 							<div v-if="!!resultItem.errMsg" style="color: #f00;">{{ resultItem.errMsg }}</div>
 							<div v-else-if="resultItem.dataList.length <= 0"
 								 style="text-align: center; color: #aaa; padding: 20px 0;">暂无数据
@@ -86,11 +86,13 @@
 									@cell-click="mouseOnFocus"
 									@cell-mouse-leave="mouseLeave"
 									@sort-change="tableSortChange"
+									:checkboxConfig="{checkMethod: selectable, highlight: true}"
 									:default-sort="tableSort">
-									<ux-table-column type="checkbox" width="55"></ux-table-column>
+									<ux-table-column type="checkbox" width="50"></ux-table-column>
 									<ux-table-column type="index" width="50" title=" "></ux-table-column>
 									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index"
 													 :prop="item.prop" :title="item.prop"
+													 :resizable="true"
 													 :width="item.width" sortable>
 										<template slot="header" slot-scope="scope">
 											<el-tooltip effect="dark" :content="item.desc" placement="top">
@@ -431,6 +433,7 @@ export default {
 				this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
 				this.executeResultInfo = executeResultInfo;
 				this.executeResultList = executeResultList;
+
 			}).catch(e => {
 				this.sqlExecuting = false;
 			});
@@ -642,6 +645,9 @@ export default {
 				choiceAll = this.tableDataColumns.map(val => val.name);
 			}
 			this.$refs.showColumnTree.setCheckedKeys(choiceAll);
+		},
+		selectable({row}) {
+			return row.id !== 2
 		},
 	}
 }

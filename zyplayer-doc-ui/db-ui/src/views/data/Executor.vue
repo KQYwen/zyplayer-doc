@@ -123,6 +123,7 @@
 									<ux-table-column type="index" width="55" title=" "></ux-table-column>
 									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index"
 													 :prop="item.prop" :title="item.label"
+													 :resizable="true"
 													 :width="item.width">
 										<template slot="header" slot-scope="scope">
 											<el-tooltip effect="dark" :content="item.desc" placement="top">
@@ -543,7 +544,7 @@ export default {
 							headerList.forEach(item => {
 								let key = 'value_' + (headerIndex++);
 								columnSet[key] = item;
-								previewColumns.push({prop: key, label: item});
+								previewColumns.push({prop: key, label: item, desc: item});
 							});
 							dataListTemp.forEach(item => {
 								let dataItem = {}, dataIndex = 0;

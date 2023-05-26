@@ -40,6 +40,7 @@
         <where>
             <if test="dbName != null">t.owner = #{dbName}</if>
         </where>
+        order by t.TABLE_NAME
     </select>
 
     <!-- 获取表字段集合 -->
