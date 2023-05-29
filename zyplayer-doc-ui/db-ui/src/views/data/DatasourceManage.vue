@@ -7,7 +7,7 @@
 			<el-form-item label="分组">
 				<el-select v-model="searchParam.groupName" placeholder="分组">
 					<el-option value="">全部</el-option>
-					<el-option :value="item" v-for="item in datasourceGroupList"></el-option>
+					<el-option :value="item" v-for="(item,index) in datasourceGroupList" :key="index"></el-option>
 				</el-select>
 			</el-form-item>
 			<el-form-item>
@@ -48,7 +48,7 @@
 					<el-select v-model="newDatasource.groupName" placeholder="请选择或输入新的分组名字"
 							   style="width: 100%" filterable allow-create>
 						<el-option value="">未分组</el-option>
-						<el-option :value="item" v-for="item in datasourceGroupList"></el-option>
+						<el-option :value="item" v-for="(item,index) in datasourceGroupList" :key="index"></el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="数据源名称：">
