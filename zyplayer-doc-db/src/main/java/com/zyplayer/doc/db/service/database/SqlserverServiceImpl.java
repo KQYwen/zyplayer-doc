@@ -17,8 +17,10 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -87,11 +89,16 @@ public class SqlserverServiceImpl extends DbBaseService {
 	@Override
 	public String getQueryPageSql(DataViewParam dataViewParam) {
 		String queryColumns = StringUtils.defaultIfBlank(dataViewParam.getRetainColumn(), "*");
+		if(!Objects.equals(queryColumns, "*")){
+			queryColumns = Arrays.stream(queryColumns.split(","))
+					.map(word -> "\"" + word + "\"")
+					.collect(Collectors.joining(","));
+		}
 		Integer pageNum = dataViewParam.getPageNum();
 		Integer pageSize = dataViewParam.getPageSize();
 		Integer rownumber = (pageNum-1)*pageSize;
 		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append(String.format("select top %s * from (select row_number()  OVER(order by %s %s) as rowid, %s from %s..%s )A where rowid> %s",pageSize,dataViewParam.getOrderColumn(), dataViewParam.getOrderType(), queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName(),rownumber));
+		sqlSb.append(String.format("select top %s %s from (select row_number()  OVER(order by %s %s) as rowid, %s from %s..%s )A where rowid> %s",pageSize,queryColumns,dataViewParam.getOrderColumn(), dataViewParam.getOrderType(), queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName(),rownumber));
 		if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
 			sqlSb.append(String.format(" and %s", dataViewParam.getCondition()));
 		}

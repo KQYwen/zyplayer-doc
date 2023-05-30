@@ -36,7 +36,8 @@
 
     <!-- 获取表列表 -->
     <select id="getTableList" resultType="com.zyplayer.doc.db.framework.db.dto.TableInfoDto">
-        select t.OWNER as dbName,t.TABLE_NAME as tableName,c.COMMENTS as tableComment from all_tables t left join user_tab_comments c on t.TABLE_NAME = c.TABLE_NAME
+        select t.OWNER as dbName,t.TABLE_NAME as tableName,c.COMMENTS as tableComment from all_tables t
+        left join all_tab_comments c on t.TABLE_NAME = c.TABLE_NAME and t.OWNER = c.OWNER
         <where>
             <if test="dbName != null">t.owner = #{dbName}</if>
         </where>
@@ -45,10 +46,17 @@
 
     <!-- 获取表字段集合 -->
     <select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
-        select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then '1' when 'N' then '0' end NULLABLE, c.COMMENTS,
-        s.POSITION as primaryKey from all_tab_columns t
-        left join user_col_comments c  on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
-        left join user_cons_columns s  on t.COLUMN_NAME = s.COLUMN_NAME and t.TABLE_NAME = s.TABLE_NAME and s.POSITION = 1
+        select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then '1' when 'N' then '0' end NULLABLE,
+        cons.POSITION as primaryKey,col_comments.comments from all_tab_columns t
+        left join (
+            select s.owner, s.table_name, s.column_name,s.POSITION, cons.constraint_type  from 	all_cons_columns s
+            join all_constraints cons on s.owner = cons.owner and
+            s.constraint_name = cons.constraint_name  where cons.constraint_type in ('P', 'U', 'R')
+        )cons on t.owner = cons.owner and t.table_name = cons.table_name and t.column_name = cons.column_name
+        left join (
+            select comments.owner, comments.table_name, comments.column_name, comments.comments
+            from all_col_comments comments) col_comments on t.owner = col_comments.owner and t.table_name = col_comments.table_name
+            and t.column_name = col_comments.column_name
         <where>
             t.owner = #{dbName}
             <if test="tableName != null"> and t.TABLE_NAME = #{tableName}</if>
@@ -59,7 +67,7 @@
     <select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
         select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then 1 when 'N' then 0 end NULLABLE, c.COMMENTS
         from all_tab_columns t
-                 left join all_col_comments c on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME
+        left join all_col_comments c on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME and t.OWNER = c.OWNER
         where t.OWNER = #{dbName} AND (upper(t.COLUMN_NAME) like upper(#{searchText}) or upper(c.COMMENTS) like upper(#{searchText}))
     </select>
 
@@ -67,7 +75,7 @@
     <select id="getTableDescList" resultType="com.zyplayer.doc.db.framework.db.dto.TableDescDto">
         select t.OWNER,t.TABLE_NAME as tableName,c.COMMENTS as description
         from all_tables t
-        left join user_tab_comments c on t.TABLE_NAME = c.TABLE_NAME
+        left join all_tab_comments c on t.TABLE_NAME = c.TABLE_NAME and t.owner = c.owner
         <where>
             <if test="dbName != null">and t.owner = #{dbName}</if>
             <if test="tableName != null">and t.TABLE_NAME = #{tableName}</if>

@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Oracle数据查询服务实现类
@@ -51,17 +53,9 @@ public class OracleServiceImpl extends DbBaseService {
     public String getQueryPageSql(DataViewParam dataViewParam) {
         String queryColumns = StringUtils.defaultIfBlank(dataViewParam.getRetainColumn(), "*");
         if(!Objects.equals(queryColumns, "*")){
-            String[] queryColumnsArray = queryColumns.split(",");
-            String resultString = "";
-            for(int i=0;i<queryColumnsArray.length;i++){
-                queryColumnsArray[i] = "\""+queryColumnsArray[i]+"\"";
-                if(i < queryColumnsArray.length-1){
-                    resultString +=queryColumnsArray[i] + ",";
-                }else{
-                    resultString +=queryColumnsArray[i];
-                }
-            }
-            queryColumns = resultString;
+            queryColumns = Arrays.stream(queryColumns.split(","))
+                    .map(word -> "\"" + word + "\"")
+                    .collect(Collectors.joining(","));
         }
         StringBuilder sqlSb = new StringBuilder();
         sqlSb.append(String.format("select %s from %s.%s", queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName()));
