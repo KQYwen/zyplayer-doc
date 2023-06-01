@@ -300,7 +300,9 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .el-tabs--card > .el-tabs__header {
+/deep/ .el-tabs, .el-tabs--card, .el-tabs--top{
+	height: 30px;
+	font-size: 12px;
 	margin: 0 0 5px;
 }
 
@@ -308,16 +310,6 @@ export default {
 	height: 30px;
 	line-height: 30px;
 	font-size: 12px;
-}
-
-/deep/ .el-tabs__nav-next {
-	line-height: 33px;
-	font-size: 20px;
-}
-
-/deep/ .el-tabs__nav-prev {
-	line-height: 33px;
-	font-size: 20px;
 }
 
 .contextmenu {

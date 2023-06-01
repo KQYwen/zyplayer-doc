@@ -349,6 +349,7 @@
 		border-radius: 5px;
 		background: #ccc;
 		color: #888;
+		text-align: center;
 	}
   ::-webkit-scrollbar-track {
 	background: rgba(0, 0, 0, 0.1);

@@ -90,9 +90,8 @@ public class SqlserverServiceImpl extends DbBaseService {
 	public String getQueryPageSql(DataViewParam dataViewParam) {
 		String queryColumns = StringUtils.defaultIfBlank(dataViewParam.getRetainColumn(), "*");
 		if(!Objects.equals(queryColumns, "*")){
-			queryColumns = Arrays.stream(queryColumns.split(","))
-					.map(word -> "\"" + word + "\"")
-					.collect(Collectors.joining(","));
+			//给字段加上双引号，解决关键字问题
+			queryColumns = Arrays.stream(queryColumns.split(",")).map(word -> "\"" + word + "\"").collect(Collectors.joining(","));
 		}
 		Integer pageNum = dataViewParam.getPageNum();
 		Integer pageSize = dataViewParam.getPageSize();

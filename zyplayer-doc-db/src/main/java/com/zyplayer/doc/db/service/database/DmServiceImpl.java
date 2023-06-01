@@ -44,9 +44,8 @@ public class DmServiceImpl extends DbBaseService {
     public String getQueryPageSql(DataViewParam dataViewParam) {
         String queryColumns = StringUtils.defaultIfBlank(dataViewParam.getRetainColumn(), "*");
         if(!Objects.equals(queryColumns, "*")){
-            queryColumns = Arrays.stream(queryColumns.split(","))
-                    .map(word -> "\"" + word + "\"")
-                    .collect(Collectors.joining(","));
+            //给字段加上双引号，解决关键字问题
+            queryColumns = Arrays.stream(queryColumns.split(",")).map(word -> "\"" + word + "\"").collect(Collectors.joining(","));
         }
         StringBuilder sqlSb = new StringBuilder();
         sqlSb.append(String.format("select %s from %s.%s", queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName()));

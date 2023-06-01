@@ -51,7 +51,7 @@
         left join (
         select s.owner, s.table_name, s.column_name,s.POSITION, cons.constraint_type  from 	all_cons_columns s
         join all_constraints cons on s.owner = cons.owner and
-        s.constraint_name = cons.constraint_name  where cons.constraint_type in ('P', 'U', 'R')
+        s.constraint_name = cons.constraint_name  where cons.constraint_type in ('P', 'U', 'R')--只选择constraint_type为'P'（主键）、'U'（唯一键）和'R'（外键）的约束类型
         )cons on t.owner = cons.owner and t.table_name = cons.table_name and t.column_name = cons.column_name
         left join (
         select comments.owner, comments.table_name, comments.column_name, comments.comments

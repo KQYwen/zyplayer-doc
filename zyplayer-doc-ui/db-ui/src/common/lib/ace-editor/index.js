@@ -52,6 +52,8 @@ export default {
 		height: function () {
 			this.$nextTick(function () {
 				this.editor.resize()
+				//更新编辑器高度
+				document.getElementById("aceEditorId").style.height = this.height + "px";;
 			})
 		},
 		width: function () {

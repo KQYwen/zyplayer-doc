@@ -1,12 +1,13 @@
 <template>
-	<div class="data-executor-vue">
+	<div class="data-executor-vue" :style="{ height: rightBodyHeight + 'px' }">
 		<div style="padding: 0 10px 10px;height: 100%;box-sizing: border-box;">
-			<el-card style="margin-bottom: 5px;">
-				<ace-editor v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit" lang="sql"
+			<el-card id="maintopcard" :style="{ height: rightBodyTopHeight + 'px' }">
+				<ace-editor id="aceEditorId" v-model="sqlExecutorContent" ref="sqlEditor" @init="sqlExecutorInit"
+							lang="sql"
 							theme="monokai"
-							width="100%" height="20" :options="sqlEditorConfig" :source="executorSource"
-							@cursorSelection="cursorSelection" style="margin-bottom: 5px;"></ace-editor>
-				<div>
+							width="100%" :height="aceEditorHeight" :options="sqlEditorConfig" :source="executorSource"
+							@cursorSelection="cursorSelection"></ace-editor>
+				<div style="margin-top: 5px;">
 					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="mini"
 							   icon="el-icon-video-pause">取消执行
 					</el-button>
@@ -37,7 +38,10 @@
 					</el-input>
 				</div>
 			</el-card>
-			<el-card>
+			<div ref="topResize" class="top-resize">
+				<i ref="topResizeBar">. . .</i>
+			</div>
+			<el-card :style="{ height: rightBodyButtomHeight + 'px' }">
 				<div style="position: relative;">
 					<div style="position: absolute;right: 0;z-index: 1;">
 						<!-- 复制选中行 -->
@@ -53,9 +57,11 @@
 							</el-dropdown-menu>
 						</el-dropdown>
 					</div>
-					<el-tabs v-model="executeShowTable" type="border-card" @tab-click="tabHandleClick">
+					<el-tabs :style="{ height: rightBodyButtomTabsHeight + 'px' }" v-model="executeShowTable"
+							 type="border-card" @tab-click="tabHandleClick">
 						<el-tab-pane label="执行历史" name="tabHistory">
-							<el-table :data="myHistoryListList" stripe border style="width: 100%; margin-bottom: 5px;">
+							<el-table :data="myHistoryListList" stripe border
+									  :style="{ height: rightBodyButtomTabsContentHeight + 'px',overflow: 'auto' }">
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
 									<template slot-scope="scope">
@@ -76,7 +82,8 @@
 							</el-table>
 						</el-tab-pane>
 						<el-tab-pane label="我的收藏" name="tabFavorite">
-							<el-table :data="myFavoriteList" stripe border style="width: 100%; margin-bottom: 5px;"
+							<el-table :data="myFavoriteList" stripe border
+									  :style="{ height: rightBodyButtomTabsContentHeight + 'px',overflow: 'auto' }"
 									  v-infinite-scroll>
 								<el-table-column prop="createTime" label="执行时间" width="160px"></el-table-column>
 								<el-table-column prop="content" label="SQL">
@@ -99,7 +106,10 @@
 							</el-table>
 						</el-tab-pane>
 						<el-tab-pane label="信息" name="tabInfo" v-if="!!executeResultInfo">
-							<pre class="execute-result-info">{{ executeResultInfo }}</pre>
+							<pre class="execute-result-info"
+								 :style="{ height: rightBodyButtomTabsContentHeight + 'px',overflow: 'auto' }">{{
+									executeResultInfo
+								}}</pre>
 						</el-tab-pane>
 						<el-tab-pane label="错误" name="tabError" v-if="!!executeError">
 							<div style="color: #f00;">{{ executeError }}</div>
@@ -195,6 +205,12 @@ export default {
 	directives: {Clickoutside},
 	data() {
 		return {
+			rightBodyHeight: 0,
+			rightBodyTopHeight: 0,
+			rightBodyButtomHeight: 0,
+			aceEditorHeight: 0,
+			rightBodyButtomTabsHeight: 0,
+			rightBodyButtomTabsContentHeight: 0,
 			//遮罩层
 			loadingAll: false,
 
@@ -231,7 +247,7 @@ export default {
 			myHistoryListList: [],
 			// 选择复制
 			choiceResultObj: {},
-			//
+
 			exportConditionVisible: false,
 			conditionDataCols: [],
 			conditionDataColsChoice: [],
@@ -245,8 +261,6 @@ export default {
 				enableBasicAutocompletion: true,
 				enableSnippets: true,
 				enableLiveAutocompletion: true,
-				minLines: 15,
-				maxLines: 15,
 			},
 			executorSource: {},
 			// sql参数
@@ -259,8 +273,17 @@ export default {
 		'ace-editor': aceEditor
 	},
 	mounted: function () {
-		this.height = 190;
 		this.loadDatasourceList();
+		this.dragChangeTopHeight();
+		//计算高度
+		this.elementHeightCalculation();
+		setTimeout(() => {
+			//主体上半部分高度
+			let bodyTopHeight = document.getElementById('maintopcard').offsetHeight;
+			this.aceEditorHeight = bodyTopHeight - 50;
+		}, 100)
+
+
 	},
 	activated() {
 		this.loadDatasourceList();
@@ -289,6 +312,9 @@ export default {
 						paramArr.forEach(item => {
 							this.sqlParams.push({key: item, value: this.sqlParamHistory[item] || ''});
 						});
+						if (this.sqlParams.length > 0) {
+
+						}
 						this.sqlParamWaiting = false;
 					}, 300);
 				}
@@ -474,7 +500,7 @@ export default {
 					resIndex++;
 					//动态设置表格高度,尽量避免出现滚动条
 					if (result.selectCount) {
-						this.height = 170;
+						this.height = this.rightBodyButtomTabsContentHeight - 40;
 					}
 				});
 				//多个结果情况下,且点击分页
@@ -581,7 +607,9 @@ export default {
 					resIndex++;
 					//动态设置表格高度,尽量避免出现滚动条
 					if (result.selectCount) {
-						this.height = 170;
+						this.height = this.rightBodyButtomTabsContentHeight -40;
+					}else{
+						this.height = this.rightBodyButtomTabsContentHeight -20;
 					}
 				});
 				//多个结果情况下,且点击分页
@@ -775,6 +803,69 @@ export default {
 				this.uxGridCell.style.border = 'none'
 			}
 		},
+		dragChangeTopHeight: function () {
+			// 保留this引用
+			let resize = this.$refs.topResize;
+			let resizeBar = this.$refs.topResizeBar;
+			resize.onmousedown = e => {
+				let startY = e.clientY;
+				// 颜色改变提醒
+				resize.style.background = "#ccc";
+				resizeBar.style.background = "#aaa";
+				resize.left = resize.offsetLeft;
+				document.onmousemove = e2 => {
+					// 计算并应用位移量
+					let endY = e2.clientY;
+					let moveLen = startY - endY;
+					if ((moveLen < 0 && this.rightBodyTopHeight < 450) || (moveLen > 0 && this.rightBodyTopHeight > 100)) {
+						startY = endY;
+						this.rightBodyTopHeight -= moveLen;
+						if (this.rightBodyTopHeight < 100) {
+							this.rightBodyTopHeight = 100;
+						}
+						if (this.rightBodyTopHeight > 450) {
+							this.rightBodyTopHeight = 450;
+						}
+						//浏览器页面高度
+						let winHeight = window.innerHeight;
+						//主体高度
+						let bodyHeight = winHeight - 82;
+						this.rightBodyHeight = bodyHeight;
+						let bodyButtomHeight = bodyHeight - this.rightBodyTopHeight - 10;
+						this.rightBodyButtomHeight = bodyButtomHeight;
+						this.rightBodyButtomTabsHeight = bodyButtomHeight - 20;
+						this.rightBodyButtomTabsContentHeight = this.rightBodyButtomTabsHeight - 50
+						//虚拟表格高度
+						this.height = this.rightBodyButtomTabsContentHeight-40;
+						//触发编辑器高度变化监听
+						this.aceEditorHeight = this.rightBodyTopHeight - 50;
+					}
+				};
+				document.onmouseup = () => {
+					// 颜色恢复
+					resize.style.background = "#fafafa";
+					resizeBar.style.background = "#ccc";
+					document.onmousemove = null;
+					document.onmouseup = null;
+				};
+				return false;
+			};
+		},
+		elementHeightCalculation(){
+			//浏览器页面高度
+			let winHeight = window.innerHeight;
+			//主体高度
+			let bodyHeight = winHeight - 82;
+			this.rightBodyHeight = bodyHeight;
+			let bodyTopHeight = bodyHeight * 0.55;
+			this.rightBodyTopHeight = bodyTopHeight;
+			let bodyButtomHeight = bodyHeight - bodyTopHeight - 10;
+			this.rightBodyButtomHeight = bodyButtomHeight;
+			this.rightBodyButtomTabsHeight = bodyButtomHeight - 20;
+			this.rightBodyButtomTabsContentHeight = this.rightBodyButtomTabsHeight - 50;
+			//虚拟表格高度
+			this.height = this.rightBodyButtomTabsContentHeight;
+		}
 	}
 }
 </script>
@@ -838,7 +929,8 @@ export default {
 	overflow: auto;
 	background: #263238;
 	color: #fff;
-	padding: 10px;
+	padding: 0 10px;
+	margin: 0;
 	border-radius: 6px;
 }
 
@@ -886,5 +978,25 @@ export default {
 
 /deep/ .elx-table .elx-body--column.col--ellipsis > .elx-cell::-webkit-scrollbar {
 	display: none;
+}
+
+.top-resize {
+	width: 100%;
+	height: 5px;
+	cursor: s-resize;
+	background: #fafafa;
+	display: flex;
+}
+
+.top-resize i {
+	width: 35px;
+	height: 5px;
+	display: inline-block;
+	line-height: 0px;
+	border-radius: 5px;
+	background: #ccc;
+	color: #888;
+	text-align: center;
+	margin: auto;
 }
 </style>
