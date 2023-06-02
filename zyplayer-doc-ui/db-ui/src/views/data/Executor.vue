@@ -7,7 +7,7 @@
 							theme="monokai"
 							width="100%" :height="aceEditorHeight" :options="sqlEditorConfig" :source="executorSource"
 							@cursorSelection="cursorSelection"></ace-editor>
-				<div style="margin-top: 5px;">
+				<div :style="{ height: aceEditorButtonHeight + 'px','margin-top': '5px' }" >
 					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="mini"
 							   icon="el-icon-video-pause">取消执行
 					</el-button>
@@ -211,6 +211,11 @@ export default {
 			aceEditorHeight: 0,
 			rightBodyButtomTabsHeight: 0,
 			rightBodyButtomTabsContentHeight: 0,
+			aceEditorButtonHeight: 0,
+
+			changeFlag: true,
+			changeFlag2: true,
+
 			//遮罩层
 			loadingAll: false,
 
@@ -276,14 +281,7 @@ export default {
 		this.loadDatasourceList();
 		this.dragChangeTopHeight();
 		//计算高度
-		this.elementHeightCalculation();
-		setTimeout(() => {
-			//主体上半部分高度
-			let bodyTopHeight = document.getElementById('maintopcard').offsetHeight;
-			this.aceEditorHeight = bodyTopHeight - 50;
-		}, 100)
-
-
+		this.elementHeightCalculationInit();
 	},
 	activated() {
 		this.loadDatasourceList();
@@ -312,8 +310,23 @@ export default {
 						paramArr.forEach(item => {
 							this.sqlParams.push({key: item, value: this.sqlParamHistory[item] || ''});
 						});
-						if (this.sqlParams.length > 0) {
 
+						let aceEditorButtonHeight = this.aceEditorButtonHeight;
+						let aceEditorHeight = this.aceEditorHeight;
+						if (this.sqlParams.length > 0) {
+							if(this.changeFlag){
+								this.rightBodyTopHeight = aceEditorButtonHeight + aceEditorHeight + 35 +20;
+								this.elementHeightCalculation();
+								this.changeFlag = false;
+								this.changeFlag2 = true;
+							}
+						}else{
+							if(!this.changeFlag&&this.changeFlag2){
+								this.rightBodyTopHeight = aceEditorButtonHeight + aceEditorHeight + 20 ;
+								this.elementHeightCalculation();
+								this.changeFlag2 = false;
+								this.changeFlag = true;
+							}
 						}
 						this.sqlParamWaiting = false;
 					}, 300);
@@ -405,7 +418,8 @@ export default {
 				this.sqlExecutorEditor.insert(dataSql);
 			}
 		},
-		doExecutorSql(init) {
+		//执行sql（type=noPage查看所有）
+		doExecutorSql(init,type) {
 			if (!this.choiceDatasourceId) {
 				this.$message.error("请先选择数据源");
 				return;
@@ -414,111 +428,7 @@ export default {
 				this.$message.error("请先选择数据库");
 				return;
 			}
-			this.executeError = "";
-			this.executeUseTime = "";
-			this.executeResultList = [];
-			let sqlParamObj = {};
-			this.sqlParams.forEach(item => {
-				if (!!item.value) {
-					sqlParamObj[item.key] = item.value;
-					this.sqlParamHistory[item.key] = item.value;
-				}
-			});
-			this.nowExecutorId = (new Date()).getTime() + Math.ceil(Math.random() * 1000);
-			let sqlValue = this.sqlExecutorEditor.getSelectedText();
-			if (!sqlValue) {
-				sqlValue = this.sqlExecutorEditor.getValue();
-			}
-			this.sqlExecuting = true;
-			datasourceApi.queryExecuteSql({
-				sourceId: this.choiceDatasourceId,
-				dbName: this.choiceDatabase,
-				executeId: this.nowExecutorId,
-				pageNum: this.currentPage,
-				pageSize: this.pageSize,
-				sql: sqlValue,
-				params: JSON.stringify(sqlParamObj),
-			}).then(response => {
-				this.sqlExecuting = false;
-				if (response.errCode != 200) {
-					this.executeShowTable = 'tabError';
-					this.executeError = response.errMsg;
-					return;
-				}
-				let resIndex = 1;
-				let executeResultList = [];
-				let resData = response.data || [];
-				let executeResultInfo = "";
-				resData.forEach(result => {
-					let dataListRes = [];
-					let previewColumns = [];
-					executeResultInfo += this.getExecuteInfoStr(result);
-					if (result.errCode === 0) {
-						let dataListTemp = result.data || [];
-						let headerList = result.header || [];
-						// 组装表头
-						let columnSet = {};
-						if (headerList.length > 0) {
-							let headerIndex = 0;
-							headerList.forEach(item => {
-								let key = 'value_' + (headerIndex++);
-								columnSet[key] = item;
-								previewColumns.push({prop: key, label: item, desc: item});
-							});
-							dataListTemp.forEach(item => {
-								let dataItem = {}, dataIndex = 0;
-								previewColumns.forEach(column => {
-									let key = column.prop;
-									dataItem[key] = item[dataIndex++];
-									if ((dataItem[key] + '').length > columnSet[key].length) {
-										columnSet[key] = dataItem[key] + '';
-									}
-								});
-								dataListRes.push(dataItem);
-							});
-							previewColumns.forEach(item => {
-								// 动态计算宽度~自己想的一个方法，666
-								document.getElementById("widthCalculate").innerText = columnSet[item.prop];
-								let width = document.getElementById("widthCalculate").offsetWidth;
-								width = width + (columnSet[item.prop] === item.label ? 35 : 55);
-								width = (width < 50) ? 50 : width;
-								item.width = (width > 200) ? 200 : width;
-							});
-						}
-					}
-					executeResultList.push({
-						label: '结果' + resIndex,
-						name: 'result_' + resIndex,
-						errMsg: result.errMsg,
-						errCode: result.errCode,
-						queryTime: result.queryTime,
-						selectCount: result.selectCount,
-						totalCount: dataListRes.length,
-						dataCols: previewColumns,
-						dataList: dataListRes
-					});
-					resIndex++;
-					//动态设置表格高度,尽量避免出现滚动条
-					if (result.selectCount) {
-						this.height = this.rightBodyButtomTabsContentHeight - 40;
-					}
-				});
-				//多个结果情况下,且点击分页
-				if (init != 1) {
-					this.executeShowTable = (resIndex === 1) ? "tabInfo" : "result_1";
-				}
-				this.executeResultInfo = executeResultInfo;
-				this.executeResultList = executeResultList;
-				this.loadHistoryList();
-			});
-		},
-		//查看所有数据
-		viewAllData(init) {
 			this.loadingAll = true;
-			if (!this.choiceDatasourceId) {
-				this.$message.error("请先选择数据源");
-				return;
-			}
 			this.executeError = "";
 			this.executeUseTime = "";
 			this.executeResultList = [];
@@ -541,8 +451,8 @@ export default {
 				executeId: this.nowExecutorId,
 				pageNum: this.currentPage,
 				pageSize: this.pageSize,
+				type: type,
 				sql: sqlValue,
-				type: 'noPage',
 				params: JSON.stringify(sqlParamObj),
 			}).then(response => {
 				this.sqlExecuting = false;
@@ -605,11 +515,11 @@ export default {
 						dataList: dataListRes
 					});
 					resIndex++;
-					//动态设置表格高度,尽量避免出现滚动条
+					//动态设置表格高度
 					if (result.selectCount) {
-						this.height = this.rightBodyButtomTabsContentHeight -40;
+						this.height = this.rightBodyButtomTabsContentHeight - 40;
 					}else{
-						this.height = this.rightBodyButtomTabsContentHeight -20;
+						this.height = this.rightBodyButtomTabsContentHeight - 20;
 					}
 				});
 				//多个结果情况下,且点击分页
@@ -620,6 +530,10 @@ export default {
 				this.executeResultList = executeResultList;
 				this.loadHistoryList();
 			});
+		},
+		//查看所有数据
+		viewAllData(init) {
+			this.doExecutorSql(init,'noPage');
 		},
 		handleCurrentChange(to) {
 			this.currentPage = to;
@@ -817,28 +731,16 @@ export default {
 					// 计算并应用位移量
 					let endY = e2.clientY;
 					let moveLen = startY - endY;
-					if ((moveLen < 0 && this.rightBodyTopHeight < 450) || (moveLen > 0 && this.rightBodyTopHeight > 100)) {
+					if ((moveLen < 0 && this.rightBodyTopHeight < 480) || (moveLen > 0 && this.rightBodyTopHeight > 100)) {
 						startY = endY;
 						this.rightBodyTopHeight -= moveLen;
 						if (this.rightBodyTopHeight < 100) {
 							this.rightBodyTopHeight = 100;
 						}
-						if (this.rightBodyTopHeight > 450) {
-							this.rightBodyTopHeight = 450;
+						if (this.rightBodyTopHeight > 480) {
+							this.rightBodyTopHeight = 480;
 						}
-						//浏览器页面高度
-						let winHeight = window.innerHeight;
-						//主体高度
-						let bodyHeight = winHeight - 82;
-						this.rightBodyHeight = bodyHeight;
-						let bodyButtomHeight = bodyHeight - this.rightBodyTopHeight - 10;
-						this.rightBodyButtomHeight = bodyButtomHeight;
-						this.rightBodyButtomTabsHeight = bodyButtomHeight - 20;
-						this.rightBodyButtomTabsContentHeight = this.rightBodyButtomTabsHeight - 50
-						//虚拟表格高度
-						this.height = this.rightBodyButtomTabsContentHeight-40;
-						//触发编辑器高度变化监听
-						this.aceEditorHeight = this.rightBodyTopHeight - 50;
+						this.elementHeightCalculation();
 					}
 				};
 				document.onmouseup = () => {
@@ -851,7 +753,8 @@ export default {
 				return false;
 			};
 		},
-		elementHeightCalculation(){
+		//高度计算初始化
+		elementHeightCalculationInit(){
 			//浏览器页面高度
 			let winHeight = window.innerHeight;
 			//主体高度
@@ -865,6 +768,32 @@ export default {
 			this.rightBodyButtomTabsContentHeight = this.rightBodyButtomTabsHeight - 50;
 			//虚拟表格高度
 			this.height = this.rightBodyButtomTabsContentHeight;
+			setTimeout(() => {
+				this.aceEditorButtonHeight = 30;
+				//主体上半部分高度
+				let bodyTopHeight = document.getElementById('maintopcard').offsetHeight;
+				this.aceEditorHeight = bodyTopHeight - this.aceEditorButtonHeight-20 -10;
+			}, 500)
+		},
+		//高度实时计算
+		elementHeightCalculation(){
+			//浏览器页面高度
+			let winHeight = window.innerHeight;
+			//主体高度
+			let bodyHeight = winHeight - 82;
+			this.rightBodyHeight = bodyHeight;
+			let bodyButtomHeight = bodyHeight - this.rightBodyTopHeight - 10;
+			this.rightBodyButtomHeight = bodyButtomHeight;
+			this.rightBodyButtomTabsHeight = bodyButtomHeight - 20;
+			this.rightBodyButtomTabsContentHeight = this.rightBodyButtomTabsHeight - 50
+			//虚拟表格高度
+			this.height = this.rightBodyButtomTabsContentHeight-40;
+			//触发编辑器高度变化监听
+			this.aceEditorHeight = this.rightBodyTopHeight - this.aceEditorButtonHeight - 20 - 10;
+			if (this.sqlParams.length > 0) {
+				//触发编辑器高度变化监听
+				this.aceEditorHeight = this.rightBodyTopHeight - this.aceEditorButtonHeight - 20 - 10 -35;
+			}
 		}
 	}
 }
@@ -880,11 +809,13 @@ export default {
 }
 
 .data-executor-vue .sql-params {
+	height: 50px;
+	overflow: auto;
 }
 
 .data-executor-vue .sql-params .el-input-group {
 	width: auto;
-	margin: 10px 10px 0 0;
+	margin: 3px 3px 0 0;
 }
 
 .data-executor-vue .sql-params .el-input__inner {
