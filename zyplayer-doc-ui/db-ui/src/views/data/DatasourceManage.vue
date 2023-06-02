@@ -161,6 +161,9 @@
 					<el-form-item label="端口号" prop="port">
 						<el-input v-model="autoFillForm.port" placeholder="请输入数据库端口号"></el-input>
 					</el-form-item>
+					<el-form-item label="初始数据库" prop="initDatabaseName" v-if="initDatabaseNameShow">
+						<el-input v-model="autoFillForm.initDatabaseName" placeholder="请输入初始数据库"></el-input>
+					</el-form-item>
 					<el-form-item label="服务名" prop="serverName" v-if="oracleServerNameShow">
 						<template slot="label">
 										<span>服务名
@@ -231,9 +234,12 @@ export default {
 				hostIp: null,
 				port: null,
 				serverName: null,
+				initDatabaseName: null
 			},
 			//oracle数据库服务名是否显示
 			oracleServerNameShow: false,
+			//初始数据库
+			initDatabaseNameShow: false,
 
 			rules: {
 				hostIp: [
@@ -283,6 +289,8 @@ export default {
 			} else if (thatClassName === 'net.sourceforge.jtds.jdbc.Driver') {
 				//this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:1433;DatabaseName=user_info;socketTimeout=60;";
 				this.autoFillForm.port = "1433";
+				this.initDatabaseNameShow = true;
+				this.autoFillForm.initDatabaseName = "master";
 			} else if (thatClassName === 'oracle.jdbc.driver.OracleDriver') {
 				//this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
 				this.autoFillForm.port = "1521";
@@ -290,6 +298,8 @@ export default {
 			} else if (thatClassName === 'org.postgresql.Driver') {
 				//this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
 				this.autoFillForm.port = "5432";
+				this.initDatabaseNameShow = true;
+				this.autoFillForm.initDatabaseName = "postgres";
 			} else if (thatClassName === 'org.apache.hive.jdbc.HiveDriver') {
 				//this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
 				this.autoFillForm.port = "21050";
@@ -307,18 +317,19 @@ export default {
 					let hostIp = this.autoFillForm.hostIp;
 					let port = this.autoFillForm.port;
 					let serverName = this.autoFillForm.serverName;
+					let initDatabaseName = this.autoFillForm.initDatabaseName;
 					if (thatClassName === 'com.mysql.jdbc.Driver') {
 						//this.urlPlaceholder = "例：jdbc:mysql://127.0.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8";
 						this.newDatasource.sourceUrl = "jdbc:mysql://" + hostIp + ":" + port;
 					} else if (thatClassName === 'net.sourceforge.jtds.jdbc.Driver') {
 						//this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:1433;DatabaseName=user_info;socketTimeout=60;";
-						this.newDatasource.sourceUrl = "jdbc:jtds:sqlserver://" + hostIp + ":" + port;
+						this.newDatasource.sourceUrl = "jdbc:jtds:sqlserver://" + hostIp + ":" + port +";DatabaseName=" + initDatabaseName;
 					} else if (thatClassName === 'oracle.jdbc.driver.OracleDriver') {
 						//this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
 						this.newDatasource.sourceUrl = "jdbc:oracle:thin:@" + hostIp + ":" + port + "/" + serverName;
 					} else if (thatClassName === 'org.postgresql.Driver') {
 						//this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
-						this.newDatasource.sourceUrl = "jdbc:postgresql://" + hostIp + ":" + port;
+						this.newDatasource.sourceUrl = "jdbc:postgresql://" + hostIp + ":" + port+"/" + initDatabaseName;
 					} else if (thatClassName === 'org.apache.hive.jdbc.HiveDriver') {
 						//this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
 						this.newDatasource.sourceUrl = "jdbc:hive2://" + hostIp + ":" + port;
