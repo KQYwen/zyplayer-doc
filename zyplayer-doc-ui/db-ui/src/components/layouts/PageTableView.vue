@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<el-tabs v-model="activePage" type="card" closable @tab-click="changePage" @tab-remove="removePageTab"
-				 @contextmenu.prevent.native="openContextMenu($event)" style="padding: 5px 10px 0;">
+				 @contextmenu.prevent.native="openContextMenu($event)" style="padding: 5px 10px 0;height: 30px;font-size: 12px;margin: 0 0 5px;">
 			<el-tab-pane :label="pageTabNameMap[item.fullPath]||item.name" :name="getRouteRealPath(item)"
 						 :fullPath="item.fullPath" :key="item.fullPath" v-for="item in pageList"/>
 		</el-tabs>
@@ -300,16 +300,21 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .el-tabs, .el-tabs--card, .el-tabs--top{
-	height: 30px;
-	font-size: 12px;
-	margin: 0 0 5px;
-}
 
 /deep/ .el-tabs--card > .el-tabs__header .el-tabs__item {
 	height: 30px;
 	line-height: 30px;
 	font-size: 12px;
+}
+
+/deep/ .el-tabs__nav-next {
+	line-height: 33px;
+	font-size: 20px;
+}
+
+/deep/ .el-tabs__nav-prev {
+	line-height: 33px;
+	font-size: 20px;
 }
 
 .contextmenu {

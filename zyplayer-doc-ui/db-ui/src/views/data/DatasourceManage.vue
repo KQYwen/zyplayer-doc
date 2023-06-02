@@ -1,163 +1,168 @@
 <template>
 	<div style="padding: 0 10px;">
-		<el-form :inline="true">
-			<el-form-item label="名字">
-				<el-input v-model="searchParam.name" placeholder="名字"></el-input>
-			</el-form-item>
-			<el-form-item label="分组">
-				<el-select v-model="searchParam.groupName" placeholder="分组">
-					<el-option value="">全部</el-option>
-					<el-option :value="item" v-for="(item,index) in datasourceGroupList" :key="index"></el-option>
-				</el-select>
-			</el-form-item>
-			<el-form-item>
-				<el-button type="primary" :loading="loadDataListLoading" @click="getDatasourceList"
-						   icon="el-icon-search">查询
-				</el-button>
-				<el-button @click="addDatasource" icon="el-icon-circle-plus-outline">新增</el-button>
-			</el-form-item>
-		</el-form>
-		<el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
-			<el-table-column prop="name" label="名字"></el-table-column>
-			<el-table-column prop="groupName" label="分组"></el-table-column>
-			<el-table-column prop="driverClassName" label="驱动类"></el-table-column>
-			<el-table-column prop="sourceName" label="账号"></el-table-column>
-			<el-table-column label="操作" width="220">
-				<template slot-scope="scope">
-					<el-button v-on:click="editDatasource(scope.row)" type="primary" size="mini">修改</el-button>
-					<el-button v-on:click="editDbAuth(scope.row)" type="success" size="mini">权限</el-button>
-					<el-button v-on:click="deleteDatasource(scope.row)" type="danger" size="mini">删除</el-button>
-				</template>
-			</el-table-column>
-		</el-table>
-		<el-pagination
-			style="margin: 10px 0 20px 0;text-align: right;"
-			@size-change="handlePageSizeChange"
-			@current-change="handleCurrentChange"
-			:current-page="currentPage"
-			:page-sizes="[10, 30, 50]"
-			:page-size="pageSize"
-			layout="total, sizes, prev, pager, next, jumper"
-			:total="tableTotalCount">
-		</el-pagination>
-		<!--增加数据源弹窗-->
-		<el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'"
-				   :visible.sync="datasourceDialogVisible" width="760px" :close-on-click-modal="false">
-			<el-form label-width="120px">
-				<el-form-item label="分组：">
-					<el-select v-model="newDatasource.groupName" placeholder="请选择或输入新的分组名字"
-							   style="width: 100%" filterable allow-create>
-						<el-option value="">未分组</el-option>
+		<el-card>
+			<el-form :inline="true">
+				<el-form-item label="名字">
+					<el-input v-model="searchParam.name" placeholder="名字"></el-input>
+				</el-form-item>
+				<el-form-item label="分组">
+					<el-select v-model="searchParam.groupName" placeholder="分组">
+						<el-option value="">全部</el-option>
 						<el-option :value="item" v-for="(item,index) in datasourceGroupList" :key="index"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="数据源名称：">
-					<el-input v-model="newDatasource.name" placeholder="给数据源起个中文名称"></el-input>
-				</el-form-item>
-				<el-form-item label="驱动类：">
-					<el-select v-model="newDatasource.driverClassName" @change="driverClassNameChange"
-							   placeholder="驱动类" style="width: 100%">
-						<el-option label="MYSQL: com.mysql.jdbc.Driver" value="com.mysql.jdbc.Driver"></el-option>
-						<el-option label="SQLSERVER: net.sourceforge.jtds.jdbc.Driver"
-								   value="net.sourceforge.jtds.jdbc.Driver"></el-option>
-						<el-option label="ORACLE: oracle.jdbc.driver.OracleDriver"
-								   value="oracle.jdbc.driver.OracleDriver"></el-option>
-						<el-option label="POSTGRESQL: org.postgresql.Driver" value="org.postgresql.Driver"></el-option>
-						<el-option label="HIVE: org.apache.hive.jdbc.HiveDriver"
-								   value="org.apache.hive.jdbc.HiveDriver"></el-option>
-						<el-option label="达梦: dm.jdbc.driver.DmDriver" value="dm.jdbc.driver.DmDriver"></el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="数据源URL：">
-					<el-input v-model="newDatasource.sourceUrl" :placeholder="urlPlaceholder"
-							  :disabled="sourceUrlDisabled&&!newDatasource.id>0">
-						<el-button slot="append" @click="autoFillDialog"
-								   :disabled="sourceUrlDisabled&&!newDatasource.id>0">智能填入
-						</el-button>
-					</el-input>
-				</el-form-item>
-				<el-form-item label="账号：">
-					<el-input v-model="newDatasource.sourceName" placeholder="账号"></el-input>
-				</el-form-item>
-				<el-form-item label="密码：">
-					<el-input v-model="newDatasource.sourcePassword" placeholder="密码"></el-input>
-				</el-form-item>
-				<el-form-item label="测试连接：">
-					<el-button v-on:click="testDatasource" type="primary" v-loading="testDatasourceErrLoading">
-						测试数据源
+				<el-form-item>
+					<el-button type="primary" :loading="loadDataListLoading" @click="getDatasourceList"
+							   icon="el-icon-search">查询
 					</el-button>
+					<el-button @click="addDatasource" icon="el-icon-circle-plus-outline">新增</el-button>
 				</el-form-item>
 			</el-form>
-			<div slot="footer" style="text-align: center;">
-				<el-button v-on:click="saveDatasource" type="primary">保存</el-button>
-				<el-button v-on:click="datasourceDialogVisible=false" plain>取消</el-button>
-			</div>
-		</el-dialog>
-		<!--人员权限弹窗-->
-		<el-dialog :visible.sync="dbSourceAuthDialogVisible" width="900px" :close-on-click-modal="false">
+			<el-table :data="datasourceList" stripe border style="width: 100%; margin-bottom: 5px;">
+				<el-table-column prop="name" label="名字"></el-table-column>
+				<el-table-column prop="groupName" label="分组"></el-table-column>
+				<el-table-column prop="driverClassName" label="驱动类"></el-table-column>
+				<el-table-column prop="sourceName" label="账号"></el-table-column>
+				<el-table-column label="操作" width="220">
+					<template slot-scope="scope">
+						<el-button v-on:click="editDatasource(scope.row)" type="primary" size="mini">修改</el-button>
+						<el-button v-on:click="editDbAuth(scope.row)" type="success" size="mini">权限</el-button>
+						<el-button v-on:click="deleteDatasource(scope.row)" type="danger" size="mini">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+			<el-pagination
+				style="margin: 10px 0 20px 0;text-align: right;"
+				@size-change="handlePageSizeChange"
+				@current-change="handleCurrentChange"
+				:current-page="currentPage"
+				:page-sizes="[10, 30, 50]"
+				:page-size="pageSize"
+				layout="total, sizes, prev, pager, next, jumper"
+				:total="tableTotalCount">
+			</el-pagination>
+			<!--增加数据源弹窗-->
+			<el-dialog :inline="true" :title="newDatasource.id>0?'编辑数据源':'新增数据源'"
+					   :visible.sync="datasourceDialogVisible" width="760px" :close-on-click-modal="false">
+				<el-form label-width="120px">
+					<el-form-item label="分组：">
+						<el-select v-model="newDatasource.groupName" placeholder="请选择或输入新的分组名字"
+								   style="width: 100%" filterable allow-create>
+							<el-option value="">未分组</el-option>
+							<el-option :value="item" v-for="(item,index) in datasourceGroupList"
+									   :key="index"></el-option>
+						</el-select>
+					</el-form-item>
+					<el-form-item label="数据源名称：">
+						<el-input v-model="newDatasource.name" placeholder="给数据源起个中文名称"></el-input>
+					</el-form-item>
+					<el-form-item label="驱动类：">
+						<el-select v-model="newDatasource.driverClassName" @change="driverClassNameChange"
+								   placeholder="驱动类" style="width: 100%">
+							<el-option label="MYSQL: com.mysql.jdbc.Driver" value="com.mysql.jdbc.Driver"></el-option>
+							<el-option label="SQLSERVER: net.sourceforge.jtds.jdbc.Driver"
+									   value="net.sourceforge.jtds.jdbc.Driver"></el-option>
+							<el-option label="ORACLE: oracle.jdbc.driver.OracleDriver"
+									   value="oracle.jdbc.driver.OracleDriver"></el-option>
+							<el-option label="POSTGRESQL: org.postgresql.Driver"
+									   value="org.postgresql.Driver"></el-option>
+							<el-option label="HIVE: org.apache.hive.jdbc.HiveDriver"
+									   value="org.apache.hive.jdbc.HiveDriver"></el-option>
+							<el-option label="达梦: dm.jdbc.driver.DmDriver"
+									   value="dm.jdbc.driver.DmDriver"></el-option>
+						</el-select>
+					</el-form-item>
+					<el-form-item label="数据源URL：">
+						<el-input v-model="newDatasource.sourceUrl" :placeholder="urlPlaceholder"
+								  :disabled="sourceUrlDisabled&&!newDatasource.id>0">
+							<el-button slot="append" @click="autoFillDialog"
+									   :disabled="sourceUrlDisabled&&!newDatasource.id>0">智能填入
+							</el-button>
+						</el-input>
+					</el-form-item>
+					<el-form-item label="账号：">
+						<el-input v-model="newDatasource.sourceName" placeholder="账号"></el-input>
+					</el-form-item>
+					<el-form-item label="密码：">
+						<el-input v-model="newDatasource.sourcePassword" placeholder="密码"></el-input>
+					</el-form-item>
+					<el-form-item label="测试连接：">
+						<el-button v-on:click="testDatasource" type="primary" v-loading="testDatasourceErrLoading">
+							测试数据源
+						</el-button>
+					</el-form-item>
+				</el-form>
+				<div slot="footer" style="text-align: center;">
+					<el-button v-on:click="saveDatasource" type="primary">保存</el-button>
+					<el-button v-on:click="datasourceDialogVisible=false" plain>取消</el-button>
+				</div>
+			</el-dialog>
+			<!--人员权限弹窗-->
+			<el-dialog :visible.sync="dbSourceAuthDialogVisible" width="900px" :close-on-click-modal="false">
             <span slot="title">
                 <span>权限编辑</span>
                 <span style="margin-left: 10px;color: #999;font-size: 12px;"><i class="el-icon-info"></i> 添加、删除或编辑之后记得点击保存哦~</span>
             </span>
-			<el-row>
-				<el-select v-model="dbSourceAuthNewUser" filterable remote reserve-keyword autoComplete="new-password"
-						   placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList"
-						   :loading="dbSourceAuthUserLoading" style="width: 750px;margin-right: 10px;">
-					<el-option v-for="item in searchUserList" :key="item.id" :label="item.userName"
-							   :value="item.id"></el-option>
-				</el-select>
-				<el-button v-on:click="addDbSourceAuthUser">添加</el-button>
-			</el-row>
-			<el-table :data="dbSourceAuthUserList" border style="width: 100%; margin: 10px 0;" size="mini">
-				<el-table-column prop="userName" label="用户" width="150"></el-table-column>
-				<el-table-column label="权限">
-					<template slot-scope="scope">
-						<el-select v-model="scope.row.executeAuth" placeholder="选择权限"
-								   style="width: 150px;margin-right: 10px;">
-							<el-option value="">无权限</el-option>
-							<el-option :value="1" label="库表查看权"></el-option>
-							<el-option :value="2" label="数据查询权"></el-option>
-							<el-option :value="3" label="所有权限"></el-option>
-						</el-select>
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.descEditAuth">
-							表字段注释修改权
-						</el-checkbox>
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.procEditAuth">函数修改权
-						</el-checkbox>
-					</template>
-				</el-table-column>
-				<el-table-column label="操作" width="80">
-					<template slot-scope="scope">
-						<el-button size="small" type="danger" plain v-on:click="deleteUserDbSourceAuth(scope.row)">
-							删除
-						</el-button>
-					</template>
-				</el-table-column>
-			</el-table>
-			<div>
-				<el-button type="primary" v-on:click="saveUserDbSourceAuth">保存配置</el-button>
-			</div>
-		</el-dialog>
-		<!--错误信息弹窗-->
-		<el-dialog title="测试数据源失败" :visible.sync="testDatasourceErrVisible" :footer="null" width="760px">
-			<div v-highlight>
-				<pre><code v-html="testDatasourceErrInfo"></code></pre>
-			</div>
-		</el-dialog>
-		<!--数据源url地址自动输入弹窗-->
-		<el-dialog
-			title="智能填入"
-			:visible.sync="autoFillDialogVisible"
-			width="30%" :close-on-click-modal="false">
-			<el-form :model="autoFillForm" :rules="rules" label-width="90px" ref="autoFillForm">
-				<el-form-item label="主机地址" prop="hostIp">
-					<el-input v-model="autoFillForm.hostIp" placeholder="请输入主机地址"></el-input>
-				</el-form-item>
-				<el-form-item label="端口号" prop="port">
-					<el-input v-model="autoFillForm.port" placeholder="请输入数据库端口号"></el-input>
-				</el-form-item>
-				<el-form-item label="服务名" prop="serverName" v-if="oracleServerNameShow">
-					<template slot="label">
+				<el-row>
+					<el-select v-model="dbSourceAuthNewUser" filterable remote reserve-keyword
+							   autoComplete="new-password"
+							   placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList"
+							   :loading="dbSourceAuthUserLoading" style="width: 750px;margin-right: 10px;">
+						<el-option v-for="item in searchUserList" :key="item.id" :label="item.userName"
+								   :value="item.id"></el-option>
+					</el-select>
+					<el-button v-on:click="addDbSourceAuthUser">添加</el-button>
+				</el-row>
+				<el-table :data="dbSourceAuthUserList" border style="width: 100%; margin: 10px 0;" size="mini">
+					<el-table-column prop="userName" label="用户" width="150"></el-table-column>
+					<el-table-column label="权限">
+						<template slot-scope="scope">
+							<el-select v-model="scope.row.executeAuth" placeholder="选择权限"
+									   style="width: 150px;margin-right: 10px;">
+								<el-option value="">无权限</el-option>
+								<el-option :value="1" label="库表查看权"></el-option>
+								<el-option :value="2" label="数据查询权"></el-option>
+								<el-option :value="3" label="所有权限"></el-option>
+							</el-select>
+							<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.descEditAuth">
+								表字段注释修改权
+							</el-checkbox>
+							<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.procEditAuth">函数修改权
+							</el-checkbox>
+						</template>
+					</el-table-column>
+					<el-table-column label="操作" width="80">
+						<template slot-scope="scope">
+							<el-button size="small" type="danger" plain v-on:click="deleteUserDbSourceAuth(scope.row)">
+								删除
+							</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+				<div>
+					<el-button type="primary" v-on:click="saveUserDbSourceAuth">保存配置</el-button>
+				</div>
+			</el-dialog>
+			<!--错误信息弹窗-->
+			<el-dialog title="测试数据源失败" :visible.sync="testDatasourceErrVisible" :footer="null" width="760px">
+				<div v-highlight>
+					<pre><code v-html="testDatasourceErrInfo"></code></pre>
+				</div>
+			</el-dialog>
+			<!--数据源url地址自动输入弹窗-->
+			<el-dialog
+				title="智能填入"
+				:visible.sync="autoFillDialogVisible"
+				width="30%" :close-on-click-modal="false">
+				<el-form :model="autoFillForm" :rules="rules" label-width="90px" ref="autoFillForm">
+					<el-form-item label="主机地址" prop="hostIp">
+						<el-input v-model="autoFillForm.hostIp" placeholder="请输入主机地址"></el-input>
+					</el-form-item>
+					<el-form-item label="端口号" prop="port">
+						<el-input v-model="autoFillForm.port" placeholder="请输入数据库端口号"></el-input>
+					</el-form-item>
+					<el-form-item label="服务名" prop="serverName" v-if="oracleServerNameShow">
+						<template slot="label">
 										<span>服务名
 											<el-tooltip class="item" effect="dark" placement="right">
 												<i class="el-icon-question"
@@ -169,19 +174,20 @@
 												</div>
 											</el-tooltip>
 										</span>
-					</template>
+						</template>
 
-					<el-input v-model="autoFillForm.serverName" placeholder="请输入服务名"></el-input>
-					<el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start">
-						<i class="el-icon-question-solid"/>
-					</el-tooltip>
-				</el-form-item>
-			</el-form>
-			<span slot="footer" class="dialog-footer">
+						<el-input v-model="autoFillForm.serverName" placeholder="请输入服务名"></el-input>
+						<el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start">
+							<i class="el-icon-question-solid"/>
+						</el-tooltip>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
     				<el-button @click="autoFillDialogVisible = false">取 消</el-button>
     				<el-button type="primary" @click="autoFill('autoFillForm')">确 定</el-button>
   				</span>
-		</el-dialog>
+			</el-dialog>
+		</el-card>
 	</div>
 </template>
 

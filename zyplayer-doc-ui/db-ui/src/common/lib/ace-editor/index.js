@@ -52,6 +52,8 @@ export default {
 		height: function () {
 			this.$nextTick(function () {
 				this.editor.resize()
+				//设置字体大小
+				this.editor.setFontSize(14);
 				//更新编辑器高度
 				document.getElementById("aceEditorId").style.height = this.height + "px";;
 			})
