@@ -27,9 +27,12 @@
 							<el-menu-item index="/data/transferData"><i class="el-icon-document-copy"></i>数据互导工具</el-menu-item>
 						</el-submenu>
 					</el-menu>
-					<el-tree :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
+					<el-input v-if="choiceDatasourceId" v-model="filterText" placeholder="输入关键字搜索数据库" ></el-input>
+					<el-tree v-if="choiceDatasourceId"
+							 :props="defaultProps" :data="databaseList" @node-click="handleNodeClick"
 							 ref="databaseTree" highlight-current empty-text=""
 							 :default-expanded-keys="databaseExpandedKeys"
+							 :filter-node-method="filterNode"
 							 node-key="id" @node-expand="handleNodeExpand"
 							 v-loading="databaseListLoading"
 							 element-loading-text="数据库信息加载中"
@@ -90,6 +93,7 @@
 	export default {
 		data() {
 			return {
+				filterText: '',
 				isCollapse: false,
 				userSelfInfo: {},
 				// 数据源相关
@@ -104,6 +108,11 @@
 				databaseListLoading: false,
 				databaseExpandedKeys: [],
 				rightAsideWidth: 300,
+			}
+		},
+		watch: {
+			filterText(val) {
+				this.$refs.databaseTree.filter(val);
 			}
 		},
 		computed: {
@@ -160,7 +169,7 @@
 				this.loadDatabaseList(this.choiceDatasourceId, choiceSource.name);
 			},
 			handleNodeClick(node) {
-				console.log("点击节点：", node);
+				//console.log("点击节点：", node);
 				// 执行器里面点击库表不跳转页面
 				// if (this.$router.currentRoute.path == "/data/executor") {
 				//     return;
@@ -175,7 +184,6 @@
 			},
 			handleNodeExpand(node) {
 				if (node.children.length > 0 && node.children[0].needLoad) {
-					console.log("加载节点：", node);
 					if (node.type == 1) {
 						this.loadGetTableList(node);
 					}
@@ -299,6 +307,31 @@
 					};
 					return false;
 				};
+			},
+			filterNode(value, data, node) {
+				if (node.level === 3&&node.data.needLoad) {
+					if(!node.parent){
+						return false;
+					}
+					let pnode = node.parent.data;
+					datasourceApi.tableList({sourceId: this.choiceDatasourceId, dbName: pnode.dbName}).then(json => {
+						let pathIndex = [];
+						let result = json.data || [];
+						for (let i = 0; i < result.length; i++) {
+							let item = {
+								id: pnode.host + "_" + pnode.dbName + "_" + result[i].tableName, host: pnode.host,
+								dbName: pnode.dbName, tableName: result[i].tableName, name: result[i].tableName, type: 2,
+								comment: result[i].tableComment
+							};
+							pathIndex.push(item);
+						}
+						pnode.children = pathIndex;
+						this.filterNode(value, data, node);
+					});
+					return false;
+				}
+				if (!value) return true;
+				return data.name.toLowerCase().indexOf(value.toLowerCase()) !== -1;
 			}
 		}
 	}

@@ -284,27 +284,22 @@ export default {
 			this.autoFillDialogVisible = true;
 			let thatClassName = this.newDatasource.driverClassName;
 			if (thatClassName === 'com.mysql.jdbc.Driver') {
-				//this.urlPlaceholder = "例：jdbc:mysql://127.0.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8";
 				this.autoFillForm.port = "3306";
 			} else if (thatClassName === 'net.sourceforge.jtds.jdbc.Driver') {
-				//this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:1433;DatabaseName=user_info;socketTimeout=60;";
 				this.autoFillForm.port = "1433";
 				this.initDatabaseNameShow = true;
 				this.autoFillForm.initDatabaseName = "master";
 			} else if (thatClassName === 'oracle.jdbc.driver.OracleDriver') {
-				//this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
 				this.autoFillForm.port = "1521";
 				this.oracleServerNameShow = true;
+				this.autoFillForm.serverName = "ORCL";
 			} else if (thatClassName === 'org.postgresql.Driver') {
-				//this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
 				this.autoFillForm.port = "5432";
 				this.initDatabaseNameShow = true;
 				this.autoFillForm.initDatabaseName = "postgres";
 			} else if (thatClassName === 'org.apache.hive.jdbc.HiveDriver') {
-				//this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
 				this.autoFillForm.port = "21050";
 			} else if (thatClassName === 'dm.jdbc.driver.DmDriver') {
-				//this.urlPlaceholder = "例：jdbc:dm://127.0.0.1:5236?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf-8";
 				this.autoFillForm.port = "5236";
 			}
 		},
@@ -319,22 +314,16 @@ export default {
 					let serverName = this.autoFillForm.serverName;
 					let initDatabaseName = this.autoFillForm.initDatabaseName;
 					if (thatClassName === 'com.mysql.jdbc.Driver') {
-						//this.urlPlaceholder = "例：jdbc:mysql://127.0.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8";
 						this.newDatasource.sourceUrl = "jdbc:mysql://" + hostIp + ":" + port;
 					} else if (thatClassName === 'net.sourceforge.jtds.jdbc.Driver') {
-						//this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:1433;DatabaseName=user_info;socketTimeout=60;";
 						this.newDatasource.sourceUrl = "jdbc:jtds:sqlserver://" + hostIp + ":" + port +";DatabaseName=" + initDatabaseName;
 					} else if (thatClassName === 'oracle.jdbc.driver.OracleDriver') {
-						//this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
 						this.newDatasource.sourceUrl = "jdbc:oracle:thin:@" + hostIp + ":" + port + "/" + serverName;
 					} else if (thatClassName === 'org.postgresql.Driver') {
-						//this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
 						this.newDatasource.sourceUrl = "jdbc:postgresql://" + hostIp + ":" + port+"/" + initDatabaseName;
 					} else if (thatClassName === 'org.apache.hive.jdbc.HiveDriver') {
-						//this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
 						this.newDatasource.sourceUrl = "jdbc:hive2://" + hostIp + ":" + port;
 					} else if (thatClassName === 'dm.jdbc.driver.DmDriver') {
-						//this.urlPlaceholder = "例：jdbc:dm://127.0.0.1:5236?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf-8";
 						this.newDatasource.sourceUrl = "jdbc:dm://" + hostIp + ":" + port;
 					}
 				} else {
@@ -440,21 +429,23 @@ export default {
 			});
 		},
 		driverClassNameChange() {
-			if (this.newDatasource.driverClassName == 'com.mysql.jdbc.Driver') {
+			let thatClassName = this.newDatasource.driverClassName;
+			if (thatClassName === 'com.mysql.jdbc.Driver') {
 				this.urlPlaceholder = "例：jdbc:mysql://127.0.0.1:3306/user_info?useUnicode=true&characterEncoding=utf8";
-			} else if (this.newDatasource.driverClassName == 'net.sourceforge.jtds.jdbc.Driver') {
+			} else if (thatClassName === 'net.sourceforge.jtds.jdbc.Driver') {
 				this.urlPlaceholder = "例：jdbc:jtds:sqlserver://127.0.0.1:1433;DatabaseName=user_info;socketTimeout=60;";
-			} else if (this.newDatasource.driverClassName == 'oracle.jdbc.driver.OracleDriver') {
-				this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/user_info";
-			} else if (this.newDatasource.driverClassName == 'org.postgresql.Driver') {
+			} else if (thatClassName === 'oracle.jdbc.driver.OracleDriver') {
+				this.urlPlaceholder = "例：jdbc:oracle:thin:@127.0.0.1:1521/serverName";
+			} else if (thatClassName === 'org.postgresql.Driver') {
 				this.urlPlaceholder = "例：jdbc:postgresql://127.0.0.1:5432/user_info";
-			} else if (this.newDatasource.driverClassName == 'org.apache.hive.jdbc.HiveDriver') {
+			} else if (thatClassName === 'org.apache.hive.jdbc.HiveDriver') {
 				this.urlPlaceholder = "例：jdbc:hive2://127.0.0.1:21050/user_info;auth=noSasl";
-			} else if (this.newDatasource.driverClassName == 'dm.jdbc.driver.DmDriver') {
+			} else if (thatClassName === 'dm.jdbc.driver.DmDriver') {
 				this.urlPlaceholder = "例：jdbc:dm://127.0.0.1:5236?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf-8";
 			}
 			this.sourceUrlDisabled = false;
 			this.oracleServerNameShow = false;
+			this.initDatabaseNameShow = false;
 		},
 		handleCurrentChange(to) {
 			this.currentPage = to;
