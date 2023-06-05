@@ -636,16 +636,10 @@ const deletePageFile = (row) => {
 		cancelButtonText: '取消',
 		type: 'warning',
 	}).then(() => {
-		let param = {id: row.id}
+		let param = {id: row.id};
 		pageApi.deletePageFile(param).then(() => {
-			let pageFileList = []
-			for (let i = 0; i < pageFileList.value.length; i++) {
-				if (pageFileList.value[i].id != row.id) {
-					pageFileList.push(pageFileList.value[i])
-				}
-			}
-			pageFileList.value = pageFileList
-		})
+			pageFileList.value = pageFileList.value.filter(item => item.id !== row.id);
+		});
 	})
 }
 const getUserHeadBgColor = (userId) => {
