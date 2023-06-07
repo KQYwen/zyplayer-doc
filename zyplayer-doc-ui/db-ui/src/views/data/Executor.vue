@@ -39,7 +39,7 @@
 				</div>
 			</el-card>
 			<div ref="topResize" class="top-resize">
-				<i ref="topResizeBar">. . .</i>
+				<i ref="topResizeBar"></i>
 			</div>
 			<el-card :style="{ height: rightBodyButtomHeight + 'px' }">
 				<div style="position: relative;">
@@ -199,7 +199,7 @@ import datasourceApi from '../../common/api/datasource'
 import aceEditor from "../../common/lib/ace-editor";
 import sqlParser from "./parser/SqlParser";
 import Clickoutside from 'element-ui/src/utils/clickoutside';
-import merge from 'webpack-merge';
+import { throttle, debounce } from '@/common/utils/throttleDebounce.js'
 
 export default {
 	directives: {Clickoutside},
@@ -731,9 +731,9 @@ export default {
 				let startY = e.clientY;
 				// 颜色改变提醒
 				resize.style.background = "#ccc";
-				resizeBar.style.background = "#aaa";
+				//resizeBar.style.background = "#aaa";
 				resize.left = resize.offsetLeft;
-				document.onmousemove = e2 => {
+				document.onmousemove = throttle( e2 => {
 					// 计算并应用位移量
 					let endY = e2.clientY;
 					let moveLen = startY - endY;
@@ -748,11 +748,18 @@ export default {
 						}
 						this.elementHeightCalculation();
 					}
-				};
+				},10);
 				document.onmouseup = () => {
 					// 颜色恢复
 					resize.style.background = "#fafafa";
-					resizeBar.style.background = "#ccc";
+					resize.addEventListener("mouseover", function() {
+						resize.style.backgroundColor = "#ccc";
+					});
+
+					resize.addEventListener("mouseout", function() {
+						resize.style.backgroundColor = "#fafafa";
+					});
+					//resizeBar.style.background = "#ccc";
 					document.onmousemove = null;
 					document.onmouseup = null;
 				};
@@ -925,14 +932,18 @@ export default {
 	display: flex;
 }
 
+.top-resize:hover{
+	background: #ccc;
+}
+
 .top-resize i {
 	width: 35px;
 	height: 5px;
 	display: inline-block;
 	line-height: 0px;
 	border-radius: 5px;
-	background: #ccc;
-	color: #888;
+	/*background: #ccc;*/
+	/*color: #888;*/
 	text-align: center;
 	margin: auto;
 }

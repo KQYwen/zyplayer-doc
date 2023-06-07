@@ -73,7 +73,7 @@
 				</div>
 			</el-aside>
 			<div ref="rightResize" class="right-resize">
-				<i ref="rightResizeBar">...</i>
+				<i ref="rightResizeBar"></i>
 			</div>
 			<el-container>
 				<el-header>
@@ -104,6 +104,7 @@
 import userApi from './common/api/user'
 import datasourceApi from './common/api/datasource'
 import aboutDialog from './views/common/AboutDialog'
+import { throttle, debounce } from '@/common/utils/throttleDebounce.js'
 
 export default {
 	data() {
@@ -147,10 +148,6 @@ export default {
 		let winHeight = window.innerHeight;
 		let leftTopHeight = document.getElementById('leftTopHeight').offsetHeight;
 		this.vueEasyTreeHeight = winHeight - leftTopHeight -50;
-	},
-	beforeDestroy() {
-		// 移除滚动事件监听
-		this.$refs.scrollContainer.removeEventListener('scroll', this.handleScroll)
 	},
 	methods: {
 		userSettingDropdown(command) {
@@ -313,13 +310,13 @@ export default {
 			// 保留this引用
 			let resize = this.$refs.rightResize;
 			let resizeBar = this.$refs.rightResizeBar;
-			resize.onmousedown = e => {
+			resize.onmousedown = e =>{
 				let startX = e.clientX;
 				// 颜色改变提醒
 				resize.style.background = "#ccc";
-				resizeBar.style.background = "#aaa";
+				//resizeBar.style.background = "#aaa";
 				resize.left = resize.offsetLeft;
-				document.onmousemove = e2 => {
+				document.onmousemove = throttle(e2 => {
 					// 计算并应用位移量
 					let endX = e2.clientX;
 					let moveLen = startX - endX;
@@ -330,11 +327,18 @@ export default {
 							this.rightAsideWidth = 200;
 						}
 					}
-				};
+				},10);
 				document.onmouseup = () => {
 					// 颜色恢复
 					resize.style.background = "#fafafa";
-					resizeBar.style.background = "#ccc";
+					resize.addEventListener("mouseover", function() {
+						resize.style.backgroundColor = "#ccc";
+					});
+
+					resize.addEventListener("mouseout", function() {
+						resize.style.backgroundColor = "#fafafa";
+					});
+					//resizeBar.style.background = "#ccc";
 					document.onmousemove = null;
 					document.onmouseup = null;
 				};
@@ -436,6 +440,10 @@ html, body {
 	background: #fafafa;
 }
 
+.right-resize:hover{
+	background: #ccc;
+}
+
 .right-resize i {
 	margin-top: 300px;
 	width: 5px;
@@ -445,8 +453,8 @@ html, body {
 	word-break: break-all;
 	line-height: 8px;
 	border-radius: 5px;
-	background: #ccc;
-	color: #888;
+	/*background: #ccc;*/
+	/*color: #888;*/
 	text-align: center;
 }
 
