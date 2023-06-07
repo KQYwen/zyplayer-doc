@@ -718,6 +718,12 @@ export default {
 			}
 		},
 		dragChangeTopHeight: function () {
+			//浏览器页面高度
+			let winHeight = window.innerHeight;
+			//主体高度
+			let bodyHeight = winHeight - 82;
+			this.rightBodyHeight = bodyHeight;
+			let bodyTopHeight = bodyHeight * 0.75;
 			// 保留this引用
 			let resize = this.$refs.topResize;
 			let resizeBar = this.$refs.topResizeBar;
@@ -731,14 +737,14 @@ export default {
 					// 计算并应用位移量
 					let endY = e2.clientY;
 					let moveLen = startY - endY;
-					if ((moveLen < 0 && this.rightBodyTopHeight < 480) || (moveLen > 0 && this.rightBodyTopHeight > 100)) {
+					if ((moveLen < 0 && this.rightBodyTopHeight < bodyTopHeight) || (moveLen > 0 && this.rightBodyTopHeight > 100)) {
 						startY = endY;
 						this.rightBodyTopHeight -= moveLen;
 						if (this.rightBodyTopHeight < 100) {
 							this.rightBodyTopHeight = 100;
 						}
-						if (this.rightBodyTopHeight > 480) {
-							this.rightBodyTopHeight = 480;
+						if (this.rightBodyTopHeight > bodyTopHeight) {
+							this.rightBodyTopHeight = bodyTopHeight;
 						}
 						this.elementHeightCalculation();
 					}

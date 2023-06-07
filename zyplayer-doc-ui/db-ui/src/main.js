@@ -3,6 +3,8 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import UmyUi from 'umy-ui';
 import 'umy-ui/lib/theme-chalk/index.css';
+import VueEasyTree from "@wchbrad/vue-easy-tree";
+import "@wchbrad/vue-easy-tree/src/assets/index.scss"
 import App from './App.vue';
 
 import VueRouter from 'vue-router';
@@ -22,6 +24,7 @@ Vue.use(ElementUI,{
 	size:'small'
 });
 Vue.use(UmyUi);
+Vue.use(VueEasyTree)
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
 Vue.use(vueHljs);
