@@ -29,7 +29,7 @@
 
 					<el-button icon="el-icon-refresh-left" size="small" @click="refreshData">重置</el-button>
 					<el-button @click="downloadTableData" type="success" size="small" icon="el-icon-download" plain
-							   style="margin-left: 30px;">导出
+							   style="margin-left: 10px;">导出
 					</el-button>
 				</div>
 			</el-card>
@@ -100,8 +100,8 @@
 											</el-tooltip>
 										</template>
 										<template slot-scope="scope">
-											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner"
-													  rows="1"></textarea>
+											<input title="" :value="scope.row[item.prop]" class="el-textarea__inner"
+													  ></input>
 										</template>
 									</ux-table-column>
 								</ux-grid>
@@ -280,16 +280,7 @@ export default {
 		'ace-editor': aceEditor
 	},
 	mounted: function () {
-		this.height = 360;
-		// 延迟设置展开的目录，edit比app先初始化
-		// setTimeout(() => {
-		// 	this.doExecutorSqlCommon();
-		// this.$emit('initLoadDataList', {
-		// 	sourceId: this.vueQueryParam.sourceId,
-		// 	host: this.vueQueryParam.host,
-		// 	dbName: this.vueQueryParam.dbName
-		// });
-		// }, 500);
+		this.height = document.body.clientHeight - 330;
 		let resizeWindow = () => {
 			this.tableMaxHeight = document.body.clientHeight - 420;
 		};
@@ -376,6 +367,7 @@ export default {
 		},
 		doAceEditorShow() {
 			this.aceEditorShow = !this.aceEditorShow
+			this.aceEditorShow?this.height = this.height - 125:this.height = this.height + 125;
 		},
 		doExecutorSqlCommon() {
 			if (!this.pageParam.sourceId) {
@@ -678,6 +670,7 @@ export default {
 	line-height: 26px;
 	padding: 0;
 	resize: none;
+	font-size: 12px;
 }
 
 .data-executor-vue .execute-use-time {

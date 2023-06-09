@@ -17,7 +17,7 @@
 							<el-button plain type="primary" @click="showCreateTableDdl" style="margin-left: 10px;" icon="el-icon-magic-stick">DDL</el-button>
 						</el-col>
 					</el-row>
-					<el-table :data="columnList" stripe border style="width: 100%; margin-bottom: 5px;">
+					<el-table :data="columnList" stripe border :height="height" style="width: 100%; margin-bottom: 5px;">
 						<el-table-column prop="name" label="字段名" width="220"></el-table-column>
 						<el-table-column label="自增" width="50">
 							<template slot-scope="scope">{{scope.row.selfIncrement ? '是' : '否'}}</template>
@@ -150,6 +150,7 @@
                 tableDDLInfoDialogVisible: false,
 				// 标签
 				tabActiveName: 'columns',
+				height: document.body.clientHeight - 200
             };
         },
 		mounted: function () {

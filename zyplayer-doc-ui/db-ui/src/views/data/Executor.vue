@@ -141,8 +141,8 @@
 											</el-tooltip>
 										</template>
 										<template slot-scope="scope">
-											<textarea readonly :value="scope.row[item.prop]" class="el-textarea__inner"
-													  rows="1"></textarea>
+											<input title="" :value="scope.row[item.prop]" class="el-textarea__inner"
+													  ></input>
 										</template>
 									</ux-table-column>
 								</ux-grid>
@@ -529,6 +529,7 @@ export default {
 				this.executeResultInfo = executeResultInfo;
 				this.executeResultList = executeResultList;
 				this.loadHistoryList();
+
 			});
 		},
 		//查看所有数据
@@ -730,7 +731,8 @@ export default {
 			resize.onmousedown = e => {
 				let startY = e.clientY;
 				// 颜色改变提醒
-				resize.style.background = "#ccc";
+				resize.style.setProperty("--topResizeColor", "#ccc");
+				//resize.style.background = "#ccc";
 				//resizeBar.style.background = "#aaa";
 				resize.left = resize.offsetLeft;
 				document.onmousemove = throttle( e2 => {
@@ -751,14 +753,8 @@ export default {
 				},10);
 				document.onmouseup = () => {
 					// 颜色恢复
-					resize.style.background = "#fafafa";
-					resize.addEventListener("mouseover", function() {
-						resize.style.backgroundColor = "#ccc";
-					});
-
-					resize.addEventListener("mouseout", function() {
-						resize.style.backgroundColor = "#fafafa";
-					});
+					resize.style.setProperty("--topResizeColor", "#fafafa");
+					//resize.style.background = "#fafafa";
 					//resizeBar.style.background = "#ccc";
 					document.onmousemove = null;
 					document.onmouseup = null;
@@ -851,6 +847,7 @@ export default {
 	line-height: 26px;
 	padding: 0;
 	resize: none;
+	font-size: 12px;
 }
 
 .data-executor-vue .sql-content-line {
@@ -924,11 +921,15 @@ export default {
 	display: none;
 }
 
+:root {
+	--topResizeColor: #fafafa;
+}
+
 .top-resize {
 	width: 100%;
 	height: 5px;
 	cursor: s-resize;
-	background: #fafafa;
+	background: var(--topResizeColor);
 	display: flex;
 }
 

@@ -199,7 +199,7 @@ export default {
 					dbName: node.dbName,
 					tableName: node.tableName
 				};
-				this.$router.push({path: '/table/database', query: this.nowClickPath});
+				this.$router.push({path: '/table/database', query: this.nowClickPath}).catch(err => err);
 			} else if (node.type == 2) {
 				this.nowClickPath = {
 					sourceId: this.choiceDatasourceId,
@@ -207,7 +207,7 @@ export default {
 					dbName: node.dbName,
 					tableName: node.tableName
 				};
-				this.$router.push({path: '/table/info', query: this.nowClickPath});
+				this.$router.push({path: '/table/info', query: this.nowClickPath}).catch(err => err);
 			}
 		},
 		handleNodeExpand(nodeData, node) {
@@ -285,7 +285,7 @@ export default {
 							id: host + "_" + result[i].dbName, host: host, dbName: result[i].dbName,
 							name: result[i].dbName, type: 1
 						};
-						item.children = [{label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
+						item.children = [{id:'1',label: '', needLoad: true}];// 初始化一个对象，点击展开时重新查询加载
 						children.push(item);
 					}
 					pathIndex.push({id: host, host: host, name: host, children: children});
@@ -313,7 +313,8 @@ export default {
 			resize.onmousedown = e =>{
 				let startX = e.clientX;
 				// 颜色改变提醒
-				resize.style.background = "#ccc";
+				resize.style.setProperty("--rightResizeColor", "#ccc");
+				//resize.style.background = "#ccc";
 				//resizeBar.style.background = "#aaa";
 				resize.left = resize.offsetLeft;
 				document.onmousemove = throttle(e2 => {
@@ -330,14 +331,8 @@ export default {
 				},10);
 				document.onmouseup = () => {
 					// 颜色恢复
-					resize.style.background = "#fafafa";
-					resize.addEventListener("mouseover", function() {
-						resize.style.backgroundColor = "#ccc";
-					});
-
-					resize.addEventListener("mouseout", function() {
-						resize.style.backgroundColor = "#fafafa";
-					});
+					resize.style.setProperty("--rightResizeColor", "#fafafa");
+					//resize.style.background = "#fafafa";
 					//resizeBar.style.background = "#ccc";
 					document.onmousemove = null;
 					document.onmouseup = null;
@@ -433,11 +428,15 @@ html, body {
 	display: inline-block;
 }
 
+:root {
+	--rightResizeColor: #fafafa;
+}
+
 .right-resize {
 	width: 5px;
 	height: 100%;
 	cursor: w-resize;
-	background: #fafafa;
+	background: var(--rightResizeColor);
 }
 
 .right-resize:hover{
