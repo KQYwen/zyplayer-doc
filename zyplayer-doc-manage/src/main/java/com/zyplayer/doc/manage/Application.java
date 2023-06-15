@@ -22,11 +22,16 @@ import java.util.Optional;
  * 程序启动器
  *
  * @author 暮光：城中城
+ * @author Sh1yu 2023年6月15日
  * @since 2018-11-27
  */
 @EnableScheduling
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.zyplayer.doc"})
+@ComponentScan(basePackages = {
+		"com.zyplayer.doc.manage",
+		"com.zyplayer.doc.data",
+		"com.zyplayer.doc.core"
+})
 public class Application extends SpringBootServletInitializer {
 	
 	private static Logger logger = LoggerFactory.getLogger(Application.class);
