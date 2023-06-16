@@ -2,6 +2,7 @@ package com.zyplayer.doc.manage.framework.interceptor;
 
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.manage.framework.config.ZyplayerDocConfig;
+import com.zyplayer.doc.manage.framework.config.ZyplayerMoudleKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,21 +23,21 @@ public class MoudleMissingInterceptor implements HandlerInterceptor {
     private static final Logger logger = LoggerFactory.getLogger(MoudleMissingInterceptor.class);
 
     @Resource
-    ZyplayerDocConfig zyplayerDocConfig;
+    ZyplayerMoudleKeeper moudleKeeper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String requestURI = request.getRequestURI();
         String simpleMoudleUri = requestURI.replace("/zyplayer-doc/", "");
-        if (simpleMoudleUri.startsWith("zyplayer-doc-wiki") && !zyplayerDocConfig.isEnableWiki()) {
+        if (simpleMoudleUri.startsWith("zyplayer-doc-wiki") && !moudleKeeper.isMoudleStarted(ZyplayerDocConfig.enableWiki.class)) {
             doFailResponse(response, "wiki模块未启动，无法提供相应功能");
             return false;
         }
-        if (simpleMoudleUri.startsWith("zyplayer-doc-db") && !zyplayerDocConfig.isEnableDb()) {
+        if (simpleMoudleUri.startsWith("zyplayer-doc-db") && !moudleKeeper.isMoudleStarted(ZyplayerDocConfig.enableDb.class)) {
             doFailResponse(response, "db模块未启动，无法提供相应功能");
             return false;
         }
-        if (simpleMoudleUri.startsWith("zyplayer-doc-api") && !zyplayerDocConfig.isEnableApi()) {
+        if (simpleMoudleUri.startsWith("zyplayer-doc-api") && !moudleKeeper.isMoudleStarted(ZyplayerDocConfig.enableApi.class)) {
             doFailResponse(response, "api模块未启动，无法提供相应功能");
             return false;
         }

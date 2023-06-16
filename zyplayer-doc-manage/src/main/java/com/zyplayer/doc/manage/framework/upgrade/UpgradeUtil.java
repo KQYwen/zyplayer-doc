@@ -1,4 +1,4 @@
-package com.zyplayer.doc.manage.task;
+package com.zyplayer.doc.manage.framework.upgrade;
 
 import com.zyplayer.doc.core.util.ZyplayerDocVersion;
 

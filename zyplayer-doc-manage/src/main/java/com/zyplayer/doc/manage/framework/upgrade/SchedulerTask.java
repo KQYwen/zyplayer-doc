@@ -1,4 +1,4 @@
-package com.zyplayer.doc.manage.task;
+package com.zyplayer.doc.manage.framework.upgrade;
 
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;

@@ -3,7 +3,8 @@ package com.zyplayer.doc.manage.web;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.manage.framework.config.ZyplayerDocConfig;
-import com.zyplayer.doc.manage.task.UpgradeUtil;
+import com.zyplayer.doc.manage.framework.config.ZyplayerMoudleKeeper;
+import com.zyplayer.doc.manage.framework.upgrade.UpgradeUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ import javax.annotation.Resource;
 public class SystemInfoController {
 
     @Resource
-    ZyplayerDocConfig zyplayerDocConfig;
+    ZyplayerMoudleKeeper moudleKeeper;
 
     @PostMapping("/upgrade")
     public ResponseJson<Object> upgradeInfo() {
@@ -32,7 +33,7 @@ public class SystemInfoController {
 
     @GetMapping("/moudle")
     public ResponseJson<Object> moudleInfo() {
-        return DocResponseJson.ok(zyplayerDocConfig.getMoudleInfo());
+        return DocResponseJson.ok(moudleKeeper.getMoudleInfo());
     }
 
 }
