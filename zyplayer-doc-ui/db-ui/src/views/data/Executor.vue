@@ -703,6 +703,9 @@ export default {
 			if (this.uxGridCell) {
 				this.uxGridCell.style.border = 'none'
 			}
+			if(column.type==='index'||column.type==='checkbox'){
+				return;
+			}
 			cell.style.border = '2px solid #0078d7'
 			this.uxGridCell = cell;
 		},

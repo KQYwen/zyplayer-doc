@@ -76,7 +76,6 @@
 							<template v-else>
 								<ux-grid
 									v-clickoutside="handleClickOutside"
-									:data="resultItem.dataList"
 									stripe
 									border
 									:height="height"
@@ -84,24 +83,31 @@
 									:max-height="tableMaxHeight"
 									@selection-change="handleSelectionChange"
 									@cell-click="mouseOnFocus"
-									@cell-mouse-leave="mouseLeave"
 									@sort-change="tableSortChange"
+									keep-source
+									ref="plxTable"
+									:edit-config="{trigger:'click',mode:'cell',activeMethod:activeMethod}"
+									@edit-closed="editClosed"
 									:checkboxConfig="{checkMethod: selectable, highlight: true}"
 									:default-sort="tableSort">
 									<ux-table-column type="checkbox" width="50"></ux-table-column>
 									<ux-table-column type="index" width="50" title=" "></ux-table-column>
 									<ux-table-column v-for="(item,index) in resultItem.dataCols" :key="index"
-													 :prop="item.prop" :title="item.prop"
-													 :resizable="true"
+													 :prop="item.prop" :title="item.prop" :field="item.prop"
+													 :resizable="true" edit-render
 													 :width="item.width" sortable>
-										<template slot="header" slot-scope="scope">
+										<template v-slot:header="scope">
 											<el-tooltip effect="dark" :content="item.desc" placement="top">
 												<span>{{ item.prop }}</span>
 											</el-tooltip>
 										</template>
-										<template slot-scope="scope">
-											<input title="" :value="scope.row[item.prop]" class="el-textarea__inner"
+										<template v-slot="scope">
+											<input title="" v-model="scope.row[item.prop]" class="el-textarea__inner"
 													  ></input>
+										</template>
+										<template v-slot:edit="scope">
+											<input title="" v-model="scope.row[item.prop]" class="el-textarea__inner"
+											></input>
 										</template>
 									</ux-table-column>
 								</ux-grid>
@@ -425,6 +431,12 @@ export default {
 				this.executeShowTable = (itemIndex === 1) ? "table0" : "table1";
 				this.executeResultInfo = executeResultInfo;
 				this.executeResultList = executeResultList;
+				setTimeout (() => {
+					for (let i = 0; i < executeResultList.length; i++) {
+						this.datas = executeResultList[i].dataList;
+						this.$refs.plxTable[i].reloadData(this.datas);
+					}
+				})
 
 			}).catch(e => {
 				this.sqlExecuting = false;
@@ -455,6 +467,9 @@ export default {
 					width = (width < 50) ? 50 : width;
 					width = (width > 200) ? 200 : width;
 					let column = this.columnMap[key] || {};
+					if(key==='zyplayDbRowId'){
+						continue;
+					}
 					executeResultCols.push({prop: key, width: width + 50, desc: (column.description || key)});
 				}
 			}
@@ -474,19 +489,39 @@ export default {
 			if (this.uxGridCell) {
 				this.uxGridCell.style.border = 'none'
 			}
+			if(column.type==='index'||column.type==='checkbox'){
+				return;
+			}
 			cell.style.border = '2px solid #0078d7'
 			this.uxGridCell = cell;
-		},
-		//表格单元格 hover 退出
-		mouseLeave(row, column, cell, event) {
-			// if(this.uxGridCell){
-			// 	this.uxGridCell.style.border = 'none'
-			// }
 		},
 		// 点击区域外
 		handleClickOutside() {
 			if (this.uxGridCell) {
 				this.uxGridCell.style.border = 'none'
+			}
+		},
+		//根据返回值用来决定该单元格是否允许编辑
+		activeMethod(row){
+			return true
+		},
+		//单元格编辑状态下被关闭时
+		editClosed(row){
+			//判断是否发生改变
+			if(this.$refs.plxTable[0].isUpdateByRow(row.row)&&row.row.zyplayDbRowId){
+				this.$refs.plxTable[0].reloadRow(row, null, null)
+				let col = row.column.title;
+				let sql = "update \""+this.pageParam.dbName+"\".\""+this.pageParam.tableName+"\" set \""+col+"\" = \""+row.row[col] +"\" where ROWID = "+row.row.zyplayDbRowId;
+				datasourceApi.queryExecuteSql({
+					sourceId: this.pageParam.sourceId,
+					dbName: this.pageParam.dbName,
+					executeId: this.nowExecutorId,
+					sql: sql,
+				}).then(response => {
+					if(response.data[0].errCode!==0){
+						this.$message.error(response.data[0].errMsg)
+					}
+				})
 			}
 		},
 		doCopyCheckLineUpdate() {
