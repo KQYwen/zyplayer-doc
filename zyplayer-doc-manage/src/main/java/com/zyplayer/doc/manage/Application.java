@@ -22,11 +22,16 @@ import java.util.Optional;
  * 程序启动器
  *
  * @author 暮光：城中城
+ * @author Sh1yu 2023年6月15日
  * @since 2018-11-27
  */
 @EnableScheduling
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.zyplayer.doc"})
+@ComponentScan(basePackages = {
+		"com.zyplayer.doc.manage",
+		"com.zyplayer.doc.data",
+		"com.zyplayer.doc.core"
+})
 public class Application extends SpringBootServletInitializer {
 	
 	private static Logger logger = LoggerFactory.getLogger(Application.class);
@@ -38,19 +43,6 @@ public class Application extends SpringBootServletInitializer {
 	
 	public static void main(String[] args) throws Exception {
 		ConfigurableApplicationContext application = SpringApplication.run(Application.class, args);
-		Environment env = application.getEnvironment();
-		String contextPath = env.getProperty("server.servlet.context-path");
-		contextPath = Optional.ofNullable(contextPath).orElse("").replaceFirst("/", "");
-		contextPath = (contextPath.length() <= 0 || contextPath.endsWith("/")) ? contextPath : contextPath + "/";
-		String hostAddress = InetAddress.getLocalHost().getHostAddress();
-		String serverPort = env.getProperty("server.port");
-		String urlCtx = hostAddress + ":" + serverPort + "/" + contextPath;
-		logger.info("\n----------------------------------------------------------\n\t" +
-						"\tzyplayer-doc启动完成，当前版本：{}\n" +
-						"\t访问地址：http://{}\n" +
-						"----------------------------------------------------------",
-				ZyplayerDocVersion.version, urlCtx
-		);
 	}
 }
 
