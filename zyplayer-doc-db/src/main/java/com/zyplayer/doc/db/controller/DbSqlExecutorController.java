@@ -149,7 +149,10 @@ public class DbSqlExecutorController {
 					executeParam = SqlParseUtil.getSingleExecuteParam(executeParam,getAllCountSql, paramMap);
 					executeCountResult = columnSqlExecutor.execute(executeParam);
 					List<List<Object>> data = executeCountResult.getData();
-					long count = Long.parseLong(data.get(0).get(0)+"");
+					long count = 0;
+					if(data!=null){
+						count = Long.parseLong(data.get(0).get(0)+"");
+					}
 					//总数据量大于1000进行分页
 					if(count>1000){
 						String pageSql = dbBaseService.getQueryPageSqlBySql(originalSql,pageSize,pageNum);

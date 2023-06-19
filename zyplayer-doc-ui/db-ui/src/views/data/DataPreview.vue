@@ -467,7 +467,7 @@ export default {
 					width = (width < 50) ? 50 : width;
 					width = (width > 200) ? 200 : width;
 					let column = this.columnMap[key] || {};
-					if(key==='zyplayDbRowId'){
+					if(key==='ZYPLAYDBROWID'){
 						continue;
 					}
 					executeResultCols.push({prop: key, width: width + 50, desc: (column.description || key)});
@@ -508,19 +508,25 @@ export default {
 		//单元格编辑状态下被关闭时
 		editClosed(row){
 			//判断是否发生改变
-			if(this.$refs.plxTable[0].isUpdateByRow(row.row)&&row.row.zyplayDbRowId){
-				this.$refs.plxTable[0].reloadRow(row, null, null)
+			if(this.$refs.plxTable[0].isUpdateByRow(row.row)&&row.row.ZYPLAYDBROWID){
+				this.$refs.plxTable[0].reloadRow(row.row, null, null)
 				let col = row.column.title;
-				let sql = "update \""+this.pageParam.dbName+"\".\""+this.pageParam.tableName+"\" set \""+col+"\" = \""+row.row[col] +"\" where ROWID = "+row.row.zyplayDbRowId;
+				let sql = "update \""+this.pageParam.dbName+"\".\""+this.pageParam.tableName+"\" set \""+col+"\" = \'"+row.row[col] +"\' where ROWID = \'"+row.row.ZYPLAYDBROWID+"\'";
 				datasourceApi.queryExecuteSql({
 					sourceId: this.pageParam.sourceId,
 					dbName: this.pageParam.dbName,
 					executeId: this.nowExecutorId,
 					sql: sql,
 				}).then(response => {
-					if(response.data[0].errCode!==0){
-						this.$message.error(response.data[0].errMsg)
+					if(response.errCode!==200){
+						this.$message.error(response.errMsg);
+						return;
 					}
+					if(response.data[0].errCode!==0){
+						this.$message.error(response.data[0].errMsg);
+						return;
+					}
+					this.$message.success("修改成功");
 				})
 			}
 		},

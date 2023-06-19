@@ -48,7 +48,7 @@ public class DmServiceImpl extends DbBaseService {
             queryColumns = Arrays.stream(queryColumns.split(",")).map(word -> "\"" + word + "\"").collect(Collectors.joining(","));
         }
         StringBuilder sqlSb = new StringBuilder();
-        sqlSb.append(String.format("select ROWID as zyplayDbRowId,%s from %s.%s", queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName()));
+        sqlSb.append(String.format("select ROWID as ZYPLAYDBROWID,%s from %s.%s", queryColumns, dataViewParam.getDbName(), dataViewParam.getTableName()));
         if (StringUtils.isNotBlank(dataViewParam.getCondition())) {
             sqlSb.append(String.format(" where %s", dataViewParam.getCondition()));
         }
