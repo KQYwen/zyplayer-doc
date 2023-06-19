@@ -15,8 +15,8 @@ import java.util.HashMap;
  * @since 2023年6月15日
  */
 @Configuration
-public class ZyplayerMoudleKeeper implements ApplicationContextAware {
-    HashMap<String, Boolean> moudleInfo = new HashMap<>();
+public class ZyplayerModuleKeeper implements ApplicationContextAware {
+    HashMap<String, Boolean> moduleInfo = new HashMap<>();
     private ApplicationContext applicationContext;
 
     @Override
@@ -25,29 +25,29 @@ public class ZyplayerMoudleKeeper implements ApplicationContextAware {
     }
 
     //获取模块是否启动
-    public boolean isMoudleStarted(Class<?> clazz) {
-        if (moudleInfo.size() < 1) {
-            getMoudleInfo();
+    public boolean ismoduleStarted(Class<?> clazz) {
+        if (moduleInfo.size() < 1) {
+            getmoduleInfo();
         }
-        return moudleInfo.get(clazz.getName().split("\\$")[1]);
+        return moduleInfo.get(clazz.getName().split("\\$")[1]);
     }
 
     //提供模块开启状态数组，给前端控制页面展示
-    public HashMap<String, Boolean> getMoudleInfo() {
-        if (moudleInfo.size() < 1) {
-            synchronized (ZyplayerMoudleKeeper.class) {
+    public HashMap<String, Boolean> getmoduleInfo() {
+        if (moduleInfo.size() < 1) {
+            synchronized (ZyplayerModuleKeeper.class) {
                 Class<? extends ZyplayerDocConfig> clazz = ZyplayerDocConfig.class;
                 Class<?>[] innerClasses = clazz.getClasses();
                 for (Class<?> innerClass : innerClasses) {
-                    moudleInfo.put(innerClass.getName().split("\\$")[1], isMoudleConfigLoadUp(innerClass));
+                    moduleInfo.put(innerClass.getName().split("\\$")[1], ismoduleConfigLoadUp(innerClass));
                 }
 
             }
         }
-        return moudleInfo;
+        return moduleInfo;
     }
 
-    private Boolean isMoudleConfigLoadUp(Class<?> innerClass) {
+    private Boolean ismoduleConfigLoadUp(Class<?> innerClass) {
         Object bean = null;
         try {
             bean = applicationContext.getBean(innerClass);

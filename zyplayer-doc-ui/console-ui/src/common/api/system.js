@@ -6,6 +6,6 @@ export default {
         return request({url: '/system/info/upgrade', method: 'post', data: Qs.stringify(data)});
     },
 	fetchMoudleData: data => {
-        return request({url: '/system/info/moudle', method: 'get', data: Qs.stringify(data)});
+        return request({url: '/system/info/module', method: 'get', data: Qs.stringify(data)});
     }
 };

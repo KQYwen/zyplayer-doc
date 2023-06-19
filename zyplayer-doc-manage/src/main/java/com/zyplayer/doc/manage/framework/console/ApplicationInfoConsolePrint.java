@@ -20,7 +20,7 @@ public class ApplicationInfoConsolePrint implements IConsolePrint {
     Environment environment;
 
     @Override
-    public void buildPrintInfo(StringBuffer printInfo) throws Exception {
+    public void buildPrintInfo(StringBuilder printInfo) throws Exception {
         String contextPath = environment.getProperty("server.servlet.context-path");
         contextPath = Optional.ofNullable(contextPath).orElse("").replaceFirst("/", "");
         contextPath = (contextPath.length() <= 0 || contextPath.endsWith("/")) ? contextPath : contextPath + "/";

@@ -12,5 +12,5 @@ import java.net.UnknownHostException;
  * @since 2023年6月16日
  */
 public interface IConsolePrint extends Ordered {
-    public void buildPrintInfo(StringBuffer printInfo) throws Exception;
+    public void buildPrintInfo(StringBuilder printInfo) throws Exception;
 }
