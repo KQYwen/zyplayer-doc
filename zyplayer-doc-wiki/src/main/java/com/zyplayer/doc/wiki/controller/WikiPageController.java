@@ -27,8 +27,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.poifs.filesystem.DirectoryEntry;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.docx4j.XmlUtils;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +39,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -337,18 +340,29 @@ public class WikiPageController {
 			return DocResponseJson.warn("文档内容为空，不能导出！");
 		}
 		try {
-			ByteArrayInputStream bais = new ByteArrayInputStream(pageContent.getContent().getBytes("GBK"));
-			POIFSFileSystem poifs = new POIFSFileSystem();
-			DirectoryEntry directory = poifs.getRoot();
-			directory.createDocument("WordDocument", bais);
-			// 写入流
-			response.setContentType("application/vnd.ms-excel");
-			response.setCharacterEncoding("utf-8");
+			String content = pageContent.getContent();
 			String fileName = URLEncoder.encode(wikiPageSel.getName(), "UTF-8");
+			content = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Strict//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n" +
+					"<html lang=\"zh\">\n" +
+					"<head>\n" +
+					"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
+					"<title>" + fileName + "</title>\n" +
+					"</head>\n" +
+					"<body>" +
+					content +
+					"</body>\n" +
+					"</html>";
+			// 写入流
+			response.setCharacterEncoding("utf-8");
+			response.setContentType("application/vnd.ms-excel");
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".docx");
 			ServletOutputStream outputStream = response.getOutputStream();
-			poifs.writeFilesystem(outputStream);
-			bais.close();
+			WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
+			MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
+			mdp.addAltChunk(AltChunkType.Xhtml, content.getBytes(StandardCharsets.UTF_8));
+			mdp.convertAltChunks();
+			XmlUtils.marshaltoString(wordMLPackage.getMainDocumentPart().getJaxbElement(), true, true);
+			wordMLPackage.save(outputStream);
 			outputStream.close();
 			return DocResponseJson.ok();
 		} catch (Exception e) {
