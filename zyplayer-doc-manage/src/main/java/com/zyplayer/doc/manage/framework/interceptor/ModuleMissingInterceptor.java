@@ -29,8 +29,8 @@ public class ModuleMissingInterceptor implements HandlerInterceptor {
 
     public ModuleMissingInterceptor(ZyplayerModuleKeeper zyplayerModuleKeeper){
         enableWiki= zyplayerModuleKeeper.ismoduleStarted(ZyplayerDocConfig.enableWiki.class);
-        enableDb= zyplayerModuleKeeper.ismoduleStarted(ZyplayerDocConfig.enableWiki.class);
-        enableApi= zyplayerModuleKeeper.ismoduleStarted(ZyplayerDocConfig.enableWiki.class);
+        enableDb= zyplayerModuleKeeper.ismoduleStarted(ZyplayerDocConfig.enableDb.class);
+        enableApi= zyplayerModuleKeeper.ismoduleStarted(ZyplayerDocConfig.enableApi.class);
     }
 
     @Override
