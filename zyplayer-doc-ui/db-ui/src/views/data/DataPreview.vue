@@ -467,7 +467,10 @@ export default {
 					width = (width < 50) ? 50 : width;
 					width = (width > 200) ? 200 : width;
 					let column = this.columnMap[key] || {};
-					if(key==='ZYPLAYDBROWID'){
+					if(key.toLowerCase()==='zyplaydbrowid'){
+						continue;
+					}
+					if(key.toLowerCase()==='zyplaydbctid'){
 						continue;
 					}
 					executeResultCols.push({prop: key, width: width + 50, desc: (column.description || key)});
@@ -508,26 +511,40 @@ export default {
 		//单元格编辑状态下被关闭时
 		editClosed(row){
 			//判断是否发生改变
-			if(this.$refs.plxTable[0].isUpdateByRow(row.row)&&row.row.ZYPLAYDBROWID){
-				this.$refs.plxTable[0].reloadRow(row.row, null, null)
-				let col = row.column.title;
-				let sql = "update \""+this.pageParam.dbName+"\".\""+this.pageParam.tableName+"\" set \""+col+"\" = \'"+row.row[col] +"\' where ROWID = \'"+row.row.ZYPLAYDBROWID+"\'";
-				datasourceApi.queryExecuteSql({
-					sourceId: this.pageParam.sourceId,
-					dbName: this.pageParam.dbName,
-					executeId: this.nowExecutorId,
-					sql: sql,
-				}).then(response => {
-					if(response.errCode!==200){
-						this.$message.error(response.errMsg);
-						return;
+			if(this.$refs.plxTable[0].isUpdateByRow(row.row)){
+				let zyplaydbrowid= row.row.ZYPLAYDBROWID;
+				let zyplaydbctid = row.row.zyplaydbctid;
+				//存在说明为支持伪列的数据库
+				if(zyplaydbrowid||zyplaydbctid){
+					this.$refs.plxTable[0].reloadRow(row.row, null, null)
+					let col = row.column.title;
+					let sql = "";
+					if(zyplaydbrowid){
+						sql = "update \""+this.pageParam.dbName+"\".\""+this.pageParam.tableName+"\" set \""+col+"\" = \'"+row.row[col] +"\' where rowid = \'"+zyplaydbrowid+"\'";
+					}else if(zyplaydbctid){
+						sql = "update \""+this.pageParam.dbName+"\".\""+this.pageParam.tableName+"\" set \""+col+"\" = \'"+row.row[col] +"\' where ctid = \'"+zyplaydbctid+"\'";
 					}
-					if(response.data[0].errCode!==0){
-						this.$message.error(response.data[0].errMsg);
-						return;
-					}
-					this.$message.success("修改成功");
-				})
+					datasourceApi.queryExecuteSql({
+						sourceId: this.pageParam.sourceId,
+						dbName: this.pageParam.dbName,
+						executeId: this.nowExecutorId,
+						sql: sql,
+					}).then(response => {
+						if(response.errCode!==200){
+							this.$message.error(response.errMsg);
+							return;
+						}
+						if(response.data[0].errCode!==0){
+							this.$message.error(response.data[0].errMsg);
+							return;
+						}
+						this.$message.success("修改成功");
+						this.doExecutorSqlCommon();
+					})
+					return;
+				}
+				//不支持伪列数据库
+				//@TODO MySQL、SQL Server等数据库，不存在伪列概念或不适合用于条件语句。因此，对于这些数据库中没有主键表的数据，只能进行精确匹配的修改和删除操作
 			}
 		},
 		doCopyCheckLineUpdate() {
