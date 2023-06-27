@@ -190,7 +190,54 @@ public class WikiPageController {
 		wikiPageService.deletePage(wikiPage);
 		return DocResponseJson.ok();
 	}
-	
+	//创建空白page
+	@PostMapping("/empty")
+	public ResponseJson<Object> empty(WikiPage wikiPage) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		Long parentId = Optional.ofNullable(wikiPage.getParentId()).orElse(0L);
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
+		if (wikiSpaceSel == null) {
+			return DocResponseJson.warn("未找到指定的空间！");
+		}
+		// 空间不是自己的
+		if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.warn("您没有权限新增该空间的文章！");
+		}
+		// 空间不是自己的
+		if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
+			return DocResponseJson.warn("您没有权限新增该空间的文章！");
+		}
+		if (parentId > 0) {
+			WikiPage wikiPageParent = wikiPageService.getById(parentId);
+			if (!Objects.equals(wikiPage.getSpaceId(), wikiPageParent.getSpaceId())) {
+				return DocResponseJson.warn("当前空间和父页面的空间不一致，请重新选择父页面！");
+			}
+		}
+		Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getSpaceId(), parentId);
+		lastSeq = Optional.ofNullable(lastSeq).orElse(99999);
+		wikiPage.setSeqNo(lastSeq + 1);
+		wikiPage.setCreateTime(new Date());
+		wikiPage.setUpdateTime(new Date());
+		wikiPage.setCreateUserId(currentUser.getUserId());
+		wikiPage.setCreateUserName(currentUser.getUsername());
+		wikiPage.setName("未命名");
+		wikiPageService.save(wikiPage);
+		// 重置当前分支的所有节点seq值
+		wikiPageMapper.updateChildrenSeq(wikiPage.getSpaceId(), parentId);
+		WikiPageContent pageContent = new WikiPageContent();
+		pageContent.setContent("");
+		pageContent.setPreview("");
+		pageContent.setPageId(wikiPage.getId());
+		pageContent.setCreateTime(new Date());
+		pageContent.setCreateUserId(currentUser.getUserId());
+		pageContent.setCreateUserName(currentUser.getUsername());
+		wikiPageContentService.save(pageContent);
+		// 给相关人发送消息
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_CREATE);
+		userMessageService.addWikiMessage(userMessage);
+		return DocResponseJson.ok(wikiPage.getId());
+	}
+
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPage wikiPage, String content, String preview) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();

@@ -208,10 +208,14 @@ const turnLeftCollapse = () => {
 }
 const createWiki = () => {
 	if (choiceSpace.value > 0) {
-		router.push({
-			path: '/page/edit',
-			query: {parentId: nowPageId.value}
-		})
+			pageApi.createEmptyPage({spaceId: choiceSpace.value,parentId: nowPageId.value})
+					.then((json) => {
+						router.push({
+							path: '/page/edit',
+							query: {parentId: nowPageId.value, pageIdHid: json.data}
+						})
+					})
+
 	} else {
 		ElMessage.warning('请先选择或创建空间')
 	}

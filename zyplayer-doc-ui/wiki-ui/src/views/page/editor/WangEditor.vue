@@ -35,7 +35,7 @@ let toolbarConfig = {
 		"fullScreen", "undo", "redo", "emotion", "|", "lineHeight", "fontFamily"
 	],
 };
-
+let editorPageId = ref('');
 let route = useRoute();
 let editorConfig = ref({
 	placeholder: '请输入文档内容',
@@ -47,6 +47,9 @@ let editorConfig = ref({
 			// 最大支持50M图片上传
 			maxFileSize: 50 * 1024 * 1024,
 			withCredentials: true,
+			meta: {
+				pageId: editorPageId,
+			},
 		},
 		uploadVideo: {
 			server: import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload',
@@ -54,6 +57,9 @@ let editorConfig = ref({
 			// 最大支持300M图片上传
 			maxFileSize: 300 * 1024 * 1024,
 			withCredentials: true,
+			meta: {
+				pageId: editorPageId,
+			},
 		}
 	}
 });
@@ -83,6 +89,9 @@ const getPageData = () => {
 const setTitle = (title) => {
 	pageTitle.value = title;
 }
+const setPageId = (id) => {
+	editorPageId.value = id;
+}
 
 const setHtml = (content) => {
 	editorRef.value.select([]);
@@ -96,7 +105,7 @@ onBeforeUnmount(() => {
 	editor.destroy();
 });
 
-defineExpose({setTitle, setHtml, getPageData});
+defineExpose({setTitle,setPageId, setHtml, getPageData});
 </script>
 
 <style lang="scss">
