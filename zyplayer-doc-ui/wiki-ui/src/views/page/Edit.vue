@@ -79,8 +79,6 @@ let isUnlock = ref(false);
 let pageId = ref('');
 // 父级，有值代表在此父级新建文档
 let parentId = ref('');
-// 从新建文档传递过来的
-let pageIdHid = ref('');
 let markdownContent = ref('');
 let fileUploadUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/wangEditor/upload');
 let toolbars = {
@@ -181,8 +179,8 @@ const createWikiSave = (saveAfter) => {
 	}
 	// 修改内容时强制不能修改父路径，只能在目录上拖动修改
 	let parentIdVal = pageId.value > 0 ? '' : parentId.value
-	if (!!pageIdHid.value){
-		wikiPage.value.id = pageIdHid.value
+	if (!!pageId.value){
+		wikiPage.value.id = pageId.value
 	}
 	let param = {
 		spaceId: props.spaceId,
@@ -244,13 +242,9 @@ const cleanPage = () => {
 	}
 }
 const initQueryParam = (to) => {
-	pageIdHid.value = to.query.pageIdHid
 	// pageId和parentId二选一，传了pageId代表编辑页面，否则代表新建页面
 	pageId.value = to.query.pageId
 	parentId.value = to.query.parentId
-	if (!!pageIdHid.value){
-		wangEditorRef.value.setPageId(pageIdHid.value)
-	}
 	if (!!pageId.value){
 		wangEditorRef.value.setPageId(pageId.value)
 	}
@@ -273,9 +267,6 @@ let mavonEditorRef = ref();
 const addMarkdownImage = (pos, file) => {
 	let formData = new FormData()
 	formData.append('files', file)
-	if (!!pageIdHid.value){
-		formData.append('pageId', pageIdHid.value)
-	}
 	if (!!pageId.value){
 		formData.append('pageId', pageId.value)
 	}

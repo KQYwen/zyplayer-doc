@@ -3,7 +3,7 @@
 		<el-container>
 			<el-aside v-show="leftCollapse" :style="{ width: rightAsideWidth + 'px' }">
 				<div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
-					<div style="margin-bottom: 10px">
+					<div style="margin-bottom: 5px">
 						<el-select :model-value="choiceSpace" filterable placeholder="选择空间" style="width: 100%" @change="spaceChangeEvents">
 							<el-option-group label="">
 								<el-option key="0" label="创建空间" value="0"></el-option>
@@ -12,9 +12,6 @@
 							<el-option-group label=""></el-option-group>
 							<el-option v-for="item in spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
 						</el-select>
-					</div>
-					<div align="center">
-						<el-button :icon="ElIconPlus" style="width: 100%" v-on:click="createWiki">创建文档</el-button>
 					</div>
 					<el-autocomplete v-model="searchKeywords" :fetch-suggestions="doSearchByKeywords" placeholder="在当前空间搜索" popper-class="search-autocomplete" style="width: 100%; margin: 10px 0" @select="handleSearchKeywordsSelect">
 						<template v-slot="{ item }">
@@ -26,6 +23,21 @@
 							</div>
 						</template>
 					</el-autocomplete>
+					<div style="margin-left: 10px;margin-bottom: 10px">
+						<span style="color:#898989;font-size:small;">空间目录
+							<el-dropdown style="float:right">
+								<el-icon >
+									<el-icon-plus/>
+								</el-icon>
+								<template v-slot:dropdown>
+									<el-dropdown-menu>
+										<el-dropdown-item v-on:click="createWiki(1,true)">创建Html</el-dropdown-item>
+										<el-dropdown-item v-on:click="createWiki(2,true)">创建Markdown</el-dropdown-item>
+									</el-dropdown-menu>
+								</template>
+							</el-dropdown>
+						</span>
+					</div>
 					<div class="wiki-page-tree-box">
 						<el-tree
 								ref="wikiPageTreeRef"
@@ -45,10 +57,22 @@
 							<template v-slot="{ node, data }">
 								<div class="page-tree-node">
 									<el-tooltip :content="node.label" placement="top-start" :show-after="1000">
-										<span class="label">
-											<el-icon><el-icon-document/></el-icon>
-											<span class="text">{{ node.label }}</span>
-										</span>
+											<span class="label">
+												<el-icon><el-icon-document/></el-icon>
+												<span class="el-dropdown-link">{{ node.label }}
+													<el-dropdown style="float:right">
+														<el-icon >
+															<el-icon-plus/>
+														</el-icon>
+														<template v-slot:dropdown>
+															<el-dropdown-menu>
+																<el-dropdown-item v-on:click="createWiki(2)">创建Markdown</el-dropdown-item>
+																<el-dropdown-item v-on:click="createWiki(1)">创建Html</el-dropdown-item>
+															</el-dropdown-menu>
+														</template>
+													</el-dropdown>
+												</span>
+											</span>
 									</el-tooltip>
 								</div>
 							</template>
@@ -206,13 +230,16 @@ const turnLeftCollapse = () => {
 		}
 	}, 100)
 }
-const createWiki = () => {
-	if (choiceSpace.value > 0) {
-			pageApi.createEmptyPage({spaceId: choiceSpace.value,parentId: nowPageId.value})
+	const createWiki = (editorType,clearParentId) => {
+		if (clearParentId){
+			nowPageId.value = 0
+		}
+		if (choiceSpace.value > 0) {
+			pageApi.updatePage({spaceId: choiceSpace.value,parentId: nowPageId.value,editorType:editorType,name:'未命名',content:'',preview:''})
 					.then((json) => {
 						router.push({
 							path: '/page/edit',
-							query: {parentId: nowPageId.value, pageIdHid: json.data}
+							query: {parentId: nowPageId.value, pageId: json.data.id}
 						})
 					})
 
