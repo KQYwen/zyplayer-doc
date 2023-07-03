@@ -1,23 +1,32 @@
 <template>
 	<el-row class="page-action-box">
-		<el-col :span="12">
-			<span v-if="storePage.pageInfo.updateUserName">{{ storePage.pageInfo.updateUserName }}　于　{{storePage.pageInfo.updateTime}}　修改</span>
-			<span v-else class="create-user-time">{{ storePage.pageInfo.createUserName }}　于　{{storePage.pageInfo.createTime}}　创建</span>
+		<el-col :span="12" class="page-create-info">
+			<span v-if="storePage.pageInfo.updateUserName">
+				{{ storePage.pageInfo.updateUserName }}
+				<span class="split">于</span>
+				{{ storePage.pageInfo.updateTime }}
+				<span class="split">修改</span>
+			</span>
+			<span v-else class="create-user-time">
+				{{ storePage.pageInfo.createUserName }}
+				<span class="split">于</span>
+				{{ storePage.pageInfo.createTime }}
+				<span class="split">创建</span>
+			</span>
 		</el-col>
-		<el-col :span="12" style="text-align: right;">
-			<el-link v-if="storePage.pageAuth.canEdit === 1" type="primary" :underline="false" :icon="ElIconEdit" @click="editWiki" style="margin-right: 15px;"> 编辑</el-link>
-			<el-link type="primary" :icon="ElIconChatLineRound" :underline="false" @click="showCommentWiki" style="margin-right: 15px"> 评论</el-link>
+		<el-col :span="12" class="page-action-list">
+			<el-link v-if="storePage.pageAuth.canEdit === 1" @click="editWiki" type="primary" :underline="false" :icon="ElIconEdit" class="action-btn">编辑</el-link>
+			<el-link type="primary" :icon="ElIconChatLineRound" :underline="false" @click="showCommentWiki" class="action-btn">评论</el-link>
 			<el-upload v-if="storePage.pageAuth.canUploadFile === 1"
 			           :on-success="uploadFileSuccess"
 			           :on-error="uploadFileError"
 			           :action="uploadFileUrl"
 			           :data="uploadFormData"
-			           :with-credentials="true" class="upload-page-file" name="files"
-			           show-file-list multiple :limit="999"
-			           style="display: inline; margin-right: 15px;vertical-align: middle;">
+			           :with-credentials="true" class="action-btn upload-page-file" name="files"
+			           show-file-list multiple :limit="999">
 				<el-link type="primary" :underline="false" :icon="ElIconUpload"> 上传附件</el-link>
 			</el-upload>
-			<el-dropdown style="margin-right: 15px;vertical-align: middle;" trigger="click">
+			<el-dropdown trigger="click" class="action-btn more-dropdown">
 				<el-link type="primary" :underline="false">
 					更多 <el-icon class="el-icon--right"><el-icon-arrow-down/></el-icon>
 				</el-link>
@@ -164,6 +173,42 @@ const uploadFileSuccess = (response) => {
 
 <style scoped lang="scss">
 .page-action-box {
+  padding: 30px 0;
 
+  .page-create-info {
+	font-size: 14px;
+	color: #888;
+
+	.split {
+	  padding: 0 4px;
+	}
+  }
+
+  .page-action-list {
+	text-align: right;
+  }
+}
+</style>
+
+<style lang="scss">
+.page-action-box {
+  .page-action-list {
+	.el-icon {
+	  margin-right: 4px;
+	}
+
+	.action-btn + .action-btn {
+	  margin-left: 15px;
+	}
+
+	.upload-page-file {
+	  display: inline;
+	  vertical-align: middle;
+	}
+
+	.more-dropdown {
+	  vertical-align: middle;
+	}
+  }
 }
 </style>

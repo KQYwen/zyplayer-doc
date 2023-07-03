@@ -6,8 +6,8 @@
 					<div style="margin-bottom: 5px">
 						<el-select :model-value="choiceSpace" filterable placeholder="选择空间" style="width: 100%" @change="spaceChangeEvents">
 							<el-option-group label="">
-								<el-option key="0" label="创建空间" value="0"></el-option>
-								<el-option key="-1" label="空间管理" value="-1"></el-option>
+								<el-option :key="0" label="创建空间" :value="0"></el-option>
+								<el-option :key="-1" label="空间管理" :value="-1"></el-option>
 							</el-option-group>
 							<el-option-group label=""></el-option-group>
 							<el-option v-for="item in spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
