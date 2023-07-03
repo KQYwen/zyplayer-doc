@@ -25,13 +25,13 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 2. 执行`com.zyplayer.doc.manage.Application.main`方法启动项目
 
 ## JAR方式启动
-1. 直接下载：直接下载编译好的jar打包文件，加入QQ群即可下载编译后的最新版
+1. 直接下载：直接下载编译好的jar打包文件，编译后的最新版可到[在线文档](http://doc.zyplayer.com)右上角去下载
 2. 自行编译：也可以自己动手编译，双击执行：`zyplayer-doc\build.bat`，将使用maven编译整个项目为可执行的jar文件，编译结果文件放在：`zyplayer-doc\dist\version`文件夹下
 3. 修改第一步或第二步结果文件夹下的`application.yml`文件里面数据库帐号密码
 4. 双击第一步或第二步结果文件夹下的`startup.bat`启动项目
 
 ## Tomcat容器启动
-1. 直接下载编译好的war打包文件，加入QQ群即可下载编译后的最新版
+1. 直接下载编译好的war打包文件，编译后的最新版可到[在线文档](http://doc.zyplayer.com)右上角去下载
 2. 修改配置文件：`zyplayer-doc.zip\apache-tomcat\webapps\zyplayer-doc\WEB-INF\classes\application.yml`配置文件里面的数据库账号密码
 3. 双击`tomcat\bin\startup.bat`启动即可
 
@@ -78,7 +78,7 @@ zyplayer-doc是一款适合团队和个人使用的WIKI文档管理工具，同�
 如果您正在使用这个项目并感觉良好，或者是想支持项目继续开发，您可以通过如下`任意`方式支持我们：
 1. Star并分享 [zyplayer-doc](https://gitee.com/zyplayer/zyplayer-doc)
 2. 保留`关于页面`的项目链接
-3. 你也可以选择使用 [商业版](http://doc.zyplayer.com/#/integrate/zyplayer-doc/commercial) 来支持我们
+3. 你也可以选择使用 [商业版](https://doc.zyplayer.com/#/integrate/zyplayer-doc/commercial) 来支持我们
 
 # 界面展示
 控制台页面
