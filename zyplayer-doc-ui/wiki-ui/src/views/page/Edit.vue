@@ -179,6 +179,9 @@ const createWikiSave = (saveAfter) => {
 	}
 	// 修改内容时强制不能修改父路径，只能在目录上拖动修改
 	let parentIdVal = pageId.value > 0 ? '' : parentId.value
+	if (!!pageId.value){
+		wikiPage.value.id = pageId.value
+	}
 	let param = {
 		spaceId: props.spaceId,
 		parentId: parentIdVal,
@@ -188,6 +191,7 @@ const createWikiSave = (saveAfter) => {
 		content: content,
 		preview: preview,
 	}
+
 	pageApi.updatePage(param).then((json) => {
 		ElMessage.success('保存成功！')
 		// 重新加载左侧列表，跳转到展示页面
@@ -241,6 +245,9 @@ const initQueryParam = (to) => {
 	// pageId和parentId二选一，传了pageId代表编辑页面，否则代表新建页面
 	pageId.value = to.query.pageId
 	parentId.value = to.query.parentId
+	if (!!pageId.value){
+		wangEditorRef.value.setPageId(pageId.value)
+	}
 	if (!!pageId.value) {
 		loadPageDetail(pageId.value)
 		pageApi.pageLock({pageId: pageId.value}).catch((json) => {
@@ -260,6 +267,10 @@ let mavonEditorRef = ref();
 const addMarkdownImage = (pos, file) => {
 	let formData = new FormData()
 	formData.append('files', file)
+	if (!!pageId.value){
+		formData.append('pageId', pageId.value)
+	}
+
 	axios({
 		url: fileUploadUrl.value,
 		method: 'post',

@@ -190,7 +190,7 @@ public class WikiPageController {
 		wikiPageService.deletePage(wikiPage);
 		return DocResponseJson.ok();
 	}
-	
+
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPage wikiPage, String content, String preview) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
