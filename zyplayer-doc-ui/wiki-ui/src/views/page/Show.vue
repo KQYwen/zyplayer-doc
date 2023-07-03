@@ -6,44 +6,7 @@
 					<el-col :span="navigationList.length > 0 ? 18 : 24">
 						<div style="max-width: 1000px; margin: 0 auto; padding-left: 10px">
 							<div class="wiki-title" ref="wikiTitleRef">{{ wikiPage.name }}</div>
-							<div class="wiki-author">
-								<el-row>
-									<el-col :span="12">
-										<span v-if="wikiPage.updateUserName">{{ wikiPage.updateUserName }}　于　{{wikiPage.updateTime}}　修改</span>
-										<span v-else class="create-user-time">{{ wikiPage.createUserName }}　于　{{wikiPage.createTime}}　创建</span>
-									</el-col>
-									<el-col :span="12" style="text-align: right;">
-										<el-link type="primary" :icon="ElIconChatLineRound" :underline="false" @click="showCommentWiki" style="margin-right: 15px"> 评论</el-link>
-										<el-upload v-if="wikiPageAuth.canUploadFile === 1"
-										           :on-success="uploadFileSuccess"
-										           :on-error="uploadFileError"
-										           :action="uploadFileUrl"
-										           :data="uploadFormData"
-										           :with-credentials="true" class="upload-page-file" name="files"
-										           show-file-list multiple :limit="999"
-										           style="display: inline; margin-right: 15px;vertical-align: middle;">
-											<el-link type="primary" :underline="false" :icon="ElIconUpload"> 上传附件</el-link>
-										</el-upload>
-										<el-link v-if="wikiPageAuth.canEdit === 1" type="primary" :underline="false" :icon="ElIconEdit" @click="editWiki" style="margin-right: 15px;"> 编辑</el-link>
-										<el-dropdown style="margin-right: 15px;vertical-align: middle;" trigger="click" @command="handleMoreCommand">
-											<el-link type="primary" :underline="false">
-												更多
-												<el-icon class="el-icon--right"><el-icon-arrow-down/></el-icon>
-											</el-link>
-											<template v-slot:dropdown>
-												<el-dropdown-menu>
-													<el-dropdown-item command="showPageHistory" :icon="ElIconTime">查看历史版本</el-dropdown-item>
-													<el-dropdown-item command="editAuth" v-if="wikiPageAuth.canConfigAuth == 1" :icon="ElIconSCheck">权限设置</el-dropdown-item>
-													<el-dropdown-item command="showOpenPage" v-if="spaceInfo.openDoc == 1" :icon="ElIconShare">查看开放文档</el-dropdown-item>
-													<el-dropdown-item command="showMobileView" v-if="spaceInfo.openDoc == 1" :icon="ElIconMobilePhone">手机端查看</el-dropdown-item>
-													<el-dropdown-item command="exportWord" :icon="ElIconDownload">导出为Word文档</el-dropdown-item>
-													<el-dropdown-item command="deletePage" v-if="wikiPageAuth.canDelete == 1" :icon="ElIconDelete">删除</el-dropdown-item>
-												</el-dropdown-menu>
-											</template>
-										</el-dropdown>
-									</el-col>
-								</el-row>
-							</div>
+							<PageAction/>
 							<div class="wiki-files">
 								<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px">
 									<el-table-column label="文件名" show-overflow-tooltip>
@@ -212,6 +175,7 @@ import htmlUtil from '../../assets/lib/HtmlUtil.js'
 import pageApi from '../../assets/api/page'
 import userApi from '../../assets/api/user'
 import Navigation from './components/Navigation.vue'
+import PageAction from './show/PageAction.vue'
 import Comment from './show/Comment.vue'
 import {mavonEditor} from 'mavon-editor'
 import 'mavon-editor/dist/markdown/github-markdown.min.css'
@@ -553,11 +517,11 @@ const loadPageDetail = (pageId) => {
 			canConfigAuth: result.canConfigAuth,
 		}
 		if (wikiPage.value.editorType === 2) {
-			pageContent.value.content = mavonEditor.getMarkdownIt().render(pageContent.value.content)
+			pageContent.value.content = mavonEditor.getMarkdownIt().render(pageContent.value.content);
 		}
-		pageShowDetail.value = pageContent.value.content
+		pageShowDetail.value = pageContent.value.content;
 		// 修改标题
-		document.title = wikiPageRes.name || 'WIKI-内容展示'
+		document.title = wikiPageRes.name || 'WIKI-内容展示';
 		// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
 		// if (!lastClickNode.value.id) {
 		// 	lastClickNode.value = {id: wikiPage.id, nodePath: wikiPage.name};
@@ -567,10 +531,11 @@ const loadPageDetail = (pageId) => {
 		// 调用父方法展开目录树
 		emit('changeExpandedKeys', pageId);
 		setTimeout(() => {
-			previewPageImage()
-			createNavigationHeading()
+			previewPageImage();
+			createNavigationHeading();
 		}, 500);
 		storePage.pageInfo = wikiPageRes;
+		storePage.pageAuth = wikiPageAuth.value;
 	})
 	getPageHistory(pageId, 1)
 }

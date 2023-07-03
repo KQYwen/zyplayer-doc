@@ -180,10 +180,12 @@ import RightResize from './RightResize.vue'
 import AboutDialog from '../../views/common/AboutDialog'
 import {useStoreDisplay} from '@/store/wikiDisplay.js'
 import {useStoreUserData} from "@/store/userData";
+import {useStorePageData} from "@/store/pageData";
 
 let route = useRoute();
 let router = useRouter();
-const storeDisplay = useStoreDisplay();
+let storePage = useStorePageData();
+let storeDisplay = useStoreDisplay();
 
 let leftCollapse = ref(true);
 let rightContentLoading = ref(false);
@@ -352,30 +354,26 @@ const handleCurrentChange = (val) => {
 	loadUserMessageList()
 }
 const filterPageNode = (value, data) => {
-	if (!value || !data.name) return true
+	if (!value || !data.name) return true;
 	// issues:I2CG72 忽略大小写
-	let name = data.name.toLowerCase()
-	return name.indexOf(value.toLowerCase()) !== -1
+	let name = data.name.toLowerCase();
+	return name.indexOf(value.toLowerCase()) !== -1;
 }
 let createSpaceRef = ref();
 const spaceChangeEvents = (data) => {
-	if (data == 0) {
+	if (data === 0) {
 		// 新建空间
-		createSpaceRef.value.show()
-	} else if (data == -1) {
+		createSpaceRef.value.show();
+	} else if (data === -1) {
 		// 管理空间
-		router.push({path: '/space/manage'})
+		router.push({path: '/space/manage'});
 	} else {
-		choiceSpace.value = data
-		for (let i = 0; i < spaceList.value.length; i++) {
-			if (spaceList.value[i].id == data) {
-				nowSpaceShow.value = spaceList.value[i]
-				break
-			}
-		}
-		nowPageId.value = ''
-		doGetPageList(null)
-		router.push({path: '/home', query: {spaceId: data}})
+		nowPageId.value = '';
+		choiceSpace.value = data;
+		nowSpaceShow.value = spaceList.value.find((item) => item.id === data);
+		storePage.spaceInfo = nowSpaceShow.value;
+		doGetPageList(null);
+		router.push({path: '/home', query: {spaceId: data}});
 	}
 }
 const loadSpaceList = (spaceId) => {
