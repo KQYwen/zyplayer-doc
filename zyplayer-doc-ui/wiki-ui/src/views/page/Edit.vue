@@ -1,37 +1,19 @@
 <template>
 	<div style="height: 100%" class="page-edit-vue">
 		<div style="box-sizing: border-box; background: #f5f5f5; overflow: hidden">
-			<div style="padding: 8px; font-size: 14px; background: #fff">
+			<div style="padding: 5px; font-size: 14px; background: #fff">
 				<el-row>
-					<el-col :span="16">
-						<template v-if="pageId">
-							<span>编辑方式：</span>
-							<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId" size="small">
-								<el-option label="Markdown" :value="2"></el-option>
-								<el-option label="HTML" :value="1"></el-option>
-							</el-select>
-						</template>
-						<template v-else>
-                            <span class="parent-name">父级：{{ parentWikiPage.name || '/' }}</span>
-							<el-tooltip class="item" content="在根目录创建文档" v-if="parentId">
-								<el-link @click="changeToRootPath" type="primary" size="small" style="padding: 0 10px">根目录</el-link>
-							</el-tooltip>
-							<span style="margin-left: 50px">编辑方式：</span>
-							<el-select v-model="wikiPageEdit.editorType" v-on:change="editorTypeChange" :disabled="!!pageId" size="small">
-								<el-option label="Markdown" :value="2"></el-option>
-								<el-option label="HTML" :value="1"></el-option>
-							</el-select>
-						</template>
+					<el-col  :span="16"   style="text-align: left">
+						<el-input v-if="wikiPageEdit.editorType===2" v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
 					</el-col>
-					<el-col :span="8" style="text-align: right">
+					<el-col :span="8"  style="text-align: right;margin-top: 4px;">
 						<el-button type="primary" v-on:click="createWikiSave(1)" size="small" :icon="ElIconDocumentChecked">保存并查看</el-button>
 						<el-button type="success" v-on:click="createWikiSave(0)" size="small" :icon="ElIconCheck">仅保存</el-button>
-						<el-button v-on:click="createWikiCancel" size="small" :icon="ElIconBack">取消</el-button>
+						<el-button v-on:click="createWikiCancel" size="small" :icon="ElIconBack" style="margin-right: 5px">取消</el-button>
 					</el-col>
 				</el-row>
 			</div>
 			<div v-show="wikiPageEdit.editorType === 2" style="padding: 0 10px 10px 10px; background: #fff">
-				<el-input v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input"></el-input>
 				<mavonEditor
 					ref="mavonEditorRef"
 					v-model="markdownContent"
@@ -137,13 +119,6 @@ onMounted(() => {
 		that.unlockPage()
 	}
 })
-const changeToRootPath = () => {
-	// 没有父级，就是在根目录创建
-	parentId.value = ''
-	parentWikiPage.value = {}
-}
-const editorTypeChange = () => {
-}
 const unlockPage = () => {
 	// 防止各种事件重复调这个接口，只需要调一次就好了
 	if (isUnlock.value) return
@@ -385,6 +360,8 @@ const initEditor = () => {
 
 .page-edit-vue .page-title-input {
 	padding-bottom: 10px;
+	margin-left: 5px;
+	width: 100%;
 }
 
 .page-edit-vue .markdown-body table {

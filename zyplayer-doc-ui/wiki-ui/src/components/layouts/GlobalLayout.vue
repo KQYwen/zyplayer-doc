@@ -24,15 +24,22 @@
 						</template>
 					</el-autocomplete>
 					<div style="margin-left: 10px;margin-bottom: 10px">
-						<span style="color:#898989;font-size:small;">空间目录
-							<el-dropdown style="float:right">
-								<el-icon >
-									<el-icon-plus/>
+						<span  style="color:#898989;font-size:small;">空间目录
+							<el-dropdown  trigger="click" style="float:right">
+								<el-icon   style="margin-right: 5px">
+									<el-icon-plus />
 								</el-icon>
 								<template v-slot:dropdown>
 									<el-dropdown-menu>
-										<el-dropdown-item v-on:click="createWiki(1,true)">创建Html</el-dropdown-item>
-										<el-dropdown-item v-on:click="createWiki(2,true)">创建Markdown</el-dropdown-item>
+										<el-dropdown-item v-on:click="createWiki(1,true)">
+											<el-icon  class="clickAddIcon" style="margin-right: 5px">
+												<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+											</el-icon>
+											创建富文本
+										</el-dropdown-item>
+										<el-dropdown-item v-on:click="createWiki(2,true)">
+											<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
+										</el-dropdown-item>
 									</el-dropdown-menu>
 								</template>
 							</el-dropdown>
@@ -55,24 +62,36 @@
 								@node-expand="handleNodeExpand"
 								@node-drop="handlePageDrop">
 							<template v-slot="{ node, data }">
-								<div class="page-tree-node">
+								<div class="page-tree-node" @mouseover="changeNodeOptionStatus(data,1)" @mouseleave="changeNodeOptionStatus(data,-1) ">
 									<el-tooltip :content="node.label" placement="top-start" :show-after="1000">
-											<span class="label">
-												<el-icon><el-icon-document/></el-icon>
-												<span class="el-dropdown-link">{{ node.label }}
-													<el-dropdown style="float:right">
-														<el-icon >
-															<el-icon-plus/>
-														</el-icon>
-														<template v-slot:dropdown>
-															<el-dropdown-menu>
-																<el-dropdown-item v-on:click="createWiki(2)">创建Markdown</el-dropdown-item>
-																<el-dropdown-item v-on:click="createWiki(1)">创建Html</el-dropdown-item>
-															</el-dropdown-menu>
-														</template>
-													</el-dropdown>
-												</span>
+										<span >
+											<el-icon  v-if="data.editorType === 1" class="clickAddIcon" style="margin-right: 5px">
+												<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+											</el-icon>
+											<el-icon v-if="data.editorType === 2" class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>
+											<span  >{{ node.label }}</span>
+											<span class="el-dropdown-link" @click="pageInfoLock()" >
+												<el-dropdown trigger="click" style="float:right" >
+												<el-icon  v-show="changeNodeOptionStatus(data,0)"  style="margin-right: 5px">
+													<el-icon-plus />
+												</el-icon>
+												<template v-slot:dropdown>
+													<el-dropdown-menu>
+														<el-dropdown-item v-on:click="createWiki(1)">
+															<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+															</el-icon>
+															创建富文本
+														</el-dropdown-item>
+														<el-dropdown-item v-on:click="createWiki(2)">
+															<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
+														</el-dropdown-item>
+													</el-dropdown-menu>
+												</template>
+											</el-dropdown>
 											</span>
+
+										</span>
 									</el-tooltip>
 								</div>
 							</template>
@@ -212,6 +231,9 @@ let userMessagePopVisible = ref(false);
 let userMsgTotalCount = ref(0);
 let userMsgParam = ref({sysType: 2, pageNum: 1, pageSize: 20,});
 let rightAsideWidth = ref(300);
+let optionStatus = ref(false);
+let optionPageId = ref('');
+let optionLock = ref(false);
 
 onMounted(() => {
 	loadSpaceList()
@@ -221,6 +243,32 @@ onMounted(() => {
 const loadPageList = (param) => {
 	param = param || {}
 	doGetPageList(param.parentId, param.node)
+}
+const pageInfoLock = () => {
+	optionLock.value = true
+}
+const pageInfoUnlock = (keepLock) => {
+	console.log(optionLock.value)
+	if (optionLock.value === true){
+		if (!keepLock){
+			optionLock.value = false
+		}
+		return true
+	}
+	return false
+}
+const changeNodeOptionStatus = (param,type) => {
+	if (type > 0){
+		optionPageId.value = param.id
+		optionStatus.value = true
+	}
+	if (type < 0 ){
+		optionPageId.value = param.id
+		optionStatus.value = false
+	}
+	if (type === 0 && optionPageId.value === param.id && optionStatus.value){
+		return true
+	}
 }
 const turnLeftCollapse = () => {
 	leftCollapse.value = !leftCollapse.value
@@ -237,8 +285,10 @@ const turnLeftCollapse = () => {
 			nowPageId.value = 0
 		}
 		if (choiceSpace.value > 0) {
-			pageApi.updatePage({spaceId: choiceSpace.value,parentId: nowPageId.value,editorType:editorType,name:'未命名',content:'',preview:''})
+			pageApi.updatePage({spaceId: choiceSpace.value,parentId: nowPageId.value,editorType:editorType,name:'新建文档',content:'',preview:''})
 					.then((json) => {
+						doGetPageList(null)
+						ElMessage.success('创建成功')
 						router.push({
 							path: '/page/edit',
 							query: {parentId: nowPageId.value, pageId: json.data.id}
@@ -281,12 +331,18 @@ const searchByKeywordsNewPage = () => {
 	window.open(routeUrl.href, '_blank')
 }
 const handleNodeClick = (data) => {
-	// console.log('点击节点：', data, nowPageId.value)
+	//console.log('点击节点：', data, nowPageId.value)
+	if (pageInfoUnlock()){
+		return
+	}
 	nowPageId.value = data.id
 	router.push({path: '/page/show', query: {pageId: data.id}})
 	handleNodeExpand(data)
 }
 const handleNodeExpand = (node) => {
+	if (pageInfoUnlock(true)){
+		return
+	}
 	if (
 		node.children &&
 		node.children.length > 0 &&
@@ -297,6 +353,9 @@ const handleNodeExpand = (node) => {
 	}
 }
 const handlePageDrop = (draggingNode, dropNode, dropType, ev) => {
+	if (pageInfoUnlock(true)){
+		return
+	}
 	console.log('tree drop: ', draggingNode.data, dropNode.data, dropType)
 	// 'prev'、'inner'、'next'
 	// before、after、inner
