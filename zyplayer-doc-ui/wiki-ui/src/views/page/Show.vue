@@ -1,14 +1,14 @@
 <template>
 	<div class="page-show-vue">
 		<el-row type="border-card" style="height: 100%">
-			<el-col :span="actionTabVisible ? 18 : 24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
+			<el-col :span="storePage.commentShow ? 18 : 24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
 				<el-row>
 					<el-col :span="navigationList.length > 0 ? 18 : 24">
 						<div style="max-width: 1000px; margin: 0 auto; padding-left: 10px">
 							<div class="wiki-title" ref="wikiTitleRef">{{ wikiPage.name }}</div>
 							<PageAction/>
 							<div class="wiki-files">
-								<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px">
+								<el-table v-show="storePage.fileList.length > 0" :data="storePage.fileList" border style="width: 100%; margin-bottom: 5px">
 									<el-table-column label="文件名" show-overflow-tooltip>
 										<template v-slot="scope">
 											<el-link target="_blank" :href="scope.row.fileUrl" type="primary">{{scope.row.fileName }}</el-link>
@@ -24,7 +24,7 @@
 									</el-table-column>
 									<el-table-column label="操作" width="90px" v-if="wikiPageAuth.canDeleteFile == 1">
 										<template v-slot="scope">
-											<el-button v-on:click="deletePageFile(scope.row)">删除</el-button>
+											<el-button @click="deletePageFile(scope.row)">删除</el-button>
 										</template>
 									</el-table-column>
 								</el-table>
@@ -35,17 +35,17 @@
 							</div>
 							<div style="margin-top: 40px; font-size: 14px">
 				                <span style="vertical-align: top" class="is-link">
-				                  <span v-show="wikiPage.selfZan == 0" v-on:click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle"/> 赞</span>
-				                  <span v-show="wikiPage.selfZan == 1" v-on:click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle; transform: rotateX(180deg)"/> 踩</span>
+				                  <span v-show="wikiPage.selfZan == 0" @click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle"/> 赞</span>
+				                  <span v-show="wikiPage.selfZan == 1" @click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle; transform: rotateX(180deg)"/> 踩</span>
 				                </span>
 								<span style="margin-left: 10px; vertical-align: top">
 				                  <span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
 				                  <span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0">
-				                    <span class="is-link" v-on:click="showZanPageUser">{{ wikiPage.zanNum }}人</span>赞了它
+				                    <span class="is-link" @click="showZanPageUser">{{ wikiPage.zanNum }}人</span>赞了它
 				                  </span>
 				                  <span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
 				                  <span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1">
-				                    <span class="is-link" v-on:click="showZanPageUser">我和{{ wikiPage.zanNum - 1 }}个其他人</span>赞了它
+				                    <span class="is-link" @click="showZanPageUser">我和{{ wikiPage.zanNum - 1 }}个其他人</span>赞了它
 				                  </span>
 				                </span>
 								<span style="margin-left: 10px">
@@ -55,15 +55,15 @@
 						</div>
 					</el-col>
 					<el-col :span="navigationList.length > 0 ? 6 : 0" v-if="navigationList.length > 0">
-						<Navigation ref="navigationRef" :heading="navigationList"></Navigation>
+						<Navigation :heading="navigationList"></Navigation>
 					</el-col>
 				</el-row>
 			</el-col>
-			<el-col :span="6" style="height: 100%" v-show="actionTabVisible">
+			<el-col :span="6" style="height: 100%" v-show="storePage.commentShow">
 				<el-icon @click="closeActionTab" class="close-action-tab">
 					<el-icon-close/>
 				</el-icon>
-				<el-tabs v-model="actionTabActiveName" @tab-click="actionTabClick">
+				<el-tabs v-model="storePage.commentActiveTab">
 					<el-tab-pane label="评论" name="comment">
 						<Comment/>
 					</el-tab-pane>
@@ -88,52 +88,12 @@
 				</el-tabs>
 			</el-col>
 		</el-row>
-		<!--手机扫码查看弹窗-->
-		<el-dialog title="手机扫码查看" v-model="mobileScanDialogVisible" width="400px">
-			<div style="text-align: center">
-				<div class="mobile-qr">
-					<canvas ref="qrCodeDivRef"></canvas>
-				</div>
-				<div>使用微信或手机浏览器扫一扫查看</div>
-				<div>或 <a target="_blank" :href="qrCodeUrl">直接访问</a></div>
-			</div>
-		</el-dialog>
 		<!--点赞人员弹窗-->
 		<el-dialog title="赞了它的人" v-model="zanUserDialogVisible" width="600px">
 			<el-table :data="zanUserList" border :show-header="false" style="width: 100%; margin-bottom: 5px">
 				<el-table-column prop="createUserName" label="用户"></el-table-column>
 				<el-table-column prop="createTime" label="时间"></el-table-column>
 			</el-table>
-		</el-dialog>
-		<!--人员权限弹窗-->
-		<el-dialog title="页面权限" v-model="pageAuthDialogVisible" width="900px">
-			<el-row>
-				<el-select v-model="pageAuthNewUser" filterable remote reserve-keyword autoComplete="new-password" placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList" :loading="pageAuthUserLoading" style="width: 750px; margin-right: 10px">
-					<el-option v-for="item in searchUserList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
-				</el-select>
-				<el-button v-on:click="addPageAuthUser">添加</el-button>
-			</el-row>
-			<el-table :data="pageAuthUserList" border style="width: 100%; margin: 10px 0">
-				<el-table-column prop="userName" label="用户" width="150"></el-table-column>
-				<el-table-column label="权限">
-					<template v-slot="scope">
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.editPage">编辑</el-checkbox>
-						<!--						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.commentPage">评论</el-checkbox>-->
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.deletePage">删除</el-checkbox>
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.pageFileUpload">文件上传</el-checkbox>
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.pageFileDelete">文件删除</el-checkbox>
-						<el-checkbox :true-label="1" :false-label="0" v-model="scope.row.pageAuthManage">权限管理</el-checkbox>
-					</template>
-				</el-table-column>
-				<el-table-column label="操作" width="80">
-					<template v-slot="scope">
-						<el-button size="small" type="danger" plain v-on:click="deleteUserPageAuth(scope.row)">删除</el-button>
-					</template>
-				</el-table-column>
-			</el-table>
-			<div>
-				<el-button type="primary" v-on:click="saveUserPageAuth">保存配置</el-button>
-			</div>
 		</el-dialog>
 		<el-image-viewer
 				v-if="showImagePreview"
@@ -142,9 +102,6 @@
 				@close="closeImagePreview"
 				hide-on-click-modal
 		/>
-		<form method="post" ref="downloadFormRef" :action="downloadFormParam.url" target="_blank">
-			<input type="hidden" :name="key" :value="val" v-for="(val, key) in downloadFormParam.param"/>
-		</form>
 	</div>
 </template>
 
@@ -191,7 +148,6 @@ let page = {
 let wikiPage = ref({});
 let wikiPageAuth = ref({});
 let pageContent = ref({});
-let pageFileList = ref([]);
 let selfUserId = ref(0);
 let uploadFileList = ref([]);
 let uploadFormData = ref({pageId: 0});
@@ -209,8 +165,6 @@ let searchUserList = ref([]);
 let pageAuthNewUser = ref('');
 let pageAuthUserLoading = ref(false);
 // 右侧标签页
-let actionTabVisible = ref(false);
-let actionTabActiveName = ref('comment');
 let pageHistoryDetail = ref('');
 let pageShowDetail = ref('');
 let pageHistoryChoice = ref({});
@@ -259,61 +213,6 @@ const getSearchUserList = (query) => {
 		pageAuthUserLoading.value = false
 	})
 }
-const handleMoreCommand = (val) => {
-	if (val == 'editAuth') {
-		editWikiAuth()
-	} else if (val == 'deletePage') {
-		deleteWikiPage()
-	} else if (val == 'showPageHistory') {
-		showPageHistory()
-	} else if (val == 'showOpenPage') {
-		showOpenPage()
-	} else if (val == 'showMobileView') {
-		showMobileView()
-	} else if (val == 'exportWord') {
-		exportWord()
-	}
-}
-let downloadFormRef = ref();
-const exportWord = () => {
-	downloadFormParam.value.param = {
-		pageId: wikiPage.value.id,
-	}
-	setTimeout(() => downloadFormRef.value.submit(), 0)
-}
-const showOpenPage = () => {
-	if (props.spaceInfo.openDoc !== 1) {
-		ElMessage.warning('该空间未开放，无法查看开放文档地址')
-	} else {
-		let routeUrl = router.resolve({
-			path: '/page/share/view',
-			query: {pageId: wikiPage.value.id, space: props.spaceInfo.uuid}
-		})
-		window.open(routeUrl.href, '_blank')
-	}
-}
-let qrCodeDivRef = ref();
-const showMobileView = () => {
-	if (props.spaceInfo.openDoc !== 1) {
-		ElMessage.warning('该空间未开放，无法查看开放文档地址')
-	} else {
-		let routeUrl = router.resolve({
-			path: '/page/share/mobile/view',
-			query: {pageId: wikiPage.value.id, space: props.spaceInfo.uuid}
-		})
-		mobileScanDialogVisible.value = true
-		let hostPath = window.location.href.split('#')[0]
-		setTimeout(() => {
-			qrCodeUrl.value = hostPath + routeUrl.href
-			QRCode.toCanvas(qrCodeDivRef.value, qrCodeUrl.value, {
-					scale: 5, height: 250, wight: 250,
-				}, (error) => {
-					if (error) console.error(error)
-				}
-			)
-		}, 0)
-	}
-}
 const addPageAuthUser = () => {
 	if (pageAuthNewUser.value.length <= 0) {
 		ElMessage.warning('请先选择用户')
@@ -346,15 +245,6 @@ const addPageAuthUser = () => {
 	})
 	pageAuthNewUser.value = ''
 }
-const editWikiAuth = () => {
-	pageAuthNewUser.value = []
-	pageAuthUserList.value = []
-	let param = {pageId: wikiPage.value.id}
-	pageApi.getPageUserAuthList(param).then((json) => {
-		pageAuthUserList.value = json.data || []
-		pageAuthDialogVisible.value = true
-	})
-}
 const saveUserPageAuth = () => {
 	let param = {
 		pageId: wikiPage.value.id,
@@ -368,132 +258,82 @@ const notOpen = () => {
 	ElMessage.warning('暂未开放')
 }
 const deleteUserPageAuth = (row) => {
-	let pageAuthUserList = []
+	let pageAuthUserList = [];
 	for (let i = 0; i < pageAuthUserList.value.length; i++) {
-		let item = pageAuthUserList.value[i]
-		if (item.userId != row.userId) {
-			pageAuthUserList.push(pageAuthUserList.value[i])
+		let item = pageAuthUserList.value[i];
+		if (item.userId !== row.userId) {
+			pageAuthUserList.push(pageAuthUserList.value[i]);
 		}
 	}
-	pageAuthUserList.value = pageAuthUserList
-}
-const deleteWikiPage = () => {
-	ElMessageBox.confirm('确定要删除此页面及其所有子页面吗？', '提示', {
-			confirmButtonText: '确定',
-			cancelButtonText: '取消',
-			type: 'warning',
-		})
-		.then(() => {
-			let param = {pageId: wikiPage.value.id}
-			pageApi.pageDelete(param).then(() => {
-				// 重新加载左侧列表，跳转到展示页面
-				emit('loadPageList');
-				router.push({
-					path: '/home',
-					query: {spaceId: wikiPage.value.spaceId}
-				})
-			})
-		})
-		.catch(() => {
-		})
-}
-const actionTabClick = (tab) => {
-	if (tab.name === 'comment') {
-		showCommentWiki()
-	} else if (tab.name === 'history') {
-		showPageHistory()
-	}
+	pageAuthUserList.value = pageAuthUserList;
 }
 const closeActionTab = () => {
-	actionTabVisible.value = false
-	clearHistory()
-	computeNavigationWidth()
-}
-const showCommentWiki = () => {
-	actionTabVisible.value = true
-	actionTabActiveName.value = 'comment'
-	computeNavigationWidth()
-}
-const showPageHistory = () => {
-	actionTabVisible.value = true
-	actionTabActiveName.value = 'history'
-	clearHistory()
-	computeNavigationWidth()
-}
-let navigationRef = ref();
-const computeNavigationWidth = () => {
-	setTimeout(() => {
-		if (navigationRef.value) {
-			navigationRef.value.computeNavigationWidth()
-		}
-	}, 100)
+	storePage.commentShow = false;
+	clearHistory();
 }
 const getPageHistoryByScroll = () => {
 	if (pageHistoryPageNum.value <= 0) {
-		return
+		return;
 	}
-	pageHistoryPageNum.value++
-	getPageHistory(wikiPage.value.id, pageHistoryPageNum.value)
+	pageHistoryPageNum.value++;
+	getPageHistory(wikiPage.value.id, pageHistoryPageNum.value);
 }
 const getPageHistory = (pageId, pageNum) => {
-	if (pageNum == 1) {
-		pageHistoryList.value = []
-		pageHistoryPageNum.value = 1
+	if (pageNum === 1) {
+		pageHistoryList.value = [];
+		pageHistoryPageNum.value = 1;
 	}
-	let param = {pageId: pageId, pageNum: pageNum}
+	let param = {pageId: pageId, pageNum: pageNum};
 	pageApi.pageHistoryList(param).then((json) => {
-		let historyList = json.data || []
+		let historyList = json.data || [];
 		if (historyList.length <= 0) {
-			pageHistoryPageNum.value = 0
+			pageHistoryPageNum.value = 0;
 		} else {
-			historyList.forEach((item) => (item.loading = 0))
-			pageHistoryList.value = pageHistoryList.value.concat(historyList)
+			historyList.forEach((item) => (item.loading = 0));
+			pageHistoryList.value = pageHistoryList.value.concat(historyList);
 		}
 	})
 }
 const historyClick = (history) => {
 	if (pageHistoryChoice.value.id === history.id && !!pageHistoryDetail.value) {
-		return
+		return;
 	}
-	pageHistoryChoice.value.loading = 0
-	pageHistoryChoice.value = history
+	pageHistoryChoice.value.loading = 0;
+	pageHistoryChoice.value = history;
 	// 缓存一下，但如果历史页面多了而且很大就占内存，也可以每次去拉取，先这样吧
 	if (history.content) {
-		history.loading = 2
-		pageHistoryDetail.value = history.content
-		pageShowDetail.value = history.content
+		history.loading = 2;
+		pageHistoryDetail.value = history.content;
+		pageShowDetail.value = history.content;
 		setTimeout(() => {
-			previewPageImage()
-			createNavigationHeading()
+			previewPageImage();
+			createNavigationHeading();
 		}, 500)
 	} else {
 		history.loading = 1
-		pageApi
-			.pageHistoryDetail({id: history.id})
-			.then((json) => {
-				history.loading = 2
-				history.content = json.data || '--'
-				if (wikiPage.value.editorType === 2) {
-					history.content = mavonEditor.getMarkdownIt().render(history.content)
-				}
-				pageHistoryDetail.value = history.content
-				pageShowDetail.value = history.content
-				setTimeout(() => {
-					previewPageImage()
-					createNavigationHeading()
-				}, 500)
-			})
-			.catch(() => {
-				history.loading = 3
-			})
+		pageApi.pageHistoryDetail({id: history.id}).then((json) => {
+			history.loading = 2;
+			history.content = json.data || '--';
+			if (wikiPage.value.editorType === 2) {
+				history.content = mavonEditor.getMarkdownIt().render(history.content);
+			}
+			pageHistoryDetail.value = history.content;
+			pageShowDetail.value = history.content;
+			setTimeout(() => {
+				previewPageImage();
+				createNavigationHeading();
+			}, 500);
+		}).catch(() => {
+			history.loading = 3;
+		});
 	}
 }
 const clearHistory = () => {
-	pageHistoryChoice.value.loading = 0
-	pageHistoryDetail.value = ''
-	pageHistoryChoice.value = {}
-	pageHistoryList.value.forEach((item) => (item.loading = 0))
-	pageShowDetail.value = pageContent.value.content
+	pageHistoryChoice.value.loading = 0;
+	pageHistoryDetail.value = '';
+	pageHistoryChoice.value = {};
+	pageHistoryList.value.forEach((item) => (item.loading = 0));
+	pageShowDetail.value = pageContent.value.content;
 }
 const computeFileSize = (fileSize) => {
 	return unitUtil.computeFileSize(fileSize)
@@ -501,14 +341,14 @@ const computeFileSize = (fileSize) => {
 const loadPageDetail = (pageId) => {
 	clearHistory()
 	pageApi.pageDetail({id: pageId}).then((json) => {
-		let result = json.data || {}
-		let wikiPageRes = result.wikiPage || {}
-		wikiPageRes.selfZan = result.selfZan || 0
-		wikiPage.value = wikiPageRes
-		pageContent.value = result.pageContent || {}
-		pageFileList.value = result.fileList || []
-		selfUserId.value = result.selfUserId || 0
-		uploadFormData.value = {pageId: wikiPage.value.id}
+		let result = json.data || {};
+		let wikiPageRes = result.wikiPage || {};
+		wikiPageRes.selfZan = result.selfZan || 0;
+		wikiPage.value = wikiPageRes;
+		pageContent.value = result.pageContent || {};
+		storePage.fileList = result.fileList || [];
+		selfUserId.value = result.selfUserId || 0;
+		uploadFormData.value = {pageId: wikiPage.value.id};
 		wikiPageAuth.value = {
 			canEdit: result.canEdit,
 			canDelete: result.canDelete,
@@ -584,17 +424,6 @@ const showZanPageUser = () => {
 		zanUserList.value = json.data
 	})
 }
-const uploadFileError = (err) => {
-	ElMessage.error('上传失败，' + err)
-}
-const uploadFileSuccess = (response) => {
-	if (response.errCode == 200) {
-		pageFileList.value.push(response.data)
-		ElMessage.success('上传成功！')
-	} else {
-		ElMessage('上传失败：' + (response.errMsg || '未知错误'))
-	}
-}
 const deletePageFile = (row) => {
 	ElMessageBox.confirm('确定要删除此文件吗？', '提示', {
 		confirmButtonText: '确定',
@@ -603,7 +432,7 @@ const deletePageFile = (row) => {
 	}).then(() => {
 		let param = {id: row.id};
 		pageApi.deletePageFile(param).then(() => {
-			pageFileList.value = pageFileList.value.filter(item => item.id !== row.id);
+			storePage.fileList = storePage.fileList.filter(item => item.id !== row.id);
 		});
 	})
 }

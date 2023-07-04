@@ -12,7 +12,7 @@
 							<span class="text-link">{{ item.spaceName }}</span>
 						</div>
 						<div class="page-preview-box">
-							<div class="page-preview-title" v-on:click="showPageDetail(item)" v-html="item.pageTitle"></div>
+							<div class="page-preview-title" @click="showPageDetail(item)" v-html="item.pageTitle"></div>
 							<div class="page-preview-content" v-html="item.previewContent"></div>
 							<div>
 								<span><img src="../../assets/img/zan.png" class="zan-img"/>{{ item.zanNum }}　</span>

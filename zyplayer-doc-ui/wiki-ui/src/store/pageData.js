@@ -6,7 +6,7 @@ export const useStorePageData = defineStore('pageData', {
 			spaceInfo: {},
 			pageInfo: {},
 			pageAuth: {},
+			fileList: [],
 		}
 	},
 });
-

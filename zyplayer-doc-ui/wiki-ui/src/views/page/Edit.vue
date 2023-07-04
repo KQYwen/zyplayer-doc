@@ -7,9 +7,9 @@
 						<el-input v-if="wikiPageEdit.editorType===2" v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
 					</el-col>
 					<el-col :span="8"  style="text-align: right;margin-top: 4px;">
-						<el-button type="primary" v-on:click="createWikiSave(1)" size="small" :icon="ElIconDocumentChecked">保存并查看</el-button>
-						<el-button type="success" v-on:click="createWikiSave(0)" size="small" :icon="ElIconCheck">仅保存</el-button>
-						<el-button v-on:click="createWikiCancel" size="small" :icon="ElIconBack" style="margin-right: 5px">取消</el-button>
+						<el-button type="primary" @click="createWikiSave(1)" size="small" :icon="ElIconDocumentChecked">保存并查看</el-button>
+						<el-button type="success" @click="createWikiSave(0)" size="small" :icon="ElIconCheck">仅保存</el-button>
+						<el-button @click="createWikiCancel" size="small" :icon="ElIconBack" style="margin-right: 5px">取消</el-button>
 					</el-col>
 				</el-row>
 			</div>

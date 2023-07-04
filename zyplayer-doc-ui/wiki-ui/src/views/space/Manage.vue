@@ -41,9 +41,9 @@
 				<el-table-column label="操作" width="220">
 					<template v-slot="scope">
 						<template v-if="userSelfInfo.id == scope.row.createUserId">
-							<el-button size="small" type="primary" v-on:click="editSpaceInfo(scope.row)">编辑</el-button>
-							<el-button size="small" type="warning" v-on:click="editSpaceAuth(scope.row)">授权</el-button>
-							<el-button size="small" type="danger" v-on:click="deleteSpaceInfo(scope.row)">删除</el-button>
+							<el-button size="small" type="primary" @click="editSpaceInfo(scope.row)">编辑</el-button>
+							<el-button size="small" type="warning" @click="editSpaceAuth(scope.row)">授权</el-button>
+							<el-button size="small" type="danger" @click="deleteSpaceInfo(scope.row)">删除</el-button>
 						</template>
 					</template>
 				</el-table-column>
@@ -66,7 +66,7 @@
 				<el-select v-model="spaceAuthNewGroupId" filterable placeholder="请选择分组" style="width: 750px; margin-right: 10px">
 					<el-option v-for="item in searchGroupList" :key="item.id" :label="searchGroupMap[item.id]" :value="item.id"></el-option>
 				</el-select>
-				<el-button v-on:click="addSpaceAuthUserGroup">添加</el-button>
+				<el-button @click="addSpaceAuthUserGroup">添加</el-button>
 			</el-row>
 			<el-table :data="spaceAuthGroupList" border style="width: 100%; margin: 10px 0">
 				<el-table-column prop="groupId" label="分组名" width="150">
@@ -88,8 +88,8 @@
 				</el-table-column>
 			</el-table>
 			<div style="text-align: right">
-				<el-button v-on:click="manageUserGroup">分组管理</el-button>
-				<el-button type="primary" v-on:click="saveGroupSpaceAuth">保存配置</el-button>
+				<el-button @click="manageUserGroup">分组管理</el-button>
+				<el-button type="primary" @click="saveGroupSpaceAuth">保存配置</el-button>
 			</div>
 		</el-dialog>
 		<create-space ref="createSpaceRef" @success="loadSpaceList"></create-space>

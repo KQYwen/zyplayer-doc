@@ -6,7 +6,7 @@
 				<div style="padding: 10px; box-sizing: border-box; background: #fafafa">
 					<el-input v-model="searchKeywords" @keyup.enter="searchByKeywords" placeholder="搜索文档" style="margin: 10px 0">
 						<template v-slot:append>
-							<el-button :icon="ElIconSearch" v-on:click="searchByKeywords"></el-button>
+							<el-button :icon="ElIconSearch" @click="searchByKeywords"></el-button>
 						</template>
 					</el-input>
 					<div class="wiki-page-tree-box">

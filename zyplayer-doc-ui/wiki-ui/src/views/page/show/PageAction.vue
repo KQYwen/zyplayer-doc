@@ -20,6 +20,7 @@
 			<el-upload v-if="storePage.pageAuth.canUploadFile === 1"
 			           :on-success="uploadFileSuccess"
 			           :on-error="uploadFileError"
+			           :before-upload="beforeUpload"
 			           :action="uploadFileUrl"
 			           :data="uploadFormData"
 			           :with-credentials="true" class="action-btn upload-page-file" name="files"
@@ -42,6 +43,11 @@
 				</template>
 			</el-dropdown>
 		</el-col>
+		<MobileQrScanDialog v-model:visible="mobileScanDialogVisible"/>
+		<PageAuthDialog v-model:visible="pageAuthDialogVisible"/>
+		<form method="post" ref="downloadFormRef" :action="downloadFormParam.url" target="_blank">
+			<input type="hidden" :name="key" :value="val" v-for="(val, key) in downloadFormParam.param"/>
+		</form>
 	</el-row>
 </template>
 
@@ -67,10 +73,11 @@ import {toRefs, ref, reactive, onMounted, watch, defineProps, defineEmits, defin
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus';
 import pageApi from '@/assets/api/page'
+import PageAuthDialog from './PageAuthDialog.vue'
+import MobileQrScanDialog from './MobileQrScanDialog.vue'
 import {useStorePageData} from "@/store/pageData";
 
 let storePage = useStorePageData();
-
 let router = useRouter();
 const editWiki = () => {
 	// 锁定页面并进入编辑页面
@@ -82,93 +89,72 @@ const editWiki = () => {
 const showCommentWiki = () => {
 	storePage.commentShow = true;
 	storePage.commentActiveTab = 'comment';
-	// computeNavigationWidth();
 }
+let pageAuthDialogVisible = ref(false);
 const editWikiAuth = () => {
-	// pageAuthNewUser.value = [];
-	// pageAuthUserList.value = [];
-	// let param = {pageId: wikiPage.value.id};
-	// pageApi.getPageUserAuthList(param).then((json) => {
-	// 	pageAuthUserList.value = json.data || [];
-	// 	pageAuthDialogVisible.value = true;
-	// });
+	pageAuthDialogVisible.value = true;
 }
 const showPageHistory = () => {
-	// actionTabVisible.value = true;
-	// actionTabActiveName.value = 'history';
-	// clearHistory();
-	// computeNavigationWidth();
+	storePage.commentShow = true;
+	storePage.commentActiveTab = 'history';
 }
 const showOpenPage = () => {
-	// if (props.spaceInfo.openDoc !== 1) {
-	// 	ElMessage.warning('该空间未开放，无法查看开放文档地址')
-	// } else {
-	// 	let routeUrl = router.resolve({
-	// 		path: '/page/share/view',
-	// 		query: {pageId: wikiPage.value.id, space: props.spaceInfo.uuid}
-	// 	})
-	// 	window.open(routeUrl.href, '_blank')
-	// }
+	if (storePage.spaceInfo.openDoc !== 1) {
+		ElMessage.warning('该空间未开放，无法查看开放文档地址');
+	} else {
+		let routeUrl = router.resolve({
+			path: '/page/share/view',
+			query: {pageId: storePage.pageInfo.id, space: storePage.spaceInfo.uuid}
+		});
+		window.open(routeUrl.href, '_blank');
+	}
 }
 const deleteWikiPage = () => {
-	// ElMessageBox.confirm('确定要删除此页面及其所有子页面吗？', '提示', {
-	// 	confirmButtonText: '确定',
-	// 	cancelButtonText: '取消',
-	// 	type: 'warning',
-	// }).then(() => {
-	// 	let param = {pageId: wikiPage.value.id};
-	// 	pageApi.pageDelete(param).then(() => {
-	// 		// 重新加载左侧列表，跳转到展示页面
-	// 		emit('loadPageList');
-	// 		router.push({
-	// 			path: '/home',
-	// 			query: {spaceId: wikiPage.value.spaceId}
-	// 		});
-	// 	});
-	// }).catch(() => {});
+	ElMessageBox.confirm('确定要删除此页面及其所有子页面吗？', '提示', {
+		confirmButtonText: '确定',
+		cancelButtonText: '取消',
+		type: 'warning',
+	}).then(() => {
+		let param = {pageId: storePage.pageInfo.id};
+		pageApi.pageDelete(param).then(() => {
+			// 重新加载左侧列表，跳转到展示页面
+			// emit('loadPageList'); TODO
+			router.push({path: '/home', query: {spaceId: storePage.pageInfo.spaceId}});
+		});
+	}).catch(() => {});
 }
+// 下载为Word
 let downloadFormRef = ref();
+let downloadFormParam = ref({url: 'zyplayer-doc-wiki/page/download', param: {}});
 const exportWord = () => {
-	// downloadFormParam.value.param = {
-	// 	pageId: wikiPage.value.id,
-	// }
-	// setTimeout(() => downloadFormRef.value.submit(), 0)
+	downloadFormParam.value.param = {pageId: storePage.pageInfo.id};
+	setTimeout(() => downloadFormRef.value.submit(), 0);
 }
-let qrCodeDivRef = ref();
+// 手机扫码
+let mobileScanDialogVisible = ref(false);
 const showMobileView = () => {
-	// if (props.spaceInfo.openDoc !== 1) {
-	// 	ElMessage.warning('该空间未开放，无法查看开放文档地址')
-	// } else {
-	// 	let routeUrl = router.resolve({
-	// 		path: '/page/share/mobile/view',
-	// 		query: {pageId: wikiPage.value.id, space: props.spaceInfo.uuid}
-	// 	})
-	// 	mobileScanDialogVisible.value = true
-	// 	let hostPath = window.location.href.split('#')[0]
-	// 	setTimeout(() => {
-	// 		qrCodeUrl.value = hostPath + routeUrl.href
-	// 		QRCode.toCanvas(qrCodeDivRef.value, qrCodeUrl.value, {
-	// 				scale: 5, height: 250, wight: 250,
-	// 			}, (error) => {
-	// 				if (error) console.error(error)
-	// 			}
-	// 		)
-	// 	}, 0)
-	// }
+	if (storePage.spaceInfo.openDoc !== 1) {
+		ElMessage.warning('该空间未开放，无法查看开放文档地址');
+	} else {
+		mobileScanDialogVisible.value = true;
+	}
 }
 // 上传相关
 let uploadFormData = ref({pageId: 0});
 let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/upload');
+const beforeUpload = () => {
+	uploadFormData.value.pageId = storePage.pageInfo.id;
+}
 const uploadFileError = (err) => {
 	ElMessage.error('上传失败，' + err);
 }
 const uploadFileSuccess = (response) => {
-	// if (response.errCode === 200) {
-	// 	pageFileList.value.push(response.data);
-	// 	ElMessage.success('上传成功！');
-	// } else {
-	// 	ElMessage('上传失败：' + (response.errMsg || '未知错误'));
-	// }
+	if (response.errCode === 200) {
+		storePage.fileList.push(response.data);
+		ElMessage.success('上传成功！');
+	} else {
+		ElMessage('上传失败：' + (response.errMsg || '未知错误'));
+	}
 }
 </script>
 

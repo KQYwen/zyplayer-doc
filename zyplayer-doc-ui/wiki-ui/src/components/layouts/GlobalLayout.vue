@@ -31,13 +31,13 @@
 								</el-icon>
 								<template v-slot:dropdown>
 									<el-dropdown-menu>
-										<el-dropdown-item v-on:click="createWiki(1,true)">
+										<el-dropdown-item @click="createWiki(1,true)">
 											<el-icon  class="clickAddIcon" style="margin-right: 5px">
 												<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
 											</el-icon>
 											创建富文本
 										</el-dropdown-item>
-										<el-dropdown-item v-on:click="createWiki(2,true)">
+										<el-dropdown-item @click="createWiki(2,true)">
 											<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
 										</el-dropdown-item>
 									</el-dropdown-menu>
@@ -77,13 +77,13 @@
 												</el-icon>
 												<template v-slot:dropdown>
 													<el-dropdown-menu>
-														<el-dropdown-item v-on:click="createWiki(1)">
+														<el-dropdown-item @click="createWiki(1)">
 															<el-icon  class="clickAddIcon" style="margin-right: 5px">
 																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
 															</el-icon>
 															创建富文本
 														</el-dropdown-item>
-														<el-dropdown-item v-on:click="createWiki(2)">
+														<el-dropdown-item @click="createWiki(2)">
 															<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
 														</el-dropdown-item>
 													</el-dropdown-menu>
@@ -119,7 +119,7 @@
 								</template>
 								<div style="margin-bottom: 10px">
 									<span style="font-size: 14px; font-weight: bold">通知</span>
-									<el-link v-if="haveNotReadUserMessage" :icon="ElIconCheck" style="float: right" type="primary" v-on:click="readAllUserMessage">本页标记已读</el-link>
+									<el-link v-if="haveNotReadUserMessage" :icon="ElIconCheck" style="float: right" type="primary" @click="readAllUserMessage">本页标记已读</el-link>
 								</div>
 								<div class="header-user-message">
 									<el-table :data="userMessageList" border max-height="500" size="small" style="width: 100%; margin-bottom: 5px">
@@ -129,7 +129,7 @@
 											<template v-slot="scope">
 												{{ scope.row.msgContent }}
 												<el-badge :is-dot="scope.row.msgStatus == 0" style="line-height: 10px; padding-right: 5px">
-													<el-link type="primary" v-on:click="showUserMessage(scope.row)">查看</el-link>
+													<el-link type="primary" @click="showUserMessage(scope.row)">查看</el-link>
 												</el-badge>
 											</template>
 										</el-table-column>
@@ -437,30 +437,29 @@ const spaceChangeEvents = (data) => {
 }
 const loadSpaceList = (spaceId) => {
 	pageApi.spaceList({}).then((json) => {
-		spaceList.value = json.data || []
-		let spaceOptionsNew = []
-		spaceList.value.forEach((item) =>
-			spaceOptionsNew.push({label: item.name, value: item.id})
-		)
-		spaceOptions.value = spaceOptionsNew
+		spaceList.value = json.data || [];
+		let spaceOptionsNew = [];
+		spaceList.value.forEach((item) => spaceOptionsNew.push({label: item.name, value: item.id}));
+		spaceOptions.value = spaceOptionsNew;
 		if (spaceList.value.length > 0) {
-			let nowSpaceId = spaceId
-			let nowSpaceShow = spaceList.value.find((item) => item.id == spaceId)
-			if (!nowSpaceShow) {
-				nowSpaceShow = spaceList.value[0]
-				nowSpaceId = nowSpaceShow.id
+			let nowSpaceId = spaceId;
+			let nowSpaceShowTemp = spaceList.value.find((item) => item.id === spaceId);
+			if (!nowSpaceShowTemp) {
+				nowSpaceShowTemp = spaceList.value[0];
+				nowSpaceId = nowSpaceShowTemp.id;
 			}
-			nowSpaceShow.value = nowSpaceShow
-			choiceSpace.value = nowSpaceId
-			nowPageId.value = ''
-			doGetPageList(null)
+			nowSpaceShow.value = nowSpaceShowTemp;
+			storePage.spaceInfo = nowSpaceShowTemp;
+			choiceSpace.value = nowSpaceId;
+			nowPageId.value = '';
+			doGetPageList(null);
 			// TODO 在首页时跳转
 			try {
 				if (route.path === '/home') {
-					router.push({path: '/home', query: {spaceId: nowSpaceId}})
+					router.push({path: '/home', query: {spaceId: nowSpaceId}});
 				}
 			} catch (e) {
-				console.log(e)
+				console.log(e);
 			}
 		}
 	})

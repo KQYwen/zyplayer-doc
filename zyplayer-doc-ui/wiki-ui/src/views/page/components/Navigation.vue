@@ -21,7 +21,9 @@ import {
 	defineExpose,
 } from 'vue'
 import {useStoreDisplay} from '@/store/wikiDisplay.js'
+import {useStorePageData} from "@/store/pageData";
 
+let storePage = useStorePageData();
 const storeDisplay = useStoreDisplay()
 let navigationWidth = ref('100px')
 const props = defineProps({
@@ -32,19 +34,22 @@ const props = defineProps({
 })
 onMounted(() => {
 	window.onresize = () => {
-		computeNavigationWidth()
+		computeNavigationWidth();
 	}
-	setTimeout(() => computeNavigationWidth(), 100)
+	setTimeout(() => computeNavigationWidth(), 100);
 })
 watch(() => storeDisplay.viewMenuWidth, (newVal) => {
-	computeNavigationWidth()
+	computeNavigationWidth();
+})
+watch(() => storePage.commentShow, (newVal) => {
+	computeNavigationWidth();
 })
 let navigationRef = ref();
 const computeNavigationWidth = () => {
 	navigationWidth.value = window.getComputedStyle(
 		navigationRef.value,
 		null
-	).width
+	).width;
 }
 const headingItemClick = (item) => {
 	// 滚动到指定节点
@@ -52,7 +57,7 @@ const headingItemClick = (item) => {
 		behavior: 'smooth',
 		block: 'start',
 		inline: 'nearest',
-	})
+	});
 	// 距离顶部高度
 	//console.log(item.node.offsetTop - item.node.scrollHeight)
 }
