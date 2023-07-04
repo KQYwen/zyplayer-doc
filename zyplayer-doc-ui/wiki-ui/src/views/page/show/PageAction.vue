@@ -71,6 +71,7 @@ import {useStorePageData} from "@/store/pageData";
 
 let storePage = useStorePageData();
 
+let router = useRouter();
 const editWiki = () => {
 	// 锁定页面并进入编辑页面
 	let param = {pageId: storePage.pageInfo.id};
