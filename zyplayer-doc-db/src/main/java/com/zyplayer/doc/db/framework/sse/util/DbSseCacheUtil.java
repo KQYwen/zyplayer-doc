@@ -43,6 +43,53 @@ public class DbSseCacheUtil {
     }
 
     /**
+     * 根据客户端id获取心跳
+     *
+     * @author diantu
+     * @date 2023/7/18
+     **/
+    public static ScheduledFuture<?> getSseFutureByClientId(String clientId) {
+        Map<String,Object> map = sseCache.get(clientId);
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+        return (ScheduledFuture<?>) map.get(DbSseEmitterParameterEnum.FUTURE.getValue());
+    }
+
+    /**
+     * 根据客户端id获取用户id
+     *
+     * @author diantu
+     * @date 2023/7/18
+     **/
+    public static ScheduledFuture<?> getLoginIdByClientId(String clientId) {
+        Map<String,Object> map = sseCache.get(clientId);
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+        return (ScheduledFuture<?>) map.get(DbSseEmitterParameterEnum.LOGINID.getValue());
+    }
+
+    /**
+     * 根据用户id获取客户端id
+     *
+     * @author diantu
+     * @date 2023/7/18
+     **/
+    public static String getClientIdByLoginId(String loginId){
+        if(existSseCache()){
+            for (Map.Entry<String, Map<String, Object>> entry : sseCache.entrySet()) {
+                Map<String,Object> map = sseCache.get(entry.getKey());
+                String lId = (String) map.get(DbSseEmitterParameterEnum.LOGINID.getValue());
+                if(loginId.equals(lId)){
+                    return entry.getKey();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * 判断容器是否存在连接
      *
      * @author diantu
@@ -92,7 +139,7 @@ public class DbSseCacheUtil {
     public static void removeConnection(String clientId) {
         SseEmitter emitter = getSseEmitterByClientId(clientId);
         if (emitter != null) {
-            cancelScheduledFuture((ScheduledFuture<?>) sseCache.get(clientId).get(DbSseEmitterParameterEnum.FUTURE.getValue()));
+            cancelScheduledFuture(clientId);
         }
         sseCache.remove(clientId);
         log.info("移除连接:{}", clientId);
@@ -104,7 +151,8 @@ public class DbSseCacheUtil {
      * @author diantu
      * @date 2023/7/17
      */
-    public static void cancelScheduledFuture(ScheduledFuture<?> future){
+    public static void cancelScheduledFuture(String clientId){
+        ScheduledFuture<?> future = getSseFutureByClientId(clientId);
         if (future != null) {
             future.cancel(true);
         }
@@ -117,11 +165,11 @@ public class DbSseCacheUtil {
      * @author diantu
      * @date 2023/7/17
      **/
-    public static Runnable completionCallBack(String clientId, ScheduledFuture<?> future) {
+    public static Runnable completionCallBack(String clientId) {
         return () -> {
             log.info("结束连接:{}", clientId);
             removeConnection(clientId);
-            cancelScheduledFuture(future);
+            cancelScheduledFuture(clientId);
         };
     }
 
@@ -131,11 +179,11 @@ public class DbSseCacheUtil {
      * @author diantu
      * @date 2023/7/17
      **/
-    public static Runnable timeoutCallBack(String clientId, ScheduledFuture<?> future){
+    public static Runnable timeoutCallBack(String clientId){
         return ()->{
             log.info("连接超时:{}", clientId);
             removeConnection(clientId);
-            cancelScheduledFuture(future);
+            cancelScheduledFuture(clientId);
         };
     }
 
@@ -145,11 +193,11 @@ public class DbSseCacheUtil {
      * @author diantu
      * @date 2023/7/17
      **/
-    public static Consumer<Throwable> errorCallBack(String clientId, ScheduledFuture<?> future) {
+    public static Consumer<Throwable> errorCallBack(String clientId) {
         return throwable -> {
             log.info("推送消息异常:{}", clientId);
             removeConnection(clientId);
-            cancelScheduledFuture(future);
+            cancelScheduledFuture(clientId);
         };
     }
 

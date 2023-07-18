@@ -13,12 +13,17 @@ import java.util.function.Consumer;
 public interface DbSseEmitterService {
 
     /**
-     * 创建连接
+     * 创建SSE连接
      *
+     * @param clientId 客户端id,不传则自动生成
+     * @param setHeartBeat 是否设置心跳定时任务,默认为false（true:设置 false:不设置）
+     * @param defaultHeartbeat 是否使用默认心跳任务
+     * @param consumer 自定义心跳任务,需要自定义实现Consumer接口中的accept方法（setHeartBeat必须为true,defaultHeartbeat为false才有意义）
+     * @return 初次建立连接会推送客户端id,状态码为0
      * @author diantu
      * @date 2023/7/17
      **/
-    public SseEmitter createSseConnect(String clientId,Boolean setHeartBeat, Consumer<DbCommonSseParam> consumer);
+    public SseEmitter createSseConnect(String clientId, Boolean setHeartBeat, Boolean defaultHeartbeat, Consumer<DbCommonSseParam> consumer);
 
     /**
      * 关闭连接

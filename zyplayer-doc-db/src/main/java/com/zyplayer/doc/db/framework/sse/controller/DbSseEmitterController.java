@@ -29,9 +29,11 @@ public class DbSseEmitterController {
      * @date 2023/7/17
      **/
     @GetMapping("/sse/createConnect")
-    public SseEmitter createConnect(String clientId, @RequestParam(required = false)Boolean setHeartBeat,
+    public SseEmitter createConnect(String clientId,
+                                    @RequestParam(required = false)Boolean setHeartBeat,
+                                    @RequestParam(required = false)Boolean defaultHeartbeat,
                                     @RequestParam(required = false) Consumer<DbCommonSseParam> consumer){
-        return dbSseEmitterService.createSseConnect(clientId,setHeartBeat,consumer);
+        return dbSseEmitterService.createSseConnect(clientId,setHeartBeat,defaultHeartbeat,consumer);
     }
 
     /**
