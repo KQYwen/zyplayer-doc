@@ -11,7 +11,10 @@
 					<el-button v-if="sqlExecuting" v-on:click="cancelExecutorSql" type="primary" plain size="mini"
 							   icon="el-icon-video-pause">取消执行
 					</el-button>
-					<el-tooltip v-else effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
+					<el-button v-if="dataLoading" type="primary" plain size="mini"
+							   :loading="dataLoading">查询完成,数据加载中
+					</el-button>
+					<el-tooltip v-if="!sqlExecuting&&!dataLoading" effect="dark" content="Ctrl+R、Ctrl+Enter" placement="top">
 						<el-button v-on:click="doExecutorSql" type="primary" plain size="mini"
 								   icon="el-icon-video-play">{{ executeButtonText }}
 						</el-button>
@@ -200,6 +203,8 @@ import aceEditor from "../../common/lib/ace-editor";
 import sqlParser from "./parser/SqlParser";
 import Clickoutside from 'element-ui/src/utils/clickoutside';
 import { throttle, debounce } from '@/common/utils/throttleDebounce.js'
+import { EventSourcePolyfill } from "event-source-polyfill";
+import storageUtil from "../../common/lib/zyplayer/storageUtil";
 
 export default {
 	directives: {Clickoutside},
@@ -241,6 +246,7 @@ export default {
 			currentPage: 1,
 
 			sqlExecuting: false,
+			dataLoading: false,
 			executeResultList: [],
 			executeResultInfo: "",
 			executeShowTable: "tabHistory",
@@ -287,6 +293,49 @@ export default {
 		this.loadDatasourceList();
 	},
 	methods: {
+		// 创建sse连接
+		createSseConnect() {
+			if (window.EventSource) {
+				let clientId = storageUtil.data.get("CLIENTID") ? storageUtil.data.get("CLIENTID") : "";
+				let url = process.env.VUE_APP_BASE_API+'/zyplayer-doc-db/doc-db/sse/createConnect?clientId='+clientId;
+				//heartbeatTimeout:心跳超时监测 30s
+				let source = new EventSourcePolyfill(url,
+					{withCredentials: true,heartbeatTimeout: 30000})
+				// 监听打开事件
+				source.addEventListener('open', (e) => {
+					//console.log("设备连接成功",e)
+				})
+
+				// 监听消息事件
+				source.addEventListener("message", (e) => {
+					const result = JSON.parse(e.data)
+					const code = result.errCode
+					const msg = result.errMsg
+					const data = result.data
+
+					if (code === 200) {
+						console.log("see推送消息:",data)
+						this.sqlExecuting = false;
+						this.dataLoading = true;
+						source.close();
+					} else if (code === 0) {
+						// 初次建立连接，客户端id储存本地
+						storageUtil.data.set("CLIENTID", data)
+						console.log("客户端id:",data)
+					}
+
+				})
+
+				// 监听错误事件
+				source.addEventListener("error", (e) => {
+					console.log("发生错误，已断开与服务器的连接:",e)
+					source.close();
+				})
+
+			} else {
+				console.log("该浏览器不支持sse")
+			}
+		},
 		sqlExecutorInit(editor) {
 			this.sqlExecutorEditor = editor;
 			this.sqlExecutorEditor.setFontSize(16);
@@ -428,6 +477,7 @@ export default {
 				this.$message.error("请先选择数据库");
 				return;
 			}
+
 			this.loadingAll = true;
 			this.executeError = "";
 			this.executeUseTime = "";
@@ -445,6 +495,7 @@ export default {
 				sqlValue = this.sqlExecutorEditor.getValue();
 			}
 			this.sqlExecuting = true;
+			this.createSseConnect();
 			datasourceApi.queryExecuteSql({
 				sourceId: this.choiceDatasourceId,
 				dbName: this.choiceDatabase,
@@ -456,6 +507,7 @@ export default {
 				params: JSON.stringify(sqlParamObj),
 			}).then(response => {
 				this.sqlExecuting = false;
+				this.dataLoading = false;
 				this.loadingAll = false;
 				if (response.errCode != 200) {
 					this.executeShowTable = 'tabError';

@@ -125,7 +125,9 @@ public class DbSseCacheUtil {
         }
         Map<String,Object> map = new ConcurrentHashMap<>();
         map.put(DbSseEmitterParameterEnum.EMITTER.getValue(),emitter);
-        map.put(DbSseEmitterParameterEnum.FUTURE.getValue(), future);
+        if(future!=null){
+            map.put(DbSseEmitterParameterEnum.FUTURE.getValue(), future);
+        }
         map.put(DbSseEmitterParameterEnum.LOGINID.getValue(), loginId);
         sseCache.put(clientId, map);
     }

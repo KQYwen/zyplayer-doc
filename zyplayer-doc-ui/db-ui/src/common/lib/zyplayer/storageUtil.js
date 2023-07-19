@@ -35,6 +35,29 @@ export default {
 			let dataItem = dataList.find(val => val.key === subKey) || {};
 			return dataItem.value || '';
 		}
+	},
+
+	data: {
+		set(key, val) {
+			const _set = JSON.stringify(val)
+			return localStorage.setItem(key, _set)
+		},
+		get(key) {
+			let data = localStorage.getItem(key)
+			try {
+				data = JSON.parse(data)
+			} catch (err) {
+				return null
+			}
+			return data
+		},
+		remove(key) {
+			return localStorage.removeItem(key)
+		},
+
+		clear() {
+			return localStorage.clear()
+		}
 	}
 }
 

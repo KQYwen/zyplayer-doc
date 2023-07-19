@@ -2,8 +2,12 @@ package com.zyplayer.doc.db.framework.db.mapper.base;
 
 import cn.hutool.core.io.IoUtil;
 import com.alibaba.druid.pool.DruidPooledConnection;
+import com.zyplayer.doc.data.config.security.DocUserDetails;
+import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseFactoryBean;
 import com.zyplayer.doc.db.framework.db.bean.DatabaseRegistrationBean;
+import com.zyplayer.doc.db.framework.sse.service.DbSseEmitterService;
+import com.zyplayer.doc.db.framework.sse.util.DbSseCacheUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.mapping.ParameterMapping;
@@ -31,6 +35,9 @@ public class ColumnSqlExecutor {
 
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
+
+	@Resource
+	DbSseEmitterService dbSseEmitterService;
 
 	// 执行中的PreparedStatement信息，用于强制取消执行
 	private static final Map<String, PreparedStatement> statementMap = new ConcurrentHashMap<>();
@@ -136,6 +143,18 @@ public class ColumnSqlExecutor {
 			}
 			// 查询的结果集
 			resultSet = preparedStatement.getResultSet();
+
+			//最后一次
+			if(Boolean.TRUE.equals(executeParam.getIsLastTime())){
+				//推送查询完成信息
+				DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+				String loginId = currentUser.getUserId().toString();
+				String clientId = DbSseCacheUtil.getClientIdByLoginId(loginId);
+				if(clientId!=null){
+					dbSseEmitterService.sendMessageToOneClient(DbSseCacheUtil.getClientIdByLoginId(loginId),"1");
+				}
+			}
+
 			List<String> headerList = new LinkedList<>();
 			List<List<Object>> dataList = new LinkedList<>();
 			if (resultSet != null) {

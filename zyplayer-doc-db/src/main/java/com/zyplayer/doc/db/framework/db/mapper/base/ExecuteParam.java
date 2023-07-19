@@ -21,4 +21,5 @@ public class ExecuteParam {
 	private String executeId;
 	private String prefixSql;
 	private ExecuteType executeType;
+	private Boolean isLastTime;
 }

@@ -121,7 +121,8 @@ public class DbSqlExecutorController {
 			return DocDbResponseJson.warn("单次执行最多支持20条语句同时执行，当前语句条数：" + analysisQuerySqlList.size());
 		}
 		List<ColumnExecuteResult> resultList = new LinkedList<>();
-		for (Map<String, Object> map : analysisQuerySqlList) {
+		for (int i = 0; i < analysisQuerySqlList.size(); i++) {
+			Map<String, Object> map = analysisQuerySqlList.get(i);
 			ColumnExecuteResult executeResult;
 			ColumnExecuteResult executeCountResult;
 			//原始sql
@@ -140,6 +141,10 @@ public class DbSqlExecutorController {
 				if(map.get("sqlType").equals("select")){
 					if(StrUtil.equals(type,"noPage")){
 						executeParam = SqlParseUtil.getSingleExecuteParam(executeParam,originalSql, paramMap);
+						//设置最后一次标志
+						if(i==analysisQuerySqlList.size()-1){
+							executeParam.setIsLastTime(true);
+						}
 						executeResult = columnSqlExecutor.execute(executeParam);
 						resultList.add(executeResult);
 						continue;
@@ -152,6 +157,10 @@ public class DbSqlExecutorController {
 					long count = 0;
 					if(data!=null){
 						count = Long.parseLong(data.get(0).get(0)+"");
+					}
+					//设置最后一次标志
+					if(i==analysisQuerySqlList.size()-1){
+						executeParam.setIsLastTime(true);
 					}
 					//总数据量大于1000进行分页
 					if(count>1000){
