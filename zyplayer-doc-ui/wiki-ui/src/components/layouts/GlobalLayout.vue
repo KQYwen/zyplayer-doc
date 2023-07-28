@@ -24,29 +24,39 @@
 						</template>
 					</el-autocomplete>
 					<div style="margin-left: 10px;margin-bottom: 10px">
-						<span  style="color:#898989;font-size:small;">空间目录
-							<el-dropdown  trigger="click" style="float:right">
+						<el-tooltip style="margin: 4px" effect="dark" :content="descriptorForTree" placement="top">
+							<span  style="color:#888;font-size: 12px;cursor: pointer" @click="changeDropWownStatus">空间目录</span>
+						</el-tooltip>
+						<a-dropdown :trigger="['click']" >
+							<a class="ant-dropdown-link" @click.stop style="float:right">
 								<el-icon   style="margin-right: 5px">
 									<el-icon-plus />
 								</el-icon>
-								<template v-slot:dropdown>
-									<el-dropdown-menu>
-										<el-dropdown-item @click="createWiki(1,true)">
-											<el-icon  class="clickAddIcon" style="margin-right: 5px">
-												<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-											</el-icon>
-											创建富文本
-										</el-dropdown-item>
-										<el-dropdown-item @click="createWiki(2,true)">
-											<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
-										</el-dropdown-item>
-									</el-dropdown-menu>
-								</template>
-							</el-dropdown>
-						</span>
+							</a>
+							<template #overlay>
+								<a-menu>
+									<a-menu-item key="0" @click="createWiki(0,0)">
+										<el-icon  class="clickAddIcon" style="margin-right: 5px">
+											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+										</el-icon>
+										创建文件夹
+									</a-menu-item>
+									<a-menu-item key="1" @click="createWiki(1,0)">
+										<el-icon  class="clickAddIcon" style="margin-right: 5px">
+											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+										</el-icon>
+										创建富文本
+									</a-menu-item>
+									<a-menu-item key="2" @click="createWiki(2,0)">
+										<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
+									</a-menu-item>
+								</a-menu>
+							</template>
+						</a-dropdown>
 					</div>
 					<div class="wiki-page-tree-box">
 						<el-tree
+								:class="explanClass"
 								ref="wikiPageTreeRef"
 								:current-node-key="nowPageId"
 								:data="wikiPageList"
@@ -65,32 +75,70 @@
 								<div class="page-tree-node" @mouseover="changeNodeOptionStatus(data,1)" @mouseleave="changeNodeOptionStatus(data,-1) ">
 									<el-tooltip :content="node.label" placement="top-start" :show-after="1000">
 										<span >
-											<el-icon  v-if="data.editorType === 1" class="clickAddIcon" style="margin-right: 5px">
-												<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-											</el-icon>
-											<el-icon v-if="data.editorType === 2" class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>
-											<span  >{{ node.label }}</span>
-											<span class="el-dropdown-link" @click="pageInfoLock()" >
-												<el-dropdown trigger="click" style="float:right" >
-												<el-icon  v-show="changeNodeOptionStatus(data,0)"  style="margin-right: 5px">
-													<el-icon-plus />
+											<a-row type="flex">
+												<a-col :flex="1" style="margin-top: 6px">
+													<el-icon  v-if="data.editorType === 0" class="clickAddIcon" style="margin-right: 5px">
+													<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
 												</el-icon>
-												<template v-slot:dropdown>
-													<el-dropdown-menu>
-														<el-dropdown-item @click="createWiki(1)">
-															<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-															</el-icon>
-															创建富文本
-														</el-dropdown-item>
-														<el-dropdown-item @click="createWiki(2)">
-															<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
-														</el-dropdown-item>
-													</el-dropdown-menu>
-												</template>
-											</el-dropdown>
-											</span>
-
+													<el-icon  v-if="data.editorType === 1" class="clickAddIcon" style="margin-right: 5px">
+														<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+													</el-icon>
+													<el-icon v-if="data.editorType === 2" class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>
+												</a-col>
+												<a-col :flex="15" style="margin-top: 6px">
+													<a-input v-if="data.renaming" v-model:value="data.name" placeholder="Basic usage" v-on:blur="doRename(node,data)" @click.stop/>
+													<span  v-else>
+														{{ node.label }}
+													</span>
+												</a-col>
+												<a-col :flex="3" style="margin-top: 6px">
+													<span class="el-dropdown-link" @click="pageInfoLock()" style="float:right">
+														<a-dropdown :trigger="['click']" style="float:right">
+															<a class="ant-dropdown-link" @click.stop>
+																<el-icon   style="margin-right: 5px">
+																	<el-icon-plus />
+																</el-icon>
+															</a>
+															<template #overlay>
+																<a-menu>
+																	<a-menu-item key="0" @click="createWiki(0,data.id)">
+																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+																		</el-icon>
+																		创建文件夹
+																	</a-menu-item>
+																	<a-menu-item key="1" @click="createWiki(1,data.id)">
+																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+																		</el-icon>
+																		创建富文本
+																	</a-menu-item>
+																	<a-menu-item key="2" @click="createWiki(2,data.id)">
+																		<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
+																	</a-menu-item>
+																</a-menu>
+															</template>
+														</a-dropdown>
+														<a-dropdown :trigger="['click']" style="float:right">
+															<a class="ant-dropdown-link" @click.stop>
+																<el-icon   style="margin-right: 5px">
+																	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M176 416a112 112 0 1 1 0 224 112 112 0 0 1 0-224zm336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224zm336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224z"></path></svg>
+																</el-icon>
+															</a>
+															<template #overlay>
+																<a-menu>
+																	<a-menu-item key="0" @click="rename(node,data)">
+																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M42 26V40C42 41.1046 41.1046 42 40 42H8C6.89543 42 6 41.1046 6 40V8C6 6.89543 6.89543 6 8 6L22 6" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 26.7199V34H21.3172L42 13.3081L34.6951 6L14 26.7199Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
+																		</el-icon>
+																		重命名
+																	</a-menu-item>
+																</a-menu>
+															</template>
+														</a-dropdown>
+													</span>
+												</a-col>
+											</a-row>
 										</span>
 									</el-tooltip>
 								</div>
@@ -200,6 +248,8 @@ import AboutDialog from '../../views/common/AboutDialog'
 import {useStoreDisplay} from '@/store/wikiDisplay.js'
 import {useStoreUserData} from "@/store/userData";
 import {useStorePageData} from "@/store/pageData";
+import { defineComponent } from 'vue';
+import { DownOutlined } from '@ant-design/icons-vue';
 
 let route = useRoute();
 let router = useRouter();
@@ -234,16 +284,43 @@ let rightAsideWidth = ref(300);
 let optionStatus = ref(false);
 let optionPageId = ref('');
 let optionLock = ref(false);
+let descriptorForTree = ref("点击收起目录");
+let explan = ref(false);
+let explanClass = ref("el-tree");
 
 onMounted(() => {
 	loadSpaceList()
 	loadUserMessageList()
 	getSelfUserInfo()
 });
+const rename = (node,data) => {
+	data.renaming = true
+}
+const doRename = (node,data) => {
+	pageApi.renamePage({"id": data.id,"name": data.name})
+			.then((json) => {
+				doGetPageList(null)
+				ElMessage.success('重命名成功')
+				data.renaming = false
+			})
+
+}
+const changeDropWownStatus = () => {
+	if(explan.value){
+		explanClass.value = "el-tree"
+		descriptorForTree.value ="点击收起目录"
+		explan.value = false
+	}else {
+		explanClass.value = "hidTree"
+		descriptorForTree.value ="点击展开目录"
+		explan.value = true
+	}
+}
 const loadPageList = (param) => {
 	param = param || {}
 	doGetPageList(param.parentId, param.node)
 }
+
 const pageInfoLock = () => {
 	optionLock.value = true
 }
@@ -280,19 +357,22 @@ const turnLeftCollapse = () => {
 		}
 	}, 100)
 }
-	const createWiki = (editorType,clearParentId) => {
-		if (clearParentId){
-			nowPageId.value = 0
-		}
+	const createWiki = (editorType,parentId) => {
 		if (choiceSpace.value > 0) {
-			pageApi.updatePage({spaceId: choiceSpace.value,parentId: nowPageId.value,editorType:editorType,name:'新建文档',content:'',preview:''})
+			let name = "新建文档"
+			if(editorType === 0){
+				name = "新建文件夹"
+			}
+			pageApi.updatePage({spaceId: choiceSpace.value,parentId: parentId,editorType:editorType,name:name,content:'',preview:''})
 					.then((json) => {
 						doGetPageList(null)
 						ElMessage.success('创建成功')
-						router.push({
-							path: '/page/edit',
-							query: {parentId: nowPageId.value, pageId: json.data.id}
-						})
+						if (editorType !== 0){
+							router.push({
+								path: '/page/edit',
+								query: {parentId: nowPageId.value, pageId: json.data.id}
+							})
+						}
 					})
 
 	} else {
@@ -336,7 +416,9 @@ const handleNodeClick = (data) => {
 		return
 	}
 	nowPageId.value = data.id
-	router.push({path: '/page/show', query: {pageId: data.id}})
+	if (data.editorType !== 0) {
+		router.push({path: '/page/show', query: {pageId: data.id}})
+	}
 	handleNodeExpand(data)
 }
 const handleNodeExpand = (node) => {
@@ -535,6 +617,10 @@ body {
 
 .global-layout-vue {
 	height: 100%;
+}
+
+.hidTree {
+	display: none;
 }
 
 #app,

@@ -282,6 +282,46 @@ public class WikiPageController {
 		}
 		return DocResponseJson.ok(wikiPage);
 	}
+
+	@PostMapping("/rename")
+	public ResponseJson<Object> rename(WikiPage wikiPage) {
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		if (StringUtils.isBlank(wikiPage.getName())) {
+			return DocResponseJson.warn("标题不能为空！");
+		}
+		if (StringUtils.isBlank(wikiPage.getId()+"")) {
+			return DocResponseJson.warn("不能为新建的文档改名！");
+		}
+		Long pageId = wikiPage.getId();
+		Long spaceId = wikiPage.getSpaceId();
+		WikiPage wikiPageSel = wikiPageService.getById(pageId);
+		// 编辑权限判断
+		WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
+		String canEdit = wikiPageAuthService.canEdit(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
+		if (canEdit != null) {
+			return DocResponseJson.warn(canEdit);
+		}
+		spaceId = wikiPageSel.getSpaceId();
+		WikiPage oldWikiPage = wikiPageService.getById(pageId);
+		oldWikiPage.setName(wikiPage.getName());
+		wikiPage.setUpdateTime(new Date());
+		wikiPage.setUpdateUserId(currentUser.getUserId());
+		wikiPage.setUpdateUserName(currentUser.getUsername());
+		wikiPageService.updateById(oldWikiPage);
+		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
+		wrapper.eq("page_id", wikiPage.getId());
+		WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
+		// 给相关人发送消息
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_UPDATE);
+		userMessageService.addWikiMessage(userMessage);
+		try {
+			// 创建历史记录
+			wikiPageHistoryService.saveRecord(spaceId, wikiPage.getId(), pageContent.getContent());
+		} catch (ConfirmException e) {
+			return DocResponseJson.warn(e.getMessage());
+		}
+		return DocResponseJson.ok(wikiPage);
+	}
 	
 	@PostMapping("/unlock")
 	public ResponseJson<Object> unlock(Long pageId) {
