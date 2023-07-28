@@ -8,6 +8,7 @@ import {createRouter, createWebHashHistory} from 'vue-router'
 
 import ElementUI from 'element-plus'
 import 'element-plus/dist/index.css'
+import Antd from 'ant-design-vue';
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import routes from './routes'
 import Vant from 'vant'
@@ -19,6 +20,7 @@ const router = createRouter({
 });
 const app = createApp(App);
 app.config.productionTip = false;
+app.use(Antd)
 app.use(ElementUI, {
 	locale: zhCn,
 });

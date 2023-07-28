@@ -6,6 +6,7 @@ export default {
 	pageChangeParent: (data) => request({url: '/zyplayer-doc-wiki/page/changeParent', method: 'post', data: Qs.stringify(data)}),
 	pageList: (data) => request({url: '/zyplayer-doc-wiki/page/list', method: 'post', data: Qs.stringify(data)}),
 	updatePage: (data) => request({url: '/zyplayer-doc-wiki/page/update', method: 'post', data: Qs.stringify(data)}),
+	renamePage: (data) => request({url: '/zyplayer-doc-wiki/page/rename', method: 'post', data: Qs.stringify(data)}),
 	pageDetail: (data) => request({url: '/zyplayer-doc-wiki/page/detail', method: 'post', data: Qs.stringify(data)}),
 	pageDelete: (data) => request({url: '/zyplayer-doc-wiki/page/delete', method: 'post', data: Qs.stringify(data)}),
 	pageHistoryList: (data) => request({url: '/zyplayer-doc-wiki/page/history/list', method: 'post', data: Qs.stringify(data)}),
