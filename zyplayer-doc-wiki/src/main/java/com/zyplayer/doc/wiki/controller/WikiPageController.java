@@ -10,7 +10,6 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
-import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
 import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
 import com.zyplayer.doc.data.repository.support.consts.DocSysType;
@@ -20,8 +19,8 @@ import com.zyplayer.doc.data.utils.CachePrefix;
 import com.zyplayer.doc.data.utils.CacheUtil;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
-import com.zyplayer.doc.wiki.framework.common.MDToText;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
+import com.zyplayer.doc.wiki.service.WikiPageUploadService;
 import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -47,6 +45,7 @@ import java.util.stream.Collectors;
  * 文档控制器
  *
  * @author 暮光：城中城
+ * @author Sh1yu
  * @since 2019年2月17日
  */
 @Slf4j
@@ -55,18 +54,20 @@ import java.util.stream.Collectors;
 @RequestMapping("/zyplayer-doc-wiki/page")
 @RequiredArgsConstructor
 public class WikiPageController {
-	
+
 	private final WikiPageService wikiPageService;
 	private final WikiPageContentService wikiPageContentService;
 	private final WikiPageContentMapper wikiPageContentMapper;
 	private final WikiPageFileService wikiPageFileService;
 	private final WikiPageZanService wikiPageZanService;
 	private final WikiSpaceService wikiSpaceService;
-	private final WikiPageMapper wikiPageMapper;
 	private final WikiPageAuthService wikiPageAuthService;
+	private final WikiPageUploadService wikipageUploadService;
 	private final UserMessageService userMessageService;
 	private final WikiPageHistoryService wikiPageHistoryService;
-	
+
+
+
 	@PostMapping("/list")
 	public ResponseJson<List<WikiPageVo>> list(WikiPage wikiPage) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -87,7 +88,7 @@ public class WikiPageController {
 		}
 		return DocResponseJson.ok(nodePageList);
 	}
-	
+
 	@PostMapping("/detail")
 	public ResponseJson<WikiPageContentVo> detail(WikiPage wikiPage) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -108,7 +109,7 @@ public class WikiPageController {
 		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
 		wrapper.eq("page_id", wikiPage.getId());
 		WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
-		
+
 		UpdateWrapper<WikiPageFile> wrapperFile = new UpdateWrapper<>();
 		wrapperFile.eq("page_id", wikiPage.getId());
 		wrapperFile.eq("del_flag", 0);
@@ -148,7 +149,7 @@ public class WikiPageController {
 		wikiPageSel.setViewNum(viewNum + 1);
 		return DocResponseJson.ok(vo);
 	}
-	
+
 	@PostMapping("/changeParent")
 	public ResponseJson<Object> changeParent(WikiPage wikiPage, Integer beforeSeq, Integer afterSeq) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -168,7 +169,7 @@ public class WikiPageController {
 		wikiPageService.changeParent(wikiPageUp, beforeSeq, afterSeq);
 		return DocResponseJson.ok();
 	}
-	
+
 	@PostMapping("/delete")
 	public ResponseJson<Object> delete(Long pageId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -193,94 +194,14 @@ public class WikiPageController {
 
 	@PostMapping("/update")
 	public ResponseJson<Object> update(WikiPage wikiPage, String content, String preview) {
-		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-		WikiPageContent pageContent = new WikiPageContent();
-		pageContent.setContent(content);
-		if (wikiPage.getEditorType() == 2) {
-			preview = MDToText.mdToText(preview);
-		}
-		pageContent.setPreview(preview);
-		// 数据库是varchar(16000)，所以如果不开启es的话搜索超过16000的文章就搜不到~，es存preview不截断
-		if (StringUtils.isNotBlank(preview) && preview.length() > 16000) {
-			pageContent.setPreview(preview.substring(0, 16000));
-		}
-		if (StringUtils.isBlank(wikiPage.getName())) {
-			return DocResponseJson.warn("标题不能为空！");
-		}
-		Long pageId = wikiPage.getId();
-		Long spaceId = wikiPage.getSpaceId();
-		if (pageId != null && pageId > 0) {
-			WikiPage wikiPageSel = wikiPageService.getById(pageId);
-			// 编辑权限判断
-			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-			String canEdit = wikiPageAuthService.canEdit(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
-			if (canEdit != null) {
-				return DocResponseJson.warn(canEdit);
+		Object info = wikipageUploadService.update(wikiPage, content, preview);
+		if (null != info){
+			if (info instanceof WikiPage){
+				return DocResponseJson.ok(info);
 			}
-			spaceId = wikiPageSel.getSpaceId();
-			wikiPage.setSpaceId(null);
-			wikiPage.setEditType(null);
-			wikiPage.setUpdateTime(new Date());
-			wikiPage.setUpdateUserId(currentUser.getUserId());
-			wikiPage.setUpdateUserName(currentUser.getUsername());
-			wikiPageService.updateById(wikiPage);
-			// 详情
-			pageContent.setUpdateTime(new Date());
-			pageContent.setUpdateUserId(currentUser.getUserId());
-			pageContent.setUpdateUserName(currentUser.getUsername());
-			UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
-			wrapper.eq("page_id", pageId);
-			wikiPageContentService.update(pageContent, wrapper);
-			// 给相关人发送消息
-			UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_UPDATE);
-			userMessageService.addWikiMessage(userMessage);
-		} else {
-			Long parentId = Optional.ofNullable(wikiPage.getParentId()).orElse(0L);
-			WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPage.getSpaceId());
-			if (wikiSpaceSel == null) {
-				return DocResponseJson.warn("未找到指定的空间！");
-			}
-			// 空间不是自己的
-			if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				return DocResponseJson.warn("您没有权限新增该空间的文章！");
-			}
-			// 空间不是自己的
-			if (SpaceType.isOthersPersonal(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-				return DocResponseJson.warn("您没有权限新增该空间的文章！");
-			}
-			if (parentId > 0) {
-				WikiPage wikiPageParent = wikiPageService.getById(parentId);
-				if (!Objects.equals(wikiPage.getSpaceId(), wikiPageParent.getSpaceId())) {
-					return DocResponseJson.warn("当前空间和父页面的空间不一致，请重新选择父页面！");
-				}
-			}
-			Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getSpaceId(), parentId);
-			lastSeq = Optional.ofNullable(lastSeq).orElse(99999);
-			wikiPage.setSeqNo(lastSeq + 1);
-			wikiPage.setCreateTime(new Date());
-			wikiPage.setUpdateTime(new Date());
-			wikiPage.setCreateUserId(currentUser.getUserId());
-			wikiPage.setCreateUserName(currentUser.getUsername());
-			wikiPageService.save(wikiPage);
-			// 重置当前分支的所有节点seq值
-			wikiPageMapper.updateChildrenSeq(wikiPage.getSpaceId(), parentId);
-			// 详情
-			pageContent.setPageId(wikiPage.getId());
-			pageContent.setCreateTime(new Date());
-			pageContent.setCreateUserId(currentUser.getUserId());
-			pageContent.setCreateUserName(currentUser.getUsername());
-			wikiPageContentService.save(pageContent);
-			// 给相关人发送消息
-			UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPage.getId(), wikiPage.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_CREATE);
-			userMessageService.addWikiMessage(userMessage);
+			return DocResponseJson.warn((String) info);
 		}
-		try {
-			// 创建历史记录
-			wikiPageHistoryService.saveRecord(spaceId, wikiPage.getId(), content);
-		} catch (ConfirmException e) {
-			return DocResponseJson.warn(e.getMessage());
-		}
-		return DocResponseJson.ok(wikiPage);
+		return DocResponseJson.warn("状态异常");
 	}
 
 	@PostMapping("/rename")
@@ -322,7 +243,7 @@ public class WikiPageController {
 		}
 		return DocResponseJson.ok(wikiPage);
 	}
-	
+
 	@PostMapping("/unlock")
 	public ResponseJson<Object> unlock(Long pageId) {
 		String lockKey = CachePrefix.WIKI_LOCK_PAGE + pageId;
@@ -335,7 +256,7 @@ public class WikiPageController {
 		}
 		return DocResponseJson.ok();
 	}
-	
+
 	@PostMapping("/lock")
 	public ResponseJson<Object> editLock(Long pageId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -349,13 +270,13 @@ public class WikiPageController {
 		CacheUtil.put(lockKey, new DocUserDetails(currentUser.getUserId(), currentUser.getUsername()));
 		return DocResponseJson.ok();
 	}
-	
+
 	@PostMapping("/searchByEs")
 	public ResponseJson<Object> searchByEs(SearchByEsParam param) {
 		param.setNewsType(1);
 		return this.news(param);
 	}
-	
+
 	@PostMapping("/download")
 	public ResponseJson<Object> download(Long pageId, HttpServletResponse response) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -410,7 +331,7 @@ public class WikiPageController {
 		}
 		return DocResponseJson.warn("导出失败");
 	}
-	
+
 	@PostMapping("/news")
 	public ResponseJson<Object> news(SearchByEsParam param) {
 		// 空间不是自己的
@@ -448,7 +369,7 @@ public class WikiPageController {
 		});
 		return DocResponseJson.ok(spaceNewsVoList);
 	}
-	
+
 	private Map<Long, WikiSpace> getCanVisitWikiSpace(Long spaceId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		List<WikiSpace> spaceList;
@@ -467,7 +388,7 @@ public class WikiPageController {
 		}
 		return spaceList.stream().collect(Collectors.toMap(WikiSpace::getId, val -> val));
 	}
-	
+
 	private void setChildren(Map<Long, List<WikiPageVo>> listMap, List<WikiPageVo> nodePageList, String path) {
 		if (nodePageList == null || listMap == null) {
 			return;
