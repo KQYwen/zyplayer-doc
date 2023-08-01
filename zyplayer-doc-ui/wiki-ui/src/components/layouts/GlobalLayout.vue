@@ -144,7 +144,7 @@
 																</a-menu>
 															</template>
 														</a-dropdown>
-														<a-dropdown :trigger="['click']" style="float:right">
+														<a-dropdown :trigger="['click']" style="float:right" @click="choosePageIdFunc(data.id)">
 															<a class="ant-dropdown-link" @click.stop>
 																<el-icon   style="margin-right: 5px">
 																	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M176 416a112 112 0 1 1 0 224 112 112 0 0 1 0-224zm336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224zm336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224z"></path></svg>
@@ -157,6 +157,12 @@
 																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M42 26V40C42 41.1046 41.1046 42 40 42H8C6.89543 42 6 41.1046 6 40V8C6 6.89543 6.89543 6 8 6L22 6" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 26.7199V34H21.3172L42 13.3081L34.6951 6L14 26.7199Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
 																		</el-icon>
 																		重命名
+																	</a-menu-item>
+																	<a-menu-item key="1" @click="deleteWikiPage">
+																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M9 10V44H39V10H9Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M20 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M28 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 10H44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16 10L19.289 4H28.7771L32 10H16Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
+																		</el-icon>
+																		删除
 																	</a-menu-item>
 																</a-menu>
 															</template>
@@ -354,6 +360,20 @@
 			doGetPageList(null)
 			ElMessage.error('导入失败：' + e.message)
 		})
+	}
+
+	const deleteWikiPage = () => {
+		ElMessageBox.confirm('确定要删除此页面及其所有子页面吗？', '提示', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+		}).then(() => {
+			let param = {pageId: optionPageId.value};
+			pageApi.pageDelete(param).then(() => {
+				ElMessage.success('已删除')
+				doGetPageList(null)
+			});
+		}).catch(() => {});
 	}
 
 	const choosePageIdFunc = (id) => {
