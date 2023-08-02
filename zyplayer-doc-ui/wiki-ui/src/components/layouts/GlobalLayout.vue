@@ -23,24 +23,14 @@
 							</div>
 						</template>
 					</el-autocomplete>
-					<div style="margin-left: 10px;margin-bottom: 10px">
+					<div class="space-folder-box">
 						<el-tooltip style="margin: 4px" effect="dark" :content="descriptorForTree" placement="top">
 							<span  style="color:#888;font-size: 12px;cursor: pointer" @click="changeDropWownStatus">空间目录</span>
 						</el-tooltip>
 						<a-dropdown :trigger="['click']"  @click="choosePageIdFunc(0)">
-							<a class="ant-dropdown-link" @click.stop style="float:right">
-								<el-icon   style="margin-right: 5px">
-									<el-icon-plus />
-								</el-icon>
-							</a>
+							<el-button :icon="ElIconPlus" text class="folder-action-dropdown-btn"></el-button>
 							<template #overlay>
 								<a-menu>
-									<a-menu-item key="0" @click="createWiki(0,0)">
-										<el-icon  class="clickAddIcon" style="margin-right: 5px">
-											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-										</el-icon>
-										创建文件夹
-									</a-menu-item>
 									<a-menu-item key="1" @click="createWiki(1,0)">
 										<el-icon  class="clickAddIcon" style="margin-right: 5px">
 											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -48,7 +38,14 @@
 										创建富文本
 									</a-menu-item>
 									<a-menu-item key="2" @click="createWiki(2,0)">
-										<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>创建Markdown
+										<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>
+										创建Markdown
+									</a-menu-item>
+									<a-menu-item key="0" @click="createWiki(0,0)">
+										<el-icon  class="clickAddIcon" style="margin-right: 5px">
+											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+										</el-icon>
+										创建文件夹
 									</a-menu-item>
 									<a-menu-item key="3" >
 										<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">
@@ -84,94 +81,81 @@
 								@node-drop="handlePageDrop">
 							<template v-slot="{ node, data }">
 								<div class="page-tree-node" @mouseover="changeNodeOptionStatus(data,1,false)" @mouseleave="changeNodeOptionStatus(data,-1,false) ">
-									<el-tooltip :content="node.label" placement="top-start" :show-after="1000">
-										<span >
-											<a-row type="flex">
-												<a-col :flex="1" style="margin-top: 6px">
-													<el-icon  v-if="data.editorType === 0" class="clickAddIcon" style="margin-right: 5px">
-													<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-												</el-icon>
-													<el-icon  v-if="data.editorType === 1" class="clickAddIcon" style="margin-right: 5px">
-														<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-													</el-icon>
-													<el-icon v-if="data.editorType === 2" class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>
-												</a-col>
-												<a-col :flex="15" style="margin-top: 6px" >
-													<a-input v-if="data.renaming" v-model:value="data.name" placeholder="Basic usage" v-on:blur="doRename(node,data)" @click.stop/>
-													<span  v-else>
-														{{ node.label }}
-													</span>
-												</a-col>
-												<a-col :flex="3" style="margin-top: 6px" v-if="changeNodeOptionStatus(data,0,true)">
-													<span class="el-dropdown-link"  style="float:right">
-														<a-dropdown :trigger="['click']" style="float:right" @click="choosePageIdFunc(data.id)">
-															<a class="ant-dropdown-link" @click.stop>
-																<el-icon   style="margin-right: 5px">
-																	<el-icon-plus />
-																</el-icon>
-															</a>
-															<template #overlay>
-																<a-menu>
-																	<a-menu-item key="0" @click="createWiki(0,data.id)">
-																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-																		</el-icon>
-																		创建文件夹
-																	</a-menu-item>
-																	<a-menu-item key="1" @click="createWiki(1,data.id)">
-																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-																		</el-icon>
-																		创建富文本
-																	</a-menu-item>
-																	<a-menu-item key="2" @click="createWiki(2,data.id)">
-																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																			<el-icon-document/>
-																		</el-icon>
-																		创建Markdown
-																	</a-menu-item>
-																	<a-menu-item key="3" >
-																		<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">
-																			 <a-upload
-																					 v-model:file-list="fileList"
-																					 name="file"
-																					 :multiple="false"
-																					 :customRequest="doAUpload">
-																					<el-icon  class="clickAddIcon" style="margin-right: 5px" type="primary"><ElIconUpload/></el-icon>导入
-																			  </a-upload>
-																		</el-tooltip>
-																	</a-menu-item>
-																</a-menu>
-															</template>
-														</a-dropdown>
-														<a-dropdown :trigger="['click']" style="float:right" @click="choosePageIdFunc(data.id)">
-															<a class="ant-dropdown-link" @click.stop>
-																<el-icon   style="margin-right: 5px">
-																	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M176 416a112 112 0 1 1 0 224 112 112 0 0 1 0-224zm336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224zm336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224z"></path></svg>
-																</el-icon>
-															</a>
-															<template #overlay>
-																<a-menu>
-																	<a-menu-item key="0" @click="rename(node,data)">
-																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M42 26V40C42 41.1046 41.1046 42 40 42H8C6.89543 42 6 41.1046 6 40V8C6 6.89543 6.89543 6 8 6L22 6" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 26.7199V34H21.3172L42 13.3081L34.6951 6L14 26.7199Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
-																		</el-icon>
-																		重命名
-																	</a-menu-item>
-																	<a-menu-item key="1" @click="deleteWikiPage">
-																		<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																			<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M9 10V44H39V10H9Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M20 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M28 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 10H44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16 10L19.289 4H28.7771L32 10H16Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
-																		</el-icon>
-																		删除
-																	</a-menu-item>
-																</a-menu>
-															</template>
-														</a-dropdown>
-													</span>
-												</a-col>
-											</a-row>
+									<div style="width: calc(100% - 30px);overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
+										<!--图标-->
+										<el-icon  v-if="data.editorType === 0" class="clickAddIcon" style="margin-right: 5px;vertical-align: middle;">
+											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+										</el-icon>
+										<el-icon  v-else-if="data.editorType === 1" class="clickAddIcon" style="margin-right: 5px;vertical-align: middle;">
+											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+										</el-icon>
+										<el-icon v-else-if="data.editorType === 2" class="clickAddIcon" style="margin-right: 5px;vertical-align: middle;">
+											<el-icon-document/>
+										</el-icon>
+										<!--标题-->
+										<a-input v-if="data.renaming" v-model:value="data.name" class="rename-input" placeholder="请输入文档名称" @blur="doRename(node,data)" @click.stop/>
+										<span v-else style="vertical-align: middle;">
+											<el-tooltip :content="node.label" placement="top-start" :show-after="1000">{{ node.label }}</el-tooltip>
 										</span>
-									</el-tooltip>
+										<!--操作-->
+										<div class="page-action-box" :class="data.renaming?'renaming':''" @click.stop>
+											<a-dropdown :trigger="['click']" @click="choosePageIdFunc(data.id)">
+												<el-button :icon="ElIconPlus" text class="page-action-dropdown-btn"></el-button>
+												<template #overlay>
+													<a-menu>
+														<a-menu-item key="1" @click="createWiki(1,data.id)">
+															<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+															</el-icon>
+															创建富文本
+														</a-menu-item>
+														<a-menu-item key="2" @click="createWiki(2,data.id)">
+															<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																<el-icon-document/>
+															</el-icon>
+															创建Markdown
+														</a-menu-item>
+														<a-menu-item key="0" @click="createWiki(0,data.id)">
+															<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+															</el-icon>
+															创建文件夹
+														</a-menu-item>
+														<a-menu-item key="3" >
+															<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">
+																<a-upload
+																		v-model:file-list="fileList"
+																		name="file"
+																		:multiple="false"
+																		:customRequest="doAUpload">
+																	<el-icon  class="clickAddIcon" style="margin-right: 5px" type="primary"><ElIconUpload/></el-icon>导入
+																</a-upload>
+															</el-tooltip>
+														</a-menu-item>
+													</a-menu>
+												</template>
+											</a-dropdown>
+											<a-dropdown :trigger="['click']" @click="choosePageIdFunc(data.id)">
+												<el-button :icon="MoreFilled" text class="page-action-dropdown-btn"></el-button>
+												<template #overlay>
+													<a-menu>
+														<a-menu-item key="0" @click="rename(node,data)">
+															<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M42 26V40C42 41.1046 41.1046 42 40 42H8C6.89543 42 6 41.1046 6 40V8C6 6.89543 6.89543 6 8 6L22 6" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 26.7199V34H21.3172L42 13.3081L34.6951 6L14 26.7199Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
+															</el-icon>
+															重命名
+														</a-menu-item>
+														<a-menu-item key="1" @click="deleteWikiPage">
+															<el-icon  class="clickAddIcon" style="margin-right: 5px">
+																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M9 10V44H39V10H9Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M20 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M28 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 10H44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16 10L19.289 4H28.7771L32 10H16Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
+															</el-icon>
+															删除
+														</a-menu-item>
+													</a-menu>
+												</template>
+											</a-dropdown>
+										</div>
+									</div>
 								</div>
 							</template>
 						</el-tree>
@@ -268,6 +252,7 @@
 		Setting as ElIconSetting,
 		Plus as ElIconPlus,
 		Check as ElIconCheck,
+		MoreFilled,
 	} from '@element-plus/icons-vue'
 	import {onBeforeUnmount, toRefs, ref, reactive, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 	import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
@@ -767,34 +752,81 @@
 </style>
 
 <style lang="scss">
-	.wiki-page-tree-box {
-		overflow-y: auto;
-		overflow-x: hidden;
-		padding-bottom: 30px;
+.space-folder-box {
+  margin-left: 10px;
+  margin-bottom: 10px;
+  position: relative;
 
-		.el-tree-node__content {
-			height: 35px;
+  .folder-action-dropdown-btn {
+	padding: 0 8px;
+	height: 25px;
+	position: absolute;
+	right: 0;
+  }
+}
 
-			.page-tree-node {
-				width: 100%;
+.wiki-page-tree-box {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 30px;
 
-				.label {
-					.el-icon {
-						vertical-align: middle;
-					}
+  .el-tree-node__content {
+	height: 35px;
+	position: relative;
 
-					.text {
-						margin-left: 5px;
-						vertical-align: middle;
+	.page-tree-node {
+	  width: 100%;
 
-						max-width: calc(100% - 40px);
-						display: inline-block;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						white-space: nowrap;
-					}
-				}
-			}
+	  .label {
+		.el-icon {
+		  vertical-align: middle;
 		}
+
+		.text {
+		  margin-left: 5px;
+		  vertical-align: middle;
+
+		  max-width: calc(100% - 40px);
+		  display: inline-block;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  white-space: nowrap;
+		}
+	  }
+
+	  .rename-input {
+	    width: 90%;
+	  }
+
+	  .page-action-box {
+		position: absolute;
+		right: 0;
+		top: 0;
+		height: 35px;
+		line-height: 35px;
+		background: #fff;
+	    border-radius: 4px;
+	    display: none;
+
+		.page-action-dropdown-btn {
+		  padding: 0 8px;
+		  height: 35px;
+		  margin-top: -1px;
+		}
+
+		.el-button+.el-button {
+		  margin-left: 0;
+		}
+	  }
+
+	  .page-action-box.renaming {
+		display: none !important;
+	  }
 	}
+
+	&:hover .page-action-box {
+	  display: block;
+	}
+  }
+}
 </style>
