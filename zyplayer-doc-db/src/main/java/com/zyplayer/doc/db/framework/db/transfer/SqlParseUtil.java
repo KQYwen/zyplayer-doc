@@ -248,7 +248,9 @@ public class SqlParseUtil {
 						if (select.getOracleHierarchical() != null) {
 							countSql.append(select.getOracleHierarchical().toString());
 						}
-						countSql.append(PlainSelect.getFormatedList(select.getGroupBy().getGroupingSets(), "GROUP BY"));
+						if (select.getGroupBy() != null) {
+							countSql.append(PlainSelect.getFormatedList(select.getGroupBy().getGroupingSets(), "GROUP BY"));
+						}
 						if (select.getHaving() != null) {
 							countSql.append(" HAVING ").append(select.getHaving());
 						}
