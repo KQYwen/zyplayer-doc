@@ -70,7 +70,7 @@ public class TransferDataServer {
 		}
 		if (sqlExecutor.cancel(executeId)) {
 			DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-			String executeInfo = String.format("[%s] %s 手动终止了此任务", DateTime.now().toString(), currentUser.getUsername());
+			String executeInfo = String.format("[%s] %s 手动终止了此任务", DateTime.now(), currentUser.getUsername());
 			dbTransferTaskService.addExecuteInfo(taskId, TransferTaskStatus.CANCEL.getCode(), executeInfo);
 		} else {
 			throw new ConfirmException("终止该任务失败");
@@ -104,7 +104,7 @@ public class TransferDataServer {
 		dbTransferTaskService.resetExecuteInfo(taskId);
 		// 提交任务
 		ThreadPoolUtil.getThreadPool().submit(() -> {
-			String executeInfo = String.format("[%s] 任务开始执行", DateTime.now().toString());
+			String executeInfo = String.format("[%s] 任务开始执行", DateTime.now());
 			dbTransferTaskService.addExecuteInfo(taskId, TransferTaskStatus.EXECUTING.getCode(), executeInfo);
 			String executeId = IdUtil.simpleUUID();
 			taskExecuteMap.put(taskId, executeId);
@@ -137,15 +137,16 @@ public class TransferDataServer {
 				executeParam.setSql(selectCountSql);
 				ExecuteResult countResult = sqlExecutor.execute(executeParam);
 				if (CollectionUtils.isEmpty(countResult.getResult())) {
-					String executeInfo = String.format("[%s] 获取总条数失败", DateTime.now().toString());
+					String executeInfo = String.format("[%s] 获取总条数失败", DateTime.now());
 					dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.ERROR.getCode(), executeInfo);
 					return;
 				}
-				Object transferCount = countResult.getResult().get(0).get("counts");
-				String executeInfo = String.format("[%s] 待处理总条数：%s，查询总条数耗时：%sms", DateTime.now().toString(), transferCount, System.currentTimeMillis() - executeStartTime);
+				Map<String, Object> countMap = countResult.getResult().get(0);
+				Object transferCount = countMap.values().stream().findAny().orElse(0);
+				String executeInfo = String.format("[%s] 待处理总条数：%s，查询总条数耗时：%sms", DateTime.now(), transferCount, System.currentTimeMillis() - executeStartTime);
 				dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.EXECUTING.getCode(), executeInfo);
 			} else {
-				String executeInfo = String.format("[%s] 未开启查询总条数，跳过条数查询", DateTime.now().toString());
+				String executeInfo = String.format("[%s] 未开启查询总条数，跳过条数查询", DateTime.now());
 				dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.EXECUTING.getCode(), executeInfo);
 			}
 			AtomicLong readCount = new AtomicLong(0L);
@@ -153,7 +154,7 @@ public class TransferDataServer {
 			ExecuteResult executeResult = sqlExecutor.execute(factoryBean, executeParam, resultMap -> {
 				selectResultList.add(resultMap);
 				if (readCount.incrementAndGet() % executeCountLogNum == 0) {
-					String executeInfo = String.format("[%s] 已处理条数：%s", DateTime.now().toString(), readCount.get());
+					String executeInfo = String.format("[%s] 已处理条数：%s", DateTime.now(), readCount.get());
 					dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.EXECUTING.getCode(), executeInfo);
 				}
 				// 批量输出数据
@@ -166,15 +167,15 @@ public class TransferDataServer {
 				this.writeData(storageSourceId, storageSql, selectResultList);
 			}
 			if (StringUtils.isNotBlank(executeResult.getErrMsg())) {
-				String executeInfo = String.format("[%s] 执行出错：%s", DateTime.now().toString(), executeResult.getErrMsg());
+				String executeInfo = String.format("[%s] 执行出错：%s", DateTime.now(), executeResult.getErrMsg());
 				dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.ERROR.getCode(), executeInfo);
 			} else {
-				String executeInfo = String.format("[%s] 任务执行成功，处理总条数：%s，总耗时：%sms", DateTime.now().toString(), readCount.get(), System.currentTimeMillis() - executeStartTime);
+				String executeInfo = String.format("[%s] 任务执行成功，处理总条数：%s，总耗时：%sms", DateTime.now(), readCount.get(), System.currentTimeMillis() - executeStartTime);
 				dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.SUCCESS.getCode(), executeInfo);
 			}
 		} catch (Exception e) {
 			logger.error("SQL执行出错：", e);
-			String executeInfo = String.format("[%s] 处理出错：%s", DateTime.now().toString(), ExceptionUtils.getStackTrace(e));
+			String executeInfo = String.format("[%s] 处理出错：%s", DateTime.now(), ExceptionUtils.getStackTrace(e));
 			dbTransferTaskService.addExecuteInfo(transferTask.getId(), TransferTaskStatus.ERROR.getCode(), executeInfo);
 		}
 	}
