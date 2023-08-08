@@ -27,40 +27,14 @@
 						<el-tooltip style="margin: 4px" effect="dark" :content="descriptorForTree" placement="top">
 							<span  style="color:#888;font-size: 12px;cursor: pointer" @click="changeDropWownStatus">空间目录</span>
 						</el-tooltip>
-						<a-dropdown :trigger="['click']"  @click="choosePageIdFunc(0)">
-							<el-button :icon="ElIconPlus" text class="folder-action-dropdown-btn"></el-button>
-							<template #overlay>
-								<a-menu>
-									<a-menu-item key="1" @click="createWiki(1,0)">
-										<el-icon  class="clickAddIcon" style="margin-right: 5px">
-											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-										</el-icon>
-										创建富文本
-									</a-menu-item>
-									<a-menu-item key="2" @click="createWiki(2,0)">
-										<el-icon  class="clickAddIcon" style="margin-right: 5px"><el-icon-document/></el-icon>
-										创建Markdown
-									</a-menu-item>
-									<a-menu-item key="0" @click="createWiki(0,0)">
-										<el-icon  class="clickAddIcon" style="margin-right: 5px">
-											<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-										</el-icon>
-										创建文件夹
-									</a-menu-item>
-									<a-menu-item key="3" >
-										<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">
-											<a-upload
-													v-model:file-list="fileList"
-													name="file"
-													:multiple="false"
-													:customRequest="doAUpload">
-												<el-icon  class="clickAddIcon" style="margin-right: 5px" type="primary"><ElIconUpload/></el-icon>导入
-											</a-upload>
-										</el-tooltip>
-									</a-menu-item>
-								</a-menu>
-							</template>
-						</a-dropdown>
+						<AddMenu
+								:choiceSpace="choiceSpace+''"
+								:choosePageId="choosePageId+''"
+								:nowPageId = "nowPageId+''"
+								:funcId = "'0'"
+								@choosePageIdFunc="choosePageIdFunc"
+								@doGetPageList="doGetPageList"
+						/>
 					</div>
 					<div class="wiki-page-tree-box">
 						<el-tree
@@ -80,7 +54,7 @@
 								@node-expand="handleNodeExpand"
 								@node-drop="handlePageDrop">
 							<template v-slot="{ node, data }">
-								<div class="page-tree-node" @mouseover="changeNodeOptionStatus(data,1,false)" @mouseleave="changeNodeOptionStatus(data,-1,false) ">
+								<div class="page-tree-node" @mouseover="changeNodeOptionStatus(data) ">
 									<div style="width: calc(100% - 30px);overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
 										<!--图标-->
 										<el-icon  v-if="data.editorType === 0" class="clickAddIcon" style="margin-right: 5px;vertical-align: middle;">
@@ -99,42 +73,14 @@
 										</span>
 										<!--操作-->
 										<div class="page-action-box" :class="data.renaming?'renaming':''" @click.stop>
-											<a-dropdown :trigger="['click']" @click="choosePageIdFunc(data.id)">
-												<el-button :icon="ElIconPlus" text class="page-action-dropdown-btn"></el-button>
-												<template #overlay>
-													<a-menu>
-														<a-menu-item key="1" @click="createWiki(1,data.id)">
-															<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="4"></rect><path d="M14 16L18 32L24 19L30 32L34 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-															</el-icon>
-															创建富文本
-														</a-menu-item>
-														<a-menu-item key="2" @click="createWiki(2,data.id)">
-															<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																<el-icon-document/>
-															</el-icon>
-															创建Markdown
-														</a-menu-item>
-														<a-menu-item key="0" @click="createWiki(0,data.id)">
-															<el-icon  class="clickAddIcon" style="margin-right: 5px">
-																<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M5 8C5 6.89543 5.89543 6 7 6H19L24 12H41C42.1046 12 43 12.8954 43 14V40C43 41.1046 42.1046 42 41 42H7C5.89543 42 5 41.1046 5 40V8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M43 22H5" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M5 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M43 16V28" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-															</el-icon>
-															创建文件夹
-														</a-menu-item>
-														<a-menu-item key="3" >
-															<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">
-																<a-upload
-																		v-model:file-list="fileList"
-																		name="file"
-																		:multiple="false"
-																		:customRequest="doAUpload">
-																	<el-icon  class="clickAddIcon" style="margin-right: 5px" type="primary"><ElIconUpload/></el-icon>导入
-																</a-upload>
-															</el-tooltip>
-														</a-menu-item>
-													</a-menu>
-												</template>
-											</a-dropdown>
+											<AddMenu
+													:choiceSpace="choiceSpace+''"
+													:choosePageId="choosePageId+''"
+													:nowPageId = "nowPageId+''"
+													:funcId = "data.id+''"
+													@choosePageIdFunc="choosePageIdFunc"
+													@doGetPageList="doGetPageList"
+											/>
 											<a-dropdown :trigger="['click']" @click="choosePageIdFunc(data.id)">
 												<el-button :icon="MoreFilled" text class="page-action-dropdown-btn"></el-button>
 												<template #overlay>
@@ -261,6 +207,7 @@
 	import pageApi from '../../assets/api/page'
 	import CreateSpace from '../space/CreateSpace'
 	import RightResize from './RightResize.vue'
+	import AddMenu from './AddMenu.vue'
 	import AboutDialog from '../../views/common/AboutDialog'
 	import {useStoreDisplay} from '@/store/wikiDisplay.js'
 	import {useStoreUserData} from "@/store/userData";
@@ -299,53 +246,17 @@
 	let userMsgTotalCount = ref(0);
 	let userMsgParam = ref({sysType: 2, pageNum: 1, pageSize: 20,});
 	let rightAsideWidth = ref(300);
-	let optionStatus = ref(false);
 	let optionPageId = ref('');
-	let optionLock = ref(false);
 	let descriptorForTree = ref("点击收起目录");
 	let explan = ref(false);
 	let explanClass = ref("el-tree");
-	let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/upload');
-	let fileList = ref([]);
-	let choosePageId = ref([]);
+	let choosePageId = ref('');
 
 	onMounted(() => {
 		loadSpaceList()
 		loadUserMessageList()
 		getSelfUserInfo()
 	});
-	const doAUpload = (data) => {
-		let formData = new FormData()
-		formData.append('files', data.file)
-		formData.append('pageId',choosePageId.value)
-		if (choosePageId.value === 0){
-			formData.append('id',choiceSpace.value)
-		}
-		formData.append('importFlag',true)
-		axios({
-			url: uploadFileUrl.value,
-			method: 'post',
-			data: formData,
-			headers: {'Content-Type': 'multipart/form-data'},
-			timeout: 10000,
-			withCredentials: true,
-		}).then((res) => {
-			fileList.value = []
-			if (res.data.errCode === 200) {
-				ElMessage.success('导入成功')
-			}
-			if (res.data.errCode === 300){
-				ElMessage.warning(res.data.errMsg)
-				ElMessage.warning('文件太多可能超时，如果是超时，请稍等后刷新查看列表~')
-			}
-			doGetPageList(null)
-
-		}).catch((e) => {
-			fileList.value = []
-			doGetPageList(null)
-			ElMessage.error('导入失败：' + e.message)
-		})
-	}
 
 	const deleteWikiPage = () => {
 		ElMessageBox.confirm('确定要删除此页面及其所有子页面吗？', '提示', {
@@ -362,7 +273,6 @@
 	}
 
 	const choosePageIdFunc = (id) => {
-		optionLock.value= true
 		choosePageId.value = id
 	}
 	const rename = (node,data) => {
@@ -394,21 +304,8 @@
 	}
 
 
-	const changeNodeOptionStatus = (param,type) => {
-		if (optionLock.value && optionPageId.value === param.id){
-			return true
-		}
-		if (type > 0){
-			optionStatus.value = true
-			optionPageId.value = param.id
-		}
-		if (type < 0 ){
-			optionStatus.value = false
-			optionPageId.value = param.id
-		}
-		if (type === 0 && optionPageId.value === param.id && optionStatus.value){
-			return true
-		}
+	const changeNodeOptionStatus = (param) => {
+		optionPageId.value = param.id
 	}
 	const turnLeftCollapse = () => {
 		leftCollapse.value = !leftCollapse.value
@@ -420,28 +317,7 @@
 			}
 		}, 100)
 	}
-	const createWiki = (editorType,parentId) => {
-		if (choiceSpace.value > 0) {
-			let name = "新建文档"
-			if(editorType === 0){
-				name = "新建文件夹"
-			}
-			pageApi.updatePage({spaceId: choiceSpace.value,parentId: parentId,editorType:editorType,name:name,content:'',preview:''})
-					.then((json) => {
-						doGetPageList(null)
-						ElMessage.success('创建成功')
-						if (editorType !== 0){
-							router.push({
-								path: '/page/edit',
-								query: {parentId: nowPageId.value, pageId: json.data.id}
-							})
-						}
-					})
 
-		} else {
-			ElMessage.warning('请先选择或创建空间')
-		}
-	}
 	const changeWikiPageExpandedKeys = (pageId) => {
 		// 展开没有触发子节点的加载，如果去加载子节点有还找不到当前的node，暂不展开
 		// wikiPageExpandedKeys.value= [pageId];
