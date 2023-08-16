@@ -231,7 +231,7 @@ public class WikiPageController {
 	@PostMapping("/move")
 	public ResponseJson<Object> move(WikiPage wikiPage, String moveToPageId, String moveToSpaceId) {
 		if (isLassoDoll(wikiPage,moveToPageId)){
-			return DocResponseJson.warn("禁止无限套娃，不能移动自己到自己或自己的子节点下");
+			return DocResponseJson.warn("不能移动自己到自己或自己的子节点下");
 		}
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		//获取原page信息
@@ -259,7 +259,7 @@ public class WikiPageController {
 	@PostMapping("/copy")
 	public ResponseJson<Object> copy(WikiPage wikiPage, String moveToPageId, String moveToSpaceId) {
 		if (isLassoDoll(wikiPage,moveToPageId)){
-			return DocResponseJson.warn("禁止无限套娃，不能移动自己到自己或自己的子节点下");
+			return DocResponseJson.warn("不能移动自己到自己或自己的子节点下");
 		}
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		//获取原page信息

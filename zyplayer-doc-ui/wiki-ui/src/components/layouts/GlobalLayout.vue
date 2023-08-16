@@ -66,39 +66,19 @@
 													</el-icon>
 													删除
 												</a-menu-item>
-												<a-sub-menu key="2" title="移动文档">
+												<a-sub-menu key="2" title="移动文档"  >
 													<a-menu-item key="3" @click="openMoveMenu(false)">
 														<el-icon  class="clickAddIcon" style="margin-right: 5px">
-															<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M9 10V44H39V10H9Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M20 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M28 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 10H44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16 10L19.289 4H28.7771L32 10H16Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
+															<DocumentCopy/>
 														</el-icon>
 														复制文档
 													</a-menu-item>
 													<a-menu-item key="4" @click="openMoveMenu(true)">
 														<el-icon  class="clickAddIcon" style="margin-right: 5px">
-															<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M9 10V44H39V10H9Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M20 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M28 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 10H44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16 10L19.289 4H28.7771L32 10H16Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
+															<Scissor/>
 														</el-icon>
 														迁移文档
 													</a-menu-item>
-													<a-modal
-														v-model:open="visibleMoveMenu"
-														title="选择"
-														@ok="handleOk"
-														@cancel="handleCancel"
-														ok-text="确认"
-														cancel-text="取消"
-														:confirm-loading="aModalWaiting"
-														:destroyOnClose=true
-														:closable=false>
-														<LeftSidebar
-																:readOnly=true
-																:wikiPageList="moveToWikiPageList"
-																:spaceOptions="spaceOptions"
-																:nowPageId="moveToPageId"
-																:choiceSpace="moveToSpaceId"
-																@setNowPageId="setNowPageId"
-																@doGetPageList="doGetPageList"
-																@spaceChangeEvents="spaceChangeEvents"/>
-													</a-modal>
 												</a-sub-menu>
 											</a-menu>
 										</template>
@@ -106,8 +86,6 @@
 								</div>
 							</div>
 						</div>
-
-
 					</template>
 				</LeftSidebar>
 			</el-aside>
@@ -187,6 +165,26 @@
 			</el-container>
 		</el-container>
 		<create-space ref="createSpaceRef" @success="loadSpaceList"></create-space>
+		<a-modal
+				v-model:open="visibleMoveMenu"
+				title="选择"
+				@ok="handleOk"
+				@cancel="handleCancel"
+				ok-text="确认"
+				cancel-text="取消"
+				:confirm-loading="aModalWaiting"
+				:destroyOnClose=true
+				:closable=false>
+			<LeftSidebar
+					:readOnly=true
+					:wikiPageList="moveToWikiPageList"
+					:spaceOptions="spaceOptions"
+					:nowPageId="moveToPageId"
+					:choiceSpace="moveToSpaceId"
+					@setNowPageId="setNowPageId"
+					@doGetPageList="doGetPageList"
+					@spaceChangeEvents="spaceChangeEvents"/>
+		</a-modal>
 		<about-dialog ref="aboutDialogRef"></about-dialog>
 	</div>
 </template>
@@ -201,7 +199,10 @@
 		Setting as ElIconSetting,
 		Plus as ElIconPlus,
 		Check as ElIconCheck,
-		MoreFilled,
+		Files,
+			Scissor,
+		DocumentCopy,
+		MoreFilled
 	} from '@element-plus/icons-vue'
 
 	import {onBeforeUnmount, toRefs, ref, reactive, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
@@ -344,14 +345,11 @@
 	}
 
 	const setNowPageId = (id,readOnly)=>{
-		console.log(readOnly)
 		if (readOnly){
 			moveToPageId.value = id
-			console.log("moveToPageId修改")
 			return
 		}
 		nowPageId.value = id
-		console.log("nowPageId修改")
 	}
 
 	const rename = (node,data) => {

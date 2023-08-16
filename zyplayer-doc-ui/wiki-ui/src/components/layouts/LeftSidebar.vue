@@ -138,7 +138,7 @@
 	}
 
 	const handleNodeClick = (data) => {
-		console.log('点击节点：', data, props.nowPageId)
+		//console.log('点击节点：', data, props.nowPageId)
 		emit('setNowPageId', data.id, props.readOnly)
 		if (props.readOnly) {
 			return
