@@ -61,17 +61,17 @@
 	let fileList = ref([]);
 	let emit = defineEmits(['choosePageIdFunc', 'doGetPageList'])
 	let props = defineProps({
-		choiceSpace: String,
-		choosePageId: String,
-		nowPageId: String,
-		funcId: String
+		choiceSpace: Number,
+		choosePageId: Number,
+		nowPageId: Number,
+		funcId: Number
 	});
 
 	const doAUpload = (data) => {
 		let formData = new FormData()
 		formData.append('files', data.file)
 		formData.append('pageId', props.choosePageId)
-		if (props.choosePageId === '0') {
+		if (props.choosePageId === 0) {
 			formData.append('id', props.choiceSpace)
 		}
 		formData.append('importFlag', true)

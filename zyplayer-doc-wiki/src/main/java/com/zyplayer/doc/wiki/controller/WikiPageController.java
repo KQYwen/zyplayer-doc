@@ -1,5 +1,6 @@
 package com.zyplayer.doc.wiki.controller;
 
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
@@ -10,6 +11,7 @@ import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
+import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
 import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
 import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
 import com.zyplayer.doc.data.repository.support.consts.DocSysType;
@@ -65,6 +67,8 @@ public class WikiPageController {
 	private final WikiPageUploadService wikipageUploadService;
 	private final UserMessageService userMessageService;
 	private final WikiPageHistoryService wikiPageHistoryService;
+	private final WikiPageMapper wikiPageMapper;
+	private final WikiPageCommentService wikiPageCommentService;
 
 
 
@@ -202,6 +206,127 @@ public class WikiPageController {
 			return DocResponseJson.warn((String) info);
 		}
 		return DocResponseJson.warn("状态异常");
+	}
+
+	public boolean isLassoDoll(WikiPage wikiPage, String moveToPageId){
+		if (!"".equals(moveToPageId)){
+			long tatrgetId = Long.parseLong(moveToPageId);
+			if (wikiPage.getId().equals(tatrgetId)){
+				return true;
+			}
+			UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
+			wrapper.eq("parent_id", wikiPage.getId());
+			wrapper.eq("space_id", wikiPage.getSpaceId());
+			//处理子节点也需要进行移动
+			List<WikiPage> wikiPageList = wikiPageService.list(wrapper);
+			for (WikiPage page : wikiPageList) {
+				if(isLassoDoll(page,moveToPageId)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	@PostMapping("/move")
+	public ResponseJson<Object> move(WikiPage wikiPage, String moveToPageId, String moveToSpaceId) {
+		if (isLassoDoll(wikiPage,moveToPageId)){
+			return DocResponseJson.warn("不能移动自己到自己或自己的子节点下");
+		}
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		//获取原page信息
+		WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
+		wikiPageSel.setSpaceId(Long.parseLong(moveToSpaceId));
+		wikiPageSel.setParentId(Long.parseLong(moveToPageId));
+		wikiPageSel.setUpdateTime(new Date());
+		wikiPageSel.setUpdateUserId(currentUser.getUserId());
+		wikiPageSel.setUpdateUserName(currentUser.getUsername());
+		wikiPageService.updateById(wikiPageSel);
+		UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
+		wrapper.eq("parent_id", wikiPage.getId());
+		wrapper.eq("space_id", wikiPage.getSpaceId());
+		//处理子节点也需要进行移动
+		List<WikiPage> wikiPageList = wikiPageService.list(wrapper);
+		for (WikiPage page : wikiPageList) {
+			move(page,wikiPageSel.getId()+"",moveToSpaceId);
+		}
+		// 给相关人发送消息
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_MOVE);
+		userMessageService.addWikiMessage(userMessage);
+		return DocResponseJson.ok();
+	}
+
+	@PostMapping("/copy")
+	public ResponseJson<Object> copy(WikiPage wikiPage, String moveToPageId, String moveToSpaceId) {
+		if (isLassoDoll(wikiPage,moveToPageId)){
+			return DocResponseJson.warn("不能移动自己到自己或自己的子节点下");
+		}
+		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+		//获取原page信息
+		WikiPage wikiPageSel = wikiPageService.getById(wikiPage.getId());
+		Integer lastSeq = wikiPageMapper.getLastSeq(wikiPage.getSpaceId(), Long.parseLong(moveToPageId));
+		lastSeq = Optional.ofNullable(lastSeq).orElse(99999);
+		wikiPageSel.setSeqNo(lastSeq + 1);
+		wikiPageSel.setId(null);
+		wikiPageSel.setSpaceId(Long.parseLong(moveToSpaceId));
+		wikiPageSel.setParentId(Long.parseLong(moveToPageId));
+		wikiPageSel.setCreateTime(new Date());
+		wikiPageSel.setUpdateTime(new Date());
+		wikiPageSel.setCreateUserId(currentUser.getUserId());
+		wikiPageSel.setCreateUserName(currentUser.getUsername());
+		wikiPageService.save(wikiPageSel);
+		// 重置当前分支的所有节点seq值
+		wikiPageMapper.updateChildrenSeq(wikiPage.getSpaceId(), Long.parseLong(moveToPageId));
+		// 详情处理
+		UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
+		wrapper.eq("page_id", wikiPage.getId());
+		WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
+		pageContent.setId(null);
+		pageContent.setPageId(wikiPageSel.getId());
+		pageContent.setCreateTime(new Date());
+		pageContent.setCreateUserId(currentUser.getUserId());
+		pageContent.setCreateUserName(currentUser.getUsername());
+		wikiPageContentService.save(pageContent);
+		//文件
+		UpdateWrapper<WikiPageFile> wrapperFile = new UpdateWrapper<>();
+		wrapperFile.eq("page_id", wikiPageSel.getId());
+		List<WikiPageFile> pageFiles = wikiPageFileService.list(wrapperFile);
+		for (WikiPageFile pageFile : pageFiles) {
+			pageFile.setId(null);
+			pageFile.setUuid(IdUtil.simpleUUID());
+			pageFile.setPageId(wikiPageSel.getId());
+			wikiPageFileService.save(pageFile);
+		}
+		//点赞
+		UpdateWrapper<WikiPageZan> wrapperZan = new UpdateWrapper<>();
+		wrapperZan.eq("page_id", wikiPage.getId());
+		List<WikiPageZan> list = wikiPageZanService.list(wrapperZan);
+		for (WikiPageZan wikiPageZan : list) {
+			wikiPageZan.setId(null);
+			wikiPageZan.setPageId(wikiPageSel.getId());
+			wikiPageZanService.save(wikiPageZan);
+		}
+		//评论
+		UpdateWrapper<WikiPageComment> commentWrapper = new UpdateWrapper<>();
+		commentWrapper.eq("page_id", wikiPageSel.getId());
+		List<WikiPageComment> pageCommentList = wikiPageCommentService.list(commentWrapper);
+		for (WikiPageComment wikiPageComment : pageCommentList) {
+			wikiPageComment.setId(null);
+			wikiPageComment.setPageId(wikiPageSel.getId());
+			wikiPageCommentService.save(wikiPageComment);
+		}
+		//处理子节点也需要进行复制
+		UpdateWrapper<WikiPage> childWrapper = new UpdateWrapper<>();
+		childWrapper.eq("parent_id", wikiPage.getId());
+		childWrapper.eq("space_id", wikiPage.getSpaceId());
+		List<WikiPage> wikiPageList = wikiPageService.list(childWrapper);
+		for (WikiPage page : wikiPageList) {
+			copy(page,wikiPageSel.getId()+"",moveToSpaceId);
+		}
+		// 给相关人发送消息
+		UserMessage userMessage = userMessageService.createUserMessage(currentUser, wikiPageSel.getId(), wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_COPY);
+		userMessageService.addWikiMessage(userMessage);
+		return DocResponseJson.ok();
 	}
 
 	@PostMapping("/rename")
