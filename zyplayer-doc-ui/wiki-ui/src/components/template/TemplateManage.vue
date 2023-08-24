@@ -51,7 +51,7 @@
 								</el-tooltip>
 								<el-tooltip effect="dark" content="预览模板" placement="top">
 									<BorderOutlined @click="showPreview(item)"/>
-								</el-tooltip>`
+								</el-tooltip>
 								<el-tooltip effect="dark" content="使用模板" placement="top">
 									<AlertOutlined @click="chooseTemplate(item)"/>
 								</el-tooltip>
