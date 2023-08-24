@@ -18,6 +18,7 @@
 								:choosePageId="choosePageId"
 								:nowPageId = "nowPageId"
 								:funcId = "0"
+								@createWikiByTemplate="createWikiByTemplate"
 								@choosePageIdFunc="choosePageIdFunc"
 								@doGetPageList="doGetPageList"
 						/>
@@ -36,10 +37,13 @@
 									<el-icon-document/>
 								</el-icon>
 								<!--标题-->
+								<el-tooltip :content="data.tags" placement="top-start" :show-after="500">
+									<a-tag color="#f50" v-if="data.shareStatus !== undefined">{{filterShareStatus(data.shareStatus)}}</a-tag>
+								</el-tooltip>
 								<a-input v-if="data.renaming" v-model:value="data.name" class="rename-input" placeholder="请输入文档名称" @blur="doRename(node,data)" @click.stop/>
-								<span v-else style="vertical-align: middle;">
-											<el-tooltip :content="node.label" placement="top-start" :show-after="1000">{{ node.label }}</el-tooltip>
-										</span>
+								<span v-else style="vertical-align: middle;margin-right: 5px">
+									<el-tooltip :content="node.label" placement="top-start" :show-after="700">{{ node.label }}</el-tooltip>
+								</span>
 								<!--操作-->
 								<div class="page-action-box" :class="data.renaming?'renaming':''" @click.stop>
 									<AddMenu
@@ -47,6 +51,7 @@
 											:choosePageId="choosePageId"
 											:nowPageId = "nowPageId"
 											:funcId = "data.id"
+											@createWikiByTemplate="createWikiByTemplate"
 											@choosePageIdFunc="choosePageIdFunc"
 											@doGetPageList="doGetPageList"
 									/>
@@ -60,13 +65,17 @@
 													</el-icon>
 													重命名
 												</a-menu-item>
-												<a-menu-item key="1" @click="deleteWikiPage">
+												<a-menu-item key="1" @click="deleteWikiPage(data.shareStatus)">
 													<el-icon  class="clickAddIcon" style="margin-right: 5px">
 														<svg width="1em" height="1em" viewBox="0 0 48 48" fill="none"><path d="M9 10V44H39V10H9Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path><path d="M20 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M28 20V33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 10H44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16 10L19.289 4H28.7771L32 10H16Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path></svg>
 													</el-icon>
 													删除
 												</a-menu-item>
+
 												<a-sub-menu key="2" title="移动文档"  >
+													<template #icon>
+														<BlockOutlined  />
+													</template>
 													<a-menu-item key="3" @click="openMoveMenu(false)">
 														<el-icon  class="clickAddIcon" style="margin-right: 5px">
 															<DocumentCopy/>
@@ -80,6 +89,10 @@
 														迁移文档
 													</a-menu-item>
 												</a-sub-menu>
+												<a-menu-item key="5" @click="openTemplateCreate(data.shareStatus !== undefined)" v-if="data.editorType !== 0">
+													<BuildOutlined />
+													设为模板
+												</a-menu-item>
 											</a-menu>
 										</template>
 									</a-dropdown>
@@ -164,6 +177,7 @@
 				</el-main>
 			</el-container>
 		</el-container>
+		<templateManage ref="templateManageRef" :pageId="choosePageId" :spaceId="choiceSpace" @doGetPageList="doGetPageList" />
 		<create-space ref="createSpaceRef" @success="loadSpaceList"></create-space>
 		<a-modal
 				v-model:open="visibleMoveMenu"
@@ -211,6 +225,7 @@
 	import userApi from '../../assets/api/user'
 	import pageApi from '../../assets/api/page'
 	import CreateSpace from '../space/CreateSpace'
+	import TemplateManage from '../template/TemplateManage'
 	import RightResize from './RightResize.vue'
 	import AddMenu from './AddMenu.vue'
 	import LeftSidebar from './LeftSidebar.vue'
@@ -219,7 +234,7 @@
 	import {useStoreUserData} from "@/store/userData";
 	import {useStorePageData} from "@/store/pageData";
 	import { defineComponent } from 'vue';
-	import { DownOutlined } from '@ant-design/icons-vue';
+	import { DownOutlined,BuildOutlined,BlockOutlined } from '@ant-design/icons-vue';
 
 	let route = useRoute();
 	let router = useRouter();
@@ -257,6 +272,7 @@
 	let visibleMoveMenu = ref(false);
 	let onlyMoveMode = ref(false);
 	let aModalWaiting = ref(false);
+	let templateManageRef=ref(null)
 
 	watch(()=>nowPageId ,()=>{
 		leftSideBarDir.value.assisSetCurrentKey();
@@ -286,6 +302,22 @@
 		loadUserMessageList()
 		getSelfUserInfo()
 	});
+
+	const openTemplateCreate = (exsit) =>{
+		templateManageRef.value.showTemplateCreate(exsit)
+	}
+
+	const createWikiByTemplate = () =>{
+		templateManageRef.value.showTemplateManage()
+
+	}
+
+	const filterShareStatus = (data) =>{
+		if (data === 1){
+			return '公共模板'
+		}
+		return '个人模板'
+	}
 
 	const openMoveMenu = (onlyMove) =>{
 		onlyMoveMode.value = onlyMove
@@ -326,8 +358,13 @@
 		moveToWikiPageList.value = []
 	}
 
-	const deleteWikiPage = () => {
-		ElMessageBox.confirm('确定要删除此页面及其所有子页面吗？', '提示', {
+
+	const deleteWikiPage = (share) => {
+		let msg = '确定要删除此页面及其所有子页面吗？'
+		if (share !== undefined){
+			msg='选中的页面是：' +filterShareStatus(share)+'删除后无法使用此模板！ 确定要删除此页面及其所有子页面吗？'
+		}
+		ElMessageBox.confirm(msg, '提示', {
 			confirmButtonText: '确定',
 			cancelButtonText: '取消',
 			type: 'warning',

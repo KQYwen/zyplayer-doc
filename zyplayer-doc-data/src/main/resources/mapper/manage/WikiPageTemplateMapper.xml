@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyplayer.doc.data.repository.manage.mapper.WikiPageTemplateMapper">
+    <select id="getAllTemplate" resultType="com.zyplayer.doc.data.repository.manage.vo.WikiPageTemplateInfoVo">
+        SELECT a.*,b.tag_name As tags,b.share_status as shareStatus,c.content,b.id as templateId from wiki_page a
+        left join wiki_page_template b on a.space_id = b.space_id and a.id = b.page_id
+        left join wiki_page_content c on a.id = c.page_id
+        <include refid="queryTemplateByCondition"></include>
+        order by b.id
+        limit 8 offset #{pageNum}
+    </select>
+    <select id="getAllTemplateCount" resultType="java.lang.Long">
+        SELECT count(*) from wiki_page a
+        LEFT JOIN wiki_page_template b on a.space_id = b.space_id and a.id = b.page_id
+        left join wiki_page_content c on a.id = c.page_id
+        <include refid="queryTemplateByCondition"></include>
+    </select>
+    <select id="getAllTags" resultType="com.zyplayer.doc.data.repository.manage.vo.WikiTemplateTagVo">
+        select DISTINCT  tag_name
+        from wiki_page_template
+        where tag_name is not null
+          and tag_name != ''
+          and share_status = #{open}
+        <if test="!open">
+            and create_user_id = #{user}
+        </if>
+    </select>
+    <sql id="queryTemplateByCondition">
+        where del_flag = 0 and b.id is not null
+        and b.share_status = #{share}
+        <if test="!share">
+            and b.create_user_id = #{user}
+        </if>
+        <if test="name != null and name != ''">
+            and a.name like #{name}
+        </if>
+        <if test="tags != null and tags.size >0 ">
+            and b.tag_name in
+            <foreach collection="tags" open="(" close=")" item="item" separator=",">#{item}</foreach>
+        </if>
+    </sql>
+</mapper>

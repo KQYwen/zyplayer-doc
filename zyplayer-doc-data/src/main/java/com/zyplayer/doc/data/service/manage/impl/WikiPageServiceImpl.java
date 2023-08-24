@@ -8,6 +8,7 @@ import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
+import com.zyplayer.doc.data.repository.manage.vo.WikiPageTemplateInfoVo;
 import com.zyplayer.doc.data.repository.support.consts.DocSysType;
 import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.UserMessageService;
@@ -90,5 +91,9 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 			wikiPage.setId(page.getId());
 			this.deletePageAndSon(wikiPage);
 		}
+	}
+
+	public List<WikiPageTemplateInfoVo> wikiPageTemplateInfos(Long spaceId){
+		return wikiPageMapper.getWikiPageTemplateInfos(spaceId);
 	}
 }
