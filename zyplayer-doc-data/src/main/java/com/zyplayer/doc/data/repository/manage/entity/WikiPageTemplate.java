@@ -8,6 +8,14 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * <p>
+ *      Ä£°åÐÅÏ¢
+ * </p>
+ *
+ * @author Sh1yu
+ * @since 2023-08-24
+ */
 @Data
 @TableName("wiki_page_template")
 public class WikiPageTemplate implements Serializable {

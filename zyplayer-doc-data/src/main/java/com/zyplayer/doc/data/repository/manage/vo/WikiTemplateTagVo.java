@@ -4,6 +4,15 @@ import lombok.Data;
 
 import java.util.Date;
 
+
+/**
+ * <p>
+ *     标签信息的Vo
+ * </p>
+ *
+ * @author Sh1yu
+ * @since 2023-08-24
+ */
 @Data
 public class WikiTemplateTagVo {
 
