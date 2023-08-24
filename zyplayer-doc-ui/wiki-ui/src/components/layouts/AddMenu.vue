@@ -21,6 +21,10 @@
 					</el-icon>
 					创建文件夹
 				</a-menu-item>
+				<a-menu-item key="4" @click="createWikiByTemplate(props.funcId)">
+					<BuildOutlined/>
+					从模板创建
+				</a-menu-item>
 				<a-menu-item key="3">
 					<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">
 						<a-upload
@@ -55,11 +59,13 @@
 	import {ElMessage} from 'element-plus'
 	import pageApi from '../../assets/api/page'
 	import axios from "axios";
+	import { BuildOutlined } from '@ant-design/icons-vue';
+
 
 	let router = useRouter();
 	let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/upload');
 	let fileList = ref([]);
-	let emit = defineEmits(['choosePageIdFunc', 'doGetPageList'])
+	let emit = defineEmits(['choosePageIdFunc', 'doGetPageList','createWikiByTemplate'])
 	let props = defineProps({
 		choiceSpace: Number,
 		choosePageId: Number,
@@ -103,6 +109,10 @@
 
 	const choosePageIdFunc = (id) => {
 		emit('choosePageIdFunc', id)
+	}
+
+	const createWikiByTemplate = (id) => {
+		emit('createWikiByTemplate', id)
 	}
 
 	const createWiki = (editorType, parentId) => {

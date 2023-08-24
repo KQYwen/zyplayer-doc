@@ -36,5 +36,9 @@ export default {
 	openPageList: (data) => request({url: '/zyplayer-doc-wiki/open-api/page/list', method: 'post', data: Qs.stringify(data)}),
 	openSpaceInfo: (data) => request({url: '/zyplayer-doc-wiki/open-api/space/info', method: 'post', data: Qs.stringify(data)}),
 	openPageNews: (data) => request({url: '/zyplayer-doc-wiki/open-api/page/news', method: 'post', data: Qs.stringify(data)}),
+	addTemplate: (data) => request({url: '/zyplayer-doc-wiki/template/add', method: 'post', data: Qs.stringify(data)}),
+	getTemplate: (data) => request({url: '/zyplayer-doc-wiki/template/filterAll', method: 'post', data: Qs.stringify(data,{arrayFormat:"indices",allowDots:true})}),
+	useTemplate: (data) => request({url: '/zyplayer-doc-wiki/template/use', method: 'post', data: Qs.stringify(data)}),
+	getTags: (data) => request({url: '/zyplayer-doc-wiki/template/allTags', method: 'post', data: Qs.stringify(data)}),
 	xxxxxxxxxxxx: (data) => request({url: 'update', method: 'post', data: Qs.stringify(data)}),
 }

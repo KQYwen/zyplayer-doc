@@ -1,6 +1,7 @@
 package com.zyplayer.doc.wiki.controller.vo;
 
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
+import com.zyplayer.doc.data.repository.manage.vo.WikiPageTemplateInfoVo;
 import lombok.Data;
 
 import java.util.Date;
@@ -102,8 +103,26 @@ public class WikiPageVo {
 	 */
 	private Integer editorType;
 
+	/**
+	 * 路径
+	 */
 	private String path;
+
+	/**
+	 * 子节点
+	 */
 	private List<WikiPageVo> children;
+
+	/**
+	 * 模板类型 0：个人模板 1：共享模板
+	 */
+	private Integer shareStatus;
+
+	/**
+	 * 模板标签
+	 */
+	private String tags;
+
 
 	public WikiPageVo(WikiPage wikiPage) {
 		this.id = wikiPage.getId();
@@ -124,5 +143,28 @@ public class WikiPageVo {
 		this.seqNo = wikiPage.getSeqNo();
 		this.editorType = wikiPage.getEditorType();
 	}
+
+	public WikiPageVo(WikiPageTemplateInfoVo wikiPageTemplate) {
+		this.id = wikiPageTemplate.getId();
+		this.spaceId = wikiPageTemplate.getSpaceId();
+		this.name = wikiPageTemplate.getName();
+		this.parentId = wikiPageTemplate.getParentId();
+		this.nodeType = wikiPageTemplate.getNodeType();
+		this.zanNum = wikiPageTemplate.getZanNum();
+		this.editType = wikiPageTemplate.getEditType();
+		this.createUserId = wikiPageTemplate.getCreateUserId();
+		this.createUserName = wikiPageTemplate.getCreateUserName();
+		this.createTime = wikiPageTemplate.getCreateTime();
+		this.updateUserId = wikiPageTemplate.getUpdateUserId();
+		this.updateUserName = wikiPageTemplate.getUpdateUserName();
+		this.updateTime = wikiPageTemplate.getUpdateTime();
+		this.delFlag = wikiPageTemplate.getDelFlag();
+		this.viewNum = wikiPageTemplate.getViewNum();
+		this.seqNo = wikiPageTemplate.getSeqNo();
+		this.editorType = wikiPageTemplate.getEditorType();
+		this.tags = wikiPageTemplate.getTags();
+		this.shareStatus = wikiPageTemplate.getShareStatus();
+	}
+
 
 }

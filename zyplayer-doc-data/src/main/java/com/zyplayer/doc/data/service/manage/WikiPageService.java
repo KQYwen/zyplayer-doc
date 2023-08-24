@@ -2,6 +2,9 @@ package com.zyplayer.doc.data.service.manage;
 
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zyplayer.doc.data.repository.manage.vo.WikiPageTemplateInfoVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,4 +19,6 @@ public interface WikiPageService extends IService<WikiPage> {
 	void changeParent(WikiPage wikiPage, Integer beforeSeq, Integer afterSeq);
 	
 	void deletePage(WikiPage wikiPage);
+
+	public List<WikiPageTemplateInfoVo> wikiPageTemplateInfos(Long spaceId);
 }
