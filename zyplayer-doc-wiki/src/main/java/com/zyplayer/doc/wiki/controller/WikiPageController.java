@@ -248,8 +248,11 @@ public class WikiPageController {
         queryWrapper.eq("page_id",wikiPage.getId());
         queryWrapper.eq("space_id",wikiPage.getSpaceId());
         WikiPageTemplate bindTemplate = wikiPageTemplateService.getOne(queryWrapper);
-        bindTemplate.setSpaceId(moveToSpaceId);
-        wikiPageTemplateService.updateById(bindTemplate);
+        if(null != bindTemplate){
+            bindTemplate.setSpaceId(moveToSpaceId);
+            wikiPageTemplateService.updateById(bindTemplate);
+        }
+
         UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();
         wrapper.eq("parent_id", wikiPage.getId());
         wrapper.eq("space_id", wikiPage.getSpaceId());
