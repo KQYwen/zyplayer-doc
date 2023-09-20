@@ -14,6 +14,11 @@
 				a.name like #{keywords} or b.preview like #{keywords}
 			)
 		</if>
+		<if test="dirId != null and dirId != ''">
+			and (
+			a.parent_id =  #{dirId}
+			)
+		</if>
 		<if test="spaceIds != null and spaceIds.size > 0">
 			and a.space_id in
 			<foreach collection="spaceIds" open="(" close=")" item="item" separator=",">#{item}</foreach>

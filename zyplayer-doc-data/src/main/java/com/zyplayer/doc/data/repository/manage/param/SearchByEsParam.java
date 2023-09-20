@@ -18,4 +18,5 @@ public class SearchByEsParam {
 	private Integer pageSize;
 	private Integer newsType;
 	private List<Long> spaceIds;
+	private Long dirId;
 }
