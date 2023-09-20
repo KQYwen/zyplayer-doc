@@ -8,6 +8,9 @@ export const useStoreDisplay = defineStore('wikiDisplay', {
 			// 是否显示右边评论栏
 			commentShow: false,
 			commentActiveTab: 'comment',
+			showMenu: true,
+			rightAsideWidth: 300,
+			showHeader:true
 		}
 	},
 })

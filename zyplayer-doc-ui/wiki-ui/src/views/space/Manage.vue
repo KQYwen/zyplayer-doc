@@ -110,6 +110,8 @@ import {
 import pageApi from '../../assets/api/page'
 import userApi from '../../assets/api/user'
 import CreateSpace from '../../components/space/CreateSpace'
+import {useStoreSpaceData}from '@/store/spaceData'
+import {useStorePageData}from '@/store/pageData'
 
 let spaceListLoading = ref(false);
 let spaceOptions = ref([]);
@@ -130,8 +132,8 @@ let userSetting = ref({wiki_only_show_favorite: 0,});
 
 let route = useRoute();
 let router = useRouter();
-let emit = defineEmits('loadSpace');
-
+let storePage = useStorePageData();
+let storeSpace = useStoreSpaceData();
 onMounted(() => {
 	loadSpaceList()
 	getSelfUserInfo()
@@ -223,7 +225,7 @@ const deleteSpaceInfo = (row) => {
 		pageApi.updateSpace(param).then(() => {
 			ElMessage.success('删除成功')
 			loadSpaceList()
-			emit('loadSpace')
+			loadSpace()
 		})
 	})
 }
@@ -257,7 +259,7 @@ const wikiOnlyShowFavoriteChange = () => {
 		value: userSetting.value.wiki_only_show_favorite,
 	}
 	pageApi.spaceSettingUpdate(param).then((json) => {
-		emit('loadSpace')
+		loadSpace()
 	})
 }
 const getSpaceSettingList = () => {
@@ -271,6 +273,42 @@ const getSpaceSettingList = () => {
 const getSelfUserInfo = () => {
 	userApi.getSelfUserInfo().then((json) => {
 		userSelfInfo.value = json.data
+	})
+}
+
+const loadSpace = (spaceId) => {
+	pageApi.spaceList({}).then((json) => {
+		storeSpace.spaceList = json.data || [];
+		let spaceOptionsNew = [];
+		storeSpace.spaceList.forEach((item) => spaceOptionsNew.push({label: item.name, value: item.id}));
+		storeSpace.spaceOptions = spaceOptionsNew;
+		if (spaceList.value.length > 0) {
+			let nowSpaceId = spaceId;
+			let nowSpaceShowTemp = storeSpace.spaceList.find((item) => item.id === spaceId);
+			if (!nowSpaceShowTemp) {
+				nowSpaceShowTemp = storeSpace.spaceList[0];
+				nowSpaceId = nowSpaceShowTemp.id;
+			}
+			nowSpaceShow.value = nowSpaceShowTemp;
+			storeSpace.spaceInfo = nowSpaceShowTemp;
+			storeSpace.chooseSpaceId = nowSpaceId;
+			storePage.choosePageId = 0;
+			doGetPageList(null);
+			// TODO 在首页时跳转
+			try {
+				if (route.path === '/home') {
+					router.push({path: '/home', query: {spaceId: nowSpaceId}});
+				}
+			} catch (e) {
+				console.log(e);
+			}
+		}
+	})
+}
+const doGetPageList = (parentId, node) => {
+	let param = {spaceId: storeSpace.chooseSpaceId}
+	pageApi.pageList(param).then((json) => {
+		storePage.wikiPageList = json.data || []
 	})
 }
 </script>

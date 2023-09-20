@@ -1,9 +1,11 @@
 export default {
 	createNavigationHeading() {
 		let headArr = []
-		let headNodeArr = document
-			.querySelector('.wiki-page-content')
-			.querySelectorAll('h1,h2,h3,h4,h5,h6')
+		let headNode = document.querySelector('.wiki-page-content')
+		if (null === headNode){
+			return headArr
+		}
+		let headNodeArr = headNode.querySelectorAll('h1,h2,h3,h4,h5,h6')
 		if (headNodeArr.length <= 0) {
 			return []
 		}

@@ -4340,10 +4340,10 @@
   "resolved" "https://registry.npmmirror.com/pify/-/pify-4.0.1.tgz"
   "version" "4.0.1"
 
-"pinia@^2.1.4":
-  "integrity" "sha512-vYlnDu+Y/FXxv1ABo1vhjC+IbqvzUdiUC3sfDRrRyY2CQSrqqaa+iiHmqtARFxJVqWQMCJfXx1PBvFs9aJVLXQ=="
-  "resolved" "https://registry.npmmirror.com/pinia/-/pinia-2.1.4.tgz"
-  "version" "2.1.4"
+"pinia@^2.1.6":
+  "integrity" "sha512-bIU6QuE5qZviMmct5XwCesXelb5VavdOWKWaB17ggk++NUwQWWbP5YnsONTk3b752QkW9sACiR81rorpeOMSvQ=="
+  "resolved" "https://registry.npmmirror.com/pinia/-/pinia-2.1.6.tgz"
+  "version" "2.1.6"
   dependencies:
     "@vue/devtools-api" "^6.5.0"
     "vue-demi" ">=0.14.5"

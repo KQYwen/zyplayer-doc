@@ -62,7 +62,9 @@ let storePage = useStorePageData();
 let storeUser = useStoreUserData();
 
 watch(() => storePage.pageInfo, (newVal) => {
-	loadCommentList();
+	if (storePage.pageInfo.editorType !== 0){
+		loadCommentList();
+	}
 })
 onMounted(() => {
 	loadCommentList();
@@ -146,7 +148,7 @@ const getUserHeadBgColor = (userId) => {
 <style lang="scss">
 .comment-box {
   padding: 8px;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 115px);
   overflow: auto;
 
   .comment-list {

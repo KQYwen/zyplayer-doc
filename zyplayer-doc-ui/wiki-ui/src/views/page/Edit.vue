@@ -1,29 +1,30 @@
 <template>
 	<div style="height: 100%" class="page-edit-vue">
-		<div style="box-sizing: border-box; background: #f5f5f5; overflow: hidden">
-			<div style="padding: 5px; font-size: 14px; background: #fff">
-				<el-row>
-					<el-col  :span="16"   style="text-align: left">
-						<el-input v-if="wikiPageEdit.editorType===2" v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
-					</el-col>
-					<el-col :span="8"  style="text-align: right;margin-top: 4px;">
-						<el-button type="primary" @click="createWikiSave(1)" size="small" :icon="ElIconDocumentChecked">保存并查看</el-button>
-						<el-button type="success" @click="createWikiSave(0)" size="small" :icon="ElIconCheck">仅保存</el-button>
-						<el-button @click="createWikiCancel" size="small" :icon="ElIconBack" style="margin-right: 5px">取消</el-button>
-					</el-col>
-				</el-row>
-			</div>
+		<el-row class="fake-header">
+			<el-col :span="1">
+				<el-button @click="turnLeftCollapse" v-if="storeDisplay.showMenu" text :icon="ElIconFold" class="fold-btn"></el-button>
+				<el-button @click="turnLeftCollapse" v-else text :icon="ElIconExpand" class="fold-btn"></el-button>
+			</el-col>
+			<el-col  :span="17"   style="text-align: left">
+				<el-input v-if="wikiPageEdit.editorType===2" v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
+			</el-col>
+			<el-col :span="5"  class="title-info-view-right">
+				<el-button type="primary" @click="createWikiSave(1)" size="large" :icon="ElIconDocumentChecked">保存</el-button>
+				<el-button @click="createWikiCancel" size="large" :icon="ElIconBack" style="margin-right: 5px">取消</el-button>
+			</el-col>
+		</el-row>
+		<div style="box-sizing: border-box;background: #f5f5f5;overflow: hidden">
 			<div v-show="wikiPageEdit.editorType === 2" style="padding: 0 10px 10px 10px; background: #fff">
 				<mavonEditor
-					ref="mavonEditorRef"
-					v-model="markdownContent"
-					:toolbars="toolbars"
-					:externalLink="false"
-					style="height: calc(100vh - 155px)"
-					@save="createWikiSave(0)"
-					@imgAdd="addMarkdownImage"
-					placeholder="请录入文档内容"
-					class="page-content-editor wang-editor-body"
+						ref="mavonEditorRef"
+						v-model="markdownContent"
+						:toolbars="toolbars"
+						:externalLink="false"
+						style="height: calc(100vh - 155px)"
+						@save="createWikiSave(0)"
+						@imgAdd="addMarkdownImage"
+						placeholder="请录入文档内容"
+						class="page-content-editor wang-editor-body"
 				/>
 			</div>
 			<div v-show="wikiPageEdit.editorType === 1">
@@ -39,6 +40,8 @@ import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
 import {
 	DocumentChecked as ElIconDocumentChecked,
+	Fold as ElIconFold,
+	Expand as ElIconExpand,
 	Check as ElIconCheck,
 	Back as ElIconBack,
 } from '@element-plus/icons-vue'
@@ -48,6 +51,9 @@ import 'mavon-editor/dist/markdown/github-markdown.min.css'
 import 'mavon-editor/dist/css/index.css'
 import axios from 'axios'
 import WangEditor from './editor/WangEditor.vue'
+import {useStoreSpaceData} from "@/store/spaceData";
+import {useStorePageData} from "@/store/pageData";
+import {useStoreDisplay} from "@/store/wikiDisplay";
 
 let editor = ref({});
 // 编辑相关
@@ -99,6 +105,9 @@ let toolbars = {
 const props = defineProps({
 	spaceId: Number,
 });
+let storeSpace = useStoreSpaceData()
+let storePage = useStorePageData()
+let storeDisplay = useStoreDisplay()
 let emit = defineEmits(['loadPageList']);
 onBeforeRouteUpdate((to) => {
 	initQueryParam(to);
@@ -118,7 +127,18 @@ onMounted(() => {
 	window.onbeforeunload = function () {
 		that.unlockPage()
 	}
+	storeDisplay.showHeader = false
 })
+const turnLeftCollapse = () => {
+	storeDisplay.showMenu = !storeDisplay.showMenu
+	setTimeout(() => {
+		if (storeDisplay.showMenu) {
+			storeDisplay.rightAsideWidth = 301
+		} else {
+			storeDisplay.rightAsideWidth = 1
+		}
+	}, 100)
+}
 const unlockPage = () => {
 	// 防止各种事件重复调这个接口，只需要调一次就好了
 	if (isUnlock.value) return
@@ -133,6 +153,7 @@ const createWikiCancel = () => {
 	}).then(() => {
 		unlockPage()
 		router.back()
+		storeDisplay.showHeader = true
 	})
 }
 let wangEditorRef = ref();
@@ -170,16 +191,25 @@ const createWikiSave = (saveAfter) => {
 	pageApi.updatePage(param).then((json) => {
 		ElMessage.success('保存成功！')
 		// 重新加载左侧列表，跳转到展示页面
-		emit('loadPageList')
+		doGetPageList()
 		pageId.value = json.data.id
 		if (saveAfter == 1) {
 			router.push({
 				path: '/page/show',
 				query: {pageId: pageId.value},
+			}).then(()=>{
+				storeDisplay.showHeader = true
 			})
 		} else {
 			loadPageDetail(pageId.value)
 		}
+	})
+}
+
+const doGetPageList = () => {
+	let param = {spaceId: storeSpace.chooseSpaceId}
+	pageApi.pageList(param).then((json) => {
+		storePage.wikiPageList = json.data || []
 	})
 }
 const loadPageDetail = (pageId) => {
@@ -282,7 +312,33 @@ const initEditor = () => {
 }
 </style>
 
-<style lang="scss">
+<style lang="scss" scoped>
+	.fake-header{
+		color: #333;
+		height: 60px !important;
+		border-bottom: 0.5px solid #eaeaea;
+		.fold-btn {
+			padding: 28px 19px;
+			line-height: 28px;
+			color: #3d3a3a !important;
+			font-size: 18px;
+		}
+		.page-title-input {
+			margin-top: 10px;
+			margin-left: 5px;
+			width: 99%;
+			height: 50px;
+		}
+		.title-info-view-right {
+			text-align: right;
+			margin-top: 10px;
+			font-size: 14px;
+			color: #454343;
+			.split {
+				padding:0 4px;
+			}
+		}
+	}
 .page-edit-vue {
   .page-content-editor {
 	ol {
@@ -361,7 +417,8 @@ const initEditor = () => {
 .page-edit-vue .page-title-input {
 	padding-bottom: 10px;
 	margin-left: 5px;
-	width: 100%;
+	margin-right: 5px;
+	width: 50%;
 }
 
 .page-edit-vue .markdown-body table {

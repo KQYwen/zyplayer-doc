@@ -78,6 +78,7 @@ const initQueryParam = (to) => {
 		newsType: 1,
 		pageNum: 1,
 		pageSize: 20,
+		dirId: to.query.dirId
 	}
 	if (!!searchParam.value.spaceId) {
 		getSpacePageNews()

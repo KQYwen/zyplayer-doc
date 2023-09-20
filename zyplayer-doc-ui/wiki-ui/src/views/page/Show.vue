@@ -1,57 +1,15 @@
 <template>
-	<div class="page-show-vue">
+	<div class="page-show-vue" v-if="storePage.pageInfo.editorType !== 0">
 		<el-row type="border-card" style="height: 100%">
 			<el-col :span="storePage.commentShow ? 18 : 24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
 				<el-row>
 					<el-col :span="navigationList.length > 0 ? 18 : 24">
 						<div style="max-width: 1000px; margin: 0 auto; padding-left: 10px">
-							<div class="wiki-title" ref="wikiTitleRef">{{ wikiPage.name }}</div>
-							<PageAction/>
-							<div class="wiki-files">
-								<el-table v-show="storePage.fileList.length > 0" :data="storePage.fileList" border style="width: 100%; margin-bottom: 5px">
-									<el-table-column label="文件名" show-overflow-tooltip>
-										<template v-slot="scope">
-											<el-link target="_blank" :href="scope.row.fileUrl" type="primary">{{scope.row.fileName }}</el-link>
-										</template>
-									</el-table-column>
-									<el-table-column prop="createUserName" label="创建人" width="110px" show-overflow-tooltip></el-table-column>
-									<el-table-column label="文件大小" width="120px">
-										<template v-slot="scope">{{computeFileSize(scope.row.fileSize) }}</template>
-									</el-table-column>
-									<el-table-column prop="createTime" label="创建时间" width="160px"></el-table-column>
-									<el-table-column prop="downloadNum" label="下载次数" width="90px">
-										<template v-slot="scope">{{scope.row.downloadNum || 0}}</template>
-									</el-table-column>
-									<el-table-column label="操作" width="90px" v-if="wikiPageAuth.canDeleteFile == 1">
-										<template v-slot="scope">
-											<el-button @click="deletePageFile(scope.row)">删除</el-button>
-										</template>
-									</el-table-column>
-								</el-table>
-							</div>
 							<div ref="pageContentRef" class="wiki-page-content">
 								<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2" v-highlight></div>
 								<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
 							</div>
-							<div style="margin-top: 40px; font-size: 14px">
-				                <span style="vertical-align: top" class="is-link">
-				                  <span v-show="wikiPage.selfZan == 0" @click="zanPage(1)"><img src="../../assets/img/zan.png" style="vertical-align: middle"/> 赞</span>
-				                  <span v-show="wikiPage.selfZan == 1" @click="zanPage(0)"><img src="../../assets/img/zan.png" style="vertical-align: middle; transform: rotateX(180deg)"/> 踩</span>
-				                </span>
-								<span style="margin-left: 10px; vertical-align: top">
-				                  <span v-if="wikiPage.selfZan == 0 && wikiPage.zanNum <= 0">成为第一个赞同者</span>
-				                  <span v-else-if="wikiPage.selfZan == 0 && wikiPage.zanNum > 0">
-				                    <span class="is-link" @click="showZanPageUser">{{ wikiPage.zanNum }}人</span>赞了它
-				                  </span>
-				                  <span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum <= 1">我赞了它</span>
-				                  <span v-else-if="wikiPage.selfZan == 1 && wikiPage.zanNum > 1">
-				                    <span class="is-link" @click="showZanPageUser">我和{{ wikiPage.zanNum - 1 }}个其他人</span>赞了它
-				                  </span>
-				                </span>
-								<span style="margin-left: 10px">
-                                    <el-icon style="font-size: 16px; color: #666;vertical-align: middle;"><el-icon-view/></el-icon> {{ wikiPage.viewNum }}次阅读
-								</span>
-							</div>
+							<PageZan></PageZan>
 						</div>
 					</el-col>
 					<el-col :span="navigationList.length > 0 ? 6 : 0" v-if="navigationList.length > 0">
@@ -67,34 +25,21 @@
 					<el-tab-pane label="评论" name="comment">
 						<Comment/>
 					</el-tab-pane>
+					<el-tab-pane label="附件" name="annex">
+						<Annex/>
+					</el-tab-pane>
 					<el-tab-pane label="修改历史" name="history">
-						<div class="action-tab-box">
-							<div v-if="pageHistoryList.length <= 0" class="action-box-empty">
-								暂无修改历史记录
-							</div>
-							<el-timeline v-else>
-								<el-timeline-item v-for="history in pageHistoryList">
-									<el-tag :type="pageHistoryChoice.id === history.id ? history.loading === 3 ? 'danger' : 'success' : 'info'" class="history-item" @click="historyClick(history)">
-										<div>{{ history.createUserName }}</div>
-										<div>{{ history.createTime }}</div>
-									</el-tag>
-									<el-icon class="history-loading-status" v-show="history.loading===1"><el-icon-loading/></el-icon>
-									<el-icon class="history-loading-status" v-show="history.loading===2"><el-icon-circle-check/></el-icon>
-									<el-icon class="history-loading-status" v-show="history.loading===3"><el-icon-circle-close/></el-icon>
-								</el-timeline-item>
-							</el-timeline>
-						</div>
+						<PageHistory
+							:pageHistoryList="pageHistoryList"
+							:pageHistoryChoice="pageHistoryChoice"
+							:pageHistoryDetail="pageHistoryDetail"
+							@historyClickHandle="historyClickHandle"
+							@previewPageImage="previewPageImage"
+							@createNavigationHeading="createNavigationHeading"/>
 					</el-tab-pane>
 				</el-tabs>
 			</el-col>
 		</el-row>
-		<!--点赞人员弹窗-->
-		<el-dialog title="赞了它的人" v-model="zanUserDialogVisible" width="600px">
-			<el-table :data="zanUserList" border :show-header="false" style="width: 100%; margin-bottom: 5px">
-				<el-table-column prop="createUserName" label="用户"></el-table-column>
-				<el-table-column prop="createTime" label="时间"></el-table-column>
-			</el-table>
-		</el-dialog>
 		<el-image-viewer
 				v-if="showImagePreview"
 				:url-list="showImagePreviewList"
@@ -132,8 +77,10 @@ import htmlUtil from '../../assets/lib/HtmlUtil.js'
 import pageApi from '../../assets/api/page'
 import userApi from '../../assets/api/user'
 import Navigation from './components/Navigation.vue'
-import PageAction from './show/PageAction.vue'
+import Annex from './show/Annex.vue'
+import PageHistory from './show/PageHistory.vue'
 import Comment from './show/Comment.vue'
+import PageZan from './show/PageZan.vue'
 import {mavonEditor} from 'mavon-editor'
 import 'mavon-editor/dist/markdown/github-markdown.min.css'
 import 'mavon-editor/dist/css/index.css'
@@ -150,14 +97,10 @@ let wikiPageAuth = ref({});
 let pageContent = ref({});
 let selfUserId = ref(0);
 let uploadFileList = ref([]);
-let uploadFormData = ref({pageId: 0});
-let zanUserDialogVisible = ref(false);
-let zanUserList = ref([]);
 let parentPath = ref({});
 // 手机扫码
 let qrCodeUrl = ref('');
 let mobileScanDialogVisible = ref(false);
-let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/upload');
 // 页面权限
 let pageAuthDialogVisible = ref(false);
 let pageAuthUserList = ref([]);
@@ -196,15 +139,6 @@ onMounted(() => {
 	initQueryParam(route);
 });
 
-const editWiki = () => {
-	let param = {pageId: parentPath.value.pageId}
-	pageApi.pageLock(param).then(() => {
-		router.push({
-			path: '/page/edit',
-			query: {pageId: parentPath.value.pageId}
-		})
-	})
-}
 const getSearchUserList = (query) => {
 	if (query == '') return
 	pageAuthUserLoading.value = true
@@ -294,39 +228,11 @@ const getPageHistory = (pageId, pageNum) => {
 		}
 	})
 }
-const historyClick = (history) => {
-	if (pageHistoryChoice.value.id === history.id && !!pageHistoryDetail.value) {
-		return;
-	}
+const historyClickHandle = (history) => {
 	pageHistoryChoice.value.loading = 0;
 	pageHistoryChoice.value = history;
-	// 缓存一下，但如果历史页面多了而且很大就占内存，也可以每次去拉取，先这样吧
-	if (history.content) {
-		history.loading = 2;
-		pageHistoryDetail.value = history.content;
-		pageShowDetail.value = history.content;
-		setTimeout(() => {
-			previewPageImage();
-			createNavigationHeading();
-		}, 500)
-	} else {
-		history.loading = 1
-		pageApi.pageHistoryDetail({id: history.id}).then((json) => {
-			history.loading = 2;
-			history.content = json.data || '--';
-			if (wikiPage.value.editorType === 2) {
-				history.content = mavonEditor.getMarkdownIt().render(history.content);
-			}
-			pageHistoryDetail.value = history.content;
-			pageShowDetail.value = history.content;
-			setTimeout(() => {
-				previewPageImage();
-				createNavigationHeading();
-			}, 500);
-		}).catch(() => {
-			history.loading = 3;
-		});
-	}
+	pageHistoryDetail.value = history.content;
+	pageShowDetail.value =history.content;
 }
 const clearHistory = () => {
 	pageHistoryChoice.value.loading = 0;
@@ -348,7 +254,6 @@ const loadPageDetail = (pageId) => {
 		pageContent.value = result.pageContent || {};
 		storePage.fileList = result.fileList || [];
 		selfUserId.value = result.selfUserId || 0;
-		uploadFormData.value = {pageId: wikiPage.value.id};
 		wikiPageAuth.value = {
 			canEdit: result.canEdit,
 			canDelete: result.canDelete,
@@ -371,7 +276,9 @@ const loadPageDetail = (pageId) => {
 		// 调用父方法展开目录树
 		emit('changeExpandedKeys', pageId);
 		setTimeout(() => {
-			previewPageImage();
+			if (storePage.pageInfo.editorType !== 0){
+				previewPageImage();
+			}
 			createNavigationHeading();
 		}, 500);
 		storePage.pageInfo = wikiPageRes;
@@ -409,33 +316,7 @@ const previewPageImage = () => {
 		}
 	})
 }
-const zanPage = (yn) => {
-	let param = {yn: yn, pageId: wikiPage.value.id}
-	pageApi.updatePageZan(param).then(() => {
-		wikiPage.value.selfZan = yn
-		wikiPage.value.zanNum = wikiPage.value.zanNum + (yn == 1 ? 1 : -1)
-	})
-}
-const showZanPageUser = () => {
-	zanUserDialogVisible.value = true
-	zanUserList.value = []
-	let param = {pageId: wikiPage.value.id}
-	pageApi.pageZanList(param).then((json) => {
-		zanUserList.value = json.data
-	})
-}
-const deletePageFile = (row) => {
-	ElMessageBox.confirm('确定要删除此文件吗？', '提示', {
-		confirmButtonText: '确定',
-		cancelButtonText: '取消',
-		type: 'warning',
-	}).then(() => {
-		let param = {id: row.id};
-		pageApi.deletePageFile(param).then(() => {
-			storePage.fileList = storePage.fileList.filter(item => item.id !== row.id);
-		});
-	})
-}
+
 const getUserHeadBgColor = (userId) => {
 	let color = page.userHeadColor[userId]
 	if (!color) {

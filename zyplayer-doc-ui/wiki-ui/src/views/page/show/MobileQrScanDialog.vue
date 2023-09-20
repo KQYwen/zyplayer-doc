@@ -23,8 +23,10 @@ import pageApi from "@/assets/api/page";
 import {useStorePageData} from "@/store/pageData";
 import userApi from "@/assets/api/user";
 import QRCode from 'qrcode'
+import {useStoreSpaceData} from "@/store/spaceData";
 
 let storePage = useStorePageData();
+let storeSpace = useStoreSpaceData();
 
 const route = useRoute();
 const router = useRouter();
@@ -53,7 +55,7 @@ const initMobileQrScan = () => {
 	if (!dataItemEditVisible.value) return;
 	let routeUrl = router.resolve({
 		path: '/page/share/mobile/view',
-		query: {pageId: storePage.pageInfo.id, space: storePage.spaceInfo.uuid}
+		query: {pageId: storePage.pageInfo.id, space: storeSpace.spaceInfo.uuid}
 	});
 	let hostPath = window.location.href.split('#')[0];
 	setTimeout(() => {

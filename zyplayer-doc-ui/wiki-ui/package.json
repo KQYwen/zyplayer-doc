@@ -21,7 +21,7 @@
 		"highlight.js": "^11.7.0",
 		"js-cookie": "^2.2.1",
 		"mavon-editor": "^3.0.0-beta",
-		"pinia": "^2.1.4",
+		"pinia": "^2.1.6",
 		"pouchdb": "^7.3.1",
 		"qrcode": "^1.5.1",
 		"qs": "^6.11.2",
