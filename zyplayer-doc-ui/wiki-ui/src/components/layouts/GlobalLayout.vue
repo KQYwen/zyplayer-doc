@@ -58,7 +58,6 @@
 
 	.header-right-user-name {
 		color: #000000;
-		padding-right: 5px;
 		vertical-align: middle;
 	}
 

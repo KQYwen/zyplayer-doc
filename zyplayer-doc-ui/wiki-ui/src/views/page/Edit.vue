@@ -5,7 +5,7 @@
 				<el-button @click="turnLeftCollapse" v-if="storeDisplay.showMenu" text :icon="ElIconFold" class="fold-btn"></el-button>
 				<el-button @click="turnLeftCollapse" v-else text :icon="ElIconExpand" class="fold-btn"></el-button>
 			</el-col>
-			<el-col  :span="17"   style="text-align: left">
+			<el-col  :span="18"   style="text-align: left">
 				<el-input v-if="wikiPageEdit.editorType===2" v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
 			</el-col>
 			<el-col :span="5"  class="title-info-view-right">

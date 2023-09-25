@@ -24,7 +24,7 @@
 				</span>
 			</div>
 		</el-col>
-		<el-col :span="12" style="text-align: right">
+		<el-col :span="12" style="text-align: right" class = "dropdown-menu">
 			<el-tooltip v-if="storePage.pageAuth.canEdit === 1 && storePage.pageInfo.name && storePage.pageInfo.editorType !== 0" effect="dark" content="编辑文档"
 						placement="top">
 				<ElIconEdit @click="editWiki" type="primary" class="right-header-icon"></ElIconEdit>
@@ -35,8 +35,8 @@
 			</el-tooltip>
 			<el-tooltip v-if="storePage.pageInfo.name" effect="dark" content="更多操作" placement="top">
 				<el-dropdown trigger="click" class="action-btn more-dropdown" >
-					<el-icon class="right-header-icon">
-						<el-icon-arrow-down/>
+					<el-icon class="right-header-icon" style="margin-top: 18px;margin-left: 5px">
+						<el-icon-more/>
 					</el-icon>
 					<template #dropdown>
 						<el-dropdown-menu>
@@ -60,8 +60,8 @@
 			<span class="header-right-user-name">{{userSelfInfo.userName}}</span>
 			<el-popover v-model:visible="userMessagePopVisible" placement="bottom" trigger="click" width="600">
 				<template v-slot:reference>
-					<el-badge :is-dot="haveNotReadUserMessage" style="margin: 0 20px">
-						<el-icon class="right-header-icon" style="margin-right: 0">
+					<el-badge :is-dot="haveNotReadUserMessage" >
+						<el-icon class="right-header-icon" >
 							<el-icon-bell/>
 						</el-icon>
 					</el-badge>
@@ -98,7 +98,7 @@
 					</div>
 				</div>
 			</el-popover>
-			<el-dropdown trigger="click" @command="userSettingDropdown" style="vertical-align: middle;">
+			<el-dropdown trigger="click" @command="userSettingDropdown" style="vertical-align: bottom;">
 				<el-icon class="right-header-icon">
 					<el-icon-setting/>
 				</el-icon>
@@ -134,6 +134,7 @@
 		Upload as ElIconUpload,
 		Edit as ElIconEdit,
 		Timer as ElIconTime,
+		More as ElIconMore,
 		Stamp as ElIconSCheck,
 		Bell as ElIconBell,
 		Share as ElIconShare,
@@ -185,12 +186,12 @@
 		pageAuthDialogVisible.value = true;
 	}
 	const showOpenPage = () => {
-		if (storePage.spaceInfo.openDoc !== 1) {
+		if (storeSpace.spaceInfo.openDoc !== 1) {
 			ElMessage.warning('该空间未开放，无法查看开放文档地址');
 		} else {
 			let routeUrl = router.resolve({
 				path: '/page/share/view',
-				query: {pageId: storePage.pageInfo.id, space: storePage.spaceInfo.uuid}
+				query: {pageId: storePage.pageInfo.id, space: storeSpace.spaceInfo.uuid}
 			});
 			window.open(routeUrl.href, '_blank');
 		}
@@ -201,13 +202,15 @@
 			cancelButtonText: '取消',
 			type: 'warning',
 		}).then(() => {
-			let param = {pageId: storeSpace.pageInfo.id};
-			pageApi.pageDelete(param).then(() => {
-				// 重新加载左侧列表，跳转到展示页面
-				// emit('loadPageList'); TODO
-				router.push({path: '/home', query: {spaceId: storeSpace.pageInfo.spaceId}});
+			pageApi.pageDelete({pageId: storePage.pageInfo.id}).then(() => {
+				pageApi.pageList({spaceId: storeSpace.chooseSpaceId}).then((json) => {
+					storePage.wikiPageList = json.data || []
+				}).then(()=>{
+					router.push({path: '/home', query: {spaceId: storePage.pageInfo.spaceId}});
+				})
 			});
-		}).catch(() => {
+		}).catch((e) => {
+			console.log(e)
 		});
 	}
 	// 下载为Word
@@ -349,6 +352,17 @@
 <style lang="scss">
 	.right-header-box {
 		.page-action-list {
+			.header-right-user-name{
+				margin-left: 15px;
+				margin-right: 10px;
+			}
+			.dropdown-menu{
+				display: flex;
+				align-items: center;
+				position: absolute;
+				top: 10px;
+				right:0;
+			}
 			text-align: right;
 
 			.el-icon {
@@ -415,6 +429,7 @@
 			cursor: pointer;
 			width: 20px;
 			margin: 15px 10px;
+			vertical-align: bottom;
 		}
 	}
 </style>
