@@ -6,7 +6,7 @@ export const useStoreDisplay = defineStore('wikiDisplay', {
 			// 左边目录栏宽度
 			viewMenuWidth: 300,
 			// 是否显示右边评论栏
-			commentShow: false,
+			commentShow: true,
 			commentActiveTab: 'comment',
 			showMenu: true,
 			rightAsideWidth: 300,

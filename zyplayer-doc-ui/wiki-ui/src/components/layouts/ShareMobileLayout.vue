@@ -18,7 +18,7 @@ import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmi
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
 import pageApi from '../../assets/api/page'
-import PageTree from '../shareLayout/PageTree'
+import PageTree from '../shareLayout/PageTree.vue'
 import 'vant/es/icon/style/index';
 import 'vant/es/popup/style/index';
 import 'vant/es/cell/style/index';

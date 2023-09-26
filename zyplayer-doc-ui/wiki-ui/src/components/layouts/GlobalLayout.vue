@@ -19,9 +19,9 @@
 
 <script setup>
 	import {useStoreDisplay} from '@/store/wikiDisplay.js'
-	import LeftSideBar from './LeftSideBar'
-	import RightHeader from './RightHeader'
-	import RightResize from './RightResize'
+	import LeftSideBar from './LeftSidebar.vue'
+	import RightHeader from './RightHeader.vue'
+	import RightResize from './RightResize.vue'
 	let storeDisplay = useStoreDisplay();
 	const rightAsideWidthChange = (width) =>{
 		storeDisplay.rightAsideWidth = width
@@ -63,14 +63,8 @@
 
 	.el-header {
 		color: #333;
-		line-height: 100px;
 		height: 60px !important;
 		border-bottom: 0.5px solid #eaeaea;
-	}
-
-	.fold-btn {
-		color: #ccc !important;
-		font-size: 18px;
 	}
 
 	.head-icon {
@@ -119,81 +113,74 @@
 </style>
 
 <style lang="scss">
-	.space-folder-box {
-		margin-left: 10px;
-		margin-bottom: 10px;
-		position: relative;
+.space-folder-box {
+  margin-left: 10px;
+  margin-bottom: 10px;
+  position: relative;
+}
 
-		.folder-action-dropdown-btn {
-			padding: 0 8px;
-			height: 25px;
-			position: absolute;
-			right: 0;
+.wiki-page-tree-box {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 30px;
+
+  .el-tree-node__content {
+	height: 35px;
+	position: relative;
+
+	.page-tree-node {
+	  width: 100%;
+
+	  .label {
+		.el-icon {
+		  vertical-align: middle;
 		}
+
+		.text {
+		  margin-left: 5px;
+		  vertical-align: middle;
+
+		  max-width: calc(100% - 40px);
+		  display: inline-block;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  white-space: nowrap;
+		}
+	  }
+
+	  .rename-input {
+		width: 90%;
+	  }
+
+	  .page-action-box {
+		position: absolute;
+		right: 0;
+		top: 0;
+		height: 35px;
+		line-height: 35px;
+		background: #fff;
+		border-radius: 4px;
+		display: none;
+
+		.page-action-dropdown-btn {
+		  padding: 0 8px;
+		  height: 35px;
+		  margin-top: -1px;
+		}
+
+		.el-button + .el-button {
+		  margin-left: 0;
+		}
+	  }
+
+	  .page-action-box.renaming {
+		display: none !important;
+	  }
 	}
 
-	.wiki-page-tree-box {
-		overflow-y: auto;
-		overflow-x: hidden;
-		padding-bottom: 30px;
-
-		.el-tree-node__content {
-			height: 35px;
-			position: relative;
-
-			.page-tree-node {
-				width: 100%;
-
-				.label {
-					.el-icon {
-						vertical-align: middle;
-					}
-
-					.text {
-						margin-left: 5px;
-						vertical-align: middle;
-
-						max-width: calc(100% - 40px);
-						display: inline-block;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						white-space: nowrap;
-					}
-				}
-
-				.rename-input {
-					width: 90%;
-				}
-
-				.page-action-box {
-					position: absolute;
-					right: 0;
-					top: 0;
-					height: 35px;
-					line-height: 35px;
-					background: #fff;
-					border-radius: 4px;
-					display: none;
-
-					.page-action-dropdown-btn {
-						padding: 0 8px;
-						height: 35px;
-						margin-top: -1px;
-					}
-
-					.el-button+.el-button {
-						margin-left: 0;
-					}
-				}
-
-				.page-action-box.renaming {
-					display: none !important;
-				}
-			}
-
-			&:hover .page-action-box {
-				display: block;
-			}
-		}
+	&:hover .page-action-box {
+	  display: block;
 	}
+  }
+}
 </style>

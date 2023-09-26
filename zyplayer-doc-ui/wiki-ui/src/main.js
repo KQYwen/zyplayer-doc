@@ -8,6 +8,7 @@ import {createRouter, createWebHashHistory} from 'vue-router'
 
 import ElementUI from 'element-plus'
 import 'element-plus/dist/index.css'
+import './assets/scss/base.scss'
 import Antd from 'ant-design-vue';
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import routes from './routes'

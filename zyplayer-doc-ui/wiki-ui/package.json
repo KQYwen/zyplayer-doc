@@ -12,8 +12,7 @@
 		"@soerenmartius/vue3-clipboard": "^0.1.2",
 		"@wangeditor/editor": "^5.1.23",
 		"@wangeditor/editor-for-vue": "^5.1.12",
-		"ant-design": "^1.0.0",
-		"ant-design-vue": "^4.0.0-rc.6",
+		"ant-design-vue": "^4.0.3",
 		"axios": "^0.19.2",
 		"core-js": "^3.26.1",
 		"echarts": "^5.4.0",
@@ -34,15 +33,17 @@
 		"xss": "^1.0.14"
 	},
 	"devDependencies": {
-		"@vitejs/plugin-vue": "^4.2.3",
 		"@vue/cli-plugin-babel": "^5.0.8",
-		"@vue/compiler-sfc": "^3.3.4",
 		"less": "^4.1.3",
 		"less-loader": "^11.1.3",
 		"node-sass": "^9.0.0",
 		"sass-loader": "^13.3.2",
-		"vite": "^4.3.9",
-		"vite-plugin-style-import": "^2.0.0",
-		"vue-template-compiler": "^2.7.14"
+		"vue-template-compiler": "^2.7.14",
+		"@vitejs/plugin-vue": "^4.2.3",
+		"@vue/compiler-sfc": "^3.3.4",
+		"unplugin-auto-import": "^0.5.11",
+		"unplugin-vue-components": "^0.25.1",
+		"vite": "^4.4.9",
+		"vite-plugin-style-import": "^2.0.0"
 	}
 }

@@ -1,7 +1,7 @@
 <template>
 	<div class="page-show-vue" v-if="storePage.pageInfo.editorType !== 0">
 		<el-row type="border-card" style="height: 100%">
-			<el-col :span="storePage.commentShow ? 18 : 24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
+			<el-col :span="storeDisplay.commentShow ? 18 : 24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
 				<el-row>
 					<el-col :span="navigationList.length > 0 ? 18 : 24">
 						<div style="max-width: 1000px; margin: 0 auto; padding-left: 10px">
@@ -17,11 +17,11 @@
 					</el-col>
 				</el-row>
 			</el-col>
-			<el-col :span="6" style="height: 100%" v-show="storePage.commentShow">
+			<el-col :span="6" style="height: 100%" v-show="storeDisplay.commentShow">
 				<el-icon @click="closeActionTab" class="close-action-tab">
 					<el-icon-close/>
 				</el-icon>
-				<el-tabs v-model="storePage.commentActiveTab">
+				<el-tabs v-model="storeDisplay.commentActiveTab">
 					<el-tab-pane label="评论" name="comment">
 						<Comment/>
 					</el-tab-pane>
@@ -85,6 +85,7 @@ import {mavonEditor} from 'mavon-editor'
 import 'mavon-editor/dist/markdown/github-markdown.min.css'
 import 'mavon-editor/dist/css/index.css'
 import {useStorePageData} from "@/store/pageData";
+import {useStoreDisplay} from "@/store/wikiDisplay";
 
 let page = {
 	colorArr: ['#67C23A', '#409EFF', '#E6A23C', '#F56C6C', '#909399', '#303133'],
@@ -126,6 +127,7 @@ let downloadFormParam = ref({url: 'zyplayer-doc-wiki/page/download', param: {},}
 let route = useRoute();
 let router = useRouter();
 
+let storeDisplay = useStoreDisplay();
 let storePage = useStorePageData();
 
 const props = defineProps({
@@ -202,7 +204,7 @@ const deleteUserPageAuth = (row) => {
 	pageAuthUserList.value = pageAuthUserList;
 }
 const closeActionTab = () => {
-	storePage.commentShow = false;
+	storeDisplay.commentShow = false;
 	clearHistory();
 }
 const getPageHistoryByScroll = () => {

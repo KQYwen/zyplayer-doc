@@ -1,7 +1,5 @@
 <template>
-	<div ref="rightResizeRef" class="right-resize">
-		<i ref="rightResizeBarRef">...</i>
-	</div>
+	<div ref="rightResizeRef" class="right-resize"></div>
 </template>
 
 <script setup>
@@ -13,16 +11,12 @@ onMounted(() => {
 	dragChangeRightAsideWidth();
 });
 let rightResizeRef = ref();
-let rightResizeBarRef = ref();
 const dragChangeRightAsideWidth = () => {
 	// 保留this引用
 	let resize = rightResizeRef.value
-	let resizeBar = rightResizeBarRef.value
 	resize.onmousedown = (e) => {
 		let startX = e.clientX
 		// 颜色改变提醒
-		resize.style.background = '#ccc'
-		resizeBar.style.background = '#aaa'
 		resize.left = resize.offsetLeft
 		document.onmousemove = (e2) => {
 			// 计算并应用位移量
@@ -39,9 +33,6 @@ const dragChangeRightAsideWidth = () => {
 			}
 		}
 		document.onmouseup = () => {
-			// 颜色恢复
-			resize.style.background = '#fafafa'
-			resizeBar.style.background = '#ccc'
 			document.onmousemove = null
 			document.onmouseup = null
 		}
@@ -50,24 +41,15 @@ const dragChangeRightAsideWidth = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .right-resize {
-	width: 5px;
-	height: 100%;
-	cursor: w-resize;
-	background: #fafafa;
-}
+  width: 5px;
+  height: 100%;
+  cursor: w-resize;
+  background: #fafafa;
 
-.right-resize i {
-	margin-top: 300px;
-	width: 5px;
-	height: 35px;
-	display: inline-block;
-	word-wrap: break-word;
-	word-break: break-all;
-	line-height: 8px;
-	border-radius: 5px;
+  &:hover {
 	background: #ccc;
-	color: #888;
+  }
 }
 </style>
