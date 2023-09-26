@@ -10,7 +10,9 @@ export const useStoreDisplay = defineStore('wikiDisplay', {
 			commentActiveTab: 'comment',
 			showMenu: true,
 			rightAsideWidth: 300,
-			showHeader:true
+			showHeader:true,
+			// 当前页面 view、space
+			currentPage: '',
 		}
 	},
 })

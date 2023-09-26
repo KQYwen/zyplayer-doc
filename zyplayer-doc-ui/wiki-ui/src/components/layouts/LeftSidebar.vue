@@ -57,9 +57,6 @@
 									<a-menu-item @click="rename(node,data)">
 										<IconParkEditTwo class="el-icon"/> 重命名
 									</a-menu-item>
-									<a-menu-item @click="deleteWikiPage(data.shareStatus)">
-										<IconParkDelete class="el-icon"/> 删除
-									</a-menu-item>
 									<a-sub-menu title="移动文档">
 										<template #icon><IconParkIntersection/></template>
 										<a-menu-item @click="openMoveMenu(false)">
@@ -71,6 +68,9 @@
 									</a-sub-menu>
 									<a-menu-item v-if="data.editorType !== 0" @click="openTemplateCreate(data.shareStatus !== undefined)">
 										<IconParkPageTemplate/> 设为模板
+									</a-menu-item>
+									<a-menu-item @click="deleteWikiPage(data.shareStatus)">
+										<IconParkDelete class="el-icon"/> 删除
 									</a-menu-item>
 								</a-menu>
 							</template>

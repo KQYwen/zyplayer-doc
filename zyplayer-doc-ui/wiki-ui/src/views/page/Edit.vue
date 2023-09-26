@@ -1,26 +1,26 @@
 <template>
 	<div style="height: 100%" class="page-edit-vue">
 		<el-row class="fake-header">
-			<el-col :span="1">
+			<el-col style="flex: 0 0 45px;" class="collapse-box">
 				<el-button @click="turnLeftCollapse" v-if="storeDisplay.showMenu" text :icon="ElIconFold" class="fold-btn"></el-button>
 				<el-button @click="turnLeftCollapse" v-else text :icon="ElIconExpand" class="fold-btn"></el-button>
 			</el-col>
-			<el-col  :span="18"   style="text-align: left">
+			<el-col style="flex: 1 1 auto;">
 				<el-input v-if="wikiPageEdit.editorType===2" v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
 			</el-col>
-			<el-col :span="5"  class="title-info-view-right">
-				<el-button type="primary" @click="createWikiSave(1)" size="large" :icon="ElIconDocumentChecked">保存</el-button>
-				<el-button @click="createWikiCancel" size="large" :icon="ElIconBack" style="margin-right: 5px">取消</el-button>
+			<el-col style="flex: 0 0 180px;text-align: right;">
+				<el-button type="primary" @click="createWikiSave(1)" :icon="ElIconDocumentChecked">保存</el-button>
+				<el-button @click="createWikiCancel" :icon="ElIconBack" style="margin-right: 5px">取消</el-button>
 			</el-col>
 		</el-row>
 		<div style="box-sizing: border-box;background: #f5f5f5;overflow: hidden">
-			<div v-show="wikiPageEdit.editorType === 2" style="padding: 0 10px 10px 10px; background: #fff">
+			<div v-show="wikiPageEdit.editorType === 2" style="padding: 10px; background: #fff">
 				<mavonEditor
 						ref="mavonEditorRef"
 						v-model="markdownContent"
 						:toolbars="toolbars"
 						:externalLink="false"
-						style="height: calc(100vh - 155px)"
+						style="height: calc(100vh - 100px);z-index: 1;"
 						@save="createWikiSave(0)"
 						@imgAdd="addMarkdownImage"
 						placeholder="请录入文档内容"
@@ -312,33 +312,44 @@ const initEditor = () => {
 }
 </style>
 
-<style lang="scss" scoped>
-	.fake-header{
-		color: #333;
-		height: 60px !important;
-		border-bottom: 0.5px solid #eaeaea;
-		.fold-btn {
-			padding: 28px 19px;
-			line-height: 28px;
-			color: #3d3a3a !important;
-			font-size: 18px;
-		}
-		.page-title-input {
-			margin-top: 10px;
-			margin-left: 5px;
-			width: 99%;
-			height: 50px;
-		}
-		.title-info-view-right {
-			text-align: right;
-			margin-top: 10px;
-			font-size: 14px;
-			color: #454343;
-			.split {
-				padding:0 4px;
-			}
-		}
+<style lang="scss">
+.fake-header {
+  color: #333;
+  height: 60px !important;
+  line-height: 60px !important;
+  border-bottom: 0.5px solid #eaeaea;
+
+  .fold-btn {
+	font-size: 18px;
+	padding: 4px 10px;
+	margin-left: 6px;
+	color: #888 !important;
+  }
+
+  .page-title-input {
+	padding: 0 6px;
+	width: 100%;
+	font-size: 20px;
+	border-bottom: 1px solid #ddd;
+
+	.el-input__wrapper {
+	  border: 0;
+	  box-shadow: unset;
 	}
+  }
+
+  .title-info-view-right {
+	text-align: right;
+	margin-top: 10px;
+	font-size: 14px;
+	color: #454343;
+
+	.split {
+	  padding: 0 4px;
+	}
+  }
+}
+
 .page-edit-vue {
   .page-content-editor {
 	ol {
@@ -412,13 +423,6 @@ const initEditor = () => {
 
 .page-edit-vue .page-content-editor {
 	padding: 10px 0;
-}
-
-.page-edit-vue .page-title-input {
-	padding-bottom: 10px;
-	margin-left: 5px;
-	margin-right: 5px;
-	width: 50%;
 }
 
 .page-edit-vue .markdown-body table {

@@ -5,6 +5,7 @@
 				<el-row>
 					<el-col :span="navigationList.length > 0 ? 18 : 24">
 						<div style="max-width: 1000px; margin: 0 auto; padding-left: 10px">
+							<div class="wiki-title" ref="wikiTitleRef">{{ storePage.pageInfo.name }}</div>
 							<div ref="pageContentRef" class="wiki-page-content">
 								<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2" v-highlight></div>
 								<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
@@ -138,6 +139,7 @@ onBeforeRouteUpdate((to) => {
 	initQueryParam(to);
 });
 onMounted(() => {
+	storeDisplay.currentPage = 'view';
 	initQueryParam(route);
 });
 

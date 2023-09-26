@@ -150,7 +150,7 @@ defineExpose({setTitle,setPageId, setHtml, getPageData});
 .wang-editor-box .wang-editor-content {
 	padding: 20px 0;
 	overflow: auto;
-	height: calc(100vh - 156px);
+	height: calc(100vh - 140px);
 }
 .wang-editor-box .w-e-bar-item {
 	height: 39px;

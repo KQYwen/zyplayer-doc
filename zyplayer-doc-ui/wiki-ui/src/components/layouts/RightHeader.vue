@@ -6,7 +6,7 @@
 					<el-button @click="turnLeftCollapse" v-if="storeDisplay.showMenu" text :icon="ElIconFold" class="fold-btn"></el-button>
 					<el-button @click="turnLeftCollapse" v-else text :icon="ElIconExpand" class="fold-btn"></el-button>
 				</div>
-				<div class="title-time-box">
+				<div v-if="storeDisplay.currentPage === 'view'" class="title-time-box">
 					<div class="title">
 						<span class="text">{{storePage.pageInfo.name || ''}}</span>
 					</div>
@@ -16,36 +16,38 @@
 		</el-col>
 		<el-col :span="12" style="text-align: right;">
 			<div class="header-action-box">
-				<el-tooltip v-if="storePage.pageAuth.canEdit === 1" content="编辑文档">
-					<el-button class="hover-button" @click="editWiki" text><IconParkEdit size="18"/></el-button>
-				</el-tooltip>
-				<el-tooltip content="文档沟通">
-					<el-button class="hover-button" @click="showCommentWiki" text><IconParkCommunication size="18"/></el-button>
-				</el-tooltip>
-				<UserMessagePopover/>
-				<a-dropdown trigger="click" placement="bottom" overlayClassName="header-action-more-dropdown">
-					<span style="line-height: 60px;display:inline-block;margin: 0 12px;">
+				<template v-if="storeDisplay.currentPage === 'view'">
+					<el-tooltip v-if="storePage.pageAuth.canEdit === 1" content="编辑文档">
+						<el-button class="hover-button" @click="editWiki" text><IconParkEdit size="18"/></el-button>
+					</el-tooltip>
+					<el-tooltip content="文档沟通">
+						<el-button class="hover-button" @click="showCommentWiki" text><IconParkCommunication size="18"/></el-button>
+					</el-tooltip>
+					<UserMessagePopover/>
+					<a-dropdown trigger="click" placement="bottom" overlayClassName="header-action-more-dropdown">
+					<span style="line-height: 60px;display:inline-block;margin: 0 8px;">
 						<el-button :icon="ElIconMoreFilled" class="hover-button" text></el-button>
 					</span>
-					<template #overlay>
-						<a-menu>
-							<a-menu-item @click="editWikiAuth" v-if="storePage.pageAuth.canConfigAuth === 1"><el-icon><ElIconSCheck/></el-icon> 权限设置</a-menu-item>
-							<a-menu-item @click="showOpenPage" v-if="storeSpace.spaceInfo.openDoc === 1"><el-icon><ElIconShare/></el-icon> 查看开放文档</a-menu-item>
-							<a-menu-item @click="showMobileView" v-if="storeSpace.spaceInfo.openDoc === 1"><el-icon><ElIconMobilePhone/></el-icon> 手机端查看</a-menu-item>
-							<a-menu-item @click="exportWord"><el-icon><ElIconDownload/></el-icon>导出为Word</a-menu-item>
-							<a-menu-divider />
-							<a-menu-item @click="deleteWikiPage" v-if="storePage.pageAuth.canDelete === 1" class="delete"><el-icon><ElIconDelete/></el-icon> 删除</a-menu-item>
-						</a-menu>
-					</template>
-				</a-dropdown>
+						<template #overlay>
+							<a-menu>
+								<a-menu-item @click="editWikiAuth" v-if="storePage.pageAuth.canConfigAuth === 1"><el-icon><ElIconSCheck/></el-icon> 权限设置</a-menu-item>
+								<a-menu-item @click="showOpenPage" v-if="storeSpace.spaceInfo.openDoc === 1"><el-icon><ElIconShare/></el-icon> 查看开放文档</a-menu-item>
+								<a-menu-item @click="showMobileView" v-if="storeSpace.spaceInfo.openDoc === 1"><el-icon><ElIconMobilePhone/></el-icon> 手机端查看</a-menu-item>
+								<a-menu-item @click="exportWord"><el-icon><ElIconDownload/></el-icon>导出为Word</a-menu-item>
+								<a-menu-divider />
+								<a-menu-item @click="deleteWikiPage" v-if="storePage.pageAuth.canDelete === 1" class="delete"><el-icon><ElIconDelete/></el-icon> 删除</a-menu-item>
+							</a-menu>
+						</template>
+					</a-dropdown>
+				</template>
 				<a-dropdown trigger="click" placement="bottom" overlayClassName="header-action-user-dropdown">
 					<span style="line-height: 60px;display:inline-block;">
-						<el-button :icon="ElIconUser" class="hover-button" text></el-button>
+						<el-button :icon="ElIconUserFilled" class="hover-button" text></el-button>
 					</span>
 					<template #overlay>
 						<a-menu>
-							<a-menu-item @click="showConsole">控制台</a-menu-item>
 							<a-menu-item @click="showAbout">关于</a-menu-item>
+							<a-menu-item @click="showConsole">控制台</a-menu-item>
 							<a-menu-divider />
 							<a-menu-item @click="userSignOut">退出登录</a-menu-item>
 						</a-menu>
@@ -73,7 +75,7 @@ import {
 	Download as ElIconDownload,
 	MoreFilled as ElIconMoreFilled,
 	Setting as ElIconSetting,
-	User as ElIconUser,
+	UserFilled as ElIconUserFilled,
 } from '@element-plus/icons-vue'
 import {
 	Star as IconParkStar,
@@ -94,11 +96,11 @@ import MobileQrScanDialog from '@/views/page/show/MobileQrScanDialog.vue'
 import AboutDialog from "@/views/common/AboutDialog.vue"
 import UserMessagePopover from "./UserMessagePopover.vue"
 
+let router = useRouter();
 let storePage = useStorePageData();
 let storeDisplay = useStoreDisplay();
 let storeUser = useStoreUserData();
 let storeSpace = useStoreSpaceData();
-
 const emit = defineEmits(['collapse']);
 
 let turnLeftCollapse = () => {

@@ -9,7 +9,7 @@
 				<el-header v-if="storeDisplay.showHeader">
 					<RightHeader ref="rightHeaderRef"/>
 				</el-header>
-				<el-main style="padding: 0; border-left: 1px solid #dcdfe6">
+				<el-main style="padding: 0;">
 					<router-view/>
 				</el-main>
 			</el-container>

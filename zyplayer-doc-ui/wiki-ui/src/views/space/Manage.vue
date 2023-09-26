@@ -1,9 +1,5 @@
 <template>
 	<div style="min-height: 100%;" class="space-manage-vue">
-		<el-breadcrumb separator-class="el-icon-arrow-right" style="padding: 20px 10px">
-			<el-breadcrumb-item>WIKI文档</el-breadcrumb-item>
-			<el-breadcrumb-item>空间管理</el-breadcrumb-item>
-		</el-breadcrumb>
 		<div style="max-width: 1200px;margin: 0 auto;background: #fff;padding: 20px;min-height: 100%;box-sizing: border-box;">
 			<div style="text-align: right; margin-bottom: 10px">
 		        <span style="float: left; line-height: 40px">
@@ -112,6 +108,7 @@ import userApi from '../../assets/api/user'
 import CreateSpace from '../../components/space/CreateSpace'
 import {useStoreSpaceData}from '@/store/spaceData'
 import {useStorePageData}from '@/store/pageData'
+import {useStoreDisplay} from "@/store/wikiDisplay";
 
 let spaceListLoading = ref(false);
 let spaceOptions = ref([]);
@@ -132,9 +129,12 @@ let userSetting = ref({wiki_only_show_favorite: 0,});
 
 let route = useRoute();
 let router = useRouter();
+let storeDisplay = useStoreDisplay();
 let storePage = useStorePageData();
 let storeSpace = useStoreSpaceData();
+
 onMounted(() => {
+	storeDisplay.currentPage = 'space';
 	loadSpaceList()
 	getSelfUserInfo()
 	getSpaceSettingList()

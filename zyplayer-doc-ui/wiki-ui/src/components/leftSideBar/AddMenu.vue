@@ -3,13 +3,13 @@
 		<el-button :icon="ElIconPlus" text class="add-menu-dropdown-btn"></el-button>
 		<template #overlay>
 			<a-menu>
-				<a-menu-item key="1" @click="createWiki(1,props.funcId)">
-					<IconDocument fill="#498ba7"/> 创建富文本
+				<a-menu-item key="1" @click="createWiki(1, props.funcId)">
+					<IconParkWord fill="#498ba7"/> 创建富文本
 				</a-menu-item>
-				<a-menu-item key="2" @click="createWiki(2,props.funcId)">
-					<IconParkWord fill="#558ff2"/> 创建Markdown
+				<a-menu-item key="2" @click="createWiki(2, props.funcId)">
+					<IconDocument fill="#558ff2"/> 创建Markdown
 				</a-menu-item>
-				<a-menu-item key="0" @click="createWiki(0,props.funcId)">
+				<a-menu-item key="0" @click="createWiki(0, props.funcId)">
 					<FolderOpen fill="#ffd149"/> 创建文件夹
 				</a-menu-item>
 				<a-menu-item key="4" @click="createWikiByTemplate(props.funcId)">
