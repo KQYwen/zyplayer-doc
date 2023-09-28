@@ -26,10 +26,10 @@
 				<el-table-column prop="createTime" label="创建时间"></el-table-column>
 				<el-table-column prop="favorite" label="收藏" width="60">
 					<template v-slot="scope">
-						<el-icon @click="updateSpaceFavorite(scope.row)" v-if="scope.row.favorite === 1" class="favorite-icon el-icon-star-on">
+						<el-icon v-if="scope.row.favorite === 1" @click="updateSpaceFavorite(scope.row)"  class="favorite-icon el-icon-star-on">
 							<el-icon-star-on/>
 						</el-icon>
-						<el-icon @click="updateSpaceFavorite(scope.row)" v-else class="favorite-icon el-icon-star-off">
+						<el-icon v-else @click="updateSpaceFavorite(scope.row)"  class="favorite-icon el-icon-star-off">
 							<el-icon-star-off/>
 						</el-icon>
 					</template>
