@@ -49,7 +49,7 @@ const dragChangeRightAsideWidth = () => {
   background: #fafafa;
 
   &:hover {
-	background: #ccc;
+	background: #2a85f6;
   }
 }
 </style>

@@ -5,6 +5,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ZipUtil;
+import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
@@ -43,7 +44,7 @@ public class ZIPFileStrategy implements IFileStrategy {
     private final WikiPageService wikiPageService;
 
     @Override
-    public String file(String uploadPath, WikiPageFile wikiPageFile, MultipartFile file) throws IOException {
+    public void file(String uploadPath, WikiPageFile wikiPageFile, MultipartFile file) throws IOException {
         Long pageID = wikiPageFile.getPageId();
         WikiPage page = wikiPageService.getById(pageID);
         String path = uploadPath + "/" + DateTime.now().toString("yyyy/MM/dd") + "/";
@@ -80,7 +81,7 @@ public class ZIPFileStrategy implements IFileStrategy {
                 File newFile = new File(savePath);
                 if (!newFile.exists() && !newFile.mkdirs()) {
                     log.warn("创建文件夹失败{}", savePath);
-                    return "创建文件夹失败";
+                    throw new ConfirmException("创建文件夹失败");
                 }
                 String simpleUUID = IdUtil.simpleUUID();
                 savePath += simpleUUID + "." + FileUtil.getSuffix(media.getOldFileLink());
@@ -93,7 +94,7 @@ public class ZIPFileStrategy implements IFileStrategy {
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("保存文件失败{}", savePath);
-                    return "保存文件失败";
+                    throw new ConfirmException("保存文件失败");
                 }
                 mediaWikiPageFile.setFileSize(FileUtil.size(mediaFile));
                 mediaWikiPageFile.setUuid(simpleUUID);
@@ -109,7 +110,6 @@ public class ZIPFileStrategy implements IFileStrategy {
             }
             wikiPageUploadService.update(wikiPage, context, context);
         }
-        return null;
     }
 
     @Override

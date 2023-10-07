@@ -90,4 +90,9 @@ public class WikiPageFile implements Serializable {
      * 文件大小
      */
     private Long fileSize;
+    
+    /**
+     * 文件来源 1=上传的文件 2=文档内粘贴的图片或文件
+     */
+    private Integer fileSource;
 }

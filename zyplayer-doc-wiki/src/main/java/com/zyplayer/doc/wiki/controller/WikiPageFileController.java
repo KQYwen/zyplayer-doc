@@ -2,6 +2,7 @@ package com.zyplayer.doc.wiki.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.enums.PageFileSource;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageFile;
@@ -31,64 +32,43 @@ import java.util.Map;
 @RequestMapping("/zyplayer-doc-wiki/page/file")
 @RequiredArgsConstructor
 public class WikiPageFileController {
-
-    private final WikiPageFileServiceEx wikiPageFileServiceEx;
-    private final BatchDocImportManager batchDocImportManger;
-
-
-/*	@PostMapping("/list")
-	public ResponseJson<List<WikiPageFile>> list(WikiPageFile wikiPageFile) {
-		// TODO 检查space是否开放访问
-        return DocResponseJson.ok(wikiPageFileServiceEx.list(wikiPageFile));
-	}*/
-
-    @PostMapping("/delete")
-    public ResponseJson<Object> delete(WikiPageFile wikiPageFile) {
-        String info = wikiPageFileServiceEx.delete(wikiPageFile);
-        if (null != info) {
-            return DocResponseJson.warn(info);
-        }
-        return DocResponseJson.ok();
-    }
-
-    @PostMapping("/wangEditor/upload")
-    public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
-        Map<String, Object> resultMap = new HashMap<>();
-        Object result = wikiPageFileServiceEx.basicUpload(wikiPageFile, file);
-        DocResponseJson docResponseJson = DocResponseJson.warn("处理失败");
-        if (result instanceof WikiPageFile) {
-            docResponseJson = DocResponseJson.ok(result);
-        } else if (result != null) {
-            docResponseJson = DocResponseJson.error((String) result);
-        }
-        if (!docResponseJson.isOk()) {
-            resultMap.put("errno", 1);
-            resultMap.put("message", docResponseJson.getErrMsg());
-        } else {
-            resultMap.put("errno", 0);
-            resultMap.put("data", new JSONObject().fluentPut("url", wikiPageFile.getFileUrl()));
-        }
-        return resultMap;
-    }
-
-    @PostMapping("/upload")
-    public ResponseJson upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file, boolean importFlag) {
-        if (importFlag) {
-            String info = batchDocImportManger.importBatchDoc(wikiPageFile, file);
-            if (null == info) {
-                return DocResponseJson.ok();
-            }
-            return DocResponseJson.warn(info);
-        }
-        Object result = wikiPageFileServiceEx.basicUpload(wikiPageFile, file);
-        if (result instanceof WikiPageFile) {
-            return DocResponseJson.ok(result);
-        } else if (result != null) {
-            return DocResponseJson.warn((String) result);
-        }
-        return DocResponseJson.warn("未知异常");
-    }
-
-
+	
+	private final WikiPageFileServiceEx wikiPageFileServiceEx;
+	private final BatchDocImportManager batchDocImportManger;
+	
+	@PostMapping("/delete")
+	public ResponseJson<Object> delete(WikiPageFile wikiPageFile) {
+		String info = wikiPageFileServiceEx.delete(wikiPageFile);
+		if (null != info) {
+			return DocResponseJson.warn(info);
+		}
+		return DocResponseJson.ok();
+	}
+	
+	@PostMapping("/wangEditor/upload")
+	public Map<String, Object> wangEditorUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+		Map<String, Object> resultMap = new HashMap<>();
+		wikiPageFile.setFileSource(PageFileSource.PASTE_FILES.getSource());
+		DocResponseJson<Object> docResponseJson = wikiPageFileServiceEx.basicUpload(wikiPageFile, file);
+		if (!docResponseJson.isOk()) {
+			resultMap.put("errno", 1);
+			resultMap.put("message", docResponseJson.getErrMsg());
+		} else {
+			resultMap.put("errno", 0);
+			resultMap.put("data", new JSONObject().fluentPut("url", wikiPageFile.getFileUrl()));
+		}
+		return resultMap;
+	}
+	
+	@PostMapping("/import/upload")
+	public ResponseJson importUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+		return batchDocImportManger.importBatchDoc(wikiPageFile, file);
+	}
+	
+	@PostMapping("/upload")
+	public ResponseJson upload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+		wikiPageFile.setFileSource(PageFileSource.UPLOAD_FILES.getSource());
+		return wikiPageFileServiceEx.basicUpload(wikiPageFile, file);
+	}
 }
 

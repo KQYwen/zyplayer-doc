@@ -3,6 +3,8 @@ package com.zyplayer.doc.wiki.service;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.zyplayer.doc.core.json.DocResponseJson;
+import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.UserMessage;
@@ -82,30 +84,30 @@ public class WikiPageFileServiceEx {
         userMessageService.addWikiMessage(userMessage);
         return null;
     }
-
-    public Object basicUpload(WikiPageFile wikiPageFile, MultipartFile file) {
+    
+    public DocResponseJson<Object> basicUpload(WikiPageFile wikiPageFile, MultipartFile file) {
         DocUserDetails currentUser = DocUserUtil.getCurrentUser();
         Long pageId = wikiPageFile.getPageId();
         if (pageId == null || pageId <= 0) {
-            return "未指定附件关联的文档";
+            return DocResponseJson.warn("未指定附件关联的文档");
         }
         WikiPage wikiPageSel = wikiPageService.getById(pageId);
         WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
         // 权限判断
         String canUploadFile = wikiPageAuthService.canUploadFile(wikiSpaceSel, wikiPageSel.getId(), currentUser.getUserId());
         if (canUploadFile != null) {
-            return canUploadFile;
+            return DocResponseJson.warn(canUploadFile);
         }
-        String info = this.uploadFile(wikiPageFile, file,0);
+        String info = this.uploadFile(wikiPageFile, file, 0);
         if (null != info) {
-            return info;
+            return DocResponseJson.warn(info);
         }
         // 给相关人发送消息
         UserMessage userMessage = userMessageService.createUserMessage(currentUser, pageId, wikiPageSel.getName(), DocSysType.WIKI, UserMsgType.WIKI_PAGE_UPLOAD);
         userMessage.setAffectUserId(wikiPageSel.getCreateUserId());
         userMessage.setAffectUserName(wikiPageSel.getCreateUserName());
         userMessageService.addWikiMessage(userMessage);
-        return wikiPageFile;
+        return DocResponseJson.ok(wikiPageFile);
     }
 
     /**

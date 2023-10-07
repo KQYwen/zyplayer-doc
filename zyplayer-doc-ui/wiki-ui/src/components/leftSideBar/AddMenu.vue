@@ -17,7 +17,7 @@
 				</a-menu-item>
 				<a-menu-item key="3">
 					<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">
-						<a-upload v-model:file-list="fileList" name="file" :multiple="false" :customRequest="doAUpload">
+						<a-upload v-model:file-list="fileList" name="file" :multiple="false" :customRequest="doAUpload" class="import-upload">
 							<IconParkAfferent/> 导入
 						</a-upload>
 					</el-tooltip>
@@ -45,7 +45,7 @@ import axios from "axios";
 import IconDocument from '@/components/base/IconDocument.vue'
 
 let router = useRouter();
-let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/upload');
+let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/import/upload');
 let fileList = ref([]);
 let emit = defineEmits(['choosePageIdFunc', 'doGetPageList', 'createWikiByTemplate'])
 let props = defineProps({
@@ -55,13 +55,12 @@ let props = defineProps({
 	funcId: Number
 });
 const doAUpload = (data) => {
-	let formData = new FormData()
-	formData.append('files', data.file)
-	formData.append('pageId', props.choosePageId)
+	let formData = new FormData();
+	formData.append('files', data.file);
+	formData.append('pageId', props.choosePageId);
 	if (props.choosePageId === 0) {
-		formData.append('id', props.choiceSpace)
+		formData.append('id', props.choiceSpace);
 	}
-	formData.append('importFlag', true)
 	axios({
 		url: uploadFileUrl.value,
 		method: 'post',
@@ -70,21 +69,21 @@ const doAUpload = (data) => {
 		timeout: 10000,
 		withCredentials: true,
 	}).then((res) => {
-		fileList.value = []
+		fileList.value = [];
 		if (res.data.errCode === 200) {
-			ElMessage.success('导入成功')
+			ElMessage.success('导入成功');
 		}
 		if (res.data.errCode === 300) {
-			ElMessage.warning(res.data.errMsg)
-			ElMessage.warning('文件太多可能超时，如果是超时，请稍等后刷新查看列表~')
+			ElMessage.warning(res.data.errMsg);
+			ElMessage.warning('文件太多可能超时，如果是超时，请稍等后刷新查看列表~');
 		}
-		emit('doGetPageList', null)
+		emit('doGetPageList', null);
 
 	}).catch((e) => {
-		fileList.value = []
-		emit('doGetPageList', null)
-		ElMessage.error('导入失败：' + e.message)
-	})
+		fileList.value = [];
+		emit('doGetPageList', null);
+		ElMessage.error('导入失败：' + e.message);
+	});
 }
 const choosePageIdFunc = (id) => {
 	emit('choosePageIdFunc', id)
@@ -123,8 +122,18 @@ const createWiki = (editorType, parentId) => {
 
 <style lang="scss">
 .add-menu-dropdown-btn {
-	padding: 0 8px;
-	height: 35px;
-	margin-top: -1px;
+  padding: 0 8px;
+  height: 35px;
+  margin-top: -1px;
+}
+
+.import-upload {
+  .ant-upload-select {
+	display: block;
+
+	.ant-upload {
+	  display: block;
+	}
+  }
 }
 </style>

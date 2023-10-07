@@ -1,9 +1,11 @@
 package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
+import com.zyplayer.doc.core.enums.PageFileSource;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
@@ -109,21 +111,22 @@ public class WikiPageController {
         if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
             return DocResponseJson.warn("您没有权限查看该空间的文章详情！");
         }
-        UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
-        wrapper.eq("page_id", wikiPage.getId());
+        LambdaQueryWrapper<WikiPageContent> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WikiPageContent::getPageId, wikiPage.getId());
         WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
-
-        UpdateWrapper<WikiPageFile> wrapperFile = new UpdateWrapper<>();
-        wrapperFile.eq("page_id", wikiPage.getId());
-        wrapperFile.eq("del_flag", 0);
+        // 查询附件
+        LambdaQueryWrapper<WikiPageFile> wrapperFile = new LambdaQueryWrapper<>();
+        wrapperFile.eq(WikiPageFile::getPageId, wikiPage.getId());
+        wrapperFile.eq(WikiPageFile::getDelFlag, 0);
+        wrapperFile.eq(WikiPageFile::getFileSource, PageFileSource.UPLOAD_FILES.getSource());
         List<WikiPageFile> pageFiles = wikiPageFileService.list(wrapperFile);
         for (WikiPageFile pageFile : pageFiles) {
             pageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + pageFile.getUuid());
         }
-        UpdateWrapper<WikiPageZan> wrapperZan = new UpdateWrapper<>();
-        wrapperZan.eq("page_id", wikiPage.getId());
-        wrapperZan.eq("create_user_id", currentUser.getUserId());
-        wrapperZan.eq("yn", 1);
+        LambdaQueryWrapper<WikiPageZan> wrapperZan = new LambdaQueryWrapper<>();
+        wrapperZan.eq(WikiPageZan::getPageId, wikiPage.getId());
+        wrapperZan.eq(WikiPageZan::getCreateUserId, currentUser.getUserId());
+        wrapperZan.eq(WikiPageZan::getYn, 1);
         WikiPageZan pageZan = wikiPageZanService.getOne(wrapperZan);
         WikiPageContentVo vo = new WikiPageContentVo();
         vo.setWikiPage(wikiPageSel);

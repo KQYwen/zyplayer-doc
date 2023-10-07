@@ -13,5 +13,5 @@ import java.io.IOException;
  * @since 20230717
  */
 public interface IFileStrategy extends IConditionalStrategy {
-    public String file(String uploadPath, WikiPageFile wikiPageFile, MultipartFile file)throws IOException;
+    void file(String uploadPath, WikiPageFile wikiPageFile, MultipartFile file)throws IOException;
 }
