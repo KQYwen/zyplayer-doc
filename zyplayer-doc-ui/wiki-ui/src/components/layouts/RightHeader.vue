@@ -58,7 +58,7 @@
 	</el-row>
 	<MobileQrScanDialog v-model:visible="mobileScanDialogVisible"/>
 	<PageAuthDialog v-model:visible="pageAuthDialogVisible"/>
-	<about-dialog ref="aboutDialogRef"></about-dialog>
+	<AboutDialog v-model:visible="aboutDialogVisible"/>
 	<form method="post" ref="downloadFormRef" :action="downloadFormParam.url" target="_blank">
 		<input type="hidden" :name="key" :value="val" v-for="(val, key) in downloadFormParam.param"/>
 	</form>
@@ -196,9 +196,9 @@ const userSignOut = () => {
 		location.reload();
 	});
 }
-let aboutDialogRef = ref();
+let aboutDialogVisible = ref(false);
 const showAbout = () => {
-	aboutDialogRef.value.show();
+	aboutDialogVisible.value = true;
 }
 const showConsole = () => {
 	window.open(import.meta.env.VITE_APP_BASE_API, '_blank')

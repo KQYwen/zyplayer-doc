@@ -4,53 +4,10 @@
 		<div style="">
 			<div style="font-weight: bold;font-size: 25px;">zyplayer-doc</div>
 			<div style="line-height: 30px;padding: 10px 0;">
-				<div>版本 {{upgradeInfo.nowVersion || '1.0.0'}}</div>
-				<div>版权所有 © 2018-2021 <a target="_blank" href="http://zyplayer.com">zyplayer.com</a></div>
+				<div style="margin-bottom: 30px;">专注于私有化部署的在线知识库管理平台</div>
+				<div>当前版本 {{upgradeInfo.nowVersion || '1.0.0'}}</div>
+				<div>版权所有 © 2018-2023 <a target="_blank" href="https://doc.zyplayer.com">doc.zyplayer.com</a></div>
 			</div>
-			<el-tabs type="border-card">
-				<el-tab-pane label="支持">
-					<div style="line-height: 30px;">
-						<div>文档：<a target="_blank" href="http://doc.zyplayer.com">http://doc.zyplayer.com</a></div>
-						<div>主页：<a target="_blank" href="https://gitee.com/dromara/zyplayer-doc">https://gitee.com/dromara/zyplayer-doc</a></div>
-						<div>反馈：<a target="_blank" href="https://gitee.com/dromara/zyplayer-doc/issues">https://gitee.com/dromara/zyplayer-doc/issues</a></div>
-						<div>新功能关注&技术交流QQ群：466363173</div>
-					</div>
-				</el-tab-pane>
-				<el-tab-pane label="开源软件">
-					<div style="line-height: 30px;">
-						<div>此项目基于以下开源软件构建</div>
-						<el-divider content-position="left">后端</el-divider>
-						<div>
-							<a target="_blank" href="https://spring.io/projects/spring-boot">Spring-Boot</a>、
-							<a target="_blank" href="http://www.mybatis.org">MyBatis</a>、
-							<a target="_blank" href="https://github.com/alibaba/druid">Druid</a>、
-							<a target="_blank" href="https://mp.baomidou.com">MyBatis-Plus</a>、
-							<a target="_blank" href="https://www.hutool.cn">Hutool</a>、
-							<a target="_blank" href="https://github.com/alibaba/fastjson">Fastjson</a>、
-							<a target="_blank" href="https://alibaba-easyexcel.github.io">Easy Excel</a>、
-							<a target="_blank" href="https://swagger.io">Swagger</a>、
-							<a target="_blank" href="http://www.eclipse.org/jgit">JGit</a>、...
-						</div>
-						<el-divider content-position="left">前端</el-divider>
-						Vue、element-ui、wangeditor、mavon-editor、qrcodejs2、vant、vue-router、axios、vue-hljs、brace、echarts、sql-formatter、vue-clipboard2、...
-						<div>
-						</div>
-					</div>
-				</el-tab-pane>
-				<el-tab-pane label="软件更新" v-if="upgradeInfo.lastVersion">
-					<span slot="label">
-						软件更新
-						<sup class="el-badge__content el-badge__content--undefined is-fixed is-dot" style="top: 10px;right: 20px;"></sup>
-					</span>
-					<div style="line-height: 30px;">
-						<div>当前版本：{{upgradeInfo.nowVersion}}</div>
-						<div>最新版本：{{upgradeInfo.lastVersion}}</div>
-						<div>升级地址：<a target="_blank" :href="upgradeInfo.upgradeUrl">{{upgradeInfo.upgradeUrl}}</a></div>
-						<div>升级内容：</div>
-						<pre style="margin: 0; max-height: 250px; overflow: auto;">{{upgradeInfo.upgradeContent}}</pre>
-					</div>
-				</el-tab-pane>
-			</el-tabs>
 		</div>
 	</el-dialog>
 </template>
