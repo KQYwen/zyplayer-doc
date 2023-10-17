@@ -1,9 +1,18 @@
 
 # 端口和根路径，jar启动时依此处配置，放tomcat后以tomcat的配置为准
 server:
-  port: 8083
+  port: ${SERVER_PORT:8083}
   servlet:
-    context-path: /zyplayer-doc
+    context-path: ${CONTEXT_PATH:/}
+  compression:
+    enabled: true
+    min-response-size: 2048
+    mim-types: text/css,text/javascript
+  tomcat:
+    # tomcat容器层最大传输限制，不做限制
+    max-http-post-size: -1
+    max-http-form-post-size: -1
+    max-swallow-size: -1
 
 # 整个文档项目的配置
 zyplayer:
@@ -12,29 +21,29 @@ zyplayer:
     manage:
       enable:
         #wiki模块的是否加载，没有此配置也为true，只有填写false才是不加载
-        wiki: true
+        wiki: ${ZYPLAYER_ENABLE_WIKI:true}
         #db模块的是否加载，没有此配置也为true，只有填写false才是不加载
-        db: true
+        db: ${ZYPLAYER_ENABLE_DB:true}
         #api模块的是否加载，没有此配置也为true，只有填写false才是不加载
-        api: true
+        api: ${ZYPLAYER_ENABLE_API:true}
       # 版本和升级信息获取地址
       upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
       # 系统根域名，调试UI时需要使用，同时需要在host文件里配置：127.0.0.1 local.zyplayer.com
       originDomainRegex: .*\.zyplayer\.com(:\d+|)$
       # 管理端的数据库配置
       datasource:
-        driverClassName: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://127.0.0.1:3306/zyplayer_doc?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false&rewriteBatchedStatements=true
-        username: root
-        password: root
+        driverClassName: ${DATASOURCE_DRIVER:com.mysql.cj.jdbc.Driver}
+        url: jdbc:mysql://${DATASOURCE_HOST_PORT:127.0.0.1:3306}/${DATASOURCE_DATABASE:zyplayer_doc}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: ${DATASOURCE_USER:root}
+        password: ${DATASOURCE_PASSWORD:root}
     # ------WIKI文档相关------
     wiki:
       # WIKI文档的文件上传后的存储目录，！！截图或文件还是很重要的，建议您还要定期备份此目录的文件呢！！
-      upload-path: c:/zyplayerDoc/wikiFiles
+      upload-path: ${SERVER_PORT:/zyplayerDoc/wikiFiles}
       # 是否检查目录有被系统定期清理的风险，强烈建议开启
       upload-path-check: true
       # git本地仓库地址，用于管理WIKI的历史版本
-      git-local-path: c:/zyplayerDoc/wikiGitFiles
+      git-local-path: ${SERVER_PORT:/zyplayerDoc/wikiGitFiles}
       # git远程仓库地址，可选配置项，如果存在则会每次修改后push到此仓库，必须先创建远程仓库，项目初始化时会去拉取
       # 如果没有配置此项，则只会在维护一个本地的git仓库，使用简单
       # 例：https://gitee.com/zyplayer/zyplayer-doc-wiki-files.git
@@ -57,7 +66,7 @@ spring:
     name: zyplayer-doc
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: ${SERVLET_MAX_FILE_SIZE:100MB}
+      max-request-size: ${SERVLET_MAX_REQUEST_SIZE:100MB}
   datasource:
     continue-on-error: true
