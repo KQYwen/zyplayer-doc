@@ -7,7 +7,8 @@
 <p align="center">专注于私有化部署的在线知识库管理平台</p>
 
 # 项目简介
-zyplayer-doc是一款适合团队和个人私有化部署使用的WIKI文档管理工具，同时还包含数据库管理、Api接口管理等模块
+zyplayer-doc是一款适合团队和个人私有化部署使用的WIKI文档管理工具，同时还包含数据库管理、Api接口管理等模块。
+
 适合作为公司内部或个人的知识库、笔记、文档管理工具，将文档发布成对外可访问的形式，可作为公司的产品文档、帮助文档等。
 
 体验地址：[http://zyplayer.com](http://zyplayer.com)
@@ -37,7 +38,7 @@ create database zyplayer_doc;
 > 建表SQL脚本无需手动执行，每次启动或更新之后都会检查当前版本，然后自动执行升级SQL脚本，所以每次有版本更新需求只需要下载最新版本启动即可，无需其他特殊操作
 
 ## Main方法启动
-1. 修改`zyplayer-doc/zyplayer-doc-manage/src/main/resources/application.yml`配置文件里面的数据库账号密码
+1. 修改`zyplayer-doc-manage/src/main/resources/application.yml`配置文件里面的数据库账号密码
 2. 执行`com.zyplayer.doc.manage.Application.main`方法启动项目
 
 ## JAR方式启动
