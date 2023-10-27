@@ -1,5 +1,5 @@
 <p align="center">
-![](zyplayer-doc-other/resource/logo.png)
+    <img src="https://gitee.com/dromara/zyplayer-doc/raw/master/zyplayer-doc-other/resource/logo.png">
 </p>
 
 <h1 align="center">zyplayer-doc</h1>
@@ -19,7 +19,7 @@ zyplayer-doc是一款适合团队和个人私有化部署使用的WIKI文档管�
 欢迎加入微信群与我们一起交流
 > 微信群员超过限制只能加好友拉进群，添加微信好友，回复：`加群` 即可
 
-![weixinqun.jpg](zyplayer-doc-other/resource/weixinqun.png)
+![weixinqun.jpg](https://gitee.com/dromara/zyplayer-doc/raw/master/zyplayer-doc-other/resource/weixinqun.png)
 
 # 快速启动
 ## 相关依赖
@@ -54,7 +54,7 @@ create database zyplayer_doc;
 ## 其他
 更多启动方式请参考文档：[项目下载与部署](http://doc.zyplayer.com/#/integrate/zyplayer-doc/opensource/279)
 
-启动后访问：[http://127.0.0.1:8083](http://127.0.0.1:8083) ，默认登录账号： **zyplayer**  密码： **123456** 
+启动后访问：[http://127.0.0.1:8083](http://127.0.0.1:8083) ，默认登录账号： **zyplayer**  密码： **123456**
 
 # 各模块介绍
 ## zyplayer-doc-manage 文档管理后台
