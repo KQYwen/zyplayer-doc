@@ -16,7 +16,7 @@ import javax.annotation.PostConstruct;
  */
 @Component
 public class CheckWikiFileSavePath {
-	private static Logger logger = LoggerFactory.getLogger(CheckWikiFileSavePath.class);
+	private static final Logger logger = LoggerFactory.getLogger(CheckWikiFileSavePath.class);
 	
 	@Value("${zyplayer.doc.wiki.upload-path:}")
 	private String uploadPath;

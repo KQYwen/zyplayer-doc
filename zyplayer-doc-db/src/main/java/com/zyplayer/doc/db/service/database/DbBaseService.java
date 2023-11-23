@@ -41,7 +41,7 @@ import java.util.Set;
  * @since 2018年8月8日
  */
 public abstract class DbBaseService {
-	private static Logger logger = LoggerFactory.getLogger(DbBaseService.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbBaseService.class);
 
 	@Resource
 	SqlExecutor sqlExecutor;
@@ -140,7 +140,7 @@ public abstract class DbBaseService {
 		TableColumnVo.TableInfoVo tableInfoVo = new TableColumnVo.TableInfoVo();
 		List<TableDescDto> tableDescList = baseMapper.getTableDescList(dbName, tableName);
 		String description = null;
-		if (tableDescList.size() > 0) {
+		if (!tableDescList.isEmpty()) {
 			TableDescDto descDto = tableDescList.get(0);
 			description = descDto.getDescription();
 		}
@@ -334,11 +334,10 @@ public abstract class DbBaseService {
 	 * @since 2023年2月22日
 	 */
 	public String getQueryPageSqlBySql(String sql,Integer pageSize,Integer pageNum) {
-		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append(String.format("select * from (%s) r", sql));
 		Integer offset = (pageNum-1)*pageSize;
-		sqlSb.append(String.format(" limit %s offset %s", pageSize, offset));
-		return sqlSb.toString();
+		String sqlSb = String.format("select * from (%s) r", sql) +
+				String.format(" limit %s offset %s", pageSize, offset);
+		return sqlSb;
 	}
 
 	/**

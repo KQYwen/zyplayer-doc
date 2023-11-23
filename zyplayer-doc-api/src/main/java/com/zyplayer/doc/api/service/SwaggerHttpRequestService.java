@@ -42,15 +42,15 @@ import java.util.stream.Stream;
  */
 @Service
 public class SwaggerHttpRequestService {
-	private static Logger logger = LoggerFactory.getLogger(SwaggerHttpRequestService.class);
+	private static final Logger logger = LoggerFactory.getLogger(SwaggerHttpRequestService.class);
 
 	@Resource
 	private ApiGlobalParamService apiGlobalParamService;
 
 	private static final Map<String, Method> requestMethodMap = Stream.of(Method.values()).collect(Collectors.toMap(val -> val.name().toLowerCase(), val -> val));
 
-	List<String> domainHeaderKeys = Arrays.asList("referer", "origin");
-	List<String> needRequestHeaderKeys = Arrays.asList("user-agent");
+	final List<String> domainHeaderKeys = Arrays.asList("referer", "origin");
+	final List<String> needRequestHeaderKeys = Collections.singletonList("user-agent");
 
 	/**
 	 * 请求真实的swagger文档内容
@@ -72,13 +72,12 @@ public class SwaggerHttpRequestService {
 			requestHeaders.put("host", SwaggerDocUtil.getDomainHost(docDomain));
 		}
 		// 执行请求
-		String resultStr = HttpRequest.get(docUrl)
+        return HttpRequest.get(docUrl)
 				.form(globalFormParamMap)
 				.addHeaders(requestHeaders)
 				.header("Accept", "application/json, text/javascript, */*; q=0.01")
 				.cookie(this.getHttpCookie(request, globalCookieParamMap, null))
 				.timeout(10000).execute().body();
-		return resultStr;
 	}
 
 	/**
@@ -176,7 +175,7 @@ public class SwaggerHttpRequestService {
 							multiResource.add(new BytesResource(file.getBytes(), file.getOriginalFilename()));
 						}
 						httpRequest.form(originKey, multiResource);
-					} else if (fileList.size() > 0) {
+					} else if (!fileList.isEmpty()) {
 						MultipartFile multipartFile = fileList.get(0);
 						httpRequest.form(originKey, multipartFile.getBytes(), multipartFile.getOriginalFilename());
 					}

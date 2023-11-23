@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/doc-api/proxy")
 public class ApiPoxyRequestController {
-	private static Logger logger = LoggerFactory.getLogger(ApiPoxyRequestController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ApiPoxyRequestController.class);
 	
 	@Resource
 	ApiCustomNodeService apiCustomNodeService;

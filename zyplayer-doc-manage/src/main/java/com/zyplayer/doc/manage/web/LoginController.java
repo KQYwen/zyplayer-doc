@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 @RestController
 public class LoginController {
-	private static Logger logger = LoggerFactory.getLogger(LoginController.class);
+	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 	
 	@Resource
 	private UserInfoService userInfoService;

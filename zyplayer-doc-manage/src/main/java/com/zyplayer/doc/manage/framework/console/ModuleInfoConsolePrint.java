@@ -19,7 +19,7 @@ public class ModuleInfoConsolePrint implements IConsolePrint {
     ZyplayerModuleKeeper moduleKeeper;
 
     @Override
-    public void buildPrintInfo(StringBuilder printInfo) throws Exception {
+    public void buildPrintInfo(StringBuilder printInfo) {
         printInfo.append("\n\n\t\t\t\t↓zyplayer-doc模块的启动情况\n")
                 .append("\t\t\t\t------------------------\n");
         HashMap<String, Boolean> moduleInfoMap = moduleKeeper.getmoduleInfo();

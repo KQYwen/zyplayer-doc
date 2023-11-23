@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/doc-api/doc/auth")
 public class ApiDocAuthController {
-	private static Logger logger = LoggerFactory.getLogger(ApiDocAuthController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ApiDocAuthController.class);
 	
 	@Resource
 	UserAuthService userAuthService;
@@ -93,7 +93,7 @@ public class ApiDocAuthController {
 		if (CollectionUtils.isNotEmpty(userModuleAuthList)) {
 			UserAuth userAuth = userModuleAuthList.remove(0);
 			// 错误数据兼容移除
-			if (userModuleAuthList.size() > 0) {
+			if (!userModuleAuthList.isEmpty()) {
 				List<Long> authIdList = userModuleAuthList.stream().map(UserAuth::getId).collect(Collectors.toList());
 				userAuthService.removeByIds(authIdList);
 			}

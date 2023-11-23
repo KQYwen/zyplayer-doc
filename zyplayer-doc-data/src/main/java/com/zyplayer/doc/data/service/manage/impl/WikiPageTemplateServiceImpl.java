@@ -23,8 +23,7 @@ import java.util.List;
 public class WikiPageTemplateServiceImpl extends ServiceImpl<WikiPageTemplateMapper, WikiPageTemplate> implements WikiPageTemplateService {
     @Override
     public List<WikiTemplateTagVo> getAllTags(Long user, boolean open) {
-        List<WikiTemplateTagVo> all = getBaseMapper().getAllTags(user,open);
-        return all;
+        return getBaseMapper().getAllTags(user,open);
     }
 
     @Override
@@ -32,23 +31,20 @@ public class WikiPageTemplateServiceImpl extends ServiceImpl<WikiPageTemplateMap
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("space_id", spaceId);
         queryWrapper.eq("page_id", pageId);
-        WikiPageTemplate template = getBaseMapper().selectOne(queryWrapper);
-        return template;
+        return getBaseMapper().selectOne(queryWrapper);
     }
 
     @Override
     public List<WikiPageTemplateInfoVo> filterAll(Long user, String name, boolean open, List<String> tags, Long pageNum) {
-        Long offset = 0L;
+        long offset = 0L;
         if (null != pageNum && pageNum != 0L) {
             offset = (pageNum - 1) * 8;
         }
-        List<WikiPageTemplateInfoVo> all = getBaseMapper().getAllTemplate(user, StringUtils.isBlank(name) ? null : "%" + name + "%", open, tags, offset);
-        return all;
+        return getBaseMapper().getAllTemplate(user, StringUtils.isBlank(name) ? null : "%" + name + "%", open, tags, offset);
     }
 
     @Override
     public Long total(Long user, String name, boolean open, List<String> tags) {
-        Long num = getBaseMapper().getAllTemplateCount(user, name, open, tags);
-        return num;
+        return getBaseMapper().getAllTemplateCount(user, name, open, tags);
     }
 }

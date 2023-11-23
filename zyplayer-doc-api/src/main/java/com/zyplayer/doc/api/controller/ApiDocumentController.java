@@ -43,7 +43,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/doc-api/doc")
 public class ApiDocumentController {
-	private static Logger logger = LoggerFactory.getLogger(ApiDocumentController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ApiDocumentController.class);
 	
 	@Resource
 	ApiDocAuthJudgeService apiDocAuthJudgeService;

@@ -119,7 +119,7 @@ public class UserInfoController {
 		if (StringUtils.isBlank(userInfo.getUserName())) {
 			return DocResponseJson.warn("用户名必填");
 		}
-		Long userId = Optional.ofNullable(userInfo.getId()).orElse(0L);
+		long userId = Optional.ofNullable(userInfo.getId()).orElse(0L);
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("user_no", userInfo.getUserNo());
 		queryWrapper.ne(userId > 0, "id", userInfo.getId());

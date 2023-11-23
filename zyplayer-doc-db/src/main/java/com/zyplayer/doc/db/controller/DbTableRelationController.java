@@ -32,7 +32,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/zyplayer-doc-db/table-relation")
 public class DbTableRelationController {
-	private static Logger logger = LoggerFactory.getLogger(DbTableRelationController.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbTableRelationController.class);
 
 	@Resource
 	DatabaseServiceFactory databaseServiceFactory;

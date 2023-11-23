@@ -36,7 +36,7 @@ public class MySqlSQLDataTypeTransformUtil extends SQLTransformUtils {
                 || nameHash == FnvHash.Constants.INT
                 || nameHash == FnvHash.Constants.BIGINT
                 || nameHash == FnvHash.Constants.TINYINT) {
-            if(argumentns.size() > 0){
+            if(!argumentns.isEmpty()){
                 int len;
                 SQLExpr arg0 = argumentns.get(0);
                 if (arg0 instanceof SQLNumericLiteralExpr) {
@@ -54,7 +54,7 @@ public class MySqlSQLDataTypeTransformUtil extends SQLTransformUtils {
                 || nameHash == FnvHash.Constants.DECIMAL) {
             dataType = new SQLDataTypeImpl("DECIMAL");
             int precision = 0;
-            if (argumentns.size() > 0) {
+            if (!argumentns.isEmpty()) {
                 precision = ((SQLIntegerExpr) argumentns.get(0)).getNumber().intValue();
                 dataType = new SQLDataTypeImpl("DECIMAL",precision);
             }
@@ -74,7 +74,7 @@ public class MySqlSQLDataTypeTransformUtil extends SQLTransformUtils {
 
         } else if (nameHash == FnvHash.Constants.VARCHAR
                 ||nameHash == FnvHash.Constants.CHAR) {
-            if(argumentns.size() > 0){
+            if(!argumentns.isEmpty()){
                 int len;
                 SQLExpr arg0 = argumentns.get(0);
                 if (arg0 instanceof SQLNumericLiteralExpr) {

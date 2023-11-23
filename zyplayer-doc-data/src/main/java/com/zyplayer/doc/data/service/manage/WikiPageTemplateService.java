@@ -1,11 +1,9 @@
 package com.zyplayer.doc.data.service.manage;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageTemplate;
 import com.zyplayer.doc.data.repository.manage.vo.WikiPageTemplateInfoVo;
 import com.zyplayer.doc.data.repository.manage.vo.WikiTemplateTagVo;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -22,7 +20,7 @@ public interface WikiPageTemplateService extends IService<WikiPageTemplate> {
     /**
      * 根据模板的公开情况获取模板标签
      */
-    public List<WikiTemplateTagVo> getAllTags( Long user, boolean open);
+    List<WikiTemplateTagVo> getAllTags(Long user, boolean open);
 
     /**
      * 根据条件获取模板

@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 @AuthMan(DocAuthConst.DB_DATASOURCE_MANAGE)
 @RequestMapping("/zyplayer-doc-db/auth")
 public class DbDataSourceAuthController {
-	private static Logger logger = LoggerFactory.getLogger(DbDataSourceAuthController.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbDataSourceAuthController.class);
 	
 	@Resource
 	UserInfoService userInfoService;

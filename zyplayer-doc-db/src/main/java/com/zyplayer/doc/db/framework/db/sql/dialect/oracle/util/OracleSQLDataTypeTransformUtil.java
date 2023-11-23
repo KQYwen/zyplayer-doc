@@ -61,7 +61,7 @@ public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
             dataType = new SQLDataTypeImpl("double");
 
         } else if (nameHash == FnvHash.Constants.NUMBER) {
-            if (argumentns.size() == 0) {
+            if (argumentns.isEmpty()) {
                 dataType = new SQLDataTypeImpl("decimal", 38);
             } else {
                 SQLExpr arg0 = argumentns.get(0);
@@ -112,7 +112,7 @@ public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
             dataType.setName("decimal");
 
             int precision = 0;
-            if (argumentns.size() > 0) {
+            if (!argumentns.isEmpty()) {
                 precision = ((SQLIntegerExpr) argumentns.get(0)).getNumber().intValue();
             }
 
@@ -126,7 +126,7 @@ public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
         } else if (nameHash == FnvHash.Constants.RAW) {
             int len;
 
-            if (argumentns.size() == 0) {
+            if (argumentns.isEmpty()) {
                 len = -1;
             } else if (argumentns.size() == 1) {
                 SQLExpr arg0 = argumentns.get(0);
@@ -163,7 +163,7 @@ public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
                 } else {
                     dataType = new SQLCharacterDataType("varchar", len);
                 }
-            } else if (argumentns.size() == 0) {
+            } else if (argumentns.isEmpty()) {
                 dataType = new SQLCharacterDataType("char");
             } else {
                 throw new UnsupportedOperationException(SQLUtils.toOracleString(x));
@@ -185,14 +185,14 @@ public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
                 } else {
                     dataType = new SQLCharacterDataType("nvarchar", len);
                 }
-            } else if (argumentns.size() == 0) {
+            } else if (argumentns.isEmpty()) {
                 dataType = new SQLCharacterDataType("nchar");
             } else {
                 throw new UnsupportedOperationException(SQLUtils.toOracleString(x));
             }
 
         } else if (nameHash == FnvHash.Constants.VARCHAR2) {
-            if (argumentns.size() > 0) {
+            if (!argumentns.isEmpty()) {
                 int len;
                 SQLExpr arg0 = argumentns.get(0);
                 if (arg0 instanceof SQLNumericLiteralExpr) {
@@ -210,7 +210,7 @@ public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
             }
 
         } else if (nameHash == FnvHash.Constants.NVARCHAR2) {
-            if (argumentns.size() > 0) {
+            if (!argumentns.isEmpty()) {
                 int len;
                 SQLExpr arg0 = argumentns.get(0);
                 if (arg0 instanceof SQLNumericLiteralExpr) {
@@ -229,7 +229,7 @@ public class OracleSQLDataTypeTransformUtil extends SQLTransformUtils {
         } else if (nameHash == FnvHash.Constants.DATE
                 || nameHash == FnvHash.Constants.TIMESTAMP) {
             int len = -1;
-            if (argumentns.size() > 0) {
+            if (!argumentns.isEmpty()) {
                 SQLExpr arg0 = argumentns.get(0);
                 if (arg0 instanceof SQLNumericLiteralExpr) {
                     len = ((SQLNumericLiteralExpr) arg0).getNumber().intValue();

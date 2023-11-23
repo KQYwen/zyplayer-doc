@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2019年05月25日
  */
 public class CacheUtil {
-	private static Logger logger = LoggerFactory.getLogger(CacheUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(CacheUtil.class);
 	
 	// 定期清除过期的key
 	static {
@@ -49,7 +49,7 @@ public class CacheUtil {
 	}
 	
 	// 现在是内存缓存，不支持分布式部署，后期考虑放到redis，但感觉也没必要。。
-	private static Map<String, CacheData> cacheDataMap = new ConcurrentHashMap<>();
+	private static final Map<String, CacheData> cacheDataMap = new ConcurrentHashMap<>();
 	
 	/**
 	 * 放入缓存，默认12小时，按最后一次访问的12小时

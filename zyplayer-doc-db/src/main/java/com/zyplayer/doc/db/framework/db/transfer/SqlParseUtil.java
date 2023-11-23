@@ -109,7 +109,7 @@ public class SqlParseUtil {
 					resultParamList.add(paramMap.get(parameterMapping.getProperty()));
 				}
 			}
-			sqlBuilder.append(itemsSb.toString());
+			sqlBuilder.append(itemsSb);
 		}
 //		pagehelper 使用了jsqlparser包，而且版本很低，，低版本没这个方法
 //		if (insert.isUseSet()) {
@@ -232,15 +232,13 @@ public class SqlParseUtil {
 					if (select.getFromItem() != null) {
 						countSql.append(" FROM ").append(select.getFromItem());
 						if (select.getJoins() != null) {
-							Iterator<Join> it = select.getJoins().iterator();
-							while (it.hasNext()) {
-								Join join = it.next();
-								if (join.isSimple()) {
-									countSql.append(", ").append(join);
-								} else {
-									countSql.append(" ").append(join);
-								}
-							}
+                            for (Join join : select.getJoins()) {
+                                if (join.isSimple()) {
+                                    countSql.append(", ").append(join);
+                                } else {
+                                    countSql.append(" ").append(join);
+                                }
+                            }
 						}
 						if (select.getWhere() != null) {
 							countSql.append(" WHERE ").append(select.getWhere());

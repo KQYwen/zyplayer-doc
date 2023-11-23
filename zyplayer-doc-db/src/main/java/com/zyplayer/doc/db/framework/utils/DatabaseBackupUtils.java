@@ -63,7 +63,6 @@ public class DatabaseBackupUtils {
         //@TODO 存入备份记录信息
         // 备份文件上传至文件服务器
         if (!jobVO.getIsUpload()) {
-            return;
         }
         //@TODO 备份文件上传至文件服务器
     }

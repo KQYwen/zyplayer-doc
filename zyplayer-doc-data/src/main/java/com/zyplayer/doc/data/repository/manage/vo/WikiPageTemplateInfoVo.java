@@ -1,10 +1,9 @@
 package com.zyplayer.doc.data.repository.manage.vo;
 
-import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
+
 /**
  * <p>
  *     模板与文档信息的Vo

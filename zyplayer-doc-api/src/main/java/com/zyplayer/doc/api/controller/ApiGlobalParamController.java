@@ -34,7 +34,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/doc-api/global-param")
 public class ApiGlobalParamController {
-	private static Logger logger = LoggerFactory.getLogger(ApiGlobalParamController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ApiGlobalParamController.class);
 	
 	@Resource
 	private ApiGlobalParamService apiGlobalParamService;

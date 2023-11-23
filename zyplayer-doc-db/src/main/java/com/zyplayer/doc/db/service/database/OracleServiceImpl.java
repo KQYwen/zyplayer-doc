@@ -65,8 +65,8 @@ public class OracleServiceImpl extends DbBaseService {
             sqlSb.append(String.format(" order by %s %s", "\""+dataViewParam.getOrderColumn()+"\"", dataViewParam.getOrderType()));
         }
         StringBuilder sqlSbFinal = new StringBuilder();
-        Integer pageSize = dataViewParam.getPageSize() * dataViewParam.getPageNum();
-        Integer pageNum = dataViewParam.getPageSize() * (dataViewParam.getPageNum() - 1) + 1;
+        int pageSize = dataViewParam.getPageSize() * dataViewParam.getPageNum();
+        int pageNum = dataViewParam.getPageSize() * (dataViewParam.getPageNum() - 1) + 1;
         sqlSbFinal.append(String.format("select %s ,ZYPLAYDBROWID from ( select %s ,rowidtochar(rowid) as ZYPLAYDBROWID from %s",queryColumns, queryColumns + ",rownum rn", "(" + sqlSb + ") where rownum<=" + pageSize + " ) t2 where t2.rn >=" + pageNum));
         return sqlSbFinal.toString();
     }
@@ -80,11 +80,9 @@ public class OracleServiceImpl extends DbBaseService {
      */
     @Override
     public String getQueryPageSqlBySql(String sql,Integer pageSize,Integer pageNum) {
-        StringBuilder sqlSb = new StringBuilder();
-        Integer pageSizeFinal = pageSize * pageNum;
-        Integer pageNumFinal = pageSize * (pageNum - 1) + 1;
-        sqlSb.append(String.format("select * from ( select r.*,rownum rn from %s",  "(" + sql + ") r where rownum<=" + pageSizeFinal + " ) t2 where t2.rn >=" + pageNumFinal));
-        return sqlSb.toString();
+        int pageSizeFinal = pageSize * pageNum;
+        int pageNumFinal = pageSize * (pageNum - 1) + 1;
+        return String.format("select * from ( select r.*,rownum rn from %s", "(" + sql + ") r where rownum<=" + pageSizeFinal + " ) t2 where t2.rn >=" + pageNumFinal);
     }
 
     /**
@@ -103,9 +101,7 @@ public class OracleServiceImpl extends DbBaseService {
             String oracleSql = "";
             try {
                 oracleSql = SQLTransformUtils.ClobToString((Clob)tableDdlList.get(0).get("CREATETABLE"));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
+            } catch (SQLException | IOException e) {
                 throw new RuntimeException(e);
             }
             tableDdlVo.setOracle(SQLUtils.formatOracle(oracleSql));

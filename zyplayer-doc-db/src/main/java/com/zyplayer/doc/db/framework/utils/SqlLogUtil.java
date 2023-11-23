@@ -20,7 +20,7 @@ public class SqlLogUtil {
 	private static String getParameterValue(Object obj) {
 		String value;
 		if (obj instanceof String) {
-			value = "'" + obj.toString() + "'";
+			value = "'" + obj + "'";
 		} else if (obj instanceof Number) {
 			value = obj.toString();
 		} else if (obj instanceof Date) {
@@ -35,7 +35,7 @@ public class SqlLogUtil {
 	public static String parseLogSql(String sql, List<ParameterMapping> parameterMappings, List<Object> paramList) {
 		StringBuilder sqlSb = new StringBuilder(sql.replaceAll(" {2,}", " "));
 		int fromIndex = 0;
-		if (parameterMappings.size() > 0) {
+		if (!parameterMappings.isEmpty()) {
 			for (int i = 0; i < parameterMappings.size(); i++) {
 				Object obj = paramList.get(i);
 				fromIndex = replacePlaceholder(sqlSb, fromIndex, getParameterValue(obj));

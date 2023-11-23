@@ -13,9 +13,9 @@ public enum PageFileSource {
 	PASTE_FILES(2, "页面粘贴的图片或文件"),
 	;
 	@Getter
-	private Integer source;
+	private final Integer source;
 	@Getter
-	private String desc;
+	private final String desc;
 	
 	PageFileSource(Integer source, String desc) {
 		this.source = source;

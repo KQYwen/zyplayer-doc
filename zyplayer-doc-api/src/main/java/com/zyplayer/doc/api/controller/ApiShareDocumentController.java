@@ -27,7 +27,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/doc-api/share")
 public class ApiShareDocumentController {
-	private static Logger logger = LoggerFactory.getLogger(ApiShareDocumentController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ApiShareDocumentController.class);
 	
 	@Resource
 	private ApiDocService swaggerDocService;

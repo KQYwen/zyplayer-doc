@@ -53,9 +53,9 @@ public class ColumnExecuteResult {
 	}
 
 	public static class ExecuteResultCode {
-		public static Integer SUCCESS = 0;
-		public static Integer WARN = -1;
-		public static Integer ERROR = -2;
+		public static final Integer SUCCESS = 0;
+		public static final Integer WARN = -1;
+		public static final Integer ERROR = -2;
 	}
 
 	/**

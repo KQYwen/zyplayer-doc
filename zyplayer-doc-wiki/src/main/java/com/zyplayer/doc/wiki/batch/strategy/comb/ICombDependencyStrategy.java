@@ -14,6 +14,6 @@ import java.util.ArrayList;
  * @since 20230717
  */
 public interface ICombDependencyStrategy extends IConditionalStrategy {
-    public void comb(ArrayList<DocEntry> docs, File file);
+    void comb(ArrayList<DocEntry> docs, File file);
 }
 

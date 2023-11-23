@@ -40,7 +40,7 @@ public class GenericTokenParser {
 		if (text == null || text.isEmpty()) {
 			return "";
 		}
-		int start = text.indexOf(openToken, 0);
+		int start = text.indexOf(openToken);
 		if (start == -1) {
 			return text;
 		}

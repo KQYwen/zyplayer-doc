@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QuartzManagerUtils {
 
-    private static Logger logger = LoggerFactory.getLogger(QuartzManagerUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(QuartzManagerUtils.class);
 
     /**
      * 参数传递key

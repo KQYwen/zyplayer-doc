@@ -119,8 +119,8 @@ public class SqlServerToMySqlOutputVisitor extends SQLServerOutputVisitor {
                 SQLPrimaryKeyImpl sQLPrimaryKeyImpl =  (SQLPrimaryKeyImpl) ((SQLAlterTableAddConstraint) item).getConstraint();
                 SQLIndexDefinition sQLIndexDefinition = sQLPrimaryKeyImpl.getIndexDefinition();
                 List<SQLSelectOrderByItem> list = sQLIndexDefinition.getColumns();
-                for(int i=0;i<list.size();i++){
-                    SQLIdentifierExpr sQLIdentifierExpr = (SQLIdentifierExpr)list.get(i).getExpr();
+                for (SQLSelectOrderByItem sqlSelectOrderByItem : list) {
+                    SQLIdentifierExpr sQLIdentifierExpr = (SQLIdentifierExpr) sqlSelectOrderByItem.getExpr();
                     sQLIdentifierExpr.setName(sQLIdentifierExpr.getName().replaceAll("\\[", "").replaceAll("\\]", ""));
                 }
             }

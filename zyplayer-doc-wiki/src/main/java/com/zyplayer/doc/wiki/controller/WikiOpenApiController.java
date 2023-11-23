@@ -141,7 +141,7 @@ public class WikiOpenApiController {
             pageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + pageFile.getUuid());
         }
         // 高并发下会有覆盖问题，但不重要~
-        Integer viewNum = Optional.ofNullable(wikiPageSel.getViewNum()).orElse(0);
+        int viewNum = Optional.ofNullable(wikiPageSel.getViewNum()).orElse(0);
         WikiPage wikiPageUp = new WikiPage();
         wikiPageUp.setId(wikiPageSel.getId());
         wikiPageUp.setViewNum(viewNum + 1);

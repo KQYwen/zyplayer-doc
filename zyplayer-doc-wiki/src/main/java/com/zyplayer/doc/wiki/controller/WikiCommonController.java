@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.util.Optional;
 
 /**
@@ -104,7 +105,7 @@ public class WikiCommonController {
             response.setHeader("Content-disposition", "inline;filename=" + URLEncoder.encode(fileName, "UTF-8"));
 //			response.setHeader("Content-disposition", "inline;filename=" + fileName);
 //			response.setHeader("Content-Disposition", "inline; fileName=" + fileName + ";filename*=utf-8''" + URLEncoder.encode(fileName, "UTF-8"));
-            InputStream inputStream = new FileInputStream(file);
+            InputStream inputStream = Files.newInputStream(file.toPath());
             OutputStream os = response.getOutputStream();
             byte[] b = new byte[2048];
             int length;

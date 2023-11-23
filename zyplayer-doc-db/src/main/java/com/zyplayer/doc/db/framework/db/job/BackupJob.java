@@ -23,7 +23,7 @@ public class BackupJob implements Job {
 
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void execute(JobExecutionContext context) {
         // 解析参数
         BackupJobVO jobVO = JSONObject.parseObject(context.getJobDetail().getJobDataMap().getString(QuartzManagerUtils.PARAM_KEY), BackupJobVO.class);
         // TODO 保存备份记录

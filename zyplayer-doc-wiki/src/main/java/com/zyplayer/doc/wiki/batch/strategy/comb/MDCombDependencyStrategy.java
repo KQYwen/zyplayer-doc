@@ -25,9 +25,9 @@ public class MDCombDependencyStrategy implements ICombDependencyStrategy {
         docEntry.setName(FileUtil.getName(file));
         String info = FileUtil.readUtf8String(file);
         docEntry.setContext(info);
-        while (info.indexOf(LEFT_TAG) >= 0 && info.indexOf(RIGHT_TAG) >= 0) {
+        while (info.contains(LEFT_TAG) && info.contains(RIGHT_TAG)) {
             String window = info;
-            while(window.indexOf(LEFT_TAG)>=0){
+            while(window.contains(LEFT_TAG)){
                 int leftOffset = window.indexOf(LEFT_TAG)+2;
                 window= window.substring(leftOffset);
                 int rightOffset = window.indexOf(")")+1;
