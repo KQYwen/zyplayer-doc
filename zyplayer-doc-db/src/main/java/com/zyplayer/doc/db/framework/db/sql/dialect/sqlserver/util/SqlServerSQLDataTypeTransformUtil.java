@@ -30,7 +30,7 @@ public class SqlServerSQLDataTypeTransformUtil extends SQLTransformUtils {
         SQLDataType dataType;
         if (nameHash == FnvHash.Constants.SMALLINT) {
             int precision = 0;
-            if (argumentns.size() > 0) {
+            if (!argumentns.isEmpty()) {
                 precision = ((SQLIntegerExpr) argumentns.get(0)).getNumber().intValue();
             }
             dataType = new SQLDataTypeImpl("int", precision);
@@ -43,7 +43,7 @@ public class SqlServerSQLDataTypeTransformUtil extends SQLTransformUtils {
 
         } else if(nameHash == FnvHash.Constants.NVARCHAR){
             int precision = 0;
-            if (argumentns.size() > 0) {
+            if (!argumentns.isEmpty()) {
                 precision = ((SQLIntegerExpr) argumentns.get(0)).getNumber().intValue();
             }
             dataType = new SQLDataTypeImpl("varchar", precision);

@@ -146,7 +146,7 @@ public class WikiPageController {
         vo.setCanUploadFile((canUploadFile == null) ? 1 : 0);
         vo.setCanConfigAuth((canConfigAuth == null) ? 1 : 0);
         // 高并发下会有覆盖问题，但不重要~
-        Integer viewNum = Optional.ofNullable(wikiPageSel.getViewNum()).orElse(0);
+        int viewNum = Optional.ofNullable(wikiPageSel.getViewNum()).orElse(0);
         WikiPage wikiPageUp = new WikiPage();
         wikiPageUp.setId(wikiPageSel.getId());
         wikiPageUp.setViewNum(viewNum + 1);
@@ -216,7 +216,7 @@ public class WikiPageController {
 
     public boolean isLassoDoll(WikiPage wikiPage, Long moveToPageId) {
         if (0L != moveToPageId) {
-            if (wikiPage.getId() == moveToPageId) {
+            if (wikiPage.getId().equals(moveToPageId)) {
                 return true;
             }
             UpdateWrapper<WikiPage> wrapper = new UpdateWrapper<>();

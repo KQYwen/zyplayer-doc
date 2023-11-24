@@ -108,8 +108,8 @@ public class OracleToMySqlOutputVisitor extends OracleOutputVisitor {
                 MySqlPrimaryKey mySqlPrimaryKey = new MySqlPrimaryKey();
                 mySqlPrimaryKey.setName("primary key");
                 List<SQLSelectOrderByItem> list =  ((OraclePrimaryKey) sqlTableElement).getIndexDefinition().getColumns();
-                for(int i=0;i<list.size();i++){
-                    mySqlPrimaryKey.addColumn(list.get(i));
+                for (SQLSelectOrderByItem sqlSelectOrderByItem : list) {
+                    mySqlPrimaryKey.addColumn(sqlSelectOrderByItem);
                 }
                 mySqlCreateTableStatement.getTableElementList().add(mySqlPrimaryKey);
             }else if(sqlTableElement instanceof OracleUnique) {

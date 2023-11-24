@@ -15,7 +15,7 @@ public class MapCacheUtil {
     private static Map<String,Object> cacheMap;
 
     private MapCacheUtil(){
-        cacheMap = new HashMap<String, Object>();
+        cacheMap = new HashMap<>();
     }
 
     public static MapCacheUtil getInstance(){

@@ -8,9 +8,9 @@ package com.zyplayer.doc.wiki.batch.strategy.base;
  * @since 20230713
  */
 public interface IConditionalStrategy {
-    public String getCondition();
+    String getCondition();
 
-    public default boolean matchCondition(String key){
+    default boolean matchCondition(String key){
         return key.equals(getCondition());
     }
 }

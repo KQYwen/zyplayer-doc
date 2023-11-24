@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class ZyplayerConsolePrint implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ZyplayerConsolePrint.class);
-    StringBuilder logInfoHolder = new StringBuilder();
+    final StringBuilder logInfoHolder = new StringBuilder();
 
     @Resource
     ObjectProvider<List<IConsolePrint>> consolePrintListProvider;

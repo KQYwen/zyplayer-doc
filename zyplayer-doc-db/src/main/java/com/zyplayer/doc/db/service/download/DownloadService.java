@@ -26,7 +26,7 @@ public interface DownloadService {
 	 * @author 暮光：城中城
 	 * @since 2020年6月5日
 	 */
-	String downloadDataByInsert(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception;
+	String downloadDataByInsert(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet);
 
 	/**
 	 * 导出数据为update语句格式
@@ -34,7 +34,7 @@ public interface DownloadService {
 	 * @author 暮光：城中城
 	 * @since 2020年6月5日
 	 */
-	String downloadDataByUpdate(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception;
+	String downloadDataByUpdate(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet);
 
 	/**
 	 * 导出数据为json格式
@@ -42,7 +42,7 @@ public interface DownloadService {
 	 * @author 暮光：城中城
 	 * @since 2020年6月5日
 	 */
-	String downloadDataByJson(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet) throws Exception;
+	String downloadDataByJson(DataViewParam param, ExecuteParam executeParam, List<TableColumnDescDto> dataCols, Set<String> conditionSet);
 
 
 	/**

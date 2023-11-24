@@ -16,5 +16,4 @@ public class FormatDownloadConst {
 	public static final String JSON = "json";
 	public static final String EXCEL = "excel";
 	public static final String CVS = "cvs";
-	;
 }

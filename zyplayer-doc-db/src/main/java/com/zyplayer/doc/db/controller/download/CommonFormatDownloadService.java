@@ -61,7 +61,7 @@ public class CommonFormatDownloadService implements FormatDownloadService {
 		StringBuilder resultSb = new StringBuilder("/*\n" +
 				" 数据库       : " + param.getDbName() + "\n" +
 				" 数据库类型   : " + dbBaseService.getDatabaseProduct().name() + "\n" +
-				" 导出时间     : " + DateTime.now().toString() + "\n" +
+				" 导出时间     : " + DateTime.now() + "\n" +
 				" 导出软件     : zyplayer-doc\n" +
 				" 软件版本     : " + ZyplayerDocVersion.version + "\n" +
 				"*/\n\n");

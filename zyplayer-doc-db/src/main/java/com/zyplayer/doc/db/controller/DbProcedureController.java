@@ -40,7 +40,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/zyplayer-doc-db/procedure")
 public class DbProcedureController {
-	private static Logger logger = LoggerFactory.getLogger(DbProcedureController.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbProcedureController.class);
 
 	@Resource
 	DatabaseServiceFactory databaseServiceFactory;

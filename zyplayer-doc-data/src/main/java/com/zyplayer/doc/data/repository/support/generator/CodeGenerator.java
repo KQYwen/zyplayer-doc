@@ -29,23 +29,19 @@ public class CodeGenerator {
 							.dateType(DateType.ONLY_DATE)
 							.fileOverride(); // 覆盖已生成文件
 				})
-				.packageConfig(builder -> {
-					builder.parent("com.zyplayer.doc.data") // 设置父包名
-							.moduleName("") // 设置父包模块名
-							.controller("web.generator")
-							.entity("repository.manage.entity")
-							.mapper("repository.manage.mapper")
-							.service("service.manage")
-							.serviceImpl("service.manage.impl")
-							.pathInfo(Collections.singletonMap(OutputFile.mapperXml, mapperDir));
-				})
-				.strategyConfig(builder -> {
-					builder.addInclude(tableName) // 设置需要生成的表名
-							.enableCapitalMode()
-							.serviceBuilder()
-							.formatServiceFileName("%sService")
-							.formatServiceImplFileName("%sServiceImpl");
-				})
+				.packageConfig(builder -> builder.parent("com.zyplayer.doc.data") // 设置父包名
+						.moduleName("") // 设置父包模块名
+						.controller("web.generator")
+						.entity("repository.manage.entity")
+						.mapper("repository.manage.mapper")
+						.service("service.manage")
+						.serviceImpl("service.manage.impl")
+						.pathInfo(Collections.singletonMap(OutputFile.mapperXml, mapperDir)))
+				.strategyConfig(builder -> builder.addInclude(tableName) // 设置需要生成的表名
+						.enableCapitalMode()
+						.serviceBuilder()
+						.formatServiceFileName("%sService")
+						.formatServiceImplFileName("%sServiceImpl"))
 				.templateEngine(new FreemarkerTemplateEngine()) // 使用Freemarker引擎模板，默认的是Velocity引擎模板
 				.execute();
 	}

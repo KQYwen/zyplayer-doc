@@ -50,7 +50,7 @@ public class DatasourceUtil {
 		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
 		sqlSessionFactoryBean.setDataSource(dataSource);
 		sqlSessionFactoryBean.setMapperLocations(resources);
-		sqlSessionFactoryBean.setPlugins(new Interceptor[]{sqlLogInterceptor});
+		sqlSessionFactoryBean.setPlugins(sqlLogInterceptor);
 		SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactoryBean.getObject());
 		// 组装自定义的bean
 		databaseFactoryBean.setId(dbDatasource.getId());

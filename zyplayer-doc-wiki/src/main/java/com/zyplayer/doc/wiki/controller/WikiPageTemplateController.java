@@ -4,48 +4,23 @@ import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zyplayer.doc.core.annotation.AuthMan;
-import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
 import com.zyplayer.doc.data.repository.manage.entity.*;
-import com.zyplayer.doc.data.repository.manage.mapper.WikiPageContentMapper;
-import com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper;
-import com.zyplayer.doc.data.repository.manage.param.SearchByEsParam;
-import com.zyplayer.doc.data.repository.manage.vo.SpaceNewsVo;
 import com.zyplayer.doc.data.repository.manage.vo.WikiPageTemplateInfoVo;
 import com.zyplayer.doc.data.repository.manage.vo.WikiTemplateTagVo;
-import com.zyplayer.doc.data.repository.support.consts.DocSysType;
-import com.zyplayer.doc.data.repository.support.consts.UserMsgType;
 import com.zyplayer.doc.data.service.manage.*;
-import com.zyplayer.doc.data.utils.CachePrefix;
-import com.zyplayer.doc.data.utils.CacheUtil;
-import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
-import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
-import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.service.WikiPageUploadService;
-import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.docx4j.XmlUtils;
-import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -74,7 +49,7 @@ public class WikiPageTemplateController {
         WikiPageTemplate exist = wikiPageTemplateService.getWikiPageTemplateBySpaceAndPage(wikiPageTemplate.getSpaceId(), wikiPageTemplate.getPageId());
         if (null == exist) {
             DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-            if (wikiPageTemplate.getTagName().equals("")) {
+            if (wikiPageTemplate.getTagName().isEmpty()) {
                 wikiPageTemplate.setTagName("无标签");
             }
             wikiPageTemplate.setCreated(new Date());
@@ -107,7 +82,7 @@ public class WikiPageTemplateController {
                 tagList.add(param.getValue()[0]);
             }
         });
-        if (tagList.size() < 1) {
+        if (tagList.isEmpty()) {
             tagList.add("");
         }
         List<WikiPageTemplateInfoVo> wikiPageTemplateInfoVos = wikiPageTemplateService.filterAll(currentUser.getUserId(), name, open, tagList, pageNum);

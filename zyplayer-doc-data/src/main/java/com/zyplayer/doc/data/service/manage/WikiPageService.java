@@ -20,5 +20,5 @@ public interface WikiPageService extends IService<WikiPage> {
 	
 	void deletePage(WikiPage wikiPage);
 
-	public List<WikiPageTemplateInfoVo> wikiPageTemplateInfos(Long spaceId);
+	List<WikiPageTemplateInfoVo> wikiPageTemplateInfos(Long spaceId);
 }

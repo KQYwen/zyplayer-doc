@@ -18,7 +18,7 @@ import java.util.Objects;
  * @since 2018年8月21日
  */
 public class DocResponseJson<T> implements ResponseJson<T> {
-	private static SerializeConfig mapping = new SerializeConfig();
+	private static final SerializeConfig mapping = new SerializeConfig();
 	
 	static {
 		mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
@@ -134,7 +134,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 * @since 2018年8月7日
 	 */
 	public static <T> DocResponseJson<T> warn(String errMsg) {
-		return new DocResponseJson<T>(300, errMsg);
+		return new DocResponseJson<>(300, errMsg);
 	}
 	
 	/**
@@ -145,7 +145,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 * @since 2018年8月7日
 	 */
 	public static <T> DocResponseJson<T> error(String errMsg) {
-		return new DocResponseJson<T>(500, errMsg);
+		return new DocResponseJson<>(500, errMsg);
 	}
 	
 	/**
@@ -156,7 +156,7 @@ public class DocResponseJson<T> implements ResponseJson<T> {
 	 * @since 2018年8月7日
 	 */
 	public static <T> DocResponseJson<T> failure(int errCode, String errMsg) {
-		return new DocResponseJson<T>(errCode, errMsg);
+		return new DocResponseJson<>(errCode, errMsg);
 	}
 	
 	/**

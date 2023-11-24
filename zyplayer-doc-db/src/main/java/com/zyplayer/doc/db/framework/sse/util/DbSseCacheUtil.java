@@ -25,7 +25,7 @@ public class DbSseCacheUtil {
     /**
      * 创建一个容器来存储所有的 SseEmitter(使用ConcurrentHashMap是因为它是线程安全的)。
      */
-    public static Map<String, Map<String,Object>> sseCache = new ConcurrentHashMap<>();
+    public static final Map<String, Map<String,Object>> sseCache = new ConcurrentHashMap<>();
 
 
     /**
@@ -96,7 +96,7 @@ public class DbSseCacheUtil {
      * @date 2023/7/17
      **/
     public static boolean existSseCache() {
-        return sseCache.size()>0;
+        return !sseCache.isEmpty();
     }
 
     /**
@@ -249,7 +249,7 @@ public class DbSseCacheUtil {
      **/
     public static void sendMessageToClientByClientId(String clientId, DocDbResponseJson message) {
         Map<String, Object> map = sseCache.get(clientId);
-        if (map==null||map.size()==0) {
+        if (map==null|| map.isEmpty()) {
             log.error("推送消息失败:客户端{}未创建长链接,失败消息:{}",clientId, message.toString());
             return;
         }

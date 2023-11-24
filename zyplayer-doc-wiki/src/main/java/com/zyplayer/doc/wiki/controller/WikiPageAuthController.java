@@ -114,7 +114,7 @@ public class WikiPageAuthController {
                 UserAuth userAuth = this.createUserAuth(pageId, currentUser.getUserId(), authVo.getUserId(), authId);
                 userAuthList.add(userAuth);
             }
-            if (userAuthList.size() <= 0) {
+            if (userAuthList.isEmpty()) {
                 continue;
             }
             // 保存权限，重新登录后可用，后期可以考虑在这里直接修改缓存里的用户权限

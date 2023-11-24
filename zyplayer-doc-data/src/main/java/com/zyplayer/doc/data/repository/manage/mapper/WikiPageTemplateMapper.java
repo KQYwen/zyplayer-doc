@@ -1,13 +1,10 @@
 package com.zyplayer.doc.data.repository.manage.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageTemplate;
 import com.zyplayer.doc.data.repository.manage.vo.WikiPageTemplateInfoVo;
 import com.zyplayer.doc.data.repository.manage.vo.WikiTemplateTagVo;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 

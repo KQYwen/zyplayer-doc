@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/doc-api/request-param")
 public class ApiRequestParamController {
-	private static Logger logger = LoggerFactory.getLogger(ApiRequestParamController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ApiRequestParamController.class);
 	
 	@Resource
 	private ApiRequestParamService apiRequestParamService;

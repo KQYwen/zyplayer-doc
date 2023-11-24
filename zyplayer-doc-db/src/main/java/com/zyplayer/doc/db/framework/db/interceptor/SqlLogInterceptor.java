@@ -67,7 +67,7 @@ public class SqlLogInterceptor implements Interceptor {
 	private String getParameterValue(Object obj) {
 		String value = null;
 		if (obj instanceof String) {
-			value = "'" + obj.toString() + "'";
+			value = "'" + obj + "'";
 		} else if (obj instanceof Date) {
 			DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.CHINA);
 			value = "'" + formatter.format(obj) + "'";
@@ -87,7 +87,7 @@ public class SqlLogInterceptor implements Interceptor {
 		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 		StringBuilder sqlSb = new StringBuilder(boundSql.getSql().replaceAll("[\\s]+", " "));
 		int fromIndex = 0;
-		if (parameterMappings.size() > 0 && parameterObject != null) {
+		if (!parameterMappings.isEmpty() && parameterObject != null) {
 			TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
 			if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
 				//sqlSb = sqlSb.replaceFirst("\\?", getParameterValue(parameterObject));

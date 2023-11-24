@@ -38,12 +38,11 @@ public class SQLTransformUtils {
         StringBuilder out = new StringBuilder();
         OracleToMySqlOutputVisitor visitor = new OracleToMySqlOutputVisitor(out, false);
 
-        for(int i = 0; i < stmtList.size(); ++i) {
-            ((SQLStatement)stmtList.get(i)).accept(visitor);
+        for (SQLStatement sqlStatement : stmtList) {
+            sqlStatement.accept(visitor);
         }
 
-        String mysqlSql = out.toString();
-        return mysqlSql;
+        return out.toString();
     }
 
     /**
@@ -56,12 +55,11 @@ public class SQLTransformUtils {
         StringBuilder out = new StringBuilder();
         SqlServerToMySqlOutputVisitor visitor = new SqlServerToMySqlOutputVisitor(out, false);
 
-        for(int i = 0; i < stmtList.size(); ++i) {
-            ((SQLStatement)stmtList.get(i)).accept(visitor);
+        for (SQLStatement sqlStatement : stmtList) {
+            sqlStatement.accept(visitor);
         }
 
-        String mysqlSql = out.toString();
-        return mysqlSql;
+        return out.toString();
     }
 
     /**
@@ -74,12 +72,11 @@ public class SQLTransformUtils {
         StringBuilder out = new StringBuilder();
         MySqlToOracleOutputVisitor visitor = new MySqlToOracleOutputVisitor(out, false);
 
-        for(int i = 0; i < stmtList.size(); ++i) {
-            ((SQLStatement)stmtList.get(i)).accept(visitor);
+        for (SQLStatement sqlStatement : stmtList) {
+            sqlStatement.accept(visitor);
         }
 
-        String oracleSql = out.toString();
-        return oracleSql;
+        return out.toString();
     }
 
     /**
@@ -92,12 +89,11 @@ public class SQLTransformUtils {
         StringBuilder out = new StringBuilder();
         MySqlToSqlServerOutputVisitor visitor = new MySqlToSqlServerOutputVisitor(out, false);
 
-        for(int i = 0; i < stmtList.size(); ++i) {
-            ((SQLStatement)stmtList.get(i)).accept(visitor);
+        for (SQLStatement sqlStatement : stmtList) {
+            sqlStatement.accept(visitor);
         }
 
-        String sqlserverSql = out.toString();
-        return sqlserverSql;
+        return out.toString();
     }
 
     /**
@@ -114,7 +110,7 @@ public class SQLTransformUtils {
         java.io.Reader is = clob.getCharacterStream();
         BufferedReader br = new BufferedReader(is);
         String s = br.readLine();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         // 执行循环将字符串全部取出付值给StringBuffer由StringBuffer转成STRING
         while (s != null) {
             sb.append(s);

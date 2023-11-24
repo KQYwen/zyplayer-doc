@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  */
 @Service(FormatDownloadConst.EXCEL)
 public class ExcelFormatDownloadService implements FormatDownloadService {
-	private static Logger logger = LoggerFactory.getLogger(ExcelFormatDownloadService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExcelFormatDownloadService.class);
 
 	@Resource
 	ExecuteAuthService executeAuthService;

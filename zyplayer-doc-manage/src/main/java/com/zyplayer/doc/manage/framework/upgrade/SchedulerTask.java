@@ -23,7 +23,7 @@ import java.util.Properties;
  */
 @Component
 public class SchedulerTask {
-	private static Logger logger = LoggerFactory.getLogger(SchedulerTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(SchedulerTask.class);
 	
 	@Value("${zyplayer.doc.manage.upgradePropertiesUrl:}")
 	private String upgradePropertiesUrl;

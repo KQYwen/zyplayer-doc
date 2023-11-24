@@ -43,7 +43,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/zyplayer-doc-db/data-view")
 public class DbDataViewController {
-	private static Logger logger = LoggerFactory.getLogger(DbDataViewController.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbDataViewController.class);
 
 	@Resource
 	ExecuteAuthService executeAuthService;

@@ -2,8 +2,6 @@ package com.zyplayer.doc.data.repository.manage.vo;
 
 import lombok.Data;
 
-import java.util.Date;
-
 
 /**
  * <p>

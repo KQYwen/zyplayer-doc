@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class BackupTaskServiceImpl implements BackupTaskService {
 
-    private static Logger logger = LoggerFactory.getLogger(BackupTaskServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(BackupTaskServiceImpl.class);
 
     @Autowired
     private Scheduler scheduler;

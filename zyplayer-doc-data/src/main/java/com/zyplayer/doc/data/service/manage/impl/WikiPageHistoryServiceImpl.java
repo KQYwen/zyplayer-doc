@@ -25,7 +25,7 @@ import java.util.Date;
  */
 @Service
 public class WikiPageHistoryServiceImpl extends ServiceImpl<WikiPageHistoryMapper, WikiPageHistory> implements WikiPageHistoryService {
-	private static Logger logger = LoggerFactory.getLogger(WikiPageHistoryServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(WikiPageHistoryServiceImpl.class);
 	
 	@Override
 	public WikiPageHistory saveRecord(Long spaceId, Long pageId, String content) {

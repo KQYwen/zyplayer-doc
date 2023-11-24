@@ -16,7 +16,7 @@ import java.util.HashMap;
  */
 @Configuration
 public class ZyplayerModuleKeeper implements ApplicationContextAware {
-    HashMap<String, Boolean> moduleInfo = new HashMap<>();
+    final HashMap<String, Boolean> moduleInfo = new HashMap<>();
     private ApplicationContext applicationContext;
 
     @Override
@@ -26,7 +26,7 @@ public class ZyplayerModuleKeeper implements ApplicationContextAware {
 
     //获取模块是否启动
     public boolean ismoduleStarted(Class<?> clazz) {
-        if (moduleInfo.size() < 1) {
+        if (moduleInfo.isEmpty()) {
             getmoduleInfo();
         }
         return moduleInfo.get(clazz.getName().split("\\$")[1]);
@@ -34,7 +34,7 @@ public class ZyplayerModuleKeeper implements ApplicationContextAware {
 
     //提供模块开启状态数组，给前端控制页面展示
     public HashMap<String, Boolean> getmoduleInfo() {
-        if (moduleInfo.size() < 1) {
+        if (moduleInfo.isEmpty()) {
             synchronized (ZyplayerModuleKeeper.class) {
                 Class<? extends ZyplayerDocConfig> clazz = ZyplayerDocConfig.class;
                 Class<?>[] innerClasses = clazz.getClasses();
@@ -54,6 +54,6 @@ public class ZyplayerModuleKeeper implements ApplicationContextAware {
         } catch (BeansException e) {
             return false;
         }
-        return null != bean;
+        return true;
     }
 }

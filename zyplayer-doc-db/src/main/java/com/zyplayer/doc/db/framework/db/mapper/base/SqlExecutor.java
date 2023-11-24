@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Repository
 public class SqlExecutor {
-	private static Logger logger = LoggerFactory.getLogger(SqlExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(SqlExecutor.class);
 	
 	@Resource
 	DatabaseRegistrationBean databaseRegistrationBean;
@@ -113,7 +113,7 @@ public class SqlExecutor {
 			statementMap.put(executeParam.getExecuteId(), preparedStatement);
 			List<ParameterMapping> parameterMappings = executeParam.getParameterMappings();
 			List<Object> paramDataList = executeParam.getParamList();
-			if (parameterMappings != null && paramDataList != null && parameterMappings.size() > 0 && paramDataList.size() > 0) {
+			if (parameterMappings != null && paramDataList != null && !parameterMappings.isEmpty() && !paramDataList.isEmpty()) {
 				for (int i = 0; i < parameterMappings.size(); i++) {
 					preparedStatement.setObject(i + 1, paramDataList.get(i));
 				}

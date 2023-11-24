@@ -2,7 +2,6 @@ package com.zyplayer.doc.db.framework.db.transfer;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.zyplayer.doc.core.exception.ConfirmException;
 import com.zyplayer.doc.data.config.security.DocUserDetails;
 import com.zyplayer.doc.data.config.security.DocUserUtil;
@@ -42,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Service
 public class TransferDataServer {
-	private static Logger logger = LoggerFactory.getLogger(TransferDataServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(TransferDataServer.class);
 	
 	@Resource
 	SqlExecutor sqlExecutor;
@@ -163,7 +162,7 @@ public class TransferDataServer {
 				}
 			});
 			// 不足100的数据
-			if (selectResultList.size() > 0) {
+			if (!selectResultList.isEmpty()) {
 				this.writeData(storageSourceId, storageSql, selectResultList);
 			}
 			if (StringUtils.isNotBlank(executeResult.getErrMsg())) {

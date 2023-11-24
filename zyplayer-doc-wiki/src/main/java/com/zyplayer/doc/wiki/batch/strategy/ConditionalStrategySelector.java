@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 @Component
 public class ConditionalStrategySelector {
-    Map<Class<?>,ConditionalStrategySeletorUnit> cache = new HashMap<>();
+    final Map<Class<?>,ConditionalStrategySeletorUnit> cache = new HashMap<>();
 
     /**
      * 注册所有策略
@@ -44,17 +44,14 @@ public class ConditionalStrategySelector {
             return null;
         }
         T strategy = (T) conditionalStrategySeletorUnit.getStrategy(condition);
-        if (null == strategy) {
-            return null;
-        }
         return strategy;
     }
 
-    class ConditionalStrategySeletorUnit<T extends IConditionalStrategy> {
-        List<T> strategys;
+    static class ConditionalStrategySeletorUnit<T extends IConditionalStrategy> {
+        final List<T> strategys;
 
         //策略集体实现到二层缓存
-        ConcurrentHashMap<String, T> cache = new ConcurrentHashMap<>();
+        final ConcurrentHashMap<String, T> cache = new ConcurrentHashMap<>();
 
         public ConditionalStrategySeletorUnit(List<T> strategys) {
             this.strategys = strategys;

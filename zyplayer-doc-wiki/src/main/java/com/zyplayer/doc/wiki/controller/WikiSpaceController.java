@@ -1,7 +1,6 @@
 package com.zyplayer.doc.wiki.controller;
 
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -28,7 +27,6 @@ import com.zyplayer.doc.wiki.framework.consts.WikiAuthType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -192,7 +190,7 @@ public class WikiSpaceController {
 			this.createUserAuth(userAuthList, authVo.getPageFileUpload(), spaceId, WikiAuthType.PAGE_FILE_UPLOAD, authVo.getGroupId());
 			this.createUserAuth(userAuthList, authVo.getPageFileDelete(), spaceId, WikiAuthType.PAGE_FILE_DELETE, authVo.getGroupId());
 			this.createUserAuth(userAuthList, authVo.getPageAuthManage(), spaceId, WikiAuthType.PAGE_AUTH_MANAGE, authVo.getGroupId());
-			if (userAuthList.size() > 0) {
+			if (!userAuthList.isEmpty()) {
 				userGroupAuthService.saveBatch(userAuthList);
 			}
 		}

@@ -47,14 +47,12 @@ public class PoiUtil {
 				"\n" +
 				" 数据库       : " + dbName + "\n" +
 				" 数据库类型   : " + dbType + "\n" +
-				" 导出时间     : " + DateTime.now().toString() + "\n" +
+				" 导出时间     : " + DateTime.now() + "\n" +
 				" 软件版本     : " + ZyplayerDocVersion.version + "\n" +
 				"*/\n\n");
 		for (Map.Entry<String, String> entry : ddlSqlMap.entrySet()) {
-			ddlSqlSb.append("-- ----------------------------\n")
-					.append("-- 表结构：" + entry.getKey() + "\n")
-					.append("-- ----------------------------\n")
-					.append("DROP TABLE IF EXISTS `" + entry.getKey() + "`;\n")
+			ddlSqlSb.append("-- ----------------------------\n").append("-- 表结构：").append(entry.getKey()).append("\n")
+                    .append("-- ----------------------------\n").append("DROP TABLE IF EXISTS `").append(entry.getKey()).append("`;\n")
 					.append(entry.getValue()).append("\n\n");
 		}
 		IoUtil.write(response.getOutputStream(), "utf-8", true, ddlSqlSb.toString());
@@ -121,7 +119,7 @@ public class PoiUtil {
 		// 写入表信息
 		PoiUtil.createEmptyLine(document);
 		document.createParagraph().createRun().setText("数据库名：" + dbName);
-		document.createParagraph().createRun().setText("导出时间：" + DateTime.now().toString());
+		document.createParagraph().createRun().setText("导出时间：" + DateTime.now());
 		document.createParagraph().createRun().setText("导出说明：本文档使用zyplayer-doc生成并导出");
 		document.createParagraph().createRun().setText("所有库表：");
 		List<List<String>> baseDataList = new LinkedList<>();

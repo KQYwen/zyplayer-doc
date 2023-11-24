@@ -9,7 +9,7 @@ import java.util.LinkedList;
  * @since 20230713
  */
 public class DocEntry {
-    LinkedList<MediaEntry> medias = new LinkedList<>();
+    final LinkedList<MediaEntry> medias = new LinkedList<>();
     String context = "";
     String name = "";
 

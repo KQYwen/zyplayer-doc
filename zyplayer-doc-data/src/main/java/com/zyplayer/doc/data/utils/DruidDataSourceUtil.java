@@ -15,9 +15,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DruidDataSourceUtil {
 
-	private static AtomicLong nameId = new AtomicLong(0);
+	private static final AtomicLong nameId = new AtomicLong(0);
 
-	public static DruidDataSource createDataSource(String driverClassName, String url, String username, String password, boolean breakAfterAcquireFailure) throws Exception {
+	public static DruidDataSource createDataSource(String driverClassName, String url, String username, String password, boolean breakAfterAcquireFailure) {
 		// 数据源配置
 		DruidDataSource dataSource = new DruidDataSource();
 		dataSource.setDriverClassName(driverClassName);

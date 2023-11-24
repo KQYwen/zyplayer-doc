@@ -88,8 +88,8 @@ public class MySqlToSqlServerOutputVisitor extends MySqlOutputVisitor {
             }else if(sqlTableElement instanceof MySqlPrimaryKey){
                 SQLPrimaryKeyImpl sqlserverPrimaryKey = new SQLPrimaryKeyImpl();
                 List<SQLSelectOrderByItem> list =  ((MySqlPrimaryKey) sqlTableElement).getIndexDefinition().getColumns();
-                for(int i=0;i<list.size();i++){
-                    SQLIdentifierExpr sQLIdentifierExpr = (SQLIdentifierExpr)list.get(i).getExpr();
+                for (SQLSelectOrderByItem sqlSelectOrderByItem : list) {
+                    SQLIdentifierExpr sQLIdentifierExpr = (SQLIdentifierExpr) sqlSelectOrderByItem.getExpr();
                     sQLIdentifierExpr.setName(sQLIdentifierExpr.getName().replaceAll("`", ""));
                     sqlserverPrimaryKey.addColumn(sQLIdentifierExpr);
                 }

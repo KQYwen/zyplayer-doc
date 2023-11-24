@@ -2,7 +2,6 @@ package com.zyplayer.doc.manage.web;
 
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
-import com.zyplayer.doc.manage.framework.config.ZyplayerDocConfig;
 import com.zyplayer.doc.manage.framework.config.ZyplayerModuleKeeper;
 import com.zyplayer.doc.manage.framework.upgrade.UpgradeUtil;
 import org.springframework.web.bind.annotation.GetMapping;

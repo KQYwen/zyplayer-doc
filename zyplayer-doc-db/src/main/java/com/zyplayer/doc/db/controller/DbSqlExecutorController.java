@@ -46,7 +46,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/zyplayer-doc-db/executor")
 public class DbSqlExecutorController {
-	private static Logger logger = LoggerFactory.getLogger(DbSqlExecutorController.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbSqlExecutorController.class);
 
 	@Resource
 	ColumnSqlExecutor columnSqlExecutor;
@@ -87,10 +87,10 @@ public class DbSqlExecutorController {
 		// 参数处理
 		Map<String, Object> paramMap = JSON.parseObject(params);
 		// 解析出多个执行的SQL
-		List<Map<String,Object>> analysisQuerySqlList = new LinkedList<Map<String,Object>>();
+		List<Map<String,Object>> analysisQuerySqlList = new LinkedList<>();
 		try {
 			String driverClassName = dbBaseService.getDatabaseProduct().getDriverClassName();
-			List<SQLStatement> sqlStatements = new ArrayList<SQLStatement>();
+			List<SQLStatement> sqlStatements;
 			//根据驱动程序类名获取数据库类型
 			DbType dbType = SQLTransformUtils.getDbTypeByDriverClassName(driverClassName);
 			sqlStatements = new SQLStatementParser(sql,dbType).parseStatementList();
@@ -99,7 +99,7 @@ public class DbSqlExecutorController {
 				if(sb.length()>0&&';' == (sb.charAt(sb.length()-1))){
 					sb.deleteCharAt(sb.length()-1);
 				}
-				Map<String,Object> map = new HashMap<String,Object>();
+				Map<String,Object> map = new HashMap<>();
 				//原始sql
 				map.put("originalSql",sb);
 				//sql解析类型

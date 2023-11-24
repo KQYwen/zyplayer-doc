@@ -7,7 +7,7 @@ package com.zyplayer.doc.data.repository.support.consts;
  * @since 2020-06-26
  */
 public class DocSysModuleType {
-	public static enum Manage {
+	public enum Manage {
 		USER_MANAGE(1, "用户管理权限"),
 		;
 		
@@ -28,7 +28,7 @@ public class DocSysModuleType {
 		}
 	}
 	
-	public static enum Wiki {
+	public enum Wiki {
 		PAGE(1, "空间"),
 		;
 		
@@ -49,7 +49,7 @@ public class DocSysModuleType {
 		}
 	}
 	
-	public static enum Db {
+	public enum Db {
 		DATASOURCE(1, "数据源管理"),
 		;
 		
@@ -70,7 +70,7 @@ public class DocSysModuleType {
 		}
 	}
 	
-	public static enum Api {
+	public enum Api {
 		DOC(1, "api文档管理"),
 		;
 		

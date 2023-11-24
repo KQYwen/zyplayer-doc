@@ -2,8 +2,6 @@ package com.zyplayer.doc.data.repository.manage.mapper;
 
 import com.zyplayer.doc.data.repository.manage.entity.WikiPageZan;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Update;
 
 /**
  * <p>

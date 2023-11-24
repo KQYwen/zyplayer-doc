@@ -23,7 +23,7 @@ public class ApplicationInfoConsolePrint implements IConsolePrint {
     public void buildPrintInfo(StringBuilder printInfo) throws Exception {
         String contextPath = environment.getProperty("server.servlet.context-path");
         contextPath = Optional.ofNullable(contextPath).orElse("").replaceFirst("/", "");
-        contextPath = (contextPath.length() <= 0 || contextPath.endsWith("/")) ? contextPath : contextPath + "/";
+        contextPath = (contextPath.isEmpty() || contextPath.endsWith("/")) ? contextPath : contextPath + "/";
         String hostAddress = InetAddress.getLocalHost().getHostAddress();
         String serverPort = environment.getProperty("server.port");
         String urlCtx = hostAddress + ":" + serverPort + "/" + contextPath;

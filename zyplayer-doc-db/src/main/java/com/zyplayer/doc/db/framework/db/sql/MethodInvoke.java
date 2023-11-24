@@ -32,7 +32,7 @@ public interface MethodInvoke {
         Method method = ReflectionUtils.findMethod(this.getClass(), expr.getMethodName().toLowerCase(), SQLMethodInvokeExpr.class);
         if (null != method) {
             try {
-                method.invoke(this, new Object[]{expr});
+                method.invoke(this, expr);
             } catch (Exception e) {
                 log.error("method invoke error", e);
                 e.printStackTrace();
