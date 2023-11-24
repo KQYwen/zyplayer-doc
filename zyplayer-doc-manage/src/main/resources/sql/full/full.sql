@@ -442,18 +442,22 @@ CREATE TABLE `backup_task`  (
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '备份任务信息';
 
-CREATE TABLE `wiki_page_template`  (
-   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '模板信息逐渐',
-   `space_id` bigint(20) NULL DEFAULT NULL COMMENT '空间id',
-   `page_id` bigint(20) NULL DEFAULT NULL COMMENT '模板挂载文档id',
-   `tag_name` varchar(200) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '标签信息',
-   `share_status` tinyint(1) NULL DEFAULT NULL COMMENT '模板公开状态（0-个人模板1-公共模板）',
-   `created` datetime NULL DEFAULT NULL COMMENT '创建时间',
-   `create_user_id` bigint(20) NULL DEFAULT NULL COMMENT '创建人id',
-   `create_user` varchar(200) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '创建人名称',
-   `yn` tinyint(1) NOT NULL default '1',
-   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4  COMMENT = '模板信息表';
+CREATE TABLE `wiki_page_template` (
+	`id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '模板信息主键',
+	`space_id` bigint null COMMENT '空间id',
+	`page_id` bigint null COMMENT '模板挂载文档id',
+	`tag_name` varchar(50) null COMMENT '标签信息',
+	`share_status` tinyint default 0 not null COMMENT '模板公开状态（0-个人模板1-公共模板）',
+
+	`created` datetime null COMMENT '创建时间',
+	`create_user_id` bigint null COMMENT '创建人id',
+	`create_user` varchar(50) null COMMENT '创建人名称',
+	`modified` datetime null comment '修改时间',
+	`modify_user_id` bigint null comment '修改人ID',
+	`modify_user` varchar(50) null comment '修改人姓名',
+	`yn` tinyint default 1 not null comment '是否有效 1=有效',
+	PRIMARY KEY (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COMMENT = '模板信息表';
 -- -------------------插入必要的数据-------------------
 -- 用户信息
 INSERT INTO `user_info` (id, user_no, password, user_name, email, del_flag, creation_time, update_time, sex)
