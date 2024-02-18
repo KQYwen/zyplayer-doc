@@ -71,7 +71,8 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 		userMessage.setAffectUserId(wikiPage.getCreateUserId());
 		userMessage.setAffectUserName(wikiPage.getCreateUserName());
 		userMessageService.addWikiMessage(userMessage);
-		// 递归删除
+		// 递归删除，名字不能修改
+		wikiPage.setName(null);
 		this.deletePageAndSon(wikiPage);
 	}
 	
