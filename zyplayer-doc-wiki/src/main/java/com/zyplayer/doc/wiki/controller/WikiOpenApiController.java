@@ -1,7 +1,9 @@
 package com.zyplayer.doc.wiki.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.zyplayer.doc.core.enums.PageFileSource;
 import com.zyplayer.doc.core.json.DocResponseJson;
 import com.zyplayer.doc.core.json.ResponseJson;
 import com.zyplayer.doc.data.repository.manage.entity.WikiPage;
@@ -130,12 +132,13 @@ public class WikiOpenApiController {
         if (wikiPageSel == null || !Objects.equals(wikiPageSel.getSpaceId(), wikiSpace.getId())) {
             return DocResponseJson.warn("未找到该文档");
         }
-        UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
-        wrapper.eq("page_id", pageId);
+        LambdaQueryWrapper<WikiPageContent> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WikiPageContent::getPageId, pageId);
         WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
-        UpdateWrapper<WikiPageFile> wrapperFile = new UpdateWrapper<>();
-        wrapperFile.eq("page_id", pageId);
-        wrapperFile.eq("del_flag", 0);
+        LambdaQueryWrapper<WikiPageFile> wrapperFile = new LambdaQueryWrapper<>();
+        wrapperFile.eq(WikiPageFile::getPageId, pageId);
+        wrapperFile.eq(WikiPageFile::getDelFlag, 0);
+        wrapperFile.eq(WikiPageFile::getFileSource, PageFileSource.UPLOAD_FILES.getSource());
         List<WikiPageFile> pageFiles = wikiPageFileService.list(wrapperFile);
         for (WikiPageFile pageFile : pageFiles) {
             pageFile.setFileUrl("zyplayer-doc-wiki/common/file?uuid=" + pageFile.getUuid());
