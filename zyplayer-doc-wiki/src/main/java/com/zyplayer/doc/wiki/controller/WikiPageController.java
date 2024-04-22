@@ -1,6 +1,9 @@
 package com.zyplayer.doc.wiki.controller;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.system.SystemUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -30,17 +33,25 @@ import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.XmlUtils;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities;
+import org.jsoup.select.Elements;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -417,8 +428,9 @@ public class WikiPageController {
     }
 
     @PostMapping("/download")
-    public ResponseJson<Object> download(Long pageId, HttpServletResponse response) {
+    public ResponseJson<Object> download(Long pageId, String content, HttpServletRequest request, HttpServletResponse response) {
         DocUserDetails currentUser = DocUserUtil.getCurrentUser();
+        String requestURI = request.getRequestURL().toString();
         WikiPage wikiPageSel = wikiPageService.getById(pageId);
         // 页面已删除
         if (wikiPageSel == null || Objects.equals(wikiPageSel.getDelFlag(), 1)) {
@@ -433,15 +445,17 @@ public class WikiPageController {
         if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
             return DocResponseJson.warn("您没有权限查看该空间的文章详情！");
         }
-        UpdateWrapper<WikiPageContent> wrapper = new UpdateWrapper<>();
-        wrapper.eq("page_id", pageId);
-        WikiPageContent pageContent = wikiPageContentService.getOne(wrapper);
-        if (pageContent == null || StringUtils.isBlank(pageContent.getContent())) {
-            return DocResponseJson.warn("文档内容为空，不能导出！");
-        }
         try {
-            String content = pageContent.getContent();
-            String fileName = URLEncoder.encode(wikiPageSel.getName(), "UTF-8");
+            String fileName = URLEncoder.encode(wikiPageSel.getName(), "UTF-8").replaceAll("\\+", "%20");
+            String domainUri = requestURI.substring(0, requestURI.indexOf("/zyplayer-doc-wiki") + 1);
+            // 解析内容，并替换图片URL
+            Document document = Jsoup.parse(content);
+            document.outputSettings().syntax(Document.OutputSettings.Syntax.xml).escapeMode(Entities.EscapeMode.xhtml);
+            Elements images = document.select("img");
+            for (Element image : images) {
+                image.attr("src", domainUri + image.attr("src"));
+            }
+            content = document.html();
             content = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Strict//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n" +
                     "<html lang=\"zh\">\n" +
                     "<head>\n" +

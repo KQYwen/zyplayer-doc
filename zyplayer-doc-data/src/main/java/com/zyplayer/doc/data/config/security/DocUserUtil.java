@@ -69,6 +69,7 @@ public class DocUserUtil {
 	 * 设置当前用户
 	 */
 	public static void setCurrentUser(String accessToken, DocUserDetails docUser) {
+		docUser.setAccessToken(accessToken);
 		DOC_USER_DETAILS.set(docUser);
 		CacheUtil.put(accessToken, docUser);
 		CacheUtil.put(CachePrefix.LOGIN_USER_ID_TOKEN + docUser.getUserId(), accessToken);

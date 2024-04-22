@@ -95,6 +95,7 @@ import PageAuthDialog from '@/views/page/show/PageAuthDialog.vue'
 import MobileQrScanDialog from '@/views/page/show/MobileQrScanDialog.vue'
 import AboutDialog from "@/views/common/AboutDialog.vue"
 import UserMessagePopover from "./UserMessagePopover.vue"
+import {fixRequestUrl} from "@/assets/api/hostUtils";
 
 let router = useRouter();
 let storePage = useStorePageData();
@@ -177,9 +178,14 @@ const deleteWikiPage = () => {
 }
 // 下载为Word
 let downloadFormRef = ref();
-let downloadFormParam = ref({url: 'zyplayer-doc-wiki/page/download', param: {}});
+let downloadFormParam = ref({url: fixRequestUrl('zyplayer-doc-wiki/page/download'), param: {}});
 const exportWord = () => {
-	downloadFormParam.value.param = {pageId: storePage.pageInfo.id};
+	let pageViewContent = document.getElementById('pageContentBox');
+	let innerHtml = pageViewContent.innerHTML || '';
+	downloadFormParam.value.param = {
+		pageId: storePage.pageInfo.id,
+		content: innerHtml,
+	};
 	setTimeout(() => downloadFormRef.value.submit(), 0);
 }
 // 手机扫码

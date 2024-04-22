@@ -1,4 +1,3 @@
-
 # 端口和根路径，jar启动时依此处配置，放tomcat后以tomcat的配置为准
 server:
   port: ${SERVER_PORT:8083}
@@ -19,6 +18,12 @@ zyplayer:
   doc:
     # ------zyplayer_doc_manage相关配置------
     manage:
+      # 管理端的数据库配置
+      datasource:
+        driverClassName: ${DATASOURCE_DRIVER:com.mysql.cj.jdbc.Driver}
+        url: jdbc:mysql://${DATASOURCE_HOST_PORT:127.0.0.1:3306}/${DATASOURCE_DATABASE:zyplayer_doc_opensource}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: ${DATASOURCE_USER:root}
+        password: ${DATASOURCE_PASSWORD:root}
       enable:
         #wiki模块的是否加载，没有此配置也为true，只有填写false才是不加载
         wiki: ${ZYPLAYER_ENABLE_WIKI:true}
@@ -30,28 +35,12 @@ zyplayer:
       upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
       # 系统根域名，调试UI时需要使用，同时需要在host文件里配置：127.0.0.1 local.zyplayer.com
       originDomainRegex: .*\.zyplayer\.com(:\d+|)$
-      # 管理端的数据库配置
-      datasource:
-        driverClassName: ${DATASOURCE_DRIVER:com.mysql.cj.jdbc.Driver}
-        url: jdbc:mysql://${DATASOURCE_HOST_PORT:127.0.0.1:3306}/${DATASOURCE_DATABASE:zyplayer_doc}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-        username: ${DATASOURCE_USER:root}
-        password: ${DATASOURCE_PASSWORD:root}
     # ------WIKI文档相关------
     wiki:
       # WIKI文档的文件上传后的存储目录，！！截图或文件还是很重要的，建议您还要定期备份此目录的文件呢！！
-      upload-path: ${SERVER_PORT:/zyplayerDoc/wikiFiles}
-      # 是否检查目录有被系统定期清理的风险，强烈建议开启
+      upload-path: ${WIKI_UPLOAD_PATH:D:/zyplayerDoc/wikiFiles}
+      # 是否检查目录有被系统定期清理的风险，建议开启
       upload-path-check: true
-      # git本地仓库地址，用于管理WIKI的历史版本
-      git-local-path: ${SERVER_PORT:/zyplayerDoc/wikiGitFiles}
-      # git远程仓库地址，可选配置项，如果存在则会每次修改后push到此仓库，必须先创建远程仓库，项目初始化时会去拉取
-      # 如果没有配置此项，则只会在维护一个本地的git仓库，使用简单
-      # 例：https://gitee.com/zyplayer/zyplayer-doc-wiki-files.git
-      git-remote-url:
-      # git远程仓库登录账号
-      git-remote-username:
-      # git远程仓库登录密码
-      git-remote-password:
     # ------数据库相关配置------
     db:
       # 最大允许导出的行数，设置的过大有可能会导致内存溢出

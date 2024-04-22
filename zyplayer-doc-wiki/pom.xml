@@ -49,8 +49,10 @@
             <groupId>com.zyplayer</groupId>
             <artifactId>zyplayer-doc-core</artifactId>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
         <!--docx4j-->
         <dependency>
             <groupId>org.docx4j</groupId>
