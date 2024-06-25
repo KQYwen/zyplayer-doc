@@ -29,6 +29,7 @@ import com.zyplayer.doc.wiki.controller.vo.WikiPageContentVo;
 import com.zyplayer.doc.wiki.controller.vo.WikiPageVo;
 import com.zyplayer.doc.wiki.framework.consts.SpaceType;
 import com.zyplayer.doc.wiki.service.WikiPageUploadService;
+import com.zyplayer.doc.wiki.service.WikiPageWebService;
 import com.zyplayer.doc.wiki.service.common.WikiPageAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,7 +85,7 @@ public class WikiPageController {
     private final WikiPageMapper wikiPageMapper;
     private final WikiPageCommentService wikiPageCommentService;
     private final WikiPageTemplateService wikiPageTemplateService;
-
+    private final WikiPageWebService wikiPageWebService;
 
     @PostMapping("/list")
     public ResponseJson<List<WikiPageVo>> list(WikiPage wikiPage) {
@@ -429,60 +430,7 @@ public class WikiPageController {
 
     @PostMapping("/download")
     public ResponseJson<Object> download(Long pageId, String content, HttpServletRequest request, HttpServletResponse response) {
-        DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-        String requestURI = request.getRequestURL().toString();
-        WikiPage wikiPageSel = wikiPageService.getById(pageId);
-        // 页面已删除
-        if (wikiPageSel == null || Objects.equals(wikiPageSel.getDelFlag(), 1)) {
-            return DocResponseJson.warn("该页面不存在或已删除！");
-        }
-        WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-        // 空间已删除
-        if (wikiSpaceSel == null || Objects.equals(wikiSpaceSel.getDelFlag(), 1)) {
-            return DocResponseJson.warn("该页面不存在或已删除！");
-        }
-        // 私人空间
-        if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
-            return DocResponseJson.warn("您没有权限查看该空间的文章详情！");
-        }
-        try {
-            String fileName = URLEncoder.encode(wikiPageSel.getName(), "UTF-8").replaceAll("\\+", "%20");
-            String domainUri = requestURI.substring(0, requestURI.indexOf("/zyplayer-doc-wiki") + 1);
-            // 解析内容，并替换图片URL
-            Document document = Jsoup.parse(content);
-            document.outputSettings().syntax(Document.OutputSettings.Syntax.xml).escapeMode(Entities.EscapeMode.xhtml);
-            Elements images = document.select("img");
-            for (Element image : images) {
-                image.attr("src", domainUri + image.attr("src"));
-            }
-            content = document.html();
-            content = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Strict//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n" +
-                    "<html lang=\"zh\">\n" +
-                    "<head>\n" +
-                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
-                    "<title>" + fileName + "</title>\n" +
-                    "</head>\n" +
-                    "<body>" +
-                    content +
-                    "</body>\n" +
-                    "</html>";
-            // 写入流
-            response.setCharacterEncoding("utf-8");
-            response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".docx");
-            ServletOutputStream outputStream = response.getOutputStream();
-            WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
-            MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
-            mdp.addAltChunk(AltChunkType.Xhtml, content.getBytes(StandardCharsets.UTF_8));
-            mdp.convertAltChunks();
-            XmlUtils.marshaltoString(wordMLPackage.getMainDocumentPart().getJaxbElement(), true, true);
-            wordMLPackage.save(outputStream);
-            outputStream.close();
-            return DocResponseJson.ok();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return DocResponseJson.warn("导出失败");
+        return wikiPageWebService.download(pageId, content, request, response);
     }
 
     @PostMapping("/news")
