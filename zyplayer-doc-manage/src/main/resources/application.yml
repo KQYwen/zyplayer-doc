@@ -21,7 +21,7 @@ zyplayer:
       # 管理端的数据库配置
       datasource:
         driverClassName: ${DATASOURCE_DRIVER:com.mysql.cj.jdbc.Driver}
-        url: jdbc:mysql://${DATASOURCE_HOST_PORT:127.0.0.1:3306}/${DATASOURCE_DATABASE:zyplayer_doc_opensource}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        url: jdbc:mysql://${DATASOURCE_HOST_PORT:127.0.0.1:3306}/${DATASOURCE_DATABASE:zyplayer_doc}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
         username: ${DATASOURCE_USER:root}
         password: ${DATASOURCE_PASSWORD:root}
       enable:
@@ -37,7 +37,7 @@ zyplayer:
       originDomainRegex: .*\.zyplayer\.com(:\d+|)$
     # ------WIKI文档相关------
     wiki:
-      # WIKI文档的文件上传后的存储目录，！！截图或文件还是很重要的，建议您还要定期备份此目录的文件呢！！
+      # WIKI文档的文件上传后的存储目录
       upload-path: ${WIKI_UPLOAD_PATH:D:/zyplayerDoc/wikiFiles}
       # 是否检查目录有被系统定期清理的风险，建议开启
       upload-path-check: true
