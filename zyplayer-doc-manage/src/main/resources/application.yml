@@ -6,7 +6,7 @@ server:
   compression:
     enabled: true
     min-response-size: 2048
-    mim-types: text/css,text/javascript
+    mime-types: text/css,text/javascript
   tomcat:
     # tomcat容器层最大传输限制，不做限制
     max-http-post-size: -1
