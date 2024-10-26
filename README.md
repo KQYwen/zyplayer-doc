@@ -37,6 +37,13 @@ create database zyplayer_doc;
 
 > 建表SQL脚本无需手动执行，每次启动或更新之后都会检查当前版本，然后自动执行升级SQL脚本，所以每次有版本更新需求只需要下载最新版本启动即可，无需其他特殊操作
 
+## 宝塔面板一键部署
+- 登录宝塔面板，在菜单栏中点击 Docker，根据提示安装 Docker 和 Docker Compose 服务，若已有则跳过
+- 在Docker-应用商店查询到 zyplayer-doc，点击安装
+- 设置域名等基本信息，点击确定
+- 提交后面板会自动进行应用初始化，大概需要1-5分钟，初始化完成后即可访问。
+![输入图片说明](zyplayer-doc-other/resource/image.png)
+
 ## Main方法启动
 1. 修改`zyplayer-doc-manage/src/main/resources/application.yml`配置文件里面的数据库账号密码
 2. 执行`com.zyplayer.doc.manage.Application.main`方法启动项目
