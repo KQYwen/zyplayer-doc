@@ -3,6 +3,9 @@ package com.zyplayer.doc.manage.framework.upgrade;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSessionFactory;
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.zyplayer.doc.core.enums.SystemConfigEnum;
 import com.zyplayer.doc.core.util.UpgradeInfo;
 import com.zyplayer.doc.core.util.ZyplayerDocVersion;
@@ -37,6 +40,8 @@ public class UpgradeSystemDdlTask {
 	@Resource
 	UserInfoMapper userInfoMapper;
 	@Resource
+	MybatisSqlSessionFactoryBean mybatisSqlSessionFactoryBean;
+	@Resource
 	SystemConfigService systemConfigService;
 	
 	/**
@@ -48,6 +53,11 @@ public class UpgradeSystemDdlTask {
 	@PostConstruct
 	public void init() {
 		try {
+
+		SqlSessionFactory sqlSessionFactory = mybatisSqlSessionFactoryBean.getObject();
+    Configuration c = sqlSessionFactory.getConfiguration();
+    String databaseId = c.getDatabaseId();
+
 			String nowVersion = systemConfigService.getConfigValue(SystemConfigEnum.DOC_SYSTEM_VERSION);
 			if (Objects.equals(nowVersion, ZyplayerDocVersion.version)) {
 				logger.info("当前数据库DDL已是最新版本：" + nowVersion);
@@ -57,14 +67,14 @@ public class UpgradeSystemDdlTask {
 			if (StringUtils.isBlank(nowVersion)) {
 				if (CollectionUtils.isEmpty(tableList)) {
 					// 新部署，执行全量建表语句
-					initDatabase();
+					initDatabase(databaseId);
 				} else {
 					// 执行一次最新的脚本
-					upgradeByStart();
+					upgradeByStart(databaseId);
 				}
 			} else {
 				// 依次执行高于此版本的脚本
-				upgradeByNowVersion(nowVersion, tableList);
+				upgradeByNowVersion(databaseId, nowVersion, tableList);
 			}
 			// 更新当前版本
 			systemConfigService.setConfigValue(SystemConfigEnum.DOC_SYSTEM_VERSION, ZyplayerDocVersion.version);
@@ -79,8 +89,11 @@ public class UpgradeSystemDdlTask {
 	 * @author 暮光：城中城
 	 * @since 2022-12-03
 	 */
-	public void initDatabase() {
+	public void initDatabase(String databaseId) {
 		String sql = loadDDLFile("sql/full/full.sql");
+		if (!"mysql".equals(databaseId)) {
+    	sql = loadDDLFile("sql/full/"+databaseId+"_full.sql");
+    }
 		if (StringUtils.isBlank(sql)) {
 			logger.error("初始化数据库DDL失败，未找到当前版本的DDL脚本");
 			return;
@@ -90,6 +103,7 @@ public class UpgradeSystemDdlTask {
 		for (SQLStatement sqlStatement : sqlStatements) {
 			// 执行SQL
 			try {
+				logger.info("开始执行 DDL：" + sqlStatement.toString());
 				userInfoMapper.executeSql(sqlStatement.toString());
 			} catch (Exception e) {
 				logger.info("执行升级SQL异常：" + e.getMessage());
@@ -104,7 +118,7 @@ public class UpgradeSystemDdlTask {
 	 * @author 暮光：城中城
 	 * @since 2022-12-03
 	 */
-	public void upgradeByNowVersion(String nowVersion, List<String> tableList) {
+	public void upgradeByNowVersion(String databaseId, String nowVersion, List<String> tableList) throws Exception {
 		logger.info("升级数据库DDL脚本：{} --> {}", nowVersion, ZyplayerDocVersion.version);
 		boolean isStart = false;
 		for (int i = ZyplayerDocVersion.versionUpgrade.size() - 1; i >= 0; i--) {
@@ -116,7 +130,7 @@ public class UpgradeSystemDdlTask {
 			} else if (!upgradeInfo.isHaveUpgradeSql()) {
 				logger.info("该版本无DDL脚本，跳过此版本：" + upgradeInfo.getVersion());
 			} else {
-				upgradeByVersion(upgradeInfo.getVersion(), tableList);
+				upgradeByVersion(databaseId, upgradeInfo.getVersion(), tableList);
 			}
 		}
 	}
@@ -127,9 +141,13 @@ public class UpgradeSystemDdlTask {
 	 * @author 暮光：城中城
 	 * @since 2022-12-03
 	 */
-	public void upgradeByVersion(String version, List<String> tableList) {
+	public void upgradeByVersion(String databaseId, String version, List<String> tableList) {
 		logger.info("升级数据库DDL开始：" + version);
 		String sql = loadDDLFile("sql/upgrade/" + version + ".sql");
+		if (!"mysql".equals(databaseId)) {
+    	sql = loadDDLFile("sql/upgrade/"+databaseId+"/" + version + ".sql");
+    }
+
 		if (StringUtils.isBlank(sql)) {
 			logger.info("未找到当前版本的DDL脚本：" + version);
 			return;
@@ -156,7 +174,7 @@ public class UpgradeSystemDdlTask {
 	 * @author 暮光：城中城
 	 * @since 2022-12-03
 	 */
-	public void upgradeByStart() {
+	public void upgradeByStart(String databaseId) {
 		logger.info("初始升级数据库DDL脚本：{} --> {}", "1.1.1", ZyplayerDocVersion.version);
 		for (int i = ZyplayerDocVersion.versionUpgrade.size() - 1; i >= 0; i--) {
 			UpgradeInfo upgradeInfo = ZyplayerDocVersion.versionUpgrade.get(i);
@@ -165,6 +183,9 @@ public class UpgradeSystemDdlTask {
 				continue;
 			}
 			String sql = loadDDLFile("sql/upgrade/" + upgradeInfo.getVersion() + ".sql");
+			if (!"mysql".equals(databaseId)) {
+    		sql = loadDDLFile("sql/upgrade/"+databaseId+"/" + upgradeInfo.getVersion() + ".sql");
+    	}
 			if (StringUtils.isBlank(sql)) {
 				return;
 			}

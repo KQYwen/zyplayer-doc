@@ -1,5 +1,3 @@
-  -- add new schema named "zyplayer_doc":
-    CREATE SCHEMA "zyplayer_doc";
   -- create "api_custom_node" table:
     CREATE TABLE "zyplayer_doc"."api_custom_node" (
          "id" serial NOT NULL,

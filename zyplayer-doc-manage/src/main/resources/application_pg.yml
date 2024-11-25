@@ -1,0 +1,60 @@
+# 端口和根路径，jar启动时依此处配置，放tomcat后以tomcat的配置为准
+server:
+  port: ${SERVER_PORT:8083}
+  servlet:
+    context-path: ${CONTEXT_PATH:/}
+  compression:
+    enabled: true
+    min-response-size: 2048
+  tomcat:
+    # tomcat容器层最大传输限制，不做限制
+    max-http-post-size: -1
+    max-http-form-post-size: -1
+    max-swallow-size: -1
+
+# 整个文档项目的配置
+zyplayer:
+  doc:
+    # ------zyplayer_doc_manage相关配置------
+    manage:
+      # 管理端的数据库配置
+      datasource:
+        driverClassName: ${DATASOURCE_DRIVER:org.postgresql.Driver}
+        url: jdbc:postgresql://${DATASOURCE_HOST_PORT:127.0.0.1:5432}/${DATASOURCE_DATABASE:zyplayer_doc}?ssl=false&characterEncoding=utf-8&currentSchema=zyplayer_doc
+        username: ${DATASOURCE_USER:rootxxx}
+        password: ${DATASOURCE_PASSWORD:passwordxxxx}
+      enable:
+        #wiki模块的是否加载，没有此配置也为true，只有填写false才是不加载
+        wiki: ${ZYPLAYER_ENABLE_WIKI:true}
+        #db模块的是否加载，没有此配置也为true，只有填写false才是不加载
+        db: ${ZYPLAYER_ENABLE_DB:true}
+        #api模块的是否加载，没有此配置也为true，只有填写false才是不加载
+        api: ${ZYPLAYER_ENABLE_API:true}
+      # 版本和升级信息获取地址
+      upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
+      # 系统根域名，调试UI时需要使用，同时需要在host文件里配置：127.0.0.1 local.zyplayer.com
+      originDomainRegex: .*\.zyplayer\.com(:\d+|)$
+    # ------WIKI文档相关------
+    wiki:
+      # WIKI文档的文件上传后的存储目录
+      upload-path: ${WIKI_UPLOAD_PATH:D:/zyplayerDoc/wikiFiles}
+      # 是否检查目录有被系统定期清理的风险，建议开启
+      upload-path-check: true
+    # ------数据库相关配置------
+    db:
+      # 最大允许导出的行数，设置的过大有可能会导致内存溢出
+      download-max-row: 100000
+    swagger:
+      proxy-request:
+        # 允许代理请求的域名，正则表达式，多个使用 ; 分割，必须设置，防止通过代理接口访问到内部资源，实在觉得没必要可设置为：.+
+        white-domain: .+
+
+spring:
+  application:
+    name: zyplayer-doc
+  servlet:
+    multipart:
+      max-file-size: ${SERVLET_MAX_FILE_SIZE:100MB}
+      max-request-size: ${SERVLET_MAX_REQUEST_SIZE:100MB}
+  datasource:
+    continue-on-error: true
