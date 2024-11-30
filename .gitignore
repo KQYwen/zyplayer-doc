@@ -61,3 +61,10 @@ rebel.xml
 # 忽略office文件打开临时文件 #
 [~$]*.*
 tmlog.lck
+/.metadata/
+zyplayer-doc-data/bin
+zyplayer-doc-api/bin
+zyplayer-doc-core/bin
+zyplayer-doc-data/src/main/java/com/zyplayer/.metadata/
+zyplayer-doc-db/bin/
+zyplayer-doc-wiki/bin/

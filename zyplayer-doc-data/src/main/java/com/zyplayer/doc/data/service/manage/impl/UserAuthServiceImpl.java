@@ -32,7 +32,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
 	@Override
 	public List<UserAuthInfo> getUserAuthSet(Long userId) {
 		QueryWrapper<UserAuth> authWrapper = new QueryWrapper<>();
-		authWrapper.eq("user_id", userId).eq("del_flag", "0");
+		authWrapper.eq("user_id", userId).eq("del_flag", 0);
 		List<UserAuth> userAuthList = this.list(authWrapper);
 		if (CollectionUtils.isEmpty(userAuthList)) {
 			return Collections.emptyList();

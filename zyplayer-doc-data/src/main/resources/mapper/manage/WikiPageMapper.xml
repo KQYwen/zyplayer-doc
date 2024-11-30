@@ -12,4 +12,12 @@
 		set seq_no = b.rownum
 		where a.parent_id = #{parentId} and a.space_id = #{spaceId};
 	</update>
+  <update id="updateChildrenSeq" databaseId="postgresql">
+		WITH  exceeded_wiki_page AS (
+		  select row_number() over() as rownum, * from wiki_page where parent_id = #{parentId} and space_id = #{spaceId} ORDER BY seq_no ASC, update_time DESC
+		)
+		UPDATE wiki_page SET seq_no = ewp.rownum 
+		  FROM exceeded_wiki_page AS ewp 
+		  WHERE wiki_page.id = ewp.id
+	</update>
 </mapper>
