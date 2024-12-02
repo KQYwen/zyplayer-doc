@@ -7,15 +7,7 @@
                         <span>所有产品</span>
                     </div>
                     <div class="product-list">
-                        <div class="item" v-on:click="jumpToDocPage('doc-api')" v-if="this.moudleInfo.enableApi">
-                            <div class="logo-text text1">API</div>
-                            <div>API接口文档</div>
-                        </div>
-                        <div class="item" v-on:click="jumpToDocPage('doc-db')" v-if="this.moudleInfo.enableDb">
-                            <div class="logo-text text2">DB</div>
-                            <div>数据库文档</div>
-                        </div>
-                        <div class="item" v-on:click="jumpToDocPage('doc-wiki')" v-if="this.moudleInfo.enableWiki">
+                        <div class="item" v-on:click="jumpToDocPage('doc-wiki')">
                             <div class="logo-text text3">WIKI</div>
                             <div>WIKI文档</div>
                         </div>
@@ -27,40 +19,17 @@
 </template>
 
 <script>
-	import systemApi from "../../common/api/system";
-    export default {
-        data() {
-            return {
-            	moudleInfo:{
-					enableWiki:true,
-					enableDb:true,
-					enableApi:true,
-				}
-            };
-        },
-        mounted: function () {
-        },
-		created(){
-        	this.fetchMoudle()
+export default {
+	data() {
+		return {
+		};
+	},
+	methods: {
+		jumpToDocPage(val) {
+			window.open(val);
 		},
-        methods: {
-			fetchMoudle(){
-				systemApi.fetchMoudleData().then(json => {
-					if(!!json.data){
-						this.moudleInfo = json.data;
-						console.log(
-								"wiki模块启动状态" +this.moudleInfo.enableWiki+
-								"db模块启动状态" +this.moudleInfo.enableDb+
-								"api模块启动状态" +this.moudleInfo.enableApi
-						)
-					}
-				})
-			},
-            jumpToDocPage(val) {
-                window.open(val);
-            },
-        }
-    }
+	}
+}
 </script>
 <style>
     .product-list{text-align: left;}
