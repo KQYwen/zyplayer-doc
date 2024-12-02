@@ -3,7 +3,6 @@ package org.dromara.zyplayer.manage.framework.config;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
-import org.dromara.zyplayer.manage.framework.interceptor.ModuleMissingInterceptor;
 import org.dromara.zyplayer.manage.framework.interceptor.UserLoginInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,8 +33,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	
 	@Resource
 	UserLoginInterceptor userLoginInterceptor;
-	@Resource
-	ModuleMissingInterceptor moduleMissingInterceptor;
 	
 	@Override
 	public void addFormatters(FormatterRegistry registry) {
@@ -67,9 +64,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(userLoginInterceptor)
-				.excludePathPatterns("/", "/doc-wiki", "/doc-db", "/doc-swagger-plus")
-				.excludePathPatterns("/**/*.js", "/**/*.css", "/**/*.png", "/**/*.gif", "/**/*.jpg", "/**/*.jpeg", "/**/fonts/*");
-		registry.addInterceptor(moduleMissingInterceptor)
 				.excludePathPatterns("/", "/doc-wiki", "/doc-db", "/doc-swagger-plus")
 				.excludePathPatterns("/**/*.js", "/**/*.css", "/**/*.png", "/**/*.gif", "/**/*.jpg", "/**/*.jpeg", "/**/fonts/*");
 	}

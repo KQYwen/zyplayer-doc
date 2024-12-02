@@ -3,16 +3,15 @@ package org.dromara.zyplayer.manage.framework.upgrade;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSessionFactory;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.dromara.zyplayer.core.enums.SystemConfigEnum;
 import org.dromara.zyplayer.core.util.UpgradeInfo;
 import org.dromara.zyplayer.core.util.ZyplayerDocVersion;
 import org.dromara.zyplayer.data.repository.manage.mapper.UserInfoMapper;
 import org.dromara.zyplayer.data.service.manage.SystemConfigService;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -144,7 +143,6 @@ public class UpgradeSystemDdlTask {
 		if (!"mysql".equals(databaseId)) {
 			sql = loadDDLFile("sql/upgrade/" + databaseId + "/" + version + ".sql");
 		}
-		
 		if (StringUtils.isBlank(sql)) {
 			logger.info("未找到当前版本的DDL脚本：" + version);
 			return;

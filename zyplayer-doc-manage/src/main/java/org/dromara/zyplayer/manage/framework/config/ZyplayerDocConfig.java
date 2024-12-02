@@ -1,9 +1,6 @@
 package org.dromara.zyplayer.manage.framework.config;
 
-import org.dromara.zyplayer.api.framework.config.EnableDocApi;
-import org.dromara.zyplayer.db.framework.configuration.EnableDocDb;
 import org.dromara.zyplayer.wiki.framework.config.EnableDocWiki;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -18,17 +15,6 @@ import org.springframework.context.annotation.Configuration;
 public class ZyplayerDocConfig {
 	
 	@EnableDocWiki
-	@ConditionalOnProperty(prefix = "zyplayer.doc.manage.enable", name = "wiki", matchIfMissing = true)
 	public static class enableWiki {
-	}
-	
-	@EnableDocDb
-	@ConditionalOnProperty(prefix = "zyplayer.doc.manage.enable", name = "db", matchIfMissing = true)
-	public static class enableDb {
-	}
-	
-	@EnableDocApi
-	@ConditionalOnProperty(prefix = "zyplayer.doc.manage.enable", name = "api", matchIfMissing = true)
-	public static class enableApi {
 	}
 }

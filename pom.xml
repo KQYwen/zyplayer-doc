@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 
 	<name>zyplayer-doc</name>
-	<description>定位为所有文档的管理项目，swagger文档、数据库文档、WIKI文档等</description>
+	<description>zyplayer-doc文档管理系统</description>
 
 	<properties>
 		<skipTests>true</skipTests>
@@ -24,8 +24,6 @@
 
 	<modules>
 		<module>zyplayer-doc-manage</module>
-		<module>zyplayer-doc-db</module>
-		<module>zyplayer-doc-api</module>
 		<module>zyplayer-doc-wiki</module>
 		<module>zyplayer-doc-core</module>
 		<module>zyplayer-doc-data</module>
@@ -99,6 +97,11 @@
 				<groupId>org.apache.curator</groupId>
 				<artifactId>curator-recipes</artifactId>
 				<version>2.12.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-collections4</artifactId>
+				<version>4.4</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-collections</groupId>
@@ -179,16 +182,6 @@
 			<dependency>
 				<groupId>org.dromara</groupId>
 				<artifactId>zyplayer-doc-data</artifactId>
-				<version>${zyplayer.doc.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.dromara</groupId>
-				<artifactId>zyplayer-doc-db</artifactId>
-				<version>${zyplayer.doc.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.dromara</groupId>
-				<artifactId>zyplayer-doc-api</artifactId>
 				<version>${zyplayer.doc.version}</version>
 			</dependency>
 			<dependency>

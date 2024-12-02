@@ -23,13 +23,6 @@ zyplayer:
         url: jdbc:mysql://${DATASOURCE_HOST_PORT:127.0.0.1:3306}/${DATASOURCE_DATABASE:zyplayer_doc}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
         username: ${DATASOURCE_USER:root}
         password: ${DATASOURCE_PASSWORD:root}
-      enable:
-        #wiki模块的是否加载，没有此配置也为true，只有填写false才是不加载
-        wiki: ${ZYPLAYER_ENABLE_WIKI:true}
-        #db模块的是否加载，没有此配置也为true，只有填写false才是不加载
-        db: ${ZYPLAYER_ENABLE_DB:true}
-        #api模块的是否加载，没有此配置也为true，只有填写false才是不加载
-        api: ${ZYPLAYER_ENABLE_API:true}
       # 版本和升级信息获取地址
       upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
       # 系统根域名，调试UI时需要使用，同时需要在host文件里配置：127.0.0.1 local.zyplayer.com
@@ -40,14 +33,6 @@ zyplayer:
       upload-path: ${WIKI_UPLOAD_PATH:D:/zyplayerDoc/wikiFiles}
       # 是否检查目录有被系统定期清理的风险，建议开启
       upload-path-check: true
-    # ------数据库相关配置------
-    db:
-      # 最大允许导出的行数，设置的过大有可能会导致内存溢出
-      download-max-row: 100000
-    swagger:
-      proxy-request:
-        # 允许代理请求的域名，正则表达式，多个使用 ; 分割，必须设置，防止通过代理接口访问到内部资源，实在觉得没必要可设置为：.+
-        white-domain: .+
 
 spring:
   application:

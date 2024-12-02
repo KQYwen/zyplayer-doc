@@ -15,5 +15,4 @@ public class UpgradeInfo {
 	private String upgradeContent;
 	private String upgradeUrl;
 	private String nextStep;
-
 }

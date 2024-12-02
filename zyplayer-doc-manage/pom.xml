@@ -39,19 +39,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.dromara</groupId>
-			<artifactId>zyplayer-doc-db</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.dromara</groupId>
 			<artifactId>zyplayer-doc-wiki</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.dromara</groupId>
 			<artifactId>zyplayer-doc-data</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.dromara</groupId>
-			<artifactId>zyplayer-doc-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
