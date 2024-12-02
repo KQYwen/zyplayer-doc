@@ -21,7 +21,7 @@
     </developers>
 
     <parent>
-        <groupId>com.zyplayer</groupId>
+        <groupId>org.dromara</groupId>
         <artifactId>zyplayer-doc</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -42,11 +42,11 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.zyplayer</groupId>
+            <groupId>org.dromara</groupId>
             <artifactId>zyplayer-doc-data</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.zyplayer</groupId>
+            <groupId>org.dromara</groupId>
             <artifactId>zyplayer-doc-core</artifactId>
         </dependency>
         <dependency>

@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.zyplayer</groupId>
+	<groupId>org.dromara</groupId>
 	<artifactId>zyplayer-doc</artifactId>
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
@@ -172,27 +172,27 @@
 				<version>1.17.2</version>
 			</dependency>
 			<dependency>
-				<groupId>com.zyplayer</groupId>
+				<groupId>org.dromara</groupId>
 				<artifactId>zyplayer-doc-core</artifactId>
 				<version>${zyplayer.doc.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.zyplayer</groupId>
+				<groupId>org.dromara</groupId>
 				<artifactId>zyplayer-doc-data</artifactId>
 				<version>${zyplayer.doc.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.zyplayer</groupId>
+				<groupId>org.dromara</groupId>
 				<artifactId>zyplayer-doc-db</artifactId>
 				<version>${zyplayer.doc.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.zyplayer</groupId>
+				<groupId>org.dromara</groupId>
 				<artifactId>zyplayer-doc-api</artifactId>
 				<version>${zyplayer.doc.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.zyplayer</groupId>
+				<groupId>org.dromara</groupId>
 				<artifactId>zyplayer-doc-wiki</artifactId>
 				<version>${zyplayer.doc.version}</version>
 			</dependency>

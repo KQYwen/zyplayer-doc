@@ -1,0 +1,19 @@
+package org.dromara.zyplayer.data.service.manage;
+
+import org.dromara.zyplayer.data.repository.manage.entity.WikiSpaceFavorite;
+import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
+
+/**
+ * <p>
+ * 用户空间收藏记录表 服务类
+ * </p>
+ *
+ * @author 暮光：城中城
+ * @since 2021-02-09
+ */
+public interface WikiSpaceFavoriteService extends IService<WikiSpaceFavorite> {
+	
+	List<WikiSpaceFavorite> myFavoriteSpaceList();
+}

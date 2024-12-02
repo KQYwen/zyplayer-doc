@@ -47,7 +47,7 @@ create database zyplayer_doc;
 
 ## Main方法启动
 1. 修改`zyplayer-doc-manage/src/main/resources/application.yml`配置文件里面的数据库账号密码
-2. 执行`com.zyplayer.doc.manage.Application.main`方法启动项目
+2. 执行`org.dromara.zyplayer.manage.Application.main`方法启动项目
 
 ## JAR方式启动
 1. 直接下载：直接下载编译好的jar打包文件，编译后的最新版可到 [发行版下载处](https://gitee.com/dromara/zyplayer-doc/releases) 去下载

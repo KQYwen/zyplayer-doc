@@ -7,7 +7,7 @@
 	<artifactId>zyplayer-doc-core</artifactId>
 
 	<parent>
-		<groupId>com.zyplayer</groupId>
+		<groupId>org.dromara</groupId>
 		<artifactId>zyplayer-doc</artifactId>
 		<version>1.0.0</version>
 	</parent>

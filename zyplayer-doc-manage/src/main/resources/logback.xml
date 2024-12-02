@@ -19,7 +19,7 @@
 			<pattern>${outPattern}</pattern>
 		</encoder>
 	</appender>
-	<logger name="com.zyplayer.doc.manage.repository" level="warn" />
+	<logger name="org.dromara.zyplayer.manage.repository" level="warn" />
 	<root level="info">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="INFO" />

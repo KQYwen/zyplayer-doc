@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.zyplayer.db.framework.db.mapper.base.BaseMapper">
+
+    <resultMap id="TableColumnDescDtoMap" type="org.dromara.zyplayer.db.framework.db.dto.TableColumnDescDto" >
+        <result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
+        <result column="COLUMN_NAME" property="name" jdbcType="VARCHAR" />
+        <result column="DATA_TYPE" property="type" jdbcType="VARCHAR" />
+        <result column="NULLABLE" property="nullable" jdbcType="VARCHAR" />
+        <result column="COMMENTS" property="description" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="QueryTableColumnDescDtoMap" type="org.dromara.zyplayer.db.framework.db.dto.QueryTableColumnDescDto" >
+        <result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
+        <result column="COLUMN_NAME" property="columnName" jdbcType="VARCHAR" />
+        <result column="COMMENTS" property="description" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!-- 获取用户列表 -->
+    <select id="getDatabaseList" resultType="org.dromara.zyplayer.db.framework.db.dto.DatabaseInfoDto">
+        select USERNAME dbName from all_users
+    </select>
+
+    <select id="getTableStatus" resultType="org.dromara.zyplayer.db.controller.vo.TableStatusVo">
+        select dt.TABLE_NAME as name,
+               dt.NUM_ROWS as "rows",
+               dt.AVG_ROW_LEN as avgRowLength,
+               do.CREATED as createTime,
+               do.LAST_DDL_TIME as updateTime,
+               dtc.COMMENTS as "comment"
+        from dba_tables dt
+                 left join dba_objects do on do.owner = dt.owner and do.object_name = dt.table_name and do.object_type='TABLE'
+                 left join dba_tab_comments dtc on dtc.owner = dt.owner and dtc.table_name = dt.table_name
+        where dt.owner = #{dbName} and dt.table_name = #{tableName}
+    </select>
+
+    <!-- 获取表列表 -->
+    <select id="getTableList" resultType="org.dromara.zyplayer.db.framework.db.dto.TableInfoDto">
+        select t.OWNER as dbName,t.TABLE_NAME as tableName,c.COMMENTS as tableComment from all_tables t
+        left join all_tab_comments c on t.TABLE_NAME = c.TABLE_NAME and t.OWNER = c.OWNER
+        <where>
+            <if test="dbName != null">t.owner = #{dbName}</if>
+        </where>
+        order by t.TABLE_NAME
+    </select>
+
+    <!-- 获取表字段集合 -->
+    <select id="getTableColumnList" resultMap="TableColumnDescDtoMap">
+        select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then '1' when 'N' then '0' end NULLABLE,
+        cons.POSITION as primaryKey,col_comments.comments from all_tab_columns t
+        left join (
+        select s.owner, s.table_name, s.column_name,s.POSITION, cons.constraint_type  from 	all_cons_columns s
+        join all_constraints cons on s.owner = cons.owner and
+        s.constraint_name = cons.constraint_name  where cons.constraint_type in ('P', 'U', 'R')--只选择constraint_type为'P'（主键）、'U'（唯一键）和'R'（外键）的约束类型
+        )cons on t.owner = cons.owner and t.table_name = cons.table_name and t.column_name = cons.column_name
+        left join (
+        select comments.owner, comments.table_name, comments.column_name, comments.comments
+        from all_col_comments comments) col_comments on t.owner = col_comments.owner and t.table_name = col_comments.table_name
+        and t.column_name = col_comments.column_name
+        <where>
+            t.owner = #{dbName}
+            <if test="tableName != null"> and t.TABLE_NAME = #{tableName}</if>
+        </where>
+    </select>
+
+    <!-- 条件查询表字段 -->
+    <select id="getTableAndColumnBySearch" resultMap="QueryTableColumnDescDtoMap">
+        select t.TABLE_NAME,t.COLUMN_NAME,t.DATA_TYPE,case t.NULLABLE when 'Y' then 1 when 'N' then 0 end NULLABLE, c.COMMENTS
+        from all_tab_columns t
+        left join all_col_comments c on t.COLUMN_NAME = c.COLUMN_NAME and t.TABLE_NAME = c.TABLE_NAME and t.OWNER = c.OWNER
+        where t.OWNER = #{dbName} AND (upper(t.COLUMN_NAME) like upper(#{searchText}) or upper(c.COMMENTS) like upper(#{searchText}))
+    </select>
+
+    <!-- 条件查询表 -->
+    <select id="getTableDescList" resultType="org.dromara.zyplayer.db.framework.db.dto.TableDescDto">
+        select t.OWNER,t.TABLE_NAME as tableName,c.COMMENTS as description
+        from all_tables t
+        left join all_tab_comments c on t.TABLE_NAME = c.TABLE_NAME and t.owner = c.owner
+        <where>
+            <if test="dbName != null">and t.owner = #{dbName}</if>
+            <if test="tableName != null">and t.TABLE_NAME = #{tableName}</if>
+        </where>
+    </select>
+
+    <select id="getTableDdl" resultType="java.util.Map">
+        SELECT DBMS_METADATA.GET_DDL('TABLE','${tableName}','${dbName}') createTable FROM DUAL
+    </select>
+
+    <!-- 增加表注释 -->
+    <insert id="updateTableDesc">
+        comment on table ${dbName}.${tableName} is #{new Desc}
+    </insert>
+
+    <!-- 增加表字段注释 -->
+    <insert id="updateTableColumnDesc">
+        comment on column ${dbName}.${tableName}.${columnName} is #{new Desc}
+    </insert>
+
+    <delete id="deleteTableLineData">
+        delete from ${dbName}.${tableName} where
+        <foreach collection="lineParam.entrySet()" index="key" item="value">
+            ${key} = #{value}
+        </foreach>
+    </delete>
+
+</mapper>

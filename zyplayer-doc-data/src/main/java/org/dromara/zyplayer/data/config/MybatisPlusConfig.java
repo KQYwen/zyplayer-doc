@@ -1,0 +1,84 @@
+package org.dromara.zyplayer.data.config;
+
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
+import org.dromara.zyplayer.data.repository.support.interceptor.SqlLogInterceptor;
+import org.dromara.zyplayer.data.utils.DruidDataSourceUtil;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.apache.ibatis.mapping.DatabaseIdProvider;
+import org.apache.ibatis.mapping.VendorDatabaseIdProvider;
+
+import java.util.Properties;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
+/**
+ * mybatis plus数据库配置
+ *
+ * @author 暮光：城中城
+ * @since 2019-02-16
+ */
+@Configuration
+public class MybatisPlusConfig {
+	
+	/**
+	 * 数据库配置
+	 */
+	@Configuration
+	@EnableTransactionManagement
+	@MapperScan(value = "org.dromara.zyplayer.data.repository.manage.mapper", sqlSessionFactoryRef = "manageSqlSessionFactory")
+	static class ManageMybatisDbConfig {
+		
+		@Value("${zyplayer.doc.manage.datasource.driverClassName}")
+		private String driverClassName;
+		@Value("${zyplayer.doc.manage.datasource.url}")
+		private String url;
+		@Value("${zyplayer.doc.manage.datasource.username}")
+		private String username;
+		@Value("${zyplayer.doc.manage.datasource.password}")
+		private String password;
+		@Resource
+		private MybatisPlusInterceptor paginationInterceptor;
+		
+		@Bean(name = "manageDatasource")
+		public DataSource manageDatasource() throws Exception {
+			return DruidDataSourceUtil.createDataSource(driverClassName, url, username, password, false);
+		}
+		
+		@Bean(name = "manageSqlSessionFactory")
+		public MybatisSqlSessionFactoryBean manageSqlSessionFactory() throws Exception {
+			MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
+			DatabaseIdProvider databaseIdProvider = new VendorDatabaseIdProvider();
+			Properties properties = new Properties();
+			properties.setProperty("SQL Server", "sqlserver");
+			properties.setProperty("DB2", "db2");
+			properties.setProperty("Oracle", "oracle");
+			properties.setProperty("MySQL", "mysql");
+			properties.setProperty("PostgreSQL", "postgresql");
+			properties.setProperty("Derby", "derby");
+			properties.setProperty("HSQL", "hsqldb");
+			properties.setProperty("H2", "h2");
+			databaseIdProvider.setProperties(properties);
+			sqlSessionFactoryBean.setDatabaseIdProvider(databaseIdProvider);
+			sqlSessionFactoryBean.setDataSource(manageDatasource());
+			sqlSessionFactoryBean.setPlugins(new SqlLogInterceptor(), paginationInterceptor);
+
+			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+			sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/manage/*Mapper.xml"));
+			return sqlSessionFactoryBean;
+		}
+	}
+	
+	@Bean
+	public MybatisPlusInterceptor paginationInterceptor() {
+		MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
+		mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+		return mybatisPlusInterceptor;
+	}
+}

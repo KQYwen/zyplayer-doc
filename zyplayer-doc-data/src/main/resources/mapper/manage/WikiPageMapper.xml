@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zyplayer.doc.data.repository.manage.mapper.WikiPageMapper">
+<mapper namespace="org.dromara.zyplayer.data.repository.manage.mapper.WikiPageMapper">
 	<update id="updateChildrenSeq">
 		update wiki_page a
 			join (
@@ -16,8 +16,8 @@
 		WITH  exceeded_wiki_page AS (
 		  select row_number() over() as rownum, * from wiki_page where parent_id = #{parentId} and space_id = #{spaceId} ORDER BY seq_no ASC, update_time DESC
 		)
-		UPDATE wiki_page SET seq_no = ewp.rownum 
-		  FROM exceeded_wiki_page AS ewp 
+		UPDATE wiki_page SET seq_no = ewp.rownum
+		  FROM exceeded_wiki_page AS ewp
 		  WHERE wiki_page.id = ewp.id
 	</update>
 </mapper>
