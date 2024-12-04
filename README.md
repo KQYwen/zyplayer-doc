@@ -65,43 +65,6 @@ create database zyplayer_doc;
 
 启动后访问：[http://127.0.0.1:8083](http://127.0.0.1:8083) ，默认登录账号： **zyplayer**  密码： **123456**
 
-# 各模块介绍
-## zyplayer-doc-manage 文档管理后台
-1. 具有项目模块导航，人员及权限管理功能，分组管理等功能。
-2. 集成了本项目内的各个子模块功能，是各模块的协调管理模块。
-
-## zyplayer-doc-wiki wiki文档工具
-1. 在线管理公司、项目及任意形式的文档
-2. 文档支持按空间划分，按人员分组授权，支持空间收藏和空间内的文档开放访问。
-3. 文档支持编辑、查看、评论、上传附件、历史版本查看、页面权限控制、文档搜索等功能。
-4. 文档编辑支持html富文本方式编辑和markdown的方式编辑。
-5. 本工具使用的开源工具有：vue、element-ui、mavon-editor、wangeditor等。
-6. 参考学习了Atlassian Confluence文档工具进行开发，争取作为该软件的开源免费替代产品，同时作为内部文档管理工具最好的存在。
-
-## zyplayer-doc-db 数据库工具
-一款在线管理数据库的工具，你可以将所有的数据源统一管理到这里面，团队间的各成员就不必每人在自己电脑上装一个数据库管理软件，
-然后再添加数据源，可以统一修改数据库账号密码而不用群广播通知，新员工进入后对他使用到的数据源进行授权即可使用。
-
-1. 支持MySQL、Doris（MySQL协议）、SQLServer、Oracle、达梦、PostgreSQL、Hive、Impala数据源。
-2. 支持数据库表、字段文档查看修改，表文档导出、建表语句DDL导出、表数据导出。
-3. 支持SQL执行、表数据预览、不同数据库之间的数据互导，支持多数据源管理。
-4. 支持按人员、按数据源对用户授权，可给用户 库表注释查看、注释修改、SQL执行、函数修改等粒度的授权。
-5. 支持库函数和存储过程的增删改查，修改记录查询等。
-6. 目标是取代Navicat，做一个小而精的开源免费的在线数据库管理工具。
-
-## zyplayer-doc-api API接口文档管理工具
-一款支持统一管理Swagger文档、OpenApi文档、自建接口文档的管理工具，具有文档查看、接口请求、全局参数管理等功能，设计走心，前端代码使用最新技术构建，每一行代码都是全新手动敲出来的，超级简单明了，代码简洁美观可读性好、易维护。
-
-1. 支持Swagger的文档展示，接口调试，解析速度快，界面设计走心。
-2. 支持将所有的Swagger文档、OpenApi文档、自建接口文档进行统一管理，支持全局参数设置，请求参数缓存，下次自动填充等。
-3. 目标是实现一个平台解决所有项目的接口文档统一管理。
-
-## 其他
-1. zyplayer-doc-ui 前面各模块的前端UI源码
-2. zyplayer-doc-core 一些核心、公用的类
-3. zyplayer-doc-data 数据库层面的交互
-5. zyplayer-doc-other 一些测试
-
 # 用爱发电
 如果您正在使用这个项目并感觉良好，或者是想支持项目继续开发，您可以通过如下`任意`方式支持我们：
 1. Star并分享 [zyplayer-doc](https://gitee.com/zyplayer/zyplayer-doc)
@@ -112,17 +75,5 @@ create database zyplayer_doc;
 控制台页面
 ![主页面](https://images.gitee.com/uploads/images/2020/0516/125840_d6284954_596905.png "主页面.png")
 
-数据库文档页面
-![数据库文档](https://images.gitee.com/uploads/images/2020/0516/130017_254f9559_596905.png "数据库文档.png")
-
 WIKI文档页面
 ![wiki文档](https://images.gitee.com/uploads/images/2020/0516/130119_bc2f5021_596905.png "wiki文档.png")
-
-API文档主页面
-![主页面](https://images.gitee.com/uploads/images/2021/1120/181101_87903c1f_596905.png "主页面.png")
-
-API文档查看页面
-![文档查看页面](https://images.gitee.com/uploads/images/2021/1120/181135_0b6034e4_596905.png "文档查看页面.png")
-
-API文档在线调试页面
-![在线调试页面](https://images.gitee.com/uploads/images/2021/1120/181205_462cb4aa_596905.png "在线调试页面.png")
