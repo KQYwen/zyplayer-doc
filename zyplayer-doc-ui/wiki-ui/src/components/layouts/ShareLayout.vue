@@ -27,7 +27,12 @@
 								<div class="page-tree-node">
 									<el-tooltip :content="node.label" placement="top-start" :show-after="1000">
 										<span class="label">
-											<el-icon><el-icon-document/></el-icon>
+											<template v-if="data.editorType === 0">
+												<FolderOpen v-if="node.expanded" class="el-icon"/>
+												<FolderClose v-else class="el-icon"/>
+											</template>
+											<template v-else-if="data.editorType === 1"><IconParkWord class="el-icon"/></template>
+											<template v-else-if="data.editorType === 2"><IconDocument class="el-icon"/></template>
 											<span class="text">{{ node.label }}</span>
 										</span>
 									</el-tooltip>
@@ -53,12 +58,11 @@
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
-import {
-	Document as ElIconDocument,
-	Search as ElIconSearch,
-} from '@element-plus/icons-vue'
+import {FolderClose, FolderOpen, Word as IconParkWord,} from '@icon-park/vue-next'
+import {Search as ElIconSearch,} from '@element-plus/icons-vue'
 import pageApi from '../../assets/api/page'
 import RightResize from './RightResize.vue'
+import IconDocument from "@/components/base/IconDocument.vue";
 
 let leftCollapse = ref(true);
 let defaultProps = ref({children: 'children', label: 'name',});
