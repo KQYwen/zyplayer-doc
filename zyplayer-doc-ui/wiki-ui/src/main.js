@@ -1,7 +1,6 @@
 import hljs from 'highlight.js'
 import 'highlight.js/styles/googlecode.css'
 // import 'highlight.js/styles/monokai-sublime.css'
-import '/public/katex/katex.min.js'
 
 import {createApp} from 'vue'
 import App from './App.vue'
