@@ -1,4 +1,4 @@
-import GlobalLayout from './components/layouts/GlobalLayout.vue'
+import PageLayout from './views/page/PageLayout.vue'
 import ShareLayout from './components/layouts/ShareLayout.vue'
 import ShareMobileLayout from './components/layouts/ShareMobileLayout.vue'
 
@@ -23,7 +23,7 @@ let routes = [
 	{
 		path: '/',
 		name: '文档管理',
-		component: GlobalLayout,
+		component: PageLayout,
 		children: [
 			{path: '/home', name: 'WIKI文档管理', component: Home},
 			{path: '/user/myInfo', name: 'WIKI-我的信息', component: MyInfo},

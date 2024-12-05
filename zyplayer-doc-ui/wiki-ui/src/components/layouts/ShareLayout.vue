@@ -61,7 +61,7 @@ import {ElMessageBox, ElMessage} from 'element-plus'
 import {FolderClose, FolderOpen, Word as IconParkWord,} from '@icon-park/vue-next'
 import {Search as ElIconSearch,} from '@element-plus/icons-vue'
 import pageApi from '../../assets/api/page'
-import RightResize from './RightResize.vue'
+import RightResize from '../../views/page/aside/RightResize.vue'
 import IconDocument from "@/components/base/IconDocument.vue";
 
 let leftCollapse = ref(true);

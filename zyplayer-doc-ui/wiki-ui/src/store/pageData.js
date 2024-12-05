@@ -10,6 +10,9 @@ export const useStorePageData = defineStore('pageData', {
 			optionPageId: 0,
 			wikiPageList: [],
 			pageIsUnLock: false,
+			//---------------事件触发---------------
+			// 页面列表改变事件
+			eventPageListUpdate: false,
 		}
 	},
 });

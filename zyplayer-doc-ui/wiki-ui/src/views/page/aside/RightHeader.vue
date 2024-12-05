@@ -94,7 +94,7 @@ import userApi from "@/assets/api/user";
 import PageAuthDialog from '@/views/page/show/PageAuthDialog.vue'
 import MobileQrScanDialog from '@/views/page/show/MobileQrScanDialog.vue'
 import AboutDialog from "@/views/common/AboutDialog.vue"
-import UserMessagePopover from "./UserMessagePopover.vue"
+import UserMessagePopover from "../../../components/layouts/UserMessagePopover.vue"
 import {fixRequestUrl} from "@/assets/api/hostUtils";
 
 let router = useRouter();

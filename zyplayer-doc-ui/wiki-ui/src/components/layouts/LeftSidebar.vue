@@ -166,7 +166,6 @@ const openTemplateCreate = (exsit) => {
 
 const createWikiByTemplate = () => {
 	templateManageRef.value.showTemplateManage()
-
 }
 
 const filterShareStatus = (data) => {

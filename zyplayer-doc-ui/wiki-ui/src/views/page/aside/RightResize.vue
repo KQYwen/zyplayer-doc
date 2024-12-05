@@ -43,7 +43,7 @@ const dragChangeRightAsideWidth = () => {
 
 <style scoped lang="scss">
 .right-resize {
-  width: 5px;
+  width: 3px;
   height: 100%;
   cursor: w-resize;
   background: #fafafa;
