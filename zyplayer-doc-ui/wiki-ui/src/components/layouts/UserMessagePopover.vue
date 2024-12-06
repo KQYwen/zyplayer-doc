@@ -1,10 +1,10 @@
 <template>
 	<span class="user-message-popover">
-		<el-tooltip content="文档通知">
-			<el-badge :value="notReadMessageNum" :max="99" :hidden="notReadMessageNum <= 0">
-				<el-button ref="remindButtonRef" class="hover-button" text><IconParkRemind size="18"/></el-button>
-			</el-badge>
-		</el-tooltip>
+		<a-tooltip title="文档通知">
+			<a-badge :count="notReadMessageNum" :hidden="notReadMessageNum <= 0" :offset="[-6, 6]">
+				<a-button ref="remindButtonRef" class="hover-button hover-bg" size="large" :icon="h(BellOutlined)"></a-button>
+			</a-badge>
+		</a-tooltip>
 		<el-popover v-model:visible="userMessagePopVisible" placement="bottom" :width="700" trigger="click"
 		            popper-class="header-user-remind" ref="popoverRef"
 		            :virtual-ref="remindButtonRef" virtual-triggering>
@@ -48,10 +48,8 @@ import {
 	Plus as ElIconPlus,
 	Check as ElIconCheck,
 } from '@element-plus/icons-vue'
-import {
-	Remind as IconParkRemind,
-} from '@icon-park/vue-next'
-import {onBeforeUnmount, toRefs, ref, reactive, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
+import {BellOutlined, CheckOutlined} from '@ant-design/icons-vue';
+import {onBeforeUnmount, toRefs, ref, reactive, onMounted, watch, h, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus'
 import pageApi from "@/assets/api/page";

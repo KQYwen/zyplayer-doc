@@ -1,7 +1,7 @@
 <template>
 	<div class="navigation-box">
 		<div class="navigation-content-box">
-			<div>dasdas</div>
+			<div></div>
 			<div class="nav-heading" :style="{ width: navigationWidth }">
 				<div v-for="item in heading" :class="'heading-item heading-' + item.level" @click="headingItemClick(item)">
 					{{ item.text }}

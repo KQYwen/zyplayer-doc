@@ -17,17 +17,20 @@
 		<el-col :span="12" style="text-align: right;">
 			<div class="header-action-box">
 				<template v-if="storeDisplay.currentPage === 'view'">
-					<el-tooltip v-if="storePage.pageAuth.canEdit === 1" content="编辑文档">
-						<el-button class="hover-button" @click="editWiki" text><IconParkEdit size="18"/></el-button>
-					</el-tooltip>
-					<el-tooltip content="文档沟通">
-						<el-button class="hover-button" @click="showCommentWiki" text><IconParkCommunication size="18"/></el-button>
-					</el-tooltip>
+					<a-tooltip v-if="storePage.pageAuth.canEdit === 1" title="编辑文档">
+						<a-button class="hover-button hover-bg" @click="editWiki" size="large" :icon="h(EditOutlined)"></a-button>
+					</a-tooltip>
+					<a-tooltip v-else title="没有编辑权限">
+						<span class="disabled-btn-box"><a-button class="hover-button" size="large" :icon="h(EditOutlined)" disabled></a-button></span>
+					</a-tooltip>
+					<a-tooltip title="文档沟通">
+						<a-button class="hover-button hover-bg" @click="showCommentWiki" size="large" :icon="h(MessageOutlined)"></a-button>
+					</a-tooltip>
 					<UserMessagePopover/>
 					<a-dropdown trigger="click" placement="bottom" overlayClassName="header-action-more-dropdown">
-					<span style="line-height: 60px;display:inline-block;margin: 0 8px;">
-						<el-button :icon="ElIconMoreFilled" class="hover-button" text></el-button>
-					</span>
+						<span style="display:inline-block;margin: 0 12px;">
+							<a-button class="hover-button hover-bg" size="large" :icon="h(EllipsisOutlined)"></a-button>
+						</span>
 						<template #overlay>
 							<a-menu>
 								<a-menu-item @click="editWikiAuth" v-if="storePage.pageAuth.canConfigAuth === 1"><el-icon><ElIconSCheck/></el-icon> 权限设置</a-menu-item>
@@ -41,8 +44,8 @@
 					</a-dropdown>
 				</template>
 				<a-dropdown trigger="click" placement="bottom" overlayClassName="header-action-user-dropdown">
-					<span style="line-height: 60px;display:inline-block;">
-						<el-button :icon="ElIconUserFilled" class="hover-button" text></el-button>
+					<span style="display:inline-block;">
+						<a-button class="hover-button hover-bg" size="large" :icon="h(UserOutlined)"></a-button>
 					</span>
 					<template #overlay>
 						<a-menu>
@@ -77,12 +80,8 @@ import {
 	Setting as ElIconSetting,
 	UserFilled as ElIconUserFilled,
 } from '@element-plus/icons-vue'
-import {
-	Star as IconParkStar,
-	Edit as IconParkEdit,
-	Communication as IconParkCommunication,
-} from '@icon-park/vue-next'
-import {toRefs, ref, reactive, onMounted, watch, defineEmits, computed} from 'vue';
+import {UserOutlined, EditOutlined, MessageOutlined, CheckOutlined, EllipsisOutlined} from '@ant-design/icons-vue';
+import {toRefs, ref, reactive, onMounted, watch, defineEmits, h, computed} from 'vue';
 import {useRouter, useRoute} from "vue-router";
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useStoreDisplay } from '@/store/wikiDisplay.js'
@@ -213,131 +212,131 @@ const showConsole = () => {
 
 <style lang="scss" scoped>
 .left-action-box {
-  display: flex;
+	display: flex;
 
-  .collapse-box {
-	line-height: 60px;
+	.collapse-box {
+		line-height: 60px;
 
-	.fold-btn {
-	  font-size: 18px;
-	  padding: 4px 10px;
-	  color: #888 !important;
-	}
-  }
-
-  .title-time-box {
-	flex: 1;
-	padding: 5px 0 6px 10px;
-	overflow: hidden;
-
-	.title {
-	  overflow: hidden;
-	  white-space: nowrap;
-	  -o-text-overflow: ellipsis;
-	  text-overflow: ellipsis;
-	  line-height: 28px;
-
-	  .text {
-		vertical-align: middle;
-	  }
+		.fold-btn {
+			font-size: 18px;
+			padding: 4px 10px;
+			color: #888 !important;
+		}
 	}
 
-	.time {
-	  font-size: 12px;
-	  overflow: hidden;
-	  white-space: nowrap;
-	  -o-text-overflow: ellipsis;
-	  text-overflow: ellipsis;
-	}
-  }
+	.title-time-box {
+		flex: 1;
+		padding: 5px 0 6px 10px;
+		overflow: hidden;
 
-  .title-setting-box {
-	.setting-title {
-	  font-size: 18px;
-	  line-height: 60px;
-	  padding-left: 10px;
-	  .text {
-		display: inline-block;
-	  }
+		.title {
+			overflow: hidden;
+			white-space: nowrap;
+			-o-text-overflow: ellipsis;
+			text-overflow: ellipsis;
+			line-height: 28px;
+
+			.text {
+				vertical-align: middle;
+			}
+		}
+
+		.time {
+			font-size: 12px;
+			overflow: hidden;
+			white-space: nowrap;
+			-o-text-overflow: ellipsis;
+			text-overflow: ellipsis;
+		}
 	}
-  }
+
+	.title-setting-box {
+		.setting-title {
+			font-size: 18px;
+			line-height: 60px;
+			padding-left: 10px;
+
+			.text {
+				display: inline-block;
+			}
+		}
+	}
 }
 </style>
 
 <style lang="scss">
 .left-action-box {
-  .title-time-box {
-	.title {
-	  .i-icon {
-		vertical-align: middle;
+	.title-time-box {
+		.title {
+			.i-icon {
+				vertical-align: middle;
 
-		svg {
-		  vertical-align: unset;
+				svg {
+					vertical-align: unset;
+				}
+			}
 		}
-	  }
 	}
-  }
 }
 
 .title-setting-box {
-  .setting-title {
-	.tips-icon {
-	  vertical-align: 0.1em;
-	  margin-left: 6px;
+	.setting-title {
+		.tips-icon {
+			vertical-align: 0.1em;
+			margin-left: 6px;
+		}
 	}
-  }
 }
 
 .header-action-box {
-  display: inline-block;
-  line-height: 60px;
+	display: inline-block;
+	line-height: 60px;
 
-  .disabled-btn-box {
-	margin-right: 10px;
-  }
-
-  .hover-button {
-	border: 0;
-	color: #888;
-
-	.i-icon svg {
-	  vertical-align: middle;
+	.disabled-btn-box {
+		margin-right: 10px;
 	}
-  }
 
-  .hover-button:focus {
-	color: #888;
-	background: #fff;
-  }
+	.hover-button {
+		border: 0;
+		box-shadow: unset;
+		width: 54px !important;
 
-  .hover-button:hover {
-	color: #888;
-	background: #eaeaea;
-  }
+		.i-icon svg {
+			vertical-align: inherit;
+		}
+
+		&:hover.hover-bg {
+			background: #eaeaea;
+		}
+
+		& + .hover-button {
+			margin-left: 10px;
+		}
+	}
 }
 
 .header-action-user-dropdown {
-  width: 120px;
+	width: 120px;
 }
 
 .header-action-more-dropdown {
-  width: 140px;
+	width: 140px;
 
-  .delete {
-	color: #f00;
-  }
+	.delete {
+		color: #f00;
+	}
 
-  .delete.disabled {
-	cursor: not-allowed;
-	color: var(--el-text-color-disabled);
-  }
+	.delete.disabled {
+		cursor: not-allowed;
+		color: var(--el-text-color-disabled);
+	}
 
-  .cant-hover {
-	cursor: default;
-  }
+	.cant-hover {
+		cursor: default;
+	}
 
-  .cant-hover:hover {
-	background: #fff;
-  }
+	.cant-hover:hover {
+		background: #fff;
+	}
 }
 </style>
