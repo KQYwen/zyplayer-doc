@@ -1,37 +1,39 @@
 <template>
-	<div class="comment-box" ref="actionTabCommentRef">
-		<div v-if="commentList.length <= 0" class="action-box-empty">
-			暂无评论
+	<div class="comment-outer-box">
+		<div class="comment-box" ref="actionTabCommentRef">
+			<div v-if="commentList.length <= 0" class="action-box-empty">暂无评论</div>
+			<div v-else class="comment-list">
+				<el-timeline>
+					<el-timeline-item :timestamp="comment.createTime" placement="top" v-for="comment in commentList">
+						<el-card class="box-card comment-card" :body-style="{ padding: '10px' }">
+							<div :style="'background-color: ' + comment.color" class="head">
+								{{ comment.createUserName.substr(0, 1) }}
+							</div>
+							<div class="comment-user-name">
+								{{ comment.createUserName }}
+								<el-popconfirm v-if="canDeleteComment(comment)"
+								               placement="top" width="160" trigger="click"
+								               confirm-button-text="删除"
+								               cancel-button-text="取消"
+								               @confirm="deleteComment(comment.id)"
+								               title="确定要删除此评论吗？">
+									<template #reference>
+										<el-icon class="icon-delete"><ElIconDelete /></el-icon>
+									</template>
+								</el-popconfirm>
+							</div>
+							<pre class="comment-content">{{ comment.content }}</pre>
+						</el-card>
+					</el-timeline-item>
+				</el-timeline>
+			</div>
 		</div>
-		<div v-else class="comment-list">
-			<el-timeline>
-				<el-timeline-item :timestamp="comment.createTime" placement="top" v-for="comment in commentList">
-					<el-card class="box-card comment-card" :body-style="{ padding: '10px' }">
-						<div :style="'background-color: ' + comment.color" class="head">
-							{{ comment.createUserName.substr(0, 1) }}
-						</div>
-						<div class="comment-user-name">
-							{{ comment.createUserName }}
-							<el-popconfirm v-if="canDeleteComment(comment)"
-							               placement="top" width="160" trigger="click"
-							               confirm-button-text="删除"
-							               cancel-button-text="取消"
-							               @confirm="deleteComment(comment.id)"
-							               title="确定要删除此评论吗？">
-								<template #reference>
-									<el-icon class="icon-delete"><ElIconDelete /></el-icon>
-								</template>
-							</el-popconfirm>
-						</div>
-						<pre class="comment-content">{{ comment.content }}</pre>
-					</el-card>
-				</el-timeline-item>
-			</el-timeline>
+		<div class="comment-input-box">
+			<textarea rows="5" placeholder="发表评论" v-model="commentTextInput" :maxlength="500"></textarea>
+			<div class="comment-btn-box">
+				<el-button type="primary" size="small" @click="submitPageComment">发送</el-button>
+			</div>
 		</div>
-	</div>
-	<div class="comment-input-box">
-		<textarea rows="5" placeholder="发表评论" v-model="commentTextInput" :maxlength="500"></textarea>
-		<el-button style="float: right; margin: 2px 5px" type="primary" size="small" @click="submitPageComment">发送</el-button>
 	</div>
 </template>
 
@@ -97,17 +99,9 @@ const loadCommentList = () => {
 		scrollActionTabComment()
 	})
 }
-const recommentUser = (id, index) => {
-	recommentInfo.value = {
-		id: id,
-		index: index,
-		placeholder: '回复' + (index + 1) + '楼',
-	}
-}
 let canDeleteComment = (row) => {
-	return (
-		storeUser.userInfo.id === row.createUserId || storeUser.userInfo.id === storePage.pageInfo.createUserId
-	)
+	return storeUser.userInfo.id === row.createUserId
+		|| storeUser.userInfo.id === storePage.pageInfo.createUserId
 }
 const deleteComment = (id) => {
 	pageApi.deletePageComment({id: id}).then(() => {
@@ -147,58 +141,57 @@ const getUserHeadBgColor = (userId) => {
 
 <style lang="scss">
 .comment-box {
-  padding: 8px;
-  height: calc(100vh - 115px);
-  overflow: auto;
+	padding: 8px;
+	height: calc(100vh - 315px);
+	overflow: auto;
 
-  .comment-list {
-	padding-bottom: 130px;
-  }
+	.comment-card {
+		.comment-user-name {
+			margin-bottom: 10px;
 
-  .comment-card {
-	.comment-user-name {
-	  margin-bottom: 10px;
+			.icon-delete {
+				color: #888;
+				font-size: 13px;
+				cursor: pointer;
+				float: right;
+				display: none;
+			}
+		}
 
-	  .icon-delete {
-		color: #888;
-		font-size: 13px;
-		cursor: pointer;
-		float: right;
-		display: none;
-	  }
+		.comment-content {
+			padding: 0;
+			color: #666;
+			margin: 0;
+			white-space: pre-wrap;
+			word-wrap: break-word;
+			line-height: 20px;
+		}
 	}
 
-	.comment-content {
-	  padding: 0;
-	  color: #666;
-	  margin: 0;
-	  white-space: pre-wrap;
-	  word-wrap: break-word;
-	  line-height: 20px;
+	.comment-card:hover {
+		.icon-delete {
+			display: inline-block;
+		}
 	}
-  }
-
-  .comment-card:hover {
-	.icon-delete {
-	  display: inline-block;
-	}
-  }
 }
 
 .comment-input-box {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: #fff;
-  border-top: 1px solid #f1f1f1;
-
-  textarea {
-	resize: none;
 	width: 100%;
-	box-sizing: border-box;
-	border: 0;
-	outline: none !important;
-	padding: 10px;
-  }
+	background: #fff;
+	border-top: 1px solid #f1f1f1;
+
+	textarea {
+		resize: none;
+		width: 100%;
+		box-sizing: border-box;
+		border: 0;
+		outline: none !important;
+		padding: 10px;
+	}
+
+	.comment-btn-box {
+		text-align: right;
+		padding: 4px 15px 6px 0;
+	}
 }
 </style>

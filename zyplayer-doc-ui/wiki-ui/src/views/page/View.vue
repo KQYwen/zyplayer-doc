@@ -1,35 +1,26 @@
 <template>
 	<div class="page-show-vue" v-if="storePage.pageInfo.editorType !== 0">
-		<el-row type="border-card" style="height: 100%">
-			<el-col :span="storeDisplay.commentShow ? 18 : 24" style="padding: 20px;border-right: 1px solid #f1f1f1;height: 100%;overflow: auto;">
-				<el-row>
-					<el-col :span="navigationList.length > 0 ? 18 : 24">
-						<div style="max-width: 1000px; margin: 0 auto; padding-left: 10px">
-							<div class="wiki-title" ref="wikiTitleRef">{{ storePage.pageInfo.name }}</div>
-							<div id="pageContentBox" ref="pageContentRef" class="wiki-page-content">
-								<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2" v-highlight></div>
-								<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
-							</div>
-							<PageZan></PageZan>
-						</div>
-					</el-col>
-					<el-col :span="navigationList.length > 0 ? 6 : 0" v-if="navigationList.length > 0">
-						<Navigation :heading="navigationList"></Navigation>
-					</el-col>
-				</el-row>
-			</el-col>
-			<el-col :span="6" style="height: 100%" v-show="storeDisplay.commentShow">
-				<el-icon @click="closeActionTab" class="close-action-tab">
-					<el-icon-close/>
-				</el-icon>
-				<el-tabs v-model="storeDisplay.commentActiveTab">
-					<el-tab-pane label="评论" name="comment">
-						<Comment/>
-					</el-tab-pane>
-					<el-tab-pane label="附件" name="annex">
+		<a-row class="view-body-comment-box">
+			<a-col flex="auto" class="view-body-outer-box">
+				<div class="view-body-box">
+					<div class="wiki-title" ref="wikiTitleRef">{{ storePage.pageInfo.name }}</div>
+					<div id="pageContentBox" ref="pageContentRef" class="wiki-page-content">
+						<div v-if="wikiPage.editorType === 2" v-html="pageShowDetail" class="markdown-body" v-highlight></div>
+						<div v-else v-html="pageShowDetail" class="wang-editor-body"></div>
+					</div>
+					<PageZan></PageZan>
+				</div>
+				<Navigation :heading="navigationList"></Navigation>
+			</a-col>
+			<a-col v-if="storeDisplay.commentShow" flex="280px">
+				<a-tabs v-model:activeKey="actionTabActiveName" class="action-tabs-box">
+					<a-tab-pane tab="评论" key="comment">
+						<Comment></Comment>
+					</a-tab-pane>
+					<a-tab-pane tab="附件" key="files">
 						<Annex/>
-					</el-tab-pane>
-					<el-tab-pane label="修改历史" name="history">
+					</a-tab-pane>
+					<a-tab-pane tab="修改历史" key="history">
 						<PageHistory
 							:pageHistoryList="pageHistoryList"
 							:pageHistoryChoice="pageHistoryChoice"
@@ -37,39 +28,22 @@
 							@historyClickHandle="historyClickHandle"
 							@previewPageImage="previewPageImage"
 							@createNavigationHeading="createNavigationHeading"/>
-					</el-tab-pane>
-				</el-tabs>
-			</el-col>
-		</el-row>
-		<el-image-viewer
-				v-if="showImagePreview"
-				:url-list="showImagePreviewList"
-				:initial-index="previewInitialIndex"
-				@close="closeImagePreview"
-				hide-on-click-modal
-		/>
+					</a-tab-pane>
+					<template #rightExtra>
+						<el-tooltip content="关闭" placement="top">
+							<a-button @click="closeActionTab" type="text" :icon="h(CloseOutlined)"></a-button>
+						</el-tooltip>
+					</template>
+				</a-tabs>
+			</a-col>
+		</a-row>
+		<ImageViewer ref="imageViewerRef"/>
 	</div>
 </template>
 
 <script setup>
-import {
-	ArrowDown as ElIconArrowDown,
-	View as ElIconView,
-	Close as ElIconClose,
-	Delete as ElIconDelete,
-	Loading as ElIconLoading,
-	CircleCheck as ElIconCircleCheck,
-	CircleClose as ElIconCircleClose,
-	ChatLineRound as ElIconChatLineRound,
-	Upload as ElIconUpload,
-	Edit as ElIconEdit,
-	Timer as ElIconTime,
-	Stamp as ElIconSCheck,
-	Share as ElIconShare,
-	Iphone as ElIconMobilePhone,
-	Download as ElIconDownload,
-} from '@element-plus/icons-vue'
-import {toRefs, ref, reactive, onMounted, watch, defineProps, defineEmits, defineExpose, computed} from 'vue';
+import { CloseOutlined } from '@ant-design/icons-vue';
+import {toRefs, ref, reactive, onMounted, watch, defineProps, h, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus';
 import QRCode from 'qrcode'
@@ -77,7 +51,7 @@ import unitUtil from '../../assets/lib/UnitUtil.js'
 import htmlUtil from '../../assets/lib/HtmlUtil.js'
 import pageApi from '../../assets/api/page'
 import userApi from '../../assets/api/user'
-import Navigation from './components/Navigation.vue'
+import Navigation from './show/Navigation.vue'
 import Annex from './show/Annex.vue'
 import PageHistory from './show/PageHistory.vue'
 import Comment from './show/Comment.vue'
@@ -87,6 +61,7 @@ import 'mavon-editor/dist/markdown/github-markdown.min.css'
 import 'mavon-editor/dist/css/index.css'
 import {useStorePageData} from "@/store/pageData";
 import {useStoreDisplay} from "@/store/wikiDisplay";
+import ImageViewer from "@/components/base/ImageViewer.vue";
 
 let page = {
 	colorArr: ['#67C23A', '#409EFF', '#E6A23C', '#F56C6C', '#909399', '#303133'],
@@ -142,6 +117,13 @@ onMounted(() => {
 	storeDisplay.currentPage = 'view';
 	initQueryParam(route);
 });
+let actionTabActiveName = ref('comment');
+let imageViewerRef = ref();
+const previewPageImage = () => {
+	if (imageViewerRef.value) {
+		imageViewerRef.value.initViewer(pageContentRef.value);
+	}
+}
 
 const getSearchUserList = (query) => {
 	if (query == '') return
@@ -250,7 +232,7 @@ const computeFileSize = (fileSize) => {
 }
 const loadPageDetail = (pageId) => {
 	clearHistory()
-	pageApi.pageDetail({id: pageId}).then((json) => {
+	pageApi.pageDetail({id: pageId}).then(async (json) => {
 		let result = json.data || {};
 		let wikiPageRes = result.wikiPage || {};
 		wikiPageRes.selfZan = result.selfZan || 0;
@@ -280,9 +262,7 @@ const loadPageDetail = (pageId) => {
 		// 调用父方法展开目录树
 		emit('changeExpandedKeys', pageId);
 		setTimeout(() => {
-			if (storePage.pageInfo.editorType !== 0){
-				previewPageImage();
-			}
+			previewPageImage();
 			createNavigationHeading();
 		}, 500);
 		storePage.pageInfo = wikiPageRes;
@@ -308,18 +288,6 @@ const closeImagePreview = () => {
 	showImagePreview.value = false
 }
 let pageContentRef = ref();
-const previewPageImage = () => {
-	const imgArr = []
-	const imgSelector = pageContentRef.value.querySelectorAll('img')
-	imgSelector.forEach((item, index) => {
-		imgArr.push(item.src)
-		item.onclick = () => {
-			previewInitialIndex.value = index
-			showImagePreviewList.value = imgArr
-			showImagePreview.value = true
-		}
-	})
-}
 
 const getUserHeadBgColor = (userId) => {
 	let color = page.userHeadColor[userId]
@@ -338,28 +306,35 @@ const initQueryParam = (to) => {
 }
 </script>
 
-<style lang="scss" scoped>
-.page-show-vue {
-  .wiki-page-content {
-	margin-top: 20px;
-  }
-}
-</style>
-
 <style lang="scss">
 .page-show-vue {
-  height: 100%;
-  overflow: hidden;
+	height: 100%;
+	overflow: hidden;
 
-  .wiki-page-content {
-	ol {
-	  list-style: decimal;
-	}
+	.view-body-comment-box {
+		height: 100%;
 
-	ul {
-	  list-style: disc;
+		.view-body-outer-box {
+			height: 100%;
+			overflow: auto;
+			padding: 30px 20px;
+			position: relative;
+			border-right: 1px solid #eee;
+
+			.view-body-box {
+				max-width: 840px;
+				margin: 0 auto;
+
+				.wiki-page-content {
+					margin-top: 30px;
+				}
+			}
+		}
+
+		.ant-tabs-nav {
+			padding: 0 15px;
+		}
 	}
-  }
 }
 </style>
 

@@ -1,10 +1,10 @@
 <template>
 	<div class="global-layout-vue">
 		<el-container>
-			<el-aside v-show="storeDisplay.showMenu" :style="leftAsideStyle">
+			<el-aside v-show="storeDisplay.showMenu" :style="leftAsideStyle" class="left-aside-outer-box">
 				<LeftAside/>
 			</el-aside>
-			<RightResize v-show="storeDisplay.showMenu" v-model:value="storeDisplay.rightAsideWidth" @change="rightAsideWidthChange"></RightResize>
+			<RightResize v-show="storeDisplay.showMenu" v-model="storeDisplay.rightAsideWidth" @change="rightAsideWidthChange"></RightResize>
 			<el-container>
 				<el-header v-if="storeDisplay.showHeader">
 					<RightHeader ref="rightHeaderRef"/>
@@ -23,8 +23,14 @@ import {useStoreDisplay} from '@/store/wikiDisplay.js'
 import LeftAside from './aside/LeftAside.vue'
 import RightHeader from './aside/RightHeader.vue'
 import RightResize from './aside/RightResize.vue'
+import userApi from "@/assets/api/user";
+import {useStoreUserData} from "@/store/userData";
 
+let storeUser = useStoreUserData();
 let storeDisplay = useStoreDisplay();
+onMounted(() => {
+	getSelfUserInfo();
+});
 const rightAsideWidthChange = (width) => {
 	storeDisplay.rightAsideWidth = width;
 	storeDisplay.commentShow = width;
@@ -32,7 +38,19 @@ const rightAsideWidthChange = (width) => {
 let leftAsideStyle = computed(() => {
 	return {width: storeDisplay.rightAsideWidth + 'px'};
 });
+const getSelfUserInfo = () => {
+	userApi.getSelfUserInfo().then((json) => {
+		storeUser.userInfo = json.data || {};
+	});
+}
 </script>
+
+<style lang="scss">
+.left-aside-outer-box {
+	border-right: 1px solid #eee;
+	background: #fafafa;
+}
+</style>
 
 <style>
 html,
@@ -66,7 +84,8 @@ body {
 .el-header {
 	color: #333;
 	height: 60px !important;
-	border-bottom: 0.5px solid #eaeaea;
+	background-color: #fff !important;
+	border-bottom: 1px solid #eee;
 }
 
 .head-icon {
@@ -117,15 +136,10 @@ body {
 <style lang="scss">
 .space-folder-box {
 	margin-left: 10px;
-	margin-bottom: 10px;
 	position: relative;
 }
 
 .wiki-page-tree-box {
-	overflow-y: auto;
-	overflow-x: hidden;
-	padding-bottom: 30px;
-
 	.el-tree-node__content {
 		height: 35px;
 		position: relative;
@@ -141,7 +155,6 @@ body {
 				.text {
 					margin-left: 5px;
 					vertical-align: middle;
-
 					max-width: calc(100% - 40px);
 					display: inline-block;
 					overflow: hidden;

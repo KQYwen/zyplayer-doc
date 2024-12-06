@@ -1,45 +1,45 @@
 <template>
-	<div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
-		<div style="margin-bottom: 5px">
+	<div class="left-aside-box">
+		<div class="left-aside-top-box">
 			<el-select :model-value="storeSpace.chooseSpaceId" @change="spaceChangeEvents" filterable
-			           placeholder="选择空间" style="width: 100%">
+			           placeholder="选择空间" style="width: 100%;margin-bottom: 5px;">
 				<el-option-group label="" v-if="!props.readOnly">
 					<el-option :key="-1" label="空间管理" :value="-1"></el-option>
 				</el-option-group>
 				<el-option-group label=""></el-option-group>
 				<el-option v-for="item in storeSpace.spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
 			</el-select>
-		</div>
-		<el-autocomplete v-model="searchKeywords" v-if="!props.readOnly" :fetch-suggestions="doSearchByKeywords"
-		                 @select="handleSearchKeywordsSelect" popper-class="search-autocomplete"
-		                 placeholder="在当前空间搜索" style="width: 100%; margin: 10px 0">
-			<template v-slot="{ item }">
-				<div class="search-option-item">
-					<div class="title">
-						<span v-html="item.pageTitle || '-'"></span>
+			<el-autocomplete v-model="searchKeywords" v-if="!props.readOnly" :fetch-suggestions="doSearchByKeywords"
+			                 @select="handleSearchKeywordsSelect" popper-class="search-autocomplete"
+			                 placeholder="在当前空间搜索" style="width: 100%; margin: 10px 0">
+				<template v-slot="{ item }">
+					<div class="search-option-item">
+						<div class="title">
+							<span v-html="item.pageTitle || '-'"></span>
+						</div>
+						<span class="content" v-html="item.previewContent || '-'"></span>
 					</div>
-					<span class="content" v-html="item.previewContent || '-'"></span>
-				</div>
-			</template>
-		</el-autocomplete>
-		<div class="space-folder-box" v-if="!props.readOnly">
-			<el-row justify="space-between">
-				<el-col :span="12">
-					<el-tooltip style="margin: 4px" effect="dark" :content="descriptorForTree" placement="top">
-						<span style="color:#888;font-size: 12px;cursor: pointer;line-height: 32px;" @click="changeDropWownStatus">空间目录</span>
-					</el-tooltip>
-				</el-col>
-				<el-col :span="12" style="text-align: right;">
-					<AddMenu/>
-				</el-col>
-			</el-row>
+				</template>
+			</el-autocomplete>
+			<div class="space-folder-box" v-if="!props.readOnly">
+				<el-row justify="space-between">
+					<el-col :span="12">
+						<el-tooltip style="margin: 4px" effect="dark" :content="descriptorForTree" placement="top">
+							<span style="color:#888;font-size: 12px;cursor: pointer;line-height: 32px;" @click="changeDropWownStatus">空间目录</span>
+						</el-tooltip>
+					</el-col>
+					<el-col :span="12" style="text-align: right;">
+						<AddMenu/>
+					</el-col>
+				</el-row>
+			</div>
 		</div>
 		<div class="wiki-page-tree-box">
 			<el-tree ref="wikiPageTreeRef" :current-node-key="props.nowPageId" :data="storePage.wikiPageList"
 			         :default-expanded-keys="wikiPageExpandedKeys" :expand-on-click-node="true" :class="explanClass"
 			         :filter-node-method="filterPageNode" :props="defaultProps" :draggable="!props.readOnly"
 			         @node-click="handleNodeClick" @node-drop="handlePageDrop" node-key="id" highlight-current
-			         style="background-color: #fafafa">
+			         style="background-color: #fafafa;">
 				<template v-slot="{ node, data }">
 					<div class="page-tree-node" @mouseover="changeNodeOptionStatus(data) ">
 						<div class="node-content">
@@ -58,7 +58,7 @@
 							</el-tooltip>
 							<a-input v-if="data.renaming" v-model:value="data.name" @blur="doRename(node,data)" @click.stop
 							         class="rename-input" placeholder="请输入文档名称"/>
-							<span v-else style="vertical-align: middle;margin-right: 5px">
+							<span v-else style="vertical-align: middle;margin-left: 5px;">
 								<el-tooltip :content="node.label" placement="top-start" :show-after="700">{{ node.label }}</el-tooltip>
 							</span>
 							<!--操作-->
@@ -125,6 +125,8 @@ import AddMenu from "./AddMenu.vue";
 import IconDocument from "@/components/base/IconDocument.vue";
 import {ElMessageBox, ElMessage} from 'element-plus'
 import {useStoreSpaceData} from "@/store/spaceData";
+import Navigation from "@/views/page/show/Navigation.vue";
+import PageZan from "@/views/page/show/PageZan.vue";
 
 let route = useRoute();
 let router = useRouter();
@@ -321,4 +323,22 @@ const handlePageDrop = (draggingNode, dropNode, dropType, ev) => {
 defineExpose({searchByKeywords})
 </script>
 
+<style lang="scss">
+.left-aside-box {
+	height: 100%;
+	box-sizing: border-box;
+	background: #fafafa;
+	display: flex;
+	flex-direction: column;
 
+	.left-aside-top-box {
+		padding: 10px;
+	}
+
+	.wiki-page-tree-box {
+		overflow-y: auto;
+		overflow-x: hidden;
+		padding-bottom: 10px;
+	}
+}
+</style>

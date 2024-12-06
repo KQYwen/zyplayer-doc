@@ -1,55 +1,76 @@
 <template>
-	<div ref="rightResizeRef" class="right-resize"></div>
+	<div ref="rightResizeRef" class="right-resize hide-on-mp" :style="{left: (modelValue-4)+'px'}">
+		<div class="line"></div>
+	</div>
 </template>
 
 <script setup>
-import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
+import {toRefs, ref, reactive, onMounted, onBeforeUnmount, watch, defineEmits, computed} from 'vue';
 
-let rightAsideWidth = 300;
-let emit = defineEmits(['update:value', 'change']);
+const props = defineProps({
+	modelValue: Number,
+	max: {
+		type: Number,
+		default: 600
+	},
+	min: {
+		type: Number,
+		default: 300
+	}
+});
+let emit = defineEmits(['update:modelValue', 'change']);
+
 onMounted(() => {
 	dragChangeRightAsideWidth();
 });
 let rightResizeRef = ref();
 const dragChangeRightAsideWidth = () => {
-	// 保留this引用
-	let resize = rightResizeRef.value
-	resize.onmousedown = (e) => {
-		let startX = e.clientX
+	let resize = rightResizeRef.value;
+	resize.onmousedown = e => {
+		let startX = e.clientX;
+		let rightAsideWidth = props.modelValue;
 		// 颜色改变提醒
-		resize.left = resize.offsetLeft
-		document.onmousemove = (e2) => {
+		resize.classList.add('active');
+		document.onmousemove = e2 => {
 			// 计算并应用位移量
-			let endX = e2.clientX
-			let moveLen = startX - endX
-			if ((moveLen < 0 && rightAsideWidth < 600) || (moveLen > 0 && rightAsideWidth > 300)) {
-				startX = endX
-				rightAsideWidth -= moveLen
-				if (rightAsideWidth < 300) {
-					rightAsideWidth = 300
-				}
-				emit('update:value', rightAsideWidth)
-				emit('change', rightAsideWidth)
+			let endX = e2.clientX;
+			let moveLen = startX - endX;
+			if ((moveLen < 0 && rightAsideWidth < props.max) || (moveLen > 0 && rightAsideWidth > props.min)) {
+				startX = endX;
+				rightAsideWidth -= moveLen;
+				rightAsideWidth = Math.max(rightAsideWidth, props.min);
+				rightAsideWidth = Math.min(rightAsideWidth, props.max);
+				emit('update:modelValue', rightAsideWidth);
+				emit('change', rightAsideWidth);
 			}
-		}
+		};
 		document.onmouseup = () => {
-			document.onmousemove = null
-			document.onmouseup = null
-		}
-		return false
-	}
+			resize.classList.remove('active');
+			document.onmousemove = null;
+			document.onmouseup = null;
+		};
+		return false;
+	};
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .right-resize {
-  width: 3px;
-  height: 100%;
-  cursor: w-resize;
-  background: #fafafa;
+	height: 100%;
+	padding: 0 4px;
+	cursor: w-resize;
+	z-index: 200;
+	position: absolute;
+}
 
-  &:hover {
-	background: #2a85f6;
-  }
+.right-resize .line {
+	width: 2px;
+	height: 100%;
+}
+
+.right-resize:hover .line,
+.right-resize.active .line {
+	background: #2876d7;
 }
 </style>
+

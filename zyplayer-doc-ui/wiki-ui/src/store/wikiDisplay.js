@@ -13,6 +13,7 @@ export const useStoreDisplay = defineStore('wikiDisplay', {
 			showHeader:true,
 			// 当前页面 view、space
 			currentPage: '',
+			isMobile: false,
 		}
 	},
 })

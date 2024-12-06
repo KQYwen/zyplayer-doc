@@ -23,17 +23,22 @@ body {
 }
 
 ::-webkit-scrollbar {
-	width: 6px;
-	height: 9px;
-	-webkit-appearance: none;
+	height: 11px;
+	width: 11px !important;
+	background-color: unset !important;
 }
 
 ::-webkit-scrollbar-thumb {
-	background: #ddd;
-	border-radius: 10px;
+	cursor: pointer;
+	border-radius: 11px;
+	border-style: dashed;
+	border-color: transparent;
+	border-width: 3px;
+	background-color: rgba(173, 180, 195, 0.4);
+	background-clip: padding-box;
 }
 
-::-webkit-scrollbar-track-piece {
-	background: #eee;
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(173, 180, 195, 0.5);
 }
 </style>

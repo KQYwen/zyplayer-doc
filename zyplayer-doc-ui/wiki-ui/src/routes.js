@@ -7,7 +7,7 @@ import NoAuth from './views/common/NoAuth.vue'
 
 import Home from './views/home/Home.vue'
 import MyInfo from './views/user/MyInfo.vue'
-import Show from './views/page/Show.vue'
+import Show from './views/page/View.vue'
 import Edit from './views/page/Edit.vue'
 
 import spaceManage from './views/space/Manage.vue'
