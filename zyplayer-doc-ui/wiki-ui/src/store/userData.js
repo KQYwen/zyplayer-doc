@@ -5,6 +5,7 @@ export const useStoreUserData = defineStore('userData', {
 		return {
 			// 用户信息
 			userInfo: {},
+			upgradeInfo: {},
 		}
 	},
 })
