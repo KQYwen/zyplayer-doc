@@ -3,8 +3,8 @@
 		<el-col :span="12">
 			<div class="left-action-box">
 				<div class="collapse-box">
-					<el-button @click="turnLeftCollapse" v-if="storeDisplay.showMenu" text :icon="ElIconFold" class="fold-btn"></el-button>
-					<el-button @click="turnLeftCollapse" v-else text :icon="ElIconExpand" class="fold-btn"></el-button>
+					<a-button @click="turnLeftCollapse" v-if="storeDisplay.showMenu" type="text" :icon="h(MenuFoldOutlined)"></a-button>
+					<a-button @click="turnLeftCollapse" v-else type="text" :icon="h(MenuUnfoldOutlined)"></a-button>
 				</div>
 				<div v-if="storeDisplay.currentPage === 'view'" class="title-time-box">
 					<div class="title">
@@ -80,7 +80,10 @@ import {
 	Setting as ElIconSetting,
 	UserFilled as ElIconUserFilled,
 } from '@element-plus/icons-vue'
-import {UserOutlined, EditOutlined, MessageOutlined, CheckOutlined, EllipsisOutlined} from '@ant-design/icons-vue';
+import {
+	UserOutlined, EditOutlined, MessageOutlined, CheckOutlined, EllipsisOutlined,
+	MenuFoldOutlined, MenuUnfoldOutlined
+} from '@ant-design/icons-vue';
 import {toRefs, ref, reactive, onMounted, watch, defineEmits, h, computed} from 'vue';
 import {useRouter, useRoute} from "vue-router";
 import { ElMessageBox, ElMessage } from 'element-plus'
@@ -112,13 +115,6 @@ let turnLeftCollapse = () => {
 			storeDisplay.rightAsideWidth = 1;
 		}
 	}, 100);
-};
-
-let favoritePage = (favorite) => {
-	storePage.favoritePageChange = {
-		id: storePage.pageInfo.id,
-		favorite: favorite,
-	};
 };
 const editWiki = () => {
 	// 锁定页面并进入编辑页面
