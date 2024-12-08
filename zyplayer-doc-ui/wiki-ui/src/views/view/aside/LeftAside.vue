@@ -58,19 +58,17 @@
 							<el-tooltip v-if="data.shareStatus > 0" :content="data.tags" placement="top-start" :show-after="500">
 								<a-tag color="warning" style="margin-inline-end: 4px;padding-inline: 4px;"> {{data.shareStatus === 1 ? '公共模板' : '个人模板'}}</a-tag>
 							</el-tooltip>
-							<a-input v-if="data.renaming" v-model:value="data.name" @blur="doRename(node,data)" @click.stop
-							         class="rename-input" placeholder="请输入文档名称"/>
-							<span v-else style="vertical-align: middle;margin-left: 5px;">
+							<span style="vertical-align: middle;margin-left: 5px;">
 								<el-tooltip :content="node.label" placement="top-start" :show-after="700">{{ node.label }}</el-tooltip>
 							</span>
 							<!--操作-->
-							<div class="page-action-box" :class="data.renaming?'renaming':''" @click.stop>
+							<div class="page-action-box">
 								<AddMenu :pageId="data.id"/>
 								<a-dropdown :trigger="['click']" @click="choosePageIdFunc(data.id)">
 									<a-button :icon="h(EllipsisOutlined)" type="text" style="color: #888;"></a-button>
 									<template #overlay>
 										<a-menu>
-											<a-menu-item @click="rename(node,data)">
+											<a-menu-item @click="renamePage(node,data)">
 												<IconParkEditTwo class="el-icon"/> 重命名
 											</a-menu-item>
 											<a-sub-menu title="移动文档">
@@ -126,6 +124,7 @@ import {ElMessageBox, ElMessage} from 'element-plus'
 import {useStoreSpaceData} from "@/store/spaceData";
 import Navigation from "@/views/page/show/Navigation.vue";
 import PageZan from "@/views/page/show/PageZan.vue";
+import MessagePrompt from "@/components/single/MessagePrompt";
 
 let route = useRoute();
 let router = useRouter();
@@ -206,8 +205,29 @@ const createWikiByTemplate = () => {
 const choosePageIdFunc = (id) => {
 	storePage.optionPageId = id;
 }
-const rename = (node, data) => {
-	data.renaming = true;
+const renamePage = (node, data) => {
+	MessagePrompt({
+		title: '重命名',
+		label: '文档名称',
+		placeholder: '请输入文档名称',
+		value: data.name,
+		validator: (value) => {
+			if (!value || !value.trim()) return '文档名称不能为空';
+			if (value && value.length > 255) return '文档名称不能超过255个字符';
+			return true;
+		}
+	}).then((value) => {
+		if (value && value.trim()) {
+			let name = value.trim();
+			if (data.name !== name) {
+				pageApi.renamePage({id: data.id, name: name}).then(json => {
+					data.name = name;
+					ElMessage.success('重命名成功');
+				});
+			}
+		}
+	}).catch(() => {
+	});
 }
 const openMoveMenu = (onlyMove) => {
 	// TODO
@@ -243,7 +263,6 @@ const doRename = (node, data) => {
 	pageApi.renamePage({"id": data.id, "name": data.name}).then((json) => {
 		doGetPageList();
 		ElMessage.success('重命名成功');
-		data.renaming = false;
 	});
 }
 const doGetPageList = () => {
@@ -347,10 +366,59 @@ defineExpose({searchByKeywords})
 		overflow-y: auto;
 		overflow-x: hidden;
 		padding-bottom: 10px;
+
+		.el-tree-node__content {
+			height: 35px;
+			position: relative;
+
+			.page-tree-node {
+				width: 100%;
+
+				.label {
+					.el-icon {
+						vertical-align: middle;
+					}
+
+					.text {
+						margin-left: 5px;
+						vertical-align: middle;
+						max-width: calc(100% - 40px);
+						display: inline-block;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+				}
+
+				.page-action-box {
+					position: absolute;
+					right: 0;
+					top: 0;
+					height: 35px;
+					line-height: 35px;
+					background: #fafafa;
+					border-radius: 4px;
+					display: none;
+
+					button {
+						padding: 5px 8px;
+						height: 35px;
+					}
+				}
+			}
+
+			&:hover .page-action-box {
+				display: block;
+			}
+		}
 	}
 }
 
 .search-autocomplete-popper {
 	width: 600px !important;
+}
+
+.space-folder-box {
+	position: relative;
 }
 </style>

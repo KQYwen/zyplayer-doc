@@ -3,18 +3,18 @@
 		<a-button :icon="h(PlusOutlined)" type="text" style="color: #888;"></a-button>
 		<template #overlay>
 			<a-menu>
-				<a-menu-item @click="createWiki(1)">
-					<IconParkWord fill="#498ba7"/> 创建富文本
+				<a-menu-item @click="createPage(1)">
+					<IconParkWord fill="#498ba7"/> 新建富文本
 				</a-menu-item>
-				<a-menu-item @click="createWiki(2)">
-					<IconDocument fill="#558ff2"/> 创建Markdown
+				<a-menu-item @click="createPage(2)">
+					<IconDocument fill="#558ff2"/> 新建Markdown
 				</a-menu-item>
-				<a-menu-item @click="createWiki(0)">
-					<FolderOpen fill="#ffd149"/> 创建文件夹
+				<a-menu-item @click="createFolder">
+					<FolderOpen fill="#ffd149"/> 新建文件夹
 				</a-menu-item>
-				<a-menu-item @click="createWikiByTemplate()">
-					<IconParkPageTemplate/> 从模板创建
-				</a-menu-item>
+<!--				<a-menu-item @click="createPageByTemplate()">-->
+<!--					<IconParkPageTemplate/> 从模板创建-->
+<!--				</a-menu-item>-->
 <!--				<a-menu-item key="3">-->
 <!--					<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">-->
 <!--						<a-upload v-model:file-list="fileList" name="file" :multiple="false" :customRequest="doAUpload" class="import-upload">-->
@@ -38,6 +38,7 @@ import axios from "axios";
 import IconDocument from '@/components/base/IconDocument.vue'
 import {useStorePageData} from "@/store/pageData";
 import {useStoreSpaceData} from "@/store/spaceData";
+import MessagePrompt from "@/components/single/MessagePrompt";
 
 let router = useRouter();
 let storePage = useStorePageData();
@@ -45,7 +46,6 @@ let storeSpace = useStoreSpaceData();
 
 let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/import/upload');
 let fileList = ref([]);
-let emit = defineEmits(['createWikiByTemplate']);
 let props = defineProps({
 	pageId: Number
 });
@@ -78,30 +78,47 @@ const doAUpload = (data) => {
 		ElMessage.error('导入失败：' + e.message);
 	});
 }
-const createWikiByTemplate = () => {
+const createPageByTemplate = () => {
 	// TODO
 }
-const createWiki = (editorType) => {
-	if (storeSpace.chooseSpaceId > 0) {
-		let name = "新建文档";
-		if (editorType === 0) name = "新建文件夹";
-		pageApi.updatePage({
-			spaceId: storeSpace.chooseSpaceId,
-			parentId: props.pageId,
-			editorType: editorType,
-			name: name,
-			content: '',
-			preview: ''
-		}).then((json) => {
-			storePage.eventPageListUpdate = !storePage.eventPageListUpdate;
-			ElMessage.success('创建成功');
-			if (editorType !== 0) {
-				router.push({path: '/page/edit', query: {parentId: props.pageId, pageId: json.data.id}});
-			}
-		})
-	} else {
+const createPage = (editorType, confirmName) => {
+	if (!storeSpace.chooseSpaceId) {
 		ElMessage.warning('请先选择或创建空间');
+		return;
 	}
+	let name = "新建文档";
+	if (editorType === 0) name = confirmName || "新建文件夹";
+	pageApi.updatePage({
+		spaceId: storeSpace.chooseSpaceId,
+		parentId: props.pageId,
+		editorType: editorType,
+		name: name,
+		content: '',
+		preview: ''
+	}).then((json) => {
+		storePage.eventPageListUpdate = !storePage.eventPageListUpdate;
+		ElMessage.success('创建成功');
+		if (editorType !== 0) {
+			router.push({path: '/page/edit', query: {parentId: props.pageId, pageId: json.data.id}});
+		}
+	});
+}
+let createFolder = () => {
+	MessagePrompt({
+		title: '新建文件夹',
+		label: '文件夹名称',
+		placeholder: '请输入文件夹名称',
+		validator: (value) => {
+			if (!value || !value.trim()) return '请输入文件夹名称';
+			if (value && value.length > 40) return '文件夹名称不能超过40个字符';
+			return true;
+		}
+	}).then((value) => {
+		if (value && value.trim()) {
+			createPage(0, value.trim());
+		}
+	}).catch(() => {
+	});
 }
 </script>
 
