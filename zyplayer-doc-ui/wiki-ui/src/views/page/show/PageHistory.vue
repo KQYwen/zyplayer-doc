@@ -31,7 +31,7 @@ import {
 	Loading as ElIconLoading,
 } from '@element-plus/icons-vue'
 
-import pageApi from '@/assets/api/page'
+import pageApi from '@/assets/api/page';
 import {mavonEditor} from "mavon-editor";
 import {ref, defineProps, defineEmits} from 'vue';
 import {useStorePageData} from "@/store/pageData";
@@ -41,8 +41,8 @@ let props= defineProps({
 	pageHistoryList:Array,
 	pageHistoryChoice:Object,
 	pageHistoryDetail:String,
-})
-let emit = defineEmits(['historyClickHandle','previewPageImage','createNavigationHeading'])
+});
+let emit = defineEmits(['historyClickHandle','previewPageImage','createNavigationHeading']);
 
 const historyClick = (history) => {
 	if (props.pageHistoryChoice.id === history.id && !!props.pageHistoryDetail.value) {
@@ -51,23 +51,23 @@ const historyClick = (history) => {
 	// 缓存一下，但如果历史页面多了而且很大就占内存，也可以每次去拉取，先这样吧
 	if (history.content) {
 		history.loading = 2;
-		emit('historyClickHandle',history)
+		emit('historyClickHandle',history);
 		setTimeout(() => {
-			emit('previewPageImage',history)
-			emit('createNavigationHeading',history)
-		}, 500)
+			emit('previewPageImage',history);
+			emit('createNavigationHeading',history);
+		}, 500);
 	} else {
-		history.loading = 1
+		history.loading = 1;
 		pageApi.pageHistoryDetail({id: history.id}).then((json) => {
 			history.loading = 2;
 			history.content = json.data || '--';
 			if (storePage.pageInfo.editorType === 2) {
 				history.content = mavonEditor.getMarkdownIt().render(history.content);
 			}
-			emit('historyClickHandle',history)
+			emit('historyClickHandle',history);
 			setTimeout(() => {
-				emit('previewPageImage',history)
-				emit('createNavigationHeading',history)
+				emit('previewPageImage',history);
+				emit('createNavigationHeading',history);
 			}, 500);
 		}).catch(() => {
 			history.loading = 3;

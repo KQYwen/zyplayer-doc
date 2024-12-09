@@ -36,7 +36,7 @@
 						<a-tag color="warning" style="margin-inline-end: 4px;padding-inline: 4px;">{{filterShareStatus(data.shareStatus)}}</a-tag>
 					</el-tooltip>
 					<a-input v-if="data.renaming" v-model:value="data.name" class="rename-input" placeholder="请输入文档名称" @blur="doRename(node,data)" @click.stop/>
-					<span v-else style="vertical-align: middle;margin-right: 5px">
+					<span v-else style="vertical-align: middle;margin-right: 5px;">
 						<el-tooltip :content="node.label" placement="top-start" :show-after="700">{{ node.label }}</el-tooltip>
 					</span>
 					<!--操作-->
@@ -119,14 +119,14 @@ import {
 } from '@icon-park/vue-next'
 import {ref, onMounted,} from 'vue';
 import {useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import pageApi from '../../assets/api/page'
-import CreateSpace from '../space/CreateSpace.vue'
-import TemplateManage from '../template/TemplateManage.vue'
-import AddMenu from '../leftSideBar/AddMenu.vue'
-import IconDocument from '@/components/base/IconDocument.vue'
-import LeftSidebarCli from '../leftSideBar/LeftSidebarCli.vue'
-import {useStoreDisplay} from '@/store/wikiDisplay.js'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import pageApi from '../../assets/api/page';
+import CreateSpace from '../space/CreateSpace.vue';
+import TemplateManage from '../template/TemplateManage.vue';
+import AddMenu from '../leftSideBar/AddMenu.vue';
+import IconDocument from '@/components/base/IconDocument.vue';
+import LeftSidebarCli from '../leftSideBar/LeftSidebarCli.vue';
+import {useStoreDisplay} from '@/store/wikiDisplay.js';
 import {useStorePageData} from "@/store/pageData";
 import {DownOutlined, BuildOutlined, BlockOutlined} from '@ant-design/icons-vue';
 import {useStoreSpaceData} from "@/store/spaceData";
@@ -151,21 +151,21 @@ let optionPageId = ref('');
 let visibleMoveMenu = ref(false);
 let onlyMoveMode = ref(false);
 let aModalWaiting = ref(false);
-let templateManageRef = ref(null)
+let templateManageRef = ref(null);
 
 onMounted(() => {
-	init()
-})
+	init();
+});
 const init = () => {
-	loadSpaceList()
+	loadSpaceList();
 }
 
 const openTemplateCreate = (exsit) => {
-	templateManageRef.value.showTemplateCreate(exsit)
+	templateManageRef.value.showTemplateCreate(exsit);
 }
 
 const createWikiByTemplate = () => {
-	templateManageRef.value.showTemplateManage()
+	templateManageRef.value.showTemplateManage();
 }
 
 const filterShareStatus = (data) => {
@@ -176,52 +176,52 @@ const filterShareStatus = (data) => {
 }
 
 const openMoveMenu = (onlyMove) => {
-	onlyMoveMode.value = onlyMove
-	visibleMoveMenu.value = true
-	moveToPageId.value = storePage.choosePageId
-	moveToSpaceId.value = storeSpace.chooseSpaceId
-	moveToWikiPageList.value = storePage.wikiPageList
+	onlyMoveMode.value = onlyMove;
+	visibleMoveMenu.value = true;
+	moveToPageId.value = storePage.choosePageId;
+	moveToSpaceId.value = storeSpace.chooseSpaceId;
+	moveToWikiPageList.value = storePage.wikiPageList;
 }
 const handleOk = (onlyMove) => {
-	aModalWaiting.value = true
+	aModalWaiting.value = true;
 	if (onlyMoveMode.value) {
 		pageApi.movePage({
 				"id": storePage.optionPageId,
 				"spaceId": storeSpace.chooseSpaceId,
 				"moveToPageId": moveToPageId.value,
 				"moveToSpaceId": moveToSpaceId.value
-			})
+			});
 			.then((json) => {
-				doGetPageList(null)
-				ElMessage.success('迁移成功')
-				handleCancel()
-				aModalWaiting.value = false
+				doGetPageList(null);
+				ElMessage.success('迁移成功');
+				handleCancel();
+				aModalWaiting.value = false;
 			}).catch((e) => {
-			aModalWaiting.value = false
-		})
-		return
+			aModalWaiting.value = false;
+		});
+		return;
 	}
 	pageApi.copyPage({
 			"id": storePage.optionPageId,
 			"spaceId": storeSpace.chooseSpaceId,
 			"moveToPageId": moveToPageId.value,
 			"moveToSpaceId": moveToSpaceId.value
-		})
+		});
 		.then((json) => {
-			doGetPageList(null)
-			ElMessage.success('复制成功')
-			handleCancel()
-			aModalWaiting.value = false
+			doGetPageList(null);
+			ElMessage.success('复制成功');
+			handleCancel();
+			aModalWaiting.value = false;
 		}).catch((e) => {
-		aModalWaiting.value = false
-	})
-	return
+		aModalWaiting.value = false;
+	});
+	return;
 }
 const handleCancel = () => {
-	visibleMoveMenu.value = false
-	moveToPageId.value = 0
-	moveToSpaceId.value = 0
-	moveToWikiPageList.value = []
+	visibleMoveMenu.value = false;
+	moveToPageId.value = 0;
+	moveToSpaceId.value = 0;
+	moveToWikiPageList.value = [];
 }
 
 
@@ -237,53 +237,53 @@ const deleteWikiPage = (share) => {
 	}).then(() => {
 		let param = {pageId: optionPageId.value};
 		pageApi.pageDelete(param).then(() => {
-			ElMessage.success('已删除')
-			doGetPageList(null)
+			ElMessage.success('已删除');
+			doGetPageList(null);
 		});
 	}).catch(() => {
 	});
 }
 
 const choosePageIdFunc = (id) => {
-	storePage.optionPageId = id
+	storePage.optionPageId = id;
 }
 
 const setNowPageId = (id, readOnly) => {
 	if (readOnly) {
-		moveToPageId.value = id
-		return
+		moveToPageId.value = id;
+		return;
 	}
-	storePage.choosePageId = id
+	storePage.choosePageId = id;
 }
 
 const rename = (node, data) => {
-	data.renaming = true
+	data.renaming = true;
 }
 const doRename = (node, data) => {
-	pageApi.renamePage({"id": data.id, "name": data.name})
+	pageApi.renamePage({"id": data.id, "name": data.name});
 		.then((json) => {
-			doGetPageList(null)
-			ElMessage.success('重命名成功')
-			data.renaming = false
-		})
+			doGetPageList(null);
+			ElMessage.success('重命名成功');
+			data.renaming = false;
+		});
 
 }
 
 const changeNodeOptionStatus = (param) => {
-	optionPageId.value = param.id
+	optionPageId.value = param.id;
 }
 
 let createSpaceRef = ref();
 const spaceChangeEvents = (data, readonly) => {
-	storePage.pageInfo = {}
+	storePage.pageInfo = {};
 	if (readonly) {
-		moveToSpaceId.value = data
-		setNowPageId(0, readonly)
+		moveToSpaceId.value = data;
+		setNowPageId(0, readonly);
 		let param = {spaceId: moveToSpaceId.value}
 		pageApi.pageList(param).then((json) => {
-			moveToWikiPageList.value = json.data || []
-		})
-		return
+			moveToWikiPageList.value = json.data || [];
+		});
+		return;
 	}
 	if (data === 0) {
 		// 新建空间
@@ -327,16 +327,16 @@ const loadSpaceList = (spaceId) => {
 				console.log(e);
 			}
 		}
-	})
+	});
 }
 
 const doGetPageList = (parentId, node) => {
 	let param = {spaceId: storeSpace.chooseSpaceId}
 	pageApi.pageList(param).then((json) => {
-		storePage.wikiPageList = json.data || []
-	})
+		storePage.wikiPageList = json.data || [];
+	});
 }
-defineExpose({init})
+defineExpose({init});
 </script>
 
 <style lang="scss">

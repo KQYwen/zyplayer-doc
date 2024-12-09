@@ -8,10 +8,10 @@
 				   :data="uploadFormData"
 				   :with-credentials="true" class="action-btn upload-page-file" name="files"
 				   show-file-list multiple :limit="999">
-			<el-button type="primary" :underline="false" :icon="ElIconUpload" style="margin: 10px;width: 100%"> 上传附件</el-button>
+			<el-button type="primary" :underline="false" :icon="ElIconUpload" style="margin: 10px;width: 100%;"> 上传附件</el-button>
 		</el-upload>
 			<el-table v-show="storePage.fileList.length > 0" :data="storePage.fileList" border
-					  style="width: 100%; margin-bottom: 5px">
+					  style="width: 100%; margin-bottom: 5px;">
 				<el-table-column label="文件名" show-overflow-tooltip>
 					<template v-slot="scope">
 						<el-link target="_blank" :href="scope.row.fileUrl" type="primary">{{scope.row.fileName }}
@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-	import {Upload as ElIconUpload} from '@element-plus/icons-vue'
+	import {Upload as ElIconUpload} from '@element-plus/icons-vue';
 	import {useStorePageData} from "@/store/pageData";
 
 	let storePage = useStorePageData();
@@ -72,9 +72,9 @@
 			pageApi.deletePageFile(param).then(() => {
 				storePage.fileList = storePage.fileList.filter(item => item.id !== row.id);
 			});
-		})
+		});
 	}
 	const computeFileSize = (fileSize) => {
-		return unitUtil.computeFileSize(fileSize)
+		return unitUtil.computeFileSize(fileSize);
 	}
 </script>

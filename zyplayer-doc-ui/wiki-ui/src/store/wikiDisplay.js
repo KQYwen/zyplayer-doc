@@ -1,4 +1,4 @@
-import {defineStore} from 'pinia'
+import {defineStore} from 'pinia';
 
 export const useStoreDisplay = defineStore('wikiDisplay', {
 	state: () => {
@@ -16,4 +16,4 @@ export const useStoreDisplay = defineStore('wikiDisplay', {
 			isMobile: false,
 		}
 	},
-})
+});

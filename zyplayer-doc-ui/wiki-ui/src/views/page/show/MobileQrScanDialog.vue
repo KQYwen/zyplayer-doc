@@ -15,14 +15,14 @@
 import {
 	Search as ElIconSearch,
 } from '@element-plus/icons-vue'
-import {markRaw} from 'vue'
+import {markRaw} from 'vue';
 import {toRefs, ref, reactive, onMounted, onBeforeUnmount, defineProps, watch, defineEmits, computed, defineExpose} from 'vue';
 import {useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage, ElLoading, ElNotification} from 'element-plus'
+import {ElMessageBox, ElMessage, ElLoading, ElNotification} from 'element-plus';
 import pageApi from "@/assets/api/page";
 import {useStorePageData} from "@/store/pageData";
 import userApi from "@/assets/api/user";
-import QRCode from 'qrcode'
+import QRCode from 'qrcode';
 import {useStoreSpaceData} from "@/store/spaceData";
 
 let storePage = useStorePageData();
@@ -59,13 +59,13 @@ const initMobileQrScan = () => {
 	});
 	let hostPath = window.location.href.split('#')[0];
 	setTimeout(() => {
-		qrCodeUrl.value = hostPath + routeUrl.href
+		qrCodeUrl.value = hostPath + routeUrl.href;
 		QRCode.toCanvas(qrCodeDivRef.value, qrCodeUrl.value, {
 				scale: 5, height: 250, wight: 250,
 			}, (error) => {
 				if (error) console.error(error);
 			}
-		)
+		);
 	}, 0);
 }
 </script>

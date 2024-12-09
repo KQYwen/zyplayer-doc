@@ -19,7 +19,7 @@ import java.util.List;
  */
 public interface WikiPageMapper extends BaseMapper<WikiPage> {
 	
-	@Update("update wiki_page set zan_num=zan_num + #{numAdd} where id=#{id}")
+	@Update("update wiki_page set zan_num=if(zan_num is null or zan_num < 0,0,zan_num) + #{numAdd} where id=#{id}")
 	void updateZanNum(@Param("id") Long id, @Param("numAdd") Integer numAdd);
 	
 	@Update("update wiki_page set seq_no=seq_no + 1 where space_id = #{spaceId} and parent_id=#{parentId} and seq_no >= #{afterSeq} and del_flag=0")

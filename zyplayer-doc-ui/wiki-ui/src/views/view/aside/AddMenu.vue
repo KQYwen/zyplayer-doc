@@ -29,13 +29,13 @@
 
 <script setup>
 import { PlusOutlined } from '@ant-design/icons-vue';
-import {FolderOpen, Word as IconParkWord, Afferent as IconParkAfferent, PageTemplate as IconParkPageTemplate,} from '@icon-park/vue-next'
+import {FolderOpen, Word as IconParkWord, Afferent as IconParkAfferent, PageTemplate as IconParkPageTemplate,} from '@icon-park/vue-next';
 import {ref, defineProps, defineEmits, h} from 'vue';
 import {useRouter} from "vue-router";
-import {ElMessage} from 'element-plus'
-import pageApi from '@/assets/api/page'
+import {ElMessage} from 'element-plus';
+import pageApi from '@/assets/api/page';
 import axios from "axios";
-import IconDocument from '@/components/base/IconDocument.vue'
+import IconDocument from '@/components/base/IconDocument.vue';
 import {useStorePageData} from "@/store/pageData";
 import {useStoreSpaceData} from "@/store/spaceData";
 import MessagePrompt from "@/components/single/MessagePrompt";

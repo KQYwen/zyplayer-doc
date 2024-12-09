@@ -12,7 +12,7 @@
 					<span v-else>创建时间：{{ wikiPage.createTime }}</span>
 				</div>
 				<div class="wiki-files">
-					<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px">
+					<el-table v-show="pageFileList.length > 0" :data="pageFileList" border style="width: 100%; margin-bottom: 5px;">
 						<el-table-column label="文件名">
 							<template v-slot="scope">
 								<a target="_blank" :href="scope.row.fileUrl">{{scope.row.fileName }}</a>
@@ -37,12 +37,12 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import pageApi from '../../../../assets/api/page'
-import {mavonEditor} from 'mavon-editor'
-import {ImagePreview} from 'vant'
-import 'mavon-editor/dist/markdown/github-markdown.min.css'
-import 'mavon-editor/dist/css/index.css'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import pageApi from '../../../../assets/api/page';
+import {mavonEditor} from 'mavon-editor';
+import {ImagePreview} from 'vant';
+import 'mavon-editor/dist/markdown/github-markdown.min.css';
+import 'mavon-editor/dist/css/index.css';
 
 let spaceUuid = ref('');
 let nowPageId = ref('');
@@ -64,36 +64,36 @@ onMounted(() => {
 	initQueryParam(route);
 });
 const popupShowChange = () => {
-	emit('popupShow', true)
+	emit('popupShow', true);
 }
 const loadPageDetail = (pageId) => {
 	let param = {pageId: pageId, space: spaceUuid.value}
 	pageApi.openPageDetail(param).then((json) => {
 		let wikiPageRes = json.data.wikiPage || {}
 		wikiPageRes.selfZan = json.data.selfZan || 0
-		wikiPage.value = wikiPageRes
+		wikiPage.value = wikiPageRes;
 		let pageContent = json.data.pageContent || {}
-		pageFileList.value = json.data.fileList || []
+		pageFileList.value = json.data.fileList || [];
 		if (wikiPage.value.editorType === 2) {
-			pageContent.content = mavonEditor.getMarkdownIt().render(pageContent.content)
+			pageContent.content = mavonEditor.getMarkdownIt().render(pageContent.content);
 		}
-		pageShowDetail.value = pageContent.content
+		pageShowDetail.value = pageContent.content;
 		document.title = wikiPageRes.name || 'WIKI-内容展示'
-		setTimeout(() => previewPageImage(), 500)
-	})
+		setTimeout(() => previewPageImage(), 500);
+	});
 }
 const initQueryParam = (to) => {
-	spaceUuid.value = to.query.space
-	nowPageId.value = to.query.pageId
+	spaceUuid.value = to.query.space;
+	nowPageId.value = to.query.pageId;
 	if (!!nowPageId.value) {
-		loadPageDetail(nowPageId.value)
+		loadPageDetail(nowPageId.value);
 	}
 }
 const computeFileSize = (fileSize) => {
 	if (!fileSize) {
 		return '-'
 	}
-	let size = ''
+	let size = '';
 	if (fileSize < 0.1 * 1024) {
 		size = fileSize.toFixed(2) + 'B'
 	} else if (fileSize < 0.1 * 1024 * 1024) {
@@ -104,33 +104,33 @@ const computeFileSize = (fileSize) => {
 		size = (fileSize / (1024 * 1024 * 1024)).toFixed(2) + 'GB'
 	}
 	let sizeStr = size + ''
-	let index = sizeStr.indexOf('.')
-	let dou = sizeStr.substr(index + 1, 2)
+	let index = sizeStr.indexOf('.');
+	let dou = sizeStr.substr(index + 1, 2);
 	if (dou == '00') {
-		return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
+		return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2);
 	}
-	return size
+	return size;
 }
 let pageContentRef = ref();
 const previewPageImage = () => {
-	const imgArr = []
-	const imgSelector = pageContentRef.value.querySelectorAll('img')
+	const imgArr = [];
+	const imgSelector = pageContentRef.value.querySelectorAll('img');
 	imgSelector.forEach((item, index) => {
-		imgArr.push(item.src)
+		imgArr.push(item.src);
 		item.onclick = () => {
-			previewInitialIndex.value = index
-			showImagePreviewList.value = imgArr
+			previewInitialIndex.value = index;
+			showImagePreviewList.value = imgArr;
 			ImagePreview({
 				images: imgArr,
 				startPosition: index,
-			})
+			});
 		}
-	})
+	});
 }
 </script>
 
 <style>
-@import '../../../../assets/lib/wangEditor.css';
+@import '../../../../assets/scss/wangEditor.css';
 
 .mobile-share-view-vue {
 }

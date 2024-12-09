@@ -19,10 +19,10 @@
 
 <script setup>
 import {toRefs, ref, reactive, onMounted, onBeforeUnmount, defineProps, watch, defineEmits, computed, defineExpose} from 'vue';
-import {useStoreDisplay} from '@/store/wikiDisplay.js'
-import LeftAside from './aside/LeftAside.vue'
-import RightHeader from './aside/RightHeader.vue'
-import RightResize from './aside/RightResize.vue'
+import {useStoreDisplay} from '@/store/wikiDisplay.js';
+import LeftAside from './aside/LeftAside.vue';
+import RightHeader from './aside/RightHeader.vue';
+import RightResize from './aside/RightResize.vue';
 import userApi from "@/assets/api/user";
 import {useStoreUserData} from "@/store/userData";
 

@@ -1,7 +1,7 @@
 <template>
 	<div style="padding: 10px;height: 100%;box-sizing: border-box;background: #fafafa;">
-		<div style="margin-bottom: 5px">
-			<el-select :model-value="choiceSpace" filterable placeholder="选择空间" @change="spaceChangeEvents" style="width: 100%">
+		<div style="margin-bottom: 5px;">
+			<el-select :model-value="choiceSpace" filterable placeholder="选择空间" @change="spaceChangeEvents" style="width: 100%;">
 				<el-option-group label="" v-if="!props.readOnly">
 					<el-option :key="-1" label="空间管理" :value="-1"></el-option>
 				</el-option-group>
@@ -60,11 +60,11 @@
 <script setup>
 import {ref, defineProps, defineEmits, defineExpose} from 'vue';
 import {useRouter, useRoute} from "vue-router";
-import pageApi from '../../assets/api/page'
+import pageApi from '../../assets/api/page';
 import {useStoreDisplay} from "@/store/wikiDisplay";
 import {useStorePageData} from "@/store/pageData";
 
-let emit = defineEmits(['doGetPageList', 'spaceChangeEvents', 'setNowPageId'])
+let emit = defineEmits(['doGetPageList', 'spaceChangeEvents', 'setNowPageId']);
 let searchKeywords = ref('');
 let descriptorForTree = ref("点击收起目录");
 let explan = ref(false);
@@ -82,13 +82,13 @@ let props = defineProps({
 	nowPageId: Number,
 	choiceSpace: Number,
 	readOnly: Boolean
-})
+});
 
 
 const assisSetCurrentKey = () => {
-	emit('setNowPageId', route.query.pageId, props.readOnly)
+	emit('setNowPageId', route.query.pageId, props.readOnly);
 	if (props.nowPageId) {
-		wikiPageTreeRef.value.setCurrentKey(nowPageId.value)
+		wikiPageTreeRef.value.setCurrentKey(nowPageId.value);
 	}
 }
 
@@ -98,35 +98,35 @@ const changeWikiPageExpandedKeys = (pageId) => {
 }
 
 const spaceChangeEvents = (data) => {
-	emit('spaceChangeEvents', data, props.readOnly)
+	emit('spaceChangeEvents', data, props.readOnly);
 }
 
 const doSearchByKeywords = (queryString, callback) => {
 	if (!queryString || !queryString.trim()) {
-		callback([])
-		return
+		callback([]);
+		return;
 	}
 	pageApi
-		.pageNews({spaceId: props.choiceSpace, keywords: queryString})
+		.pageNews({spaceId: props.choiceSpace, keywords: queryString});
 		.then((json) => {
-			let spacePageNews = json.data || []
-			callback(spacePageNews)
-		})
+			let spacePageNews = json.data || [];
+			callback(spacePageNews);
+		});
 }
 const handleSearchKeywordsSelect = (item) => {
-	searchKeywords.value = ''
-	router.push({path: '/page/show', query: {pageId: item.pageId}})
+	searchKeywords.value = '';
+	router.push({path: '/page/show', query: {pageId: item.pageId}});
 }
 
 const changeDropWownStatus = () => {
 	if (explan.value) {
 		explanClass.value = "el-tree"
 		descriptorForTree.value = "点击收起目录"
-		explan.value = false
+		explan.value = false;
 	} else {
 		explanClass.value = "hidTree"
 		descriptorForTree.value = "点击展开目录"
-		explan.value = true
+		explan.value = true;
 	}
 }
 
@@ -137,37 +137,37 @@ const filterPageNode = (value, data) => {
 	return name.indexOf(value.toLowerCase()) !== -1;
 }
 const searchByKeywords = () => {
-	wikiPageTreeRef.value.filter(searchKeywords.value)
+	wikiPageTreeRef.value.filter(searchKeywords.value);
 }
 let storePage = useStorePageData();
 const handleNodeClick = (data) => {
-	//console.log('点击节点：', data, props.nowPageId)
-	storeDisplay.showHeader = true
-	emit('setNowPageId', data.id, props.readOnly)
+	//console.log('点击节点：', data, props.nowPageId);
+	storeDisplay.showHeader = true;
+	emit('setNowPageId', data.id, props.readOnly);
 	if (props.readOnly) {
-		return
+		return;
 	}
 	if (data.editorType !== 0) {
-		router.push({path: '/page/show', query: {pageId: data.id}})
+		router.push({path: '/page/show', query: {pageId: data.id}});
 	}
 }
 const handlePageDrop = (draggingNode, dropNode, dropType, ev) => {
-	console.log('tree drop: ', draggingNode.data, dropNode.data, dropType)
+	console.log('tree drop: ', draggingNode.data, dropNode.data, dropType);
 	// 'prev'、'inner'、'next'
 	// before、after、inner
 	var param = {id: draggingNode.data.id, parentId: dropNode.data.parentId}
 	if (dropType == 'inner') {
-		param.parentId = dropNode.data.id
+		param.parentId = dropNode.data.id;
 	} else if (dropType == 'before') {
-		param.beforeSeq = dropNode.data.seqNo
+		param.beforeSeq = dropNode.data.seqNo;
 	} else if (dropType == 'after') {
-		param.afterSeq = dropNode.data.seqNo
+		param.afterSeq = dropNode.data.seqNo;
 	}
 	pageApi.pageChangeParent(param).then((res) => {
-		emit('doGetPageList', node.id, node)
-	})
+		emit('doGetPageList', node.id, node);
+	});
 }
-defineExpose({searchByKeywords})
+defineExpose({searchByKeywords});
 </script>
 
 

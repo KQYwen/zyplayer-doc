@@ -19,10 +19,10 @@
 
 <script setup>
 import {toRefs, ref, reactive, onMounted, onBeforeUnmount, defineProps, watch, defineEmits, computed, defineExpose} from 'vue';
-import {useStoreDisplay} from '@/store/wikiDisplay.js'
-import LeftAside from './aside/LeftAside.vue'
-import RightHeader from './aside/RightHeader.vue'
-import RightResize from './aside/RightResize.vue'
+import {useStoreDisplay} from '@/store/wikiDisplay.js';
+import LeftAside from './aside/LeftAside.vue';
+import RightHeader from './aside/RightHeader.vue';
+import RightResize from './aside/RightResize.vue';
 import userApi from "@/assets/api/user";
 import {useStoreUserData} from "@/store/userData";
 
@@ -50,82 +50,21 @@ const getSelfUserInfo = () => {
 	border-right: 1px solid #eee;
 	background: #fafafa;
 }
-</style>
 
-<style>
-html,
-body {
+html, body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
 }
 
-.global-layout-vue {
-	height: 100%;
-}
-
-.hidTree {
-	display: none;
-}
-
-#app, .el-container, .el-menu {
+#app, .el-container, .el-menu, .global-layout-vue {
 	height: 100%;
 }
 
 .el-header {
 	background-color: #fff !important;
-}
-
-.header-right-user-name {
-	color: #000000;
-	vertical-align: middle;
-}
-
-.el-header {
 	color: #333;
 	height: 60px !important;
-	background-color: #fff !important;
 	border-bottom: 1px solid #eee;
 }
-
-.head-icon {
-	margin-right: 15px;
-	margin-top: 15px;
-	font-size: 16px;
-	cursor: pointer;
-	color: #000000;
-	vertical-align: middle;
-}
-
-.header-user-message .page-info-box {
-	text-align: right;
-	margin-top: 10px;
-}
-
-.upgrade-info {
-	max-height: 150px;
-	overflow-y: auto;
-	word-break: break-all;
-	white-space: pre-wrap;
-	line-height: 26px;
-}
-
-.search-option-item {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.search-option-item .title {
-	font-weight: bold;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.search-option-item .content {
-	font-size: 12px;
-	color: #888;
-}
-
 </style>

@@ -27,10 +27,8 @@
 						<a-button class="hover-button hover-bg" @click="showCommentWiki" size="large" :icon="h(MessageOutlined)"></a-button>
 					</a-tooltip>
 					<UserMessagePopover/>
-					<a-dropdown trigger="click" placement="bottom" overlayClassName="header-action-more-dropdown">
-						<span style="display:inline-block;margin: 0 12px;">
-							<a-button class="hover-button hover-bg" size="large" :icon="h(EllipsisOutlined)"></a-button>
-						</span>
+					<a-dropdown trigger="click" placement="bottom" arrow overlayClassName="header-action-more-dropdown">
+						<a-button class="hover-button hover-bg" size="large" :icon="h(EllipsisOutlined)"></a-button>
 						<template #overlay>
 							<a-menu>
 								<a-menu-item @click="editWikiAuth" v-if="storePage.pageAuth.canConfigAuth === 1"><el-icon><ElIconSCheck/></el-icon> 权限设置</a-menu-item>
@@ -43,10 +41,8 @@
 						</template>
 					</a-dropdown>
 				</template>
-				<a-dropdown trigger="click" placement="bottom" overlayClassName="header-action-user-dropdown">
-					<span style="display:inline-block;">
-						<a-button class="hover-button hover-bg" size="large" :icon="h(UserOutlined)"></a-button>
-					</span>
+				<a-dropdown trigger="click" placement="bottomRight" arrow overlayClassName="header-action-user-dropdown">
+					<a-button class="hover-button hover-bg" size="large" :icon="h(UserOutlined)"></a-button>
 					<template #overlay>
 						<a-menu>
 							<a-menu-item @click="showAbout">关于</a-menu-item>
@@ -86,17 +82,17 @@ import {
 } from '@ant-design/icons-vue';
 import {toRefs, ref, reactive, onMounted, watch, defineEmits, h, computed} from 'vue';
 import {useRouter, useRoute} from "vue-router";
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { useStoreDisplay } from '@/store/wikiDisplay.js'
-import { useStorePageData } from '@/store/pageData.js'
-import { useStoreUserData } from '@/store/userData.js'
+import { ElMessageBox, ElMessage } from 'element-plus';
+import { useStoreDisplay } from '@/store/wikiDisplay.js';
+import { useStorePageData } from '@/store/pageData.js';
+import { useStoreUserData } from '@/store/userData.js';
 import pageApi from "@/assets/api/page";
 import {useStoreSpaceData} from "@/store/spaceData";
 import userApi from "@/assets/api/user";
-import PageAuthDialog from '@/views/page/show/PageAuthDialog.vue'
-import MobileQrScanDialog from '@/views/page/show/MobileQrScanDialog.vue'
-import AboutDialog from "@/views/common/AboutDialog.vue"
-import UserMessagePopover from "../../../components/layouts/UserMessagePopover.vue"
+import PageAuthDialog from '@/views/page/show/PageAuthDialog.vue';
+import MobileQrScanDialog from '@/views/page/show/MobileQrScanDialog.vue';
+import AboutDialog from "@/views/common/AboutDialog.vue";
+import UserMessagePopover from "../../../components/layouts/UserMessagePopover.vue";
 import {fixRequestUrl} from "@/assets/api/hostUtils";
 
 let router = useRouter();
@@ -150,13 +146,13 @@ const deleteWikiPage = () => {
 	}).then(() => {
 		pageApi.pageDelete({pageId: storePage.pageInfo.id}).then(() => {
 			pageApi.pageList({spaceId: storeSpace.chooseSpaceId}).then((json) => {
-				storePage.wikiPageList = json.data || []
+				storePage.wikiPageList = json.data || [];
 			}).then(()=>{
 				router.push({path: '/home', query: {spaceId: storePage.pageInfo.spaceId}});
-			})
+			});
 		});
 	}).catch((e) => {
-		console.log(e)
+		console.log(e);
 	});
 }
 // 下载为Word
@@ -190,7 +186,7 @@ const showAbout = () => {
 	aboutDialogVisible.value = true;
 }
 const showConsole = () => {
-	window.open(import.meta.env.VITE_APP_BASE_API, '_blank')
+	window.open(import.meta.env.VITE_APP_BASE_API, '_blank');
 }
 </script>
 

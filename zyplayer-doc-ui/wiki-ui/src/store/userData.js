@@ -1,4 +1,4 @@
-import {defineStore} from 'pinia'
+import {defineStore} from 'pinia';
 
 export const useStoreUserData = defineStore('userData', {
 	state: () => {
@@ -8,4 +8,4 @@ export const useStoreUserData = defineStore('userData', {
 			upgradeInfo: {},
 		}
 	},
-})
+});

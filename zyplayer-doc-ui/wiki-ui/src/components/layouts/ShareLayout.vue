@@ -1,5 +1,5 @@
 <template>
-	<div style="height: 100%">
+	<div style="height: 100%;">
 		<el-container>
 			<el-aside width="300px" style="background-color: #fafafa" :style="{ width: rightAsideWidth + 'px' }" v-show="leftCollapse">
 				<div class="logo">{{ nowSpaceShow.name }}</div>
@@ -57,11 +57,11 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import {FolderClose, FolderOpen, Word as IconParkWord,} from '@icon-park/vue-next'
-import {Search as ElIconSearch,} from '@element-plus/icons-vue'
-import pageApi from '../../assets/api/page'
-import RightResize from '../../views/page/aside/RightResize.vue'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import {FolderClose, FolderOpen, Word as IconParkWord,} from '@icon-park/vue-next';
+import {Search as ElIconSearch,} from '@element-plus/icons-vue';
+import pageApi from '../../assets/api/page';
+import RightResize from '../../views/page/aside/RightResize.vue';
 import IconDocument from "@/components/base/IconDocument.vue";
 
 let leftCollapse = ref(true);
@@ -81,40 +81,40 @@ let route = useRoute();
 let router = useRouter();
 onMounted(() => {
 	spaceUuid.value = route.query.space || ''
-	getSpaceInfo()
-	doGetPageList(null)
+	getSpaceInfo();
+	doGetPageList(null);
 });
 const filterPageNode = (value, data) => {
-	if (!value || !data.name) return true
+	if (!value || !data.name) return true;
 	// issues:I2CG72 忽略大小写
-	let name = data.name.toLowerCase()
+	let name = data.name.toLowerCase();
 	return name.indexOf(value.toLowerCase()) !== -1
 }
 const handleNodeClick = (data) => {
 	if (nowPageId.value == data.id) {
-		return
+		return;
 	}
-	// console.log('点击节点：', data)
-	nowPageId.value = data.id
+	// console.log('点击节点：', data);
+	nowPageId.value = data.id;
 	router.push({
 		path: '/page/share/view',
 		query: {pageId: data.id, space: spaceUuid.value}
-	})
+	});
 }
 let wikiPageTreeRef = ref();
 const searchByKeywords = () => {
-	wikiPageTreeRef.value.filter(searchKeywords.value)
+	wikiPageTreeRef.value.filter(searchKeywords.value);
 }
 const doGetPageList = () => {
 	pageApi.openPageList({space: spaceUuid.value}).then((json) => {
-		wikiPageList.value = json.data || []
-		nowPageId.value = ''
-	})
+		wikiPageList.value = json.data || [];
+		nowPageId.value = '';
+	});
 }
 const getSpaceInfo = () => {
 	pageApi.openSpaceInfo({space: spaceUuid.value}).then((json) => {
-		nowSpaceShow.value = json.data
-	})
+		nowSpaceShow.value = json.data;
+	});
 }
 </script>
 

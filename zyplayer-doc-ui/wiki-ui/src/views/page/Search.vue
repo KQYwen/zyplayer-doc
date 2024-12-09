@@ -1,10 +1,10 @@
 <template>
 	<div style="background: #f1f1f1; min-height: 100%" class="page-search-vue">
 		<div style="max-width: 1200px;margin: 0 auto;background: #fff;padding: 20px;min-height: 100%;box-sizing: border-box;">
-			<div style="margin-bottom: 20px">
+			<div style="margin-bottom: 20px;">
 				<el-row :gutter="20" style="max-width: 700px; margin: 0 auto">
 					<el-col :span="20">
-						<el-input v-model="searchParam.keywords" @keyup.enter="getSpacePageNews" placeholder="" style="width: 100%"></el-input>
+						<el-input v-model="searchParam.keywords" @keyup.enter="getSpacePageNews" placeholder="" style="width: 100%;"></el-input>
 					</el-col>
 					<el-col :span="4">
 						<el-button type="primary" @click="getSpacePageNews" :icon="ElIconSearch">搜索一下</el-button>
@@ -45,9 +45,9 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import {View as ElIconView, Search as ElIconSearch} from '@element-plus/icons-vue'
-import pageApi from '../../assets/api/page'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import {View as ElIconView, Search as ElIconSearch} from '@element-plus/icons-vue';
+import pageApi from '../../assets/api/page';
 
 let route = useRoute();
 let router = useRouter();
@@ -65,20 +65,20 @@ let searchParam = ref({
 let spacePageNews = ref([]);
 const getSpacePageNews = () => {
 	pageApi.pageSearchByEs(searchParam.value).then((json) => {
-		spacePageNews.value = json.data || []
-		totalCount.value = json.total
-	})
+		spacePageNews.value = json.data || [];
+		totalCount.value = json.total;
+	});
 }
 const handleSizeChange = (val) => {
-	searchParam.value.pageSize = val
-	getSpacePageNews()
+	searchParam.value.pageSize = val;
+	getSpacePageNews();
 }
 const showPageDetail = (row) => {
-	window.open('#/page/show?pageId=' + row.pageId)
+	window.open('#/page/show?pageId=' + row.pageId);
 }
 const handleCurrentChange = (val) => {
-	searchParam.value.pageNum = val
-	getSpacePageNews()
+	searchParam.value.pageNum = val;
+	getSpacePageNews();
 }
 const initQueryParam = (to) => {
 	searchParam.value = {
@@ -88,7 +88,7 @@ const initQueryParam = (to) => {
 		pageNum: 1,
 		pageSize: 20,
 	}
-	getSpacePageNews()
+	getSpacePageNews();
 }
 </script>
 

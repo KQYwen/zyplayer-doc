@@ -16,9 +16,9 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import pageApi from '../../assets/api/page'
-import PageTree from '../shareLayout/PageTree.vue'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import pageApi from '../../assets/api/page';
+import PageTree from '../shareLayout/PageTree.vue';
 import 'vant/es/icon/style/index';
 import 'vant/es/popup/style/index';
 import 'vant/es/cell/style/index';
@@ -42,35 +42,35 @@ let route = useRoute();
 let router = useRouter();
 onMounted(() => {
 	spaceUuid.value = route.query.space || ''
-	getSpaceInfo()
-	doGetPageList(null)
+	getSpaceInfo();
+	doGetPageList(null);
 });
 const filterPageNode = (value, data) => {
-	if (!value) return true
+	if (!value) return true;
 	return data.name.indexOf(value) !== -1
 }
 const pageSelectChange = (value) => {
-	// console.log('页面修改：' + value)
-	popupShow.value = false
+	// console.log('页面修改：' + value);
+	popupShow.value = false;
 	router.replace({
 		path: '/page/share/mobile/view',
 		query: {pageId: value, space: spaceUuid.value}
-	})
+	});
 }
 const popupShowChange = (value) => {
-	popupShow.value = value
-	// console.log(pageSelect.value)
+	popupShow.value = value;
+	// console.log(pageSelect.value);
 }
 const doGetPageList = () => {
 	pageApi.openPageList({space: spaceUuid.value}).then((json) => {
-		wikiPageList.value = json.data || []
-		nowPageId.value = ''
-	})
+		wikiPageList.value = json.data || [];
+		nowPageId.value = '';
+	});
 }
 const getSpaceInfo = () => {
 	pageApi.openSpaceInfo({space: spaceUuid.value}).then((json) => {
-		nowSpaceShow.value = json.data
-	})
+		nowSpaceShow.value = json.data;
+	});
 }
 </script>
 

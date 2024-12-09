@@ -35,9 +35,9 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import {View as ElIconView} from '@element-plus/icons-vue'
-import pageApi from '../../../../assets/api/page'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import {View as ElIconView} from '@element-plus/icons-vue';
+import pageApi from '../../../../assets/api/page';
 
 let totalCount = ref(0);
 let searchParam = ref({spaceId: '', newsType: 1, pageNum: 1, pageSize: 20,});
@@ -52,21 +52,21 @@ onMounted(() => {
 });
 const getSpacePageNews = () => {
 	pageApi.openPageNews(searchParam.value).then((json) => {
-		spacePageNews.value = json.data || []
-		totalCount.value = json.total
-	})
+		spacePageNews.value = json.data || [];
+		totalCount.value = json.total;
+	});
 }
 const handleSizeChange = (val) => {
-	searchParam.value.pageSize = val
-	getSpacePageNews()
+	searchParam.value.pageSize = val;
+	getSpacePageNews();
 }
 const showPageDetail = (row) => {
 	let nowClickPath = {space: row.space, pageId: row.pageId}
-	router.push({path: '/page/share/view', query: nowClickPath})
+	router.push({path: '/page/share/view', query: nowClickPath});
 }
 const handleCurrentChange = (val) => {
-	searchParam.value.pageNum = val
-	getSpacePageNews()
+	searchParam.value.pageNum = val;
+	getSpacePageNews();
 }
 const initQueryParam = (to) => {
 	searchParam.value = {
@@ -76,7 +76,7 @@ const initQueryParam = (to) => {
 		pageSize: 20,
 	}
 	if (!!searchParam.value.space) {
-		getSpacePageNews()
+		getSpacePageNews();
 	}
 }
 </script>

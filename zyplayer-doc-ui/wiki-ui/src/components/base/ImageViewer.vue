@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import {onBeforeUnmount, ref, h, shallowRef, nextTick, onMounted, watch, defineProps, defineExpose} from 'vue'
+import {onBeforeUnmount, ref, h, shallowRef, nextTick, onMounted, watch, defineProps, defineExpose} from 'vue';
 import {showImagePreview} from 'vant';
 import {useStoreDisplay} from "@/store/wikiDisplay";
 

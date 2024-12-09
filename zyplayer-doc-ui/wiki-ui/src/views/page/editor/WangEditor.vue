@@ -21,10 +21,10 @@
 </template>
 
 <script setup>
-import '@wangeditor/editor/dist/css/style.css'
-import {DomEditor} from '@wangeditor/editor'
-import {onBeforeUnmount, ref, shallowRef, onMounted, watch, defineProps, defineExpose} from 'vue'
-import {Editor, Toolbar} from '@wangeditor/editor-for-vue'
+import '@wangeditor/editor/dist/css/style.css';
+import {DomEditor} from '@wangeditor/editor';
+import {onBeforeUnmount, ref, shallowRef, onMounted, watch, defineProps, defineExpose} from 'vue';
+import {Editor, Toolbar} from '@wangeditor/editor-for-vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 
 const props = defineProps({
@@ -65,7 +65,7 @@ let editorConfig = ref({
 });
 let mode = 'default';
 let defaultHtml = '';
-const editorRef = shallowRef()
+const editorRef = shallowRef();
 let pageTitle = ref('');
 
 const handleCreated = (editor) => {

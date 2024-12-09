@@ -1,12 +1,12 @@
 <template>
 	<div class="page-show-vue" v-if="storePage.pageInfo.editorType !== 0">
 		<a-row class="view-body-comment-box">
-			<a-col flex="auto" class="view-body-outer-box">
+			<a-col id="pageContentScrollBox" flex="auto" class="view-body-outer-box">
 				<div class="view-body-box">
 					<div class="wiki-title" ref="wikiTitleRef">{{ storePage.pageInfo.name }}</div>
 					<div id="pageContentBox" ref="pageContentRef" class="wiki-page-content">
-						<div v-if="wikiPage.editorType === 2" v-html="pageShowDetail" class="markdown-body" v-highlight></div>
-						<div v-else v-html="pageShowDetail" class="wang-editor-body"></div>
+						<div v-if="wikiPage.editorType === 2" v-html="pageContentShow" class="page-view-content markdown-body" v-highlight></div>
+						<div v-else v-html="pageContentShow" class="page-view-content wang-editor-body"></div>
 					</div>
 					<PageZan></PageZan>
 				</div>
@@ -18,16 +18,10 @@
 						<Comment></Comment>
 					</a-tab-pane>
 					<a-tab-pane tab="附件" key="files">
-						<Annex/>
+						<Files/>
 					</a-tab-pane>
 					<a-tab-pane tab="修改历史" key="history">
-						<PageHistory
-							:pageHistoryList="pageHistoryList"
-							:pageHistoryChoice="pageHistoryChoice"
-							:pageHistoryDetail="pageHistoryDetail"
-							@historyClickHandle="historyClickHandle"
-							@previewPageImage="previewPageImage"
-							@createNavigationHeading="createNavigationHeading"/>
+						<PageHistory :history="pageHistoryList" @choice="historyClickHandle"/>
 					</a-tab-pane>
 					<template #rightExtra>
 						<el-tooltip content="关闭" placement="top">
@@ -46,19 +40,18 @@ import { CloseOutlined } from '@ant-design/icons-vue';
 import {toRefs, ref, reactive, onMounted, watch, defineProps, h, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus';
-import QRCode from 'qrcode'
-import unitUtil from '../../assets/lib/UnitUtil.js'
-import htmlUtil from '../../assets/lib/HtmlUtil.js'
-import pageApi from '../../assets/api/page'
-import userApi from '../../assets/api/user'
-import Navigation from './show/Navigation.vue'
-import Annex from './show/Annex.vue'
-import PageHistory from './show/PageHistory.vue'
-import Comment from './show/Comment.vue'
-import PageZan from './show/PageZan.vue'
-import {mavonEditor} from 'mavon-editor'
-import 'mavon-editor/dist/markdown/github-markdown.min.css'
-import 'mavon-editor/dist/css/index.css'
+import QRCode from 'qrcode';
+import unitUtil from '../../assets/lib/UnitUtil.js';
+import htmlUtil from '../../assets/lib/HtmlUtil.js';
+import pageApi from '../../assets/api/page';
+import userApi from '../../assets/api/user';
+import Navigation from './show/Navigation.vue';
+import Files from './show/Files.vue';
+import PageHistory from './show/PageHistory.vue';
+import Comment from './show/Comment.vue';
+import PageZan from './show/PageZan.vue';
+import {mavonEditor} from 'mavon-editor';
+import 'mavon-editor/dist/css/index.css';
 import {useStorePageData} from "@/store/pageData";
 import {useStoreDisplay} from "@/store/wikiDisplay";
 import ImageViewer from "@/components/base/ImageViewer.vue";
@@ -81,15 +74,9 @@ onBeforeRouteUpdate((to) => {
 // 页面展示相关
 let wikiPage = ref({});
 let wikiPageAuth = ref({});
-let pageContent = ref({});
-let selfUserId = ref(0);
-// 右侧标签页
-let pageHistoryDetail = ref('');
-let pageShowDetail = ref('');
-let pageHistoryChoice = ref({});
+let pageContent = ref('');
+let pageContentShow = ref('');
 let pageHistoryList = ref([]);
-let pageHistoryPageNum = ref(1);
-// 左侧导航菜单
 let navigationList = ref([]);
 let actionTabActiveName = ref('comment');
 let imageViewerRef = ref();
@@ -102,45 +89,39 @@ const closeActionTab = () => {
 	storeDisplay.commentShow = false;
 	clearHistory();
 }
-const getPageHistory = (pageId, pageNum) => {
-	if (pageNum === 1) {
-		pageHistoryList.value = [];
-		pageHistoryPageNum.value = 1;
-	}
-	let param = {pageId: pageId, pageNum: pageNum};
-	pageApi.pageHistoryList(param).then((json) => {
+const getPageHistory = (pageId) => {
+	pageHistoryList.value = [];
+	pageApi.pageHistoryList({pageId: pageId}).then((json) => {
 		let historyList = json.data || [];
-		if (historyList.length <= 0) {
-			pageHistoryPageNum.value = 0;
-		} else {
-			historyList.forEach((item) => (item.loading = 0));
-			pageHistoryList.value = pageHistoryList.value.concat(historyList);
-		}
-	})
+		historyList.forEach((item) => (item.loading = 0));
+		pageHistoryList.value = historyList;
+	});
 }
 const historyClickHandle = (history) => {
-	pageHistoryChoice.value.loading = 0;
-	pageHistoryChoice.value = history;
-	pageHistoryDetail.value = history.content;
-	pageShowDetail.value =history.content;
+	pageContentShow.value = history.content;
+	afterLoadPage();
 }
 const clearHistory = () => {
-	pageHistoryChoice.value.loading = 0;
-	pageHistoryDetail.value = '';
-	pageHistoryChoice.value = {};
 	pageHistoryList.value.forEach((item) => (item.loading = 0));
-	pageShowDetail.value = pageContent.value.content;
+	pageContentShow.value = pageContent.value;
+	afterLoadPage();
+}
+const afterLoadPage = () => {
+	setTimeout(() => {
+		previewPageImage();
+		createNavigationHeading();
+	}, 500);
 }
 const loadPageDetail = (pageId) => {
 	clearHistory();
+	pageContent.value = '';
 	pageApi.pageDetail({id: pageId}).then(async (json) => {
 		let result = json.data || {};
 		let wikiPageRes = result.wikiPage || {};
 		wikiPageRes.selfZan = result.selfZan || 0;
+		wikiPageRes.zanNum = wikiPageRes.zanNum || 0;
 		wikiPage.value = wikiPageRes;
-		pageContent.value = result.pageContent || {};
 		storePage.fileList = result.fileList || [];
-		selfUserId.value = result.selfUserId || 0;
 		wikiPageAuth.value = {
 			canEdit: result.canEdit,
 			canDelete: result.canDelete,
@@ -148,10 +129,13 @@ const loadPageDetail = (pageId) => {
 			canDeleteFile: result.canDeleteFile,
 			canConfigAuth: result.canConfigAuth,
 		}
-		if (wikiPage.value.editorType === 2) {
-			pageContent.value.content = mavonEditor.getMarkdownIt().render(pageContent.value.content);
+		if (result.pageContent) {
+			pageContent.value = result.pageContent.content || '';
 		}
-		pageShowDetail.value = pageContent.value.content;
+		if (wikiPage.value.editorType === 2) {
+			pageContent.value = mavonEditor.getMarkdownIt().render(pageContent.value);
+		}
+		pageContentShow.value = pageContent.value;
 		// 修改标题
 		document.title = wikiPageRes.name || 'WIKI-内容展示';
 		// 修改最后点击的项，保证刷新后点击编辑能展示编辑的项
@@ -162,18 +146,15 @@ const loadPageDetail = (pageId) => {
 		emit('switchSpace', wikiPage.value.spaceId);
 		// 调用父方法展开目录树
 		emit('changeExpandedKeys', pageId);
-		setTimeout(() => {
-			previewPageImage();
-			createNavigationHeading();
-		}, 500);
 		storePage.pageInfo = wikiPageRes;
 		storePage.pageAuth = wikiPageAuth.value;
-	})
-	getPageHistory(pageId, 1)
+		afterLoadPage();
+	});
+	getPageHistory(pageId);
 }
 let wikiTitleRef = ref();
 const createNavigationHeading = () => {
-	let navigationListVal = htmlUtil.createNavigationHeading()
+	let navigationListVal = htmlUtil.createNavigationHeading();
 	// 标题加到导航里面去
 	if (navigationListVal.length > 0) {
 		let wikiTile = wikiPage.value.name || 'WIKI-内容展示'
@@ -181,7 +162,7 @@ const createNavigationHeading = () => {
 			level: 1,
 			node: wikiTitleRef.value,
 			text: wikiTile,
-		})
+		});
 	}
 	navigationList.value = navigationListVal;
 }
@@ -204,6 +185,7 @@ const initQueryParam = (to) => {
 
 	.view-body-comment-box {
 		height: 100%;
+		flex-flow: row nowrap;
 
 		.view-body-outer-box {
 			height: 100%;
@@ -230,8 +212,6 @@ const initQueryParam = (to) => {
 </style>
 
 <style>
-@import '../../assets/lib/wangEditor.css';
-
 .page-show-vue .icon-collapse {
 	float: left;
 	font-size: 25px;

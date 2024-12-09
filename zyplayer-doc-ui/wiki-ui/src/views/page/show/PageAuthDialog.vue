@@ -2,7 +2,7 @@
 	<!--人员权限弹窗-->
 	<el-dialog title="页面权限" v-model="dataItemEditVisible" width="800px" class="page-auth-dialog">
 		<el-row>
-			<el-select v-model="pageAuthNewUser" filterable remote reserve-keyword autoComplete="new-password" placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList" :loading="pageAuthUserLoading" style="width: 690px; margin-right: 10px">
+			<el-select v-model="pageAuthNewUser" filterable remote reserve-keyword autoComplete="new-password" placeholder="请输入名字、邮箱、账号搜索用户" :remote-method="getSearchUserList" :loading="pageAuthUserLoading" style="width: 690px; margin-right: 10px;">
 				<el-option v-for="item in searchUserList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
 			</el-select>
 			<el-button @click="addPageAuthUser">添加</el-button>
@@ -35,10 +35,10 @@
 import {
 	Search as ElIconSearch,
 } from '@element-plus/icons-vue'
-import {markRaw} from 'vue'
+import {markRaw} from 'vue';
 import {toRefs, ref, reactive, onMounted, onBeforeUnmount, defineProps, watch, defineEmits, computed, defineExpose} from 'vue';
 import {useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage, ElLoading, ElNotification} from 'element-plus'
+import {ElMessageBox, ElMessage, ElLoading, ElNotification} from 'element-plus';
 import pageApi from "@/assets/api/page";
 import {useStorePageData} from "@/store/pageData";
 import userApi from "@/assets/api/user";
@@ -106,7 +106,7 @@ const addPageAuthUser = () => {
 		pageFileUpload: 0,
 		pageFileDelete: 0,
 		pageAuthManage: 0,
-	})
+	});
 	pageAuthNewUser.value = '';
 }
 const getSearchUserList = (query) => {

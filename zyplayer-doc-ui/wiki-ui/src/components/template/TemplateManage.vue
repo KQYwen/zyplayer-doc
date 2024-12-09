@@ -90,38 +90,38 @@ import {
 } from 'vue';
 import {AlertOutlined, AimOutlined, BorderOutlined} from '@ant-design/icons-vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import pageApi from '../../assets/api/page'
-import {mavonEditor} from 'mavon-editor'
-import 'mavon-editor/dist/markdown/github-markdown.min.css'
-import 'mavon-editor/dist/css/index.css'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import pageApi from '../../assets/api/page';
+import {mavonEditor} from 'mavon-editor';
+import 'mavon-editor/dist/markdown/github-markdown.min.css';
+import 'mavon-editor/dist/css/index.css';
 
 let emit = defineEmits('doGetPageList');
-let router = useRouter()
-let nowTemplateNum = ref(1)
-let totalTemplate = ref(0)
-let exsit = ref(false)
+let router = useRouter();
+let nowTemplateNum = ref(1);
+let totalTemplate = ref(0);
+let exsit = ref(false);
 
 let props = defineProps({
 	pageId: Number,
 	spaceId: Number
-})
+});
 let templateNewForm = ref({
 	pageId: 0,
 	spaceId: 0,
 	tagName: '',
 	shareStatus: false
-})
+});
 let newTemplateDialogVisible = ref(false);
 const showTemplateCreate = (exsited) => {
-	exsit.value = exsited
+	exsit.value = exsited;
 	templateNewForm.value = {
 		pageId: props.pageId,
 		spaceId: props.spaceId,
 		tagName: '',
 		shareStatus: false
 	}
-	newTemplateDialogVisible.value = true
+	newTemplateDialogVisible.value = true;
 }
 const filterShareStatus = (data) => {
 	if (data === 1) {
@@ -131,33 +131,33 @@ const filterShareStatus = (data) => {
 }
 const onNewTemplateSubmit = () => {
 	pageApi.addTemplate(templateNewForm.value).then((json) => {
-		ElMessage.success('模板记录成功')
-		emit('doGetPageList', null)
-	})
-	newTemplateDialogVisible.value = false
+		ElMessage.success('模板记录成功');
+		emit('doGetPageList', null);
+	});
+	newTemplateDialogVisible.value = false;
 }
 const onNewTemplateCancel = () => {
-	newTemplateDialogVisible.value = false
+	newTemplateDialogVisible.value = false;
 }
 
-let templateChooseDialogVisible = ref(false)
-let previewVisible = ref(false)
-let aModalWaiting = ref(false)
-let tags = ref([])
-let filterTags = ref([])
-let open = ref(false)
-let name = ref('')
-let templateList = ref()
-let editorType = ref(1)
+let templateChooseDialogVisible = ref(false);
+let previewVisible = ref(false);
+let aModalWaiting = ref(false);
+let tags = ref([]);
+let filterTags = ref([]);
+let open = ref(false);
+let name = ref('');
+let templateList = ref();
+let editorType = ref(1);
 
 
 const showTemplateManage = () => {
-	templateChooseDialogVisible.value = true
-	filterTags.value = [{show: true, tagName: ''}]
-	totalTemplate.value = 0
-	nowTemplateNum.value = 1
-	templateList.value = []
-	filterByOpen()
+	templateChooseDialogVisible.value = true;
+	filterTags.value = [{show: true, tagName: ''}];
+	totalTemplate.value = 0;
+	nowTemplateNum.value = 1;
+	templateList.value = [];
+	filterByOpen();
 }
 const chooseTemplate = (item) => {
 	pageApi.useTemplate({
@@ -165,24 +165,24 @@ const chooseTemplate = (item) => {
 		parentId: props.pageId,
 		templateId: item.templateId
 	}).then((json) => {
-		templateChooseDialogVisible.value = false
-		emit('doGetPageList', null)
-		ElMessage.success('创建成功')
+		templateChooseDialogVisible.value = false;
+		emit('doGetPageList', null);
+		ElMessage.success('创建成功');
 		router.push({
 			path: '/page/edit',
 			query: {parentId: props.pageId, pageId: json.data.id}
-		})
-	})
+		});
+	});
 }
 const turnToSource = (item) => {
-	templateChooseDialogVisible.value = false
+	templateChooseDialogVisible.value = false;
 	router.push({
 		path: '/page/show',
 		query: {spaceId: item.spaceId, pageId: item.id}
-	})
+	});
 }
 const pageUpDown = () => {
-	templateList.value = []
+	templateList.value = [];
 	pageApi.getTemplate({
 		name: name.value,
 		open: open.value,
@@ -190,68 +190,68 @@ const pageUpDown = () => {
 		pageNum: nowTemplateNum.value
 	}).then((json) => {
 		totalTemplate.value = json.total || 0
-		templateList.value = json.data || []
-	})
+		templateList.value = json.data || [];
+	});
 }
 const simpleQryTemplate = () => {
-	templateList.value = []
+	templateList.value = [];
 	pageApi.getTemplate({
 		name: name.value,
 		open: open.value,
 		tags: filterTags.value,
 	}).then((json) => {
 		totalTemplate.value = json.total || 0
-		templateList.value = json.data || []
-		nowTemplateNum.value = 1
-	})
+		templateList.value = json.data || [];
+		nowTemplateNum.value = 1;
+	});
 }
 const filterByOpen = () => {
 	pageApi.getTags({open: open.value}).then((json) => {
-		tags.value = json.data || []
-		filterTags.value = json.data || []
-		simpleQryTemplate()
-	})
+		tags.value = json.data || [];
+		filterTags.value = json.data || [];
+		simpleQryTemplate();
+	});
 }
 const filterByTags = () => {
 	filterTags.value = tags.value.filter((item) => {
 		return item.show
-	})
+	});
 	if (filterTags.value.length === 0) {
-		filterTags.value = ['']
+		filterTags.value = [''];
 	}
-	setTimeout(simpleQryTemplate(), 200)
+	setTimeout(simpleQryTemplate(), 200);
 }
 const filterByName = () => {
-	simpleQryTemplate()
+	simpleQryTemplate();
 }
 
-let pageShowDetail = ref('')
-let pageContentRef = ref(null)
+let pageShowDetail = ref('');
+let pageContentRef = ref(null);
 const showPreview = (item) => {
-	editorType.value = item.editorType
+	editorType.value = item.editorType;
 	if (item.editorType === 1) {
-		pageShowDetail.value = item.content
+		pageShowDetail.value = item.content;
 	}
 	if (item.editorType === 2) {
-		pageShowDetail.value = mavonEditor.getMarkdownIt().render(item.content)
+		pageShowDetail.value = mavonEditor.getMarkdownIt().render(item.content);
 	}
 	setTimeout(previewPageImage(), 500);
-	previewVisible.value = true
+	previewVisible.value = true;
 }
 const previewPageImage = () => {
-	const imgArr = []
+	const imgArr = [];
 	if (pageContentRef.value !== undefined || pageContentRef.value !== '') {
-		return
+		return;
 	}
-	const imgSelector = pageContentRef.value.querySelectorAll('img')
+	const imgSelector = pageContentRef.value.querySelectorAll('img');
 	imgSelector.forEach((item, index) => {
-		imgArr.push(item.src)
+		imgArr.push(item.src);
 		item.onclick = () => {
-			previewInitialIndex.value = index
-			showImagePreviewList.value = imgArr
-			showImagePreview.value = true
+			previewInitialIndex.value = index;
+			showImagePreviewList.value = imgArr;
+			showImagePreview.value = true;
 		}
-	})
+	});
 }
 defineExpose({showTemplateCreate, showTemplateManage});
 </script>

@@ -1,0 +1,269 @@
+.markdown-body {
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
+	color: #24292e;
+	font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Segoe UI, Arial, Roboto, "PingFang SC", "miui", "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+	word-wrap: break-word;
+
+	.pl-c {
+		color: #6a737d;
+	}
+
+	.pl-ent {
+		color: #22863a;
+	}
+
+	.pl-k {
+		color: #d73a49;
+	}
+
+	.pl-bu {
+		color: #b31d28;
+	}
+
+	.pl-ii {
+		color: #fafbfc;
+		background-color: #b31d28;
+	}
+
+	.pl-c2 {
+		color: #fafbfc;
+		background-color: #d73a49;
+
+		&::before {
+			content: "^M";
+		}
+	}
+
+	.pl-sr {
+		.pl-cce {
+			font-weight: 700;
+			color: #22863a;
+		}
+	}
+
+	.pl-ml {
+		color: #735c0f;
+	}
+
+	.pl-mi {
+		font-style: italic;
+		color: #24292e;
+	}
+
+	.pl-mb {
+		font-weight: 700;
+		color: #24292e;
+	}
+
+	.pl-md {
+		color: #b31d28;
+		background-color: #ffeef0;
+	}
+
+	.pl-mi1 {
+		color: #22863a;
+		background-color: #f0fff4;
+	}
+
+	.pl-mc {
+		color: #e36209;
+		background-color: #ffebda;
+	}
+
+	.pl-mi2 {
+		color: #f6f8fa;
+		background-color: #005cc5;
+	}
+
+	.pl-mdr {
+		font-weight: 700;
+		color: #6f42c1;
+	}
+
+	.pl-ba {
+		color: #586069;
+	}
+
+	.pl-sg {
+		color: #959da5;
+	}
+
+	.pl-corl {
+		text-decoration: underline;
+		color: #032f62;
+	}
+
+	.octicon {
+		display: inline-block;
+		fill: currentColor;
+		vertical-align: text-bottom;
+	}
+
+	svg {
+		&:not(:root) {
+			overflow: hidden;
+		}
+	}
+
+	input {
+		font: inherit;
+		margin: 0;
+		overflow: visible;
+		line-height: inherit;
+	}
+
+	[type=checkbox] {
+		box-sizing: border-box;
+		padding: 0;
+	}
+
+	dd {
+		margin-left: 0;
+	}
+
+	.pl-0 {
+		padding-left: 0 !important;
+	}
+
+	.pl-1 {
+		padding-left: 4px !important;
+	}
+
+	.pl-2 {
+		padding-left: 8px !important;
+	}
+
+	.pl-3 {
+		padding-left: 16px !important;
+	}
+
+	.pl-4 {
+		padding-left: 24px !important;
+	}
+
+	.pl-5 {
+		padding-left: 32px !important;
+	}
+
+	.pl-6 {
+		padding-left: 40px !important;
+	}
+
+	&::before {
+		display: table;
+		content: "";
+	}
+
+	&::after {
+		display: table;
+		clear: both;
+		content: "";
+	}
+
+	& > :first-child {
+		margin-top: 0 !important;
+	}
+
+	& > :last-child {
+		margin-bottom: 0 !important;
+	}
+
+	.anchor {
+		float: left;
+		padding-right: 4px;
+		margin-left: -20px;
+		line-height: 1;
+
+		&:focus {
+			outline: 0;
+		}
+	}
+
+	kbd {
+		line-height: 10px;
+		display: inline-block;
+		padding: 3px 5px;
+		font: 11px SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+		line-height: 10px;
+		color: #444d56;
+		vertical-align: middle;
+		background-color: #fafbfc;
+		border: solid 1px #d1d5da;
+		border-bottom-color: #c6cbd1;
+		border-radius: 3px;
+		box-shadow: inset 0 -1px 0 #c6cbd1;
+	}
+
+	dl {
+		padding: 0;
+
+		dt {
+			padding: 0;
+			margin-top: 16px;
+			font-size: 1em;
+			font-style: italic;
+			font-weight: 600;
+		}
+
+		dd {
+			padding: 0 16px;
+			margin-bottom: 16px;
+		}
+	}
+
+	.full-commit {
+		.btn-outline {
+			&:not(:disabled):hover {
+				color: #005cc5;
+				border-color: #005cc5;
+			}
+		}
+	}
+
+	:checked {
+		& + .radio-label {
+			position: relative;
+			z-index: 1;
+			border-color: #0366d6;
+		}
+	}
+
+	.task-list-item {
+		list-style-type: none;
+
+		& + .task-list-item {
+			margin-top: 3px;
+		}
+
+		input {
+			margin: 0 .2em .25em 0;
+			vertical-align: middle;
+		}
+	}
+
+	.pl-c1, .pl-s .pl-v {
+		color: #005cc5;
+	}
+
+	.pl-e, .pl-en {
+		color: #6f42c1;
+	}
+
+	.pl-s .pl-s1, .pl-smi {
+		color: #24292e;
+	}
+
+	.pl-pds, .pl-s, .pl-s .pl-pse .pl-s1, .pl-sr, .pl-sr .pl-cce, .pl-sr .pl-sra, .pl-sr .pl-sre {
+		color: #032f62;
+	}
+
+	.pl-smw, .pl-v {
+		color: #e36209;
+	}
+
+	.pl-mh, .pl-mh .pl-en, .pl-ms {
+		font-weight: 700;
+		color: #005cc5;
+	}
+}

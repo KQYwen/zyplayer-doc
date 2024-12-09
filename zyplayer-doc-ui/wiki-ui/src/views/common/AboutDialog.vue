@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import {onBeforeUnmount, ref, shallowRef, watch, onMounted, defineProps, defineEmits, defineExpose} from 'vue'
+import {onBeforeUnmount, ref, shallowRef, watch, onMounted, defineProps, defineEmits, defineExpose} from 'vue';
 import {useRouter, useRoute} from "vue-router";
 import {useStoreUserData} from "@/store/userData";
 

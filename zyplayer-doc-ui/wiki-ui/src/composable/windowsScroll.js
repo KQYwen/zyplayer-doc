@@ -1,6 +1,6 @@
-import {ref, onMounted, onUnmounted, watch} from 'vue'
+import {ref, onMounted, onUnmounted, watch} from 'vue';
 import {useStoreDisplay} from "@/store/wikiDisplay";
-import { useWindowSize, useWindowScroll } from '@vueuse/core'
+import { useWindowSize, useWindowScroll } from '@vueuse/core';
 
 export function useScroll(callback) {
 	const {x, y} = useWindowScroll();

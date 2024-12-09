@@ -10,7 +10,7 @@
 			</el-col>
 			<el-col style="flex: 0 0 180px;text-align: right;">
 				<el-button type="primary" @click="createWikiSave(1)" :icon="ElIconDocumentChecked">保存</el-button>
-				<el-button @click="createWikiCancel" :icon="ElIconBack" style="margin-right: 5px">取消</el-button>
+				<el-button @click="createWikiCancel" :icon="ElIconBack" style="margin-right: 5px;">取消</el-button>
 			</el-col>
 		</el-row>
 		<div style="box-sizing: border-box;background: #f5f5f5;overflow: hidden">
@@ -37,7 +37,7 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, onUnmounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
+import {ElMessageBox, ElMessage} from 'element-plus';
 import {
 	DocumentChecked as ElIconDocumentChecked,
 	Fold as ElIconFold,
@@ -45,12 +45,12 @@ import {
 	Check as ElIconCheck,
 	Back as ElIconBack,
 } from '@element-plus/icons-vue'
-import pageApi from '../../assets/api/page'
-import {mavonEditor} from 'mavon-editor'
-import 'mavon-editor/dist/markdown/github-markdown.min.css'
-import 'mavon-editor/dist/css/index.css'
-import axios from 'axios'
-import WangEditor from './editor/WangEditor.vue'
+import pageApi from '../../assets/api/page';
+import {mavonEditor} from 'mavon-editor';
+import 'mavon-editor/dist/markdown/github-markdown.min.css';
+import 'mavon-editor/dist/css/index.css';
+import axios from 'axios';
+import WangEditor from './editor/WangEditor.vue';
 import {useStoreSpaceData} from "@/store/spaceData";
 import {useStorePageData} from "@/store/pageData";
 import {useStoreDisplay} from "@/store/wikiDisplay";
@@ -105,9 +105,9 @@ let toolbars = {
 const props = defineProps({
 	spaceId: Number,
 });
-let storeSpace = useStoreSpaceData()
-let storePage = useStorePageData()
-let storeDisplay = useStoreDisplay()
+let storeSpace = useStoreSpaceData();
+let storePage = useStorePageData();
+let storeDisplay = useStoreDisplay();
 let emit = defineEmits(['loadPageList']);
 onBeforeRouteUpdate((to) => {
 	initQueryParam(to);
@@ -115,35 +115,35 @@ onBeforeRouteUpdate((to) => {
 let route = useRoute();
 let router = useRouter();
 onUnmounted(() => {
-	unlockPage()
+	unlockPage();
 });
 onMounted(() => {
-	initEditor()
-	initQueryParam(route)
-	let that = this
+	initEditor();
+	initQueryParam(route);
+	let that = this;
 	window.onunload = function () {
-		that.unlockPage()
+		that.unlockPage();
 	}
 	window.onbeforeunload = function () {
-		that.unlockPage()
+		that.unlockPage();
 	}
-	storeDisplay.showHeader = false
-})
+	storeDisplay.showHeader = false;
+});
 const turnLeftCollapse = () => {
-	storeDisplay.showMenu = !storeDisplay.showMenu
+	storeDisplay.showMenu = !storeDisplay.showMenu;
 	setTimeout(() => {
 		if (storeDisplay.showMenu) {
-			storeDisplay.rightAsideWidth = 301
+			storeDisplay.rightAsideWidth = 301;
 		} else {
-			storeDisplay.rightAsideWidth = 1
+			storeDisplay.rightAsideWidth = 1;
 		}
-	}, 100)
+	}, 100);
 }
 const unlockPage = () => {
 	// 防止各种事件重复调这个接口，只需要调一次就好了
-	if (isUnlock.value) return
-	isUnlock.value = true
-	pageApi.pageUnlock({pageId: pageId.value})
+	if (isUnlock.value) return;
+	isUnlock.value = true;
+	pageApi.pageUnlock({pageId: pageId.value});
 }
 const createWikiCancel = () => {
 	ElMessageBox.confirm('确定要取消编辑吗？您编辑的内容将不会被保存哦~', '提示', {
@@ -151,32 +151,32 @@ const createWikiCancel = () => {
 		cancelButtonText: '继续编辑',
 		type: 'warning',
 	}).then(() => {
-		unlockPage()
-		router.back()
-		storeDisplay.showHeader = true
-	})
+		unlockPage();
+		router.back();
+		storeDisplay.showHeader = true;
+	});
 }
 let wangEditorRef = ref();
 const createWikiSave = (saveAfter) => {
 	let content = '',
-		preview = ''
+		preview = '';
 	if (wikiPageEdit.value.editorType === 2) {
-		content = markdownContent.value
-		preview = markdownContent.value
+		content = markdownContent.value;
+		preview = markdownContent.value;
 	} else {
-		let pageData = wangEditorRef.value.getPageData()
-		content = pageData.html
-		preview = pageData.text
-		wikiPageEdit.value.pageTitle = pageData.title
+		let pageData = wangEditorRef.value.getPageData();
+		content = pageData.html;
+		preview = pageData.text;
+		wikiPageEdit.value.pageTitle = pageData.title;
 	}
 	if (!wikiPageEdit.value.pageTitle) {
-		ElMessage.warning('标题不能为空')
-		return
+		ElMessage.warning('标题不能为空');
+		return;
 	}
 	// 修改内容时强制不能修改父路径，只能在目录上拖动修改
-	let parentIdVal = pageId.value > 0 ? '' : parentId.value
+	let parentIdVal = pageId.value > 0 ? '' : parentId.value;
 	if (!!pageId.value){
-		wikiPage.value.id = pageId.value
+		wikiPage.value.id = pageId.value;
 	}
 	let param = {
 		spaceId: props.spaceId,
@@ -189,91 +189,91 @@ const createWikiSave = (saveAfter) => {
 	}
 
 	pageApi.updatePage(param).then((json) => {
-		ElMessage.success('保存成功！')
+		ElMessage.success('保存成功！');
 		// 重新加载左侧列表，跳转到展示页面
-		doGetPageList()
-		pageId.value = json.data.id
+		doGetPageList();
+		pageId.value = json.data.id;
 		if (saveAfter == 1) {
 			router.push({
 				path: '/page/show',
 				query: {pageId: pageId.value},
 			}).then(()=>{
-				storeDisplay.showHeader = true
-			})
+				storeDisplay.showHeader = true;
+			});
 		} else {
-			loadPageDetail(pageId.value)
+			loadPageDetail(pageId.value);
 		}
-	})
+	});
 }
 
 const doGetPageList = () => {
 	let param = {spaceId: storeSpace.chooseSpaceId}
 	pageApi.pageList(param).then((json) => {
-		storePage.wikiPageList = json.data || []
-	})
+		storePage.wikiPageList = json.data || [];
+	});
 }
 const loadPageDetail = (pageId) => {
 	pageApi.pageDetail({id: pageId}).then((json) => {
 		wikiPage.value = json.data.wikiPage || {}
 		pageContent.value = json.data.pageContent || {}
-		pageFileList.value = json.data.fileList || []
+		pageFileList.value = json.data.fileList || [];
 		// 内容
-		wikiPageEdit.value.pageTitle = wikiPage.value.name
-		wikiPageEdit.value.editorType = wikiPage.value.editorType
+		wikiPageEdit.value.pageTitle = wikiPage.value.name;
+		wikiPageEdit.value.editorType = wikiPage.value.editorType;
 		if (wikiPageEdit.value.editorType === 2) {
 			markdownContent.value = pageContent.value.content || ''
 		} else {
 			// editor.value.txt.html(pageContent.value.content || "");
 			setTimeout(() => {
-				wangEditorRef.value.setTitle(wikiPage.value.name || '')
-				wangEditorRef.value.setHtml(pageContent.value.content || '')
-			}, 0)
+				wangEditorRef.value.setTitle(wikiPage.value.name || '');
+				wangEditorRef.value.setHtml(pageContent.value.content || '');
+			}, 0);
 		}
-	})
+	});
 }
 const loadParentPageDetail = (pageId) => {
-	if (!pageId) return
+	if (!pageId) return;
 	pageApi.pageDetail({id: pageId}).then((json) => {
 		parentWikiPage.value = json.data.wikiPage || {}
-	})
+	});
 }
 const cleanPage = () => {
-	wikiPage.value = {}
-	pageContent.value = {}
-	pageFileList.value = []
-	wikiPageEdit.value.pageTitle = ''
+	wikiPage.value = {};
+	pageContent.value = {};
+	pageFileList.value = [];
+	wikiPageEdit.value.pageTitle = '';
 	if (!!editor.value.txt) {
-		editor.value.txt.html('')
+		editor.value.txt.html('');
 	}
 }
 const initQueryParam = (to) => {
 	// pageId和parentId二选一，传了pageId代表编辑页面，否则代表新建页面
-	pageId.value = to.query.pageId
-	parentId.value = to.query.parentId
+	pageId.value = to.query.pageId;
+	parentId.value = to.query.parentId;
 	if (!!pageId.value){
-		wangEditorRef.value.setPageId(pageId.value)
+		wangEditorRef.value.setPageId(pageId.value);
 	}
 	if (!!pageId.value) {
-		loadPageDetail(pageId.value)
+		loadPageDetail(pageId.value);
 		pageApi.pageLock({pageId: pageId.value}).catch((json) => {
 			ElMessageBox.alert(json.errMsg || '未知错误', '错误', {
 				confirmButtonText: '确定',
 				callback: () => {
-					router.back()
+					router.back();
 				},
-			})
-		})
+			});
+		});
 	} else {
-		loadParentPageDetail(parentId.value)
-		cleanPage()
+		loadParentPageDetail(parentId.value);
+		cleanPage();
 	}
 }
 let mavonEditorRef = ref();
 const addMarkdownImage = (pos, file) => {
-	let formData = new FormData()
-	formData.append('files', file)
+	let formData = new FormData();
+	formData.append('files', file);
 	if (!!pageId.value){
-		formData.append('pageId', pageId.value)
+		formData.append('pageId', pageId.value);
 	}
 
 	axios({
@@ -286,13 +286,13 @@ const addMarkdownImage = (pos, file) => {
 	}).then((res) => {
 		let urlObj = res.data.data || {}
 		if (urlObj.url) {
-			mavonEditorRef.value.$img2Url(pos, urlObj.url)
+			mavonEditorRef.value.$img2Url(pos, urlObj.url);
 		} else {
-			ElMessage.warning('上传失败，返回数据为空')
+			ElMessage.warning('上传失败，返回数据为空');
 		}
 	}).catch((e) => {
-		ElMessage.warning('上传失败：' + e.message)
-	})
+		ElMessage.warning('上传失败：' + e.message);
+	});
 }
 const initEditor = () => {
 }

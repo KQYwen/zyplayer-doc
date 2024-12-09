@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import {Plus as ElIconPlus,} from '@element-plus/icons-vue'
+import {Plus as ElIconPlus,} from '@element-plus/icons-vue';
 import {
 	FolderOpen,
 	Word as IconParkWord,
@@ -37,10 +37,10 @@ import {
 } from '@icon-park/vue-next'
 import {ref, defineProps, defineEmits} from 'vue';
 import {useRouter} from "vue-router";
-import {ElMessage} from 'element-plus'
-import pageApi from '@/assets/api/page'
+import {ElMessage} from 'element-plus';
+import pageApi from '@/assets/api/page';
 import axios from "axios";
-import IconDocument from '@/components/base/IconDocument.vue'
+import IconDocument from '@/components/base/IconDocument.vue';
 import {useStorePageData} from "@/store/pageData";
 
 let router = useRouter();
@@ -102,16 +102,16 @@ const createWiki = (editorType) => {
 			preview: ''
 		}).then((json) => {
 			storePage.eventPageListUpdate = !storePage.eventPageListUpdate;
-			ElMessage.success('创建成功')
+			ElMessage.success('创建成功');
 			if (editorType !== 0) {
 				router.push({
 					path: '/page/edit',
 					query: {parentId: props.nowPageId.value, pageId: json.data.id}
-				})
+				});
 			}
-		})
+		});
 	} else {
-		ElMessage.warning('请先选择或创建空间')
+		ElMessage.warning('请先选择或创建空间');
 	}
 }
 </script>

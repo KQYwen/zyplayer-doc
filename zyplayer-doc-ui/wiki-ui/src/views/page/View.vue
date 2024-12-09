@@ -46,19 +46,19 @@ import { CloseOutlined } from '@ant-design/icons-vue';
 import {toRefs, ref, reactive, onMounted, watch, defineProps, h, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus';
-import QRCode from 'qrcode'
-import unitUtil from '../../assets/lib/UnitUtil.js'
-import htmlUtil from '../../assets/lib/HtmlUtil.js'
-import pageApi from '../../assets/api/page'
-import userApi from '../../assets/api/user'
-import Navigation from './show/Navigation.vue'
-import Annex from './show/Annex.vue'
-import PageHistory from './show/PageHistory.vue'
-import Comment from './show/Comment.vue'
-import PageZan from './show/PageZan.vue'
-import {mavonEditor} from 'mavon-editor'
-import 'mavon-editor/dist/markdown/github-markdown.min.css'
-import 'mavon-editor/dist/css/index.css'
+import QRCode from 'qrcode';
+import unitUtil from '../../assets/lib/UnitUtil.js';
+import htmlUtil from '../../assets/lib/HtmlUtil.js';
+import pageApi from '../../assets/api/page';
+import userApi from '../../assets/api/user';
+import Navigation from './show/Navigation.vue';
+import Annex from './show/Annex.vue';
+import PageHistory from './show/PageHistory.vue';
+import Comment from './show/Comment.vue';
+import PageZan from './show/PageZan.vue';
+import {mavonEditor} from 'mavon-editor';
+import 'mavon-editor/dist/markdown/github-markdown.min.css';
+import 'mavon-editor/dist/css/index.css';
 import {useStorePageData} from "@/store/pageData";
 import {useStoreDisplay} from "@/store/wikiDisplay";
 import ImageViewer from "@/components/base/ImageViewer.vue";
@@ -126,30 +126,30 @@ const previewPageImage = () => {
 }
 
 const getSearchUserList = (query) => {
-	if (query == '') return
-	pageAuthUserLoading.value = true
+	if (query == '') return;
+	pageAuthUserLoading.value = true;
 	userApi.getUserBaseInfo({search: query}).then((json) => {
-		searchUserList.value = json.data || []
-		pageAuthUserLoading.value = false
-	})
+		searchUserList.value = json.data || [];
+		pageAuthUserLoading.value = false;
+	});
 }
 const addPageAuthUser = () => {
 	if (pageAuthNewUser.value.length <= 0) {
-		ElMessage.warning('请先选择用户')
-		return
+		ElMessage.warning('请先选择用户');
+		return;
 	}
 	if (
 		!!searchUserList.value.find(
-			(item) => item.userId == pageAuthNewUser.value
-		)
+			(item) => item.userId == pageAuthNewUser.value;
+		);
 	) {
-		pageAuthNewUser.value = ''
-		return
+		pageAuthNewUser.value = '';
+		return;
 	}
-	let userName = ''
+	let userName = '';
 	for (let i = 0; i < searchUserList.value.length; i++) {
 		if (pageAuthNewUser.value == searchUserList.value[i].id) {
-			userName = searchUserList.value[i].userName
+			userName = searchUserList.value[i].userName;
 			break
 		}
 	}
@@ -162,8 +162,8 @@ const addPageAuthUser = () => {
 		pageFileUpload: 0,
 		pageFileDelete: 0,
 		pageAuthManage: 0,
-	})
-	pageAuthNewUser.value = ''
+	});
+	pageAuthNewUser.value = '';
 }
 const saveUserPageAuth = () => {
 	let param = {
@@ -171,11 +171,11 @@ const saveUserPageAuth = () => {
 		authList: JSON.stringify(pageAuthUserList.value),
 	}
 	pageApi.assignPageUserAuth(param).then(() => {
-		ElMessage.success('保存成功！')
-	})
+		ElMessage.success('保存成功！');
+	});
 }
 const notOpen = () => {
-	ElMessage.warning('暂未开放')
+	ElMessage.warning('暂未开放');
 }
 const deleteUserPageAuth = (row) => {
 	let pageAuthUserList = [];
@@ -212,7 +212,7 @@ const getPageHistory = (pageId, pageNum) => {
 			historyList.forEach((item) => (item.loading = 0));
 			pageHistoryList.value = pageHistoryList.value.concat(historyList);
 		}
-	})
+	});
 }
 const historyClickHandle = (history) => {
 	pageHistoryChoice.value.loading = 0;
@@ -228,10 +228,10 @@ const clearHistory = () => {
 	pageShowDetail.value = pageContent.value.content;
 }
 const computeFileSize = (fileSize) => {
-	return unitUtil.computeFileSize(fileSize)
+	return unitUtil.computeFileSize(fileSize);
 }
 const loadPageDetail = (pageId) => {
-	clearHistory()
+	clearHistory();
 	pageApi.pageDetail({id: pageId}).then(async (json) => {
 		let result = json.data || {};
 		let wikiPageRes = result.wikiPage || {};
@@ -267,12 +267,12 @@ const loadPageDetail = (pageId) => {
 		}, 500);
 		storePage.pageInfo = wikiPageRes;
 		storePage.pageAuth = wikiPageAuth.value;
-	})
-	getPageHistory(pageId, 1)
+	});
+	getPageHistory(pageId, 1);
 }
 let wikiTitleRef = ref();
 const createNavigationHeading = () => {
-	let navigationListVal = htmlUtil.createNavigationHeading()
+	let navigationListVal = htmlUtil.createNavigationHeading();
 	// 标题加到导航里面去
 	if (navigationListVal.length > 0) {
 		let wikiTile = wikiPage.value.name || 'WIKI-内容展示'
@@ -280,28 +280,28 @@ const createNavigationHeading = () => {
 			level: 1,
 			node: wikiTitleRef.value,
 			text: wikiTile,
-		})
+		});
 	}
 	navigationList.value = navigationListVal;
 }
 const closeImagePreview = () => {
-	showImagePreview.value = false
+	showImagePreview.value = false;
 }
 let pageContentRef = ref();
 
 const getUserHeadBgColor = (userId) => {
-	let color = page.userHeadColor[userId]
+	let color = page.userHeadColor[userId];
 	if (!color) {
 		color =
-			page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1]
-		page.userHeadColor[userId] = color
+			page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+		page.userHeadColor[userId] = color;
 	}
-	return color
+	return color;
 }
 const initQueryParam = (to) => {
 	parentPath.value = {pageId: to.query.pageId}
 	if (!!parentPath.value.pageId) {
-		loadPageDetail(parentPath.value.pageId)
+		loadPageDetail(parentPath.value.pageId);
 	}
 }
 </script>
@@ -339,7 +339,7 @@ const initQueryParam = (to) => {
 </style>
 
 <style>
-@import '../../assets/lib/wangEditor.css';
+@import '../../assets/scss/wangEditor.css';
 
 .page-show-vue .icon-collapse {
 	float: left;

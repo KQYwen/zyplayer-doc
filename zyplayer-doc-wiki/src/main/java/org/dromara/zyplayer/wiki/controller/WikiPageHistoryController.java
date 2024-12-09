@@ -44,7 +44,7 @@ public class WikiPageHistoryController {
 	private final WikiPageService wikiPageService;
 	
 	@PostMapping("/list")
-	public ResponseJson<List<WikiPageHistory>> list(Long pageId, Integer pageNum) {
+	public ResponseJson<List<WikiPageHistory>> list(Long pageId) {
 		DocUserDetails currentUser = DocUserUtil.getCurrentUser();
 		WikiPage wikiPageSel = wikiPageService.getById(pageId);
 		// 私人空间
@@ -66,7 +66,7 @@ public class WikiPageHistoryController {
 		wrapper.orderByDesc(WikiPageHistory::getId);
 		wrapper.select(WikiPageHistory::getId, WikiPageHistory::getCreateUserId, WikiPageHistory::getCreateUserName
 				, WikiPageHistory::getPageId, WikiPageHistory::getCreateTime);
-		IPage<WikiPageHistory> page = new Page<>(pageNum, 30, false);
+		IPage<WikiPageHistory> page = new Page<>(1, 50, false);
 		wikiPageHistoryService.page(page, wrapper);
 		return DocResponseJson.ok(page);
 	}

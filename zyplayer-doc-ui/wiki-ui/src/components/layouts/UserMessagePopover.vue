@@ -13,12 +13,12 @@
 				<el-link v-if="notReadMessageNum > 0" :icon="ElIconCheck" type="primary" @click="readAllUserMessage">本页标记已读</el-link>
 			</div>
 			<div class="header-user-message">
-				<el-table :data="userMessageList" stripe max-height="400" style="width: 100%; margin-bottom: 5px">
+				<el-table :data="userMessageList" stripe max-height="400" style="width: 100%; margin-bottom: 5px;">
 					<el-table-column label="操作时间" prop="creationTime" width="150px"></el-table-column>
 					<el-table-column label="内容" prop="msgContent" show-overflow-tooltip></el-table-column>
 					<el-table-column width="60px">
 						<template v-slot="scope">
-							<el-badge :is-dot="scope.row.msgStatus === 0" style="line-height: 10px; padding-right: 5px">
+							<el-badge :is-dot="scope.row.msgStatus === 0" style="line-height: 10px; padding-right: 5px;">
 								<el-link type="primary" @click="showUserMessage(scope.row)">查看</el-link>
 							</el-badge>
 						</template>
@@ -51,10 +51,10 @@ import {
 import {BellOutlined, CheckOutlined} from '@ant-design/icons-vue';
 import {onBeforeUnmount, toRefs, ref, reactive, onMounted, watch, h, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
+import {ElMessageBox, ElMessage} from 'element-plus';
 import pageApi from "@/assets/api/page";
 import userApi from "@/assets/api/user";
-import {useStoreDisplay} from '@/store/wikiDisplay.js'
+import {useStoreDisplay} from '@/store/wikiDisplay.js';
 
 let route = useRoute();
 let router = useRouter();
@@ -88,28 +88,28 @@ const loadUserMessageList = () => {
 const showUserMessage = (row) => {
 	if (row.msgStatus === 0) {
 		userApi.readUserMessage({ids: row.id}).then(() => {
-			loadUserMessageList()
-		})
+			loadUserMessageList();
+		});
 	}
 	if (row.msgType >= 2 && row.msgType <= 14) {
-		router.push({path: '/page/show', query: {pageId: row.dataId}})
-		userMessagePopVisible.value = false
+		router.push({path: '/page/show', query: {pageId: row.dataId}});
+		userMessagePopVisible.value = false;
 	}
 }
 const readAllUserMessage = () => {
-	let msgIds = []
+	let msgIds = [];
 	userMessageList.value.filter((item) => item.msgStatus === 0).forEach((item) => {
-		msgIds.push(item.id)
-	})
-	if (msgIds.length <= 0) return
+		msgIds.push(item.id);
+	});
+	if (msgIds.length <= 0) return;
 	userApi.readUserMessage({ids: msgIds.join(',')}).then(() => {
-		ElMessage.success('标记成功')
-		loadUserMessageList()
-	})
+		ElMessage.success('标记成功');
+		loadUserMessageList();
+	});
 }
 const handleCurrentChange = (val) => {
-	userMsgParam.value.pageNum = val
-	loadUserMessageList()
+	userMsgParam.value.pageNum = val;
+	loadUserMessageList();
 }
 </script>
 

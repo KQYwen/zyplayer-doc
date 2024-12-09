@@ -62,7 +62,7 @@
 								<el-tooltip :content="node.label" placement="top-start" :show-after="700">{{ node.label }}</el-tooltip>
 							</span>
 							<!--操作-->
-							<div class="page-action-box">
+							<div @click.stop class="page-action-box">
 								<AddMenu :pageId="data.id"/>
 								<a-dropdown :trigger="['click']" @click="choosePageIdFunc(data.id)">
 									<a-button :icon="h(EllipsisOutlined)" type="text" style="color: #888;"></a-button>
@@ -115,12 +115,12 @@ import {
 import { EllipsisOutlined } from '@ant-design/icons-vue';
 import {ref, defineProps, defineEmits, defineExpose, onMounted, h, watch} from 'vue';
 import {useRouter, useRoute} from "vue-router";
-import pageApi from '@/assets/api/page'
+import pageApi from '@/assets/api/page';
 import {useStoreDisplay} from "@/store/wikiDisplay";
 import {useStorePageData} from "@/store/pageData";
 import AddMenu from "./AddMenu.vue";
 import IconDocument from "@/components/base/IconDocument.vue";
-import {ElMessageBox, ElMessage} from 'element-plus'
+import {ElMessageBox, ElMessage} from 'element-plus';
 import {useStoreSpaceData} from "@/store/spaceData";
 import Navigation from "@/views/page/show/Navigation.vue";
 import PageZan from "@/views/page/show/PageZan.vue";
@@ -181,7 +181,7 @@ const loadSpaceList = (spaceId) => {
 				console.log(e);
 			}
 		}
-	})
+	});
 }
 let optionPageId = ref('');
 const changeNodeOptionStatus = (param) => {
@@ -200,7 +200,7 @@ const changeWikiPageExpandedKeys = (pageId) => {
 }
 const createWikiByTemplate = () => {
 	// TODO
-	// templateManageRef.value.showTemplateManage()
+	// templateManageRef.value.showTemplateManage();
 }
 const choosePageIdFunc = (id) => {
 	storePage.optionPageId = id;
@@ -231,15 +231,15 @@ const renamePage = (node, data) => {
 }
 const openMoveMenu = (onlyMove) => {
 	// TODO
-	// onlyMoveMode.value = onlyMove
-	// visibleMoveMenu.value = true
+	// onlyMoveMode.value = onlyMove;
+	// visibleMoveMenu.value = true;
 	// moveToPageId.value = storePage.choosePageId
 	// moveToSpaceId.value = storeSpace.chooseSpaceId
 	// moveToWikiPageList.value = storePage.wikiPageList
 }
 const openTemplateCreate = (exsit) => {
 	// TODO
-	// templateManageRef.value.showTemplateCreate(exsit)
+	// templateManageRef.value.showTemplateCreate(exsit);
 }
 const deleteWikiPage = (data) => {
 	let msg = '确定要删除此页面及其所有子页面吗？'
@@ -299,7 +299,7 @@ const searchByKeywords = () => {
 	wikiPageTreeRef.value.filter(searchKeywords.value);
 }
 const handleNodeClick = (data) => {
-	//console.log('点击节点：', data, props.nowPageId)
+	//console.log('点击节点：', data, props.nowPageId);
 	if (data.editorType !== 0) {
 		router.push({path: `/view/${data.spaceId}/${data.id}`});
 	}
@@ -320,7 +320,7 @@ const handlePageDrop = (draggingNode, dropNode, dropType, ev) => {
 		doGetPageList();
 	});
 }
-defineExpose({searchByKeywords})
+defineExpose({searchByKeywords});
 </script>
 
 <style lang="scss">

@@ -83,17 +83,17 @@ import {
 import {UserOutlined, EditOutlined, MessageOutlined, CheckOutlined, EllipsisOutlined} from '@ant-design/icons-vue';
 import {toRefs, ref, reactive, onMounted, watch, defineEmits, h, computed} from 'vue';
 import {useRouter, useRoute} from "vue-router";
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { useStoreDisplay } from '@/store/wikiDisplay.js'
-import { useStorePageData } from '@/store/pageData.js'
-import { useStoreUserData } from '@/store/userData.js'
+import { ElMessageBox, ElMessage } from 'element-plus';
+import { useStoreDisplay } from '@/store/wikiDisplay.js';
+import { useStorePageData } from '@/store/pageData.js';
+import { useStoreUserData } from '@/store/userData.js';
 import pageApi from "@/assets/api/page";
 import {useStoreSpaceData} from "@/store/spaceData";
 import userApi from "@/assets/api/user";
-import PageAuthDialog from '@/views/page/show/PageAuthDialog.vue'
-import MobileQrScanDialog from '@/views/page/show/MobileQrScanDialog.vue'
-import AboutDialog from "@/views/common/AboutDialog.vue"
-import UserMessagePopover from "../../../components/layouts/UserMessagePopover.vue"
+import PageAuthDialog from '@/views/page/show/PageAuthDialog.vue';
+import MobileQrScanDialog from '@/views/page/show/MobileQrScanDialog.vue';
+import AboutDialog from "@/views/common/AboutDialog.vue";
+import UserMessagePopover from "../../../components/layouts/UserMessagePopover.vue";
 import {fixRequestUrl} from "@/assets/api/hostUtils";
 
 let router = useRouter();
@@ -154,13 +154,13 @@ const deleteWikiPage = () => {
 	}).then(() => {
 		pageApi.pageDelete({pageId: storePage.pageInfo.id}).then(() => {
 			pageApi.pageList({spaceId: storeSpace.chooseSpaceId}).then((json) => {
-				storePage.wikiPageList = json.data || []
+				storePage.wikiPageList = json.data || [];
 			}).then(()=>{
 				router.push({path: '/home', query: {spaceId: storePage.pageInfo.spaceId}});
-			})
+			});
 		});
 	}).catch((e) => {
-		console.log(e)
+		console.log(e);
 	});
 }
 // 下载为Word
@@ -194,7 +194,7 @@ const showAbout = () => {
 	aboutDialogVisible.value = true;
 }
 const showConsole = () => {
-	window.open(import.meta.env.VITE_APP_BASE_API, '_blank')
+	window.open(import.meta.env.VITE_APP_BASE_API, '_blank');
 }
 </script>
 

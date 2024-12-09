@@ -45,7 +45,7 @@ import {
 import {toRefs, ref, reactive, onMounted, watch, defineProps, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus';
-import pageApi from '@/assets/api/page'
+import pageApi from '@/assets/api/page';
 import {useStorePageData} from "@/store/pageData";
 import {useStoreUserData} from "@/store/userData";
 
@@ -67,55 +67,55 @@ watch(() => storePage.pageInfo, (newVal) => {
 	if (storePage.pageInfo.editorType !== 0){
 		loadCommentList();
 	}
-})
+});
 onMounted(() => {
 	loadCommentList();
 });
 let actionTabCommentRef = ref();
 const scrollActionTabComment = () => {
 	setTimeout(() => {
-		let actionTabComment = actionTabCommentRef.value
-		actionTabComment.scrollTop = actionTabComment.scrollHeight
-	}, 0)
+		let actionTabComment = actionTabCommentRef.value;
+		actionTabComment.scrollTop = actionTabComment.scrollHeight;
+	}, 0);
 }
 const loadCommentList = () => {
 	if (!storePage.pageInfo || !storePage.pageInfo.id) {
 		return;
 	}
-	cancelCommentUser()
+	cancelCommentUser();
 	pageApi.pageCommentList({pageId: storePage.pageInfo.id}).then((json) => {
-		let commentListRes = json.data || []
+		let commentListRes = json.data || [];
 		for (let i = 0; i < commentListRes.length; i++) {
-			commentListRes[i].color = getUserHeadBgColor(commentListRes[i].createUserId)
-			let subCommentList = commentListRes[i].commentList || []
+			commentListRes[i].color = getUserHeadBgColor(commentListRes[i].createUserId);
+			let subCommentList = commentListRes[i].commentList || [];
 			for (let j = 0; j < subCommentList.length; j++) {
-				let subItem = subCommentList[j]
-				subItem.color = getUserHeadBgColor(subItem.createUserId)
+				let subItem = subCommentList[j];
+				subItem.color = getUserHeadBgColor(subItem.createUserId);
 			}
-			commentListRes[i].commentList = subCommentList
-			commentListRes[i].visible = false
+			commentListRes[i].commentList = subCommentList;
+			commentListRes[i].visible = false;
 		}
-		commentList.value = commentListRes
-		scrollActionTabComment()
-	})
+		commentList.value = commentListRes;
+		scrollActionTabComment();
+	});
 }
 let canDeleteComment = (row) => {
 	return storeUser.userInfo.id === row.createUserId
-		|| storeUser.userInfo.id === storePage.pageInfo.createUserId
+		|| storeUser.userInfo.id === storePage.pageInfo.createUserId;
 }
 const deleteComment = (id) => {
 	pageApi.deletePageComment({id: id}).then(() => {
 		// ElMessage.success("删除成功！");
-		loadCommentList()
-	})
+		loadCommentList();
+	});
 }
 const cancelCommentUser = () => {
-	recommentInfo.value = {}
+	recommentInfo.value = {};
 }
 const submitPageComment = () => {
 	if (commentTextInput.value.length <= 0) {
-		ElMessage.error('请输入评论内容')
-		return
+		ElMessage.error('请输入评论内容');
+		return;
 	}
 	let param = {
 		pageId: storePage.pageInfo.id,
@@ -123,26 +123,26 @@ const submitPageComment = () => {
 		parentId: recommentInfo.value.id,
 	}
 	pageApi.updatePageComment(param).then((json) => {
-		let data = json.data
-		data.color = getUserHeadBgColor(data.createUserId)
-		commentTextInput.value = ''
-		loadCommentList()
-	})
+		let data = json.data;
+		data.color = getUserHeadBgColor(data.createUserId);
+		commentTextInput.value = '';
+		loadCommentList();
+	});
 }
 const getUserHeadBgColor = (userId) => {
-	let color = page.userHeadColor[userId]
+	let color = page.userHeadColor[userId];
 	if (!color) {
-		color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1]
-		page.userHeadColor[userId] = color
+		color = page.colorArr[Math.ceil(Math.random() * page.colorArr.length) - 1];
+		page.userHeadColor[userId] = color;
 	}
-	return color
+	return color;
 }
 </script>
 
 <style lang="scss">
 .comment-box {
 	padding: 8px;
-	height: calc(100vh - 315px);
+	height: calc(100vh - 275px);
 	overflow: auto;
 
 	.comment-card {

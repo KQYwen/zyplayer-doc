@@ -1,5 +1,5 @@
-import Qs from 'qs'
-import request from './request'
+import Qs from 'qs';
+import request from './request';
 
 export default {
 	pageUpdate: (data) => request({url: '/zyplayer-doc-wiki/page/update', method: 'post', data: Qs.stringify(data)}),

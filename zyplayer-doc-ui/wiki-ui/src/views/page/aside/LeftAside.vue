@@ -115,15 +115,15 @@ import {
 	EditTwo as IconParkEditTwo,
 	PageTemplate as IconParkPageTemplate,
 } from '@icon-park/vue-next'
-import {MoreFilled} from '@element-plus/icons-vue'
+import {MoreFilled} from '@element-plus/icons-vue';
 import {ref, defineProps, defineEmits, defineExpose, onMounted, watch} from 'vue';
 import {useRouter, useRoute} from "vue-router";
-import pageApi from '@/assets/api/page'
+import pageApi from '@/assets/api/page';
 import {useStoreDisplay} from "@/store/wikiDisplay";
 import {useStorePageData} from "@/store/pageData";
 import AddMenu from "./AddMenu.vue";
 import IconDocument from "@/components/base/IconDocument.vue";
-import {ElMessageBox, ElMessage} from 'element-plus'
+import {ElMessageBox, ElMessage} from 'element-plus';
 import {useStoreSpaceData} from "@/store/spaceData";
 import Navigation from "@/views/page/show/Navigation.vue";
 import PageZan from "@/views/page/show/PageZan.vue";
@@ -184,16 +184,16 @@ const loadSpaceList = (spaceId) => {
 				console.log(e);
 			}
 		}
-	})
+	});
 }
 let optionPageId = ref('');
 const changeNodeOptionStatus = (param) => {
 	optionPageId.value = param.id;
 }
 const assisSetCurrentKey = () => {
-	emit('setNowPageId', route.query.pageId, props.readOnly)
+	emit('setNowPageId', route.query.pageId, props.readOnly);
 	if (props.nowPageId) {
-		wikiPageTreeRef.value.setCurrentKey(nowPageId.value)
+		wikiPageTreeRef.value.setCurrentKey(nowPageId.value);
 	}
 }
 
@@ -203,7 +203,7 @@ const changeWikiPageExpandedKeys = (pageId) => {
 }
 const createWikiByTemplate = () => {
 	// TODO
-	// templateManageRef.value.showTemplateManage()
+	// templateManageRef.value.showTemplateManage();
 }
 const choosePageIdFunc = (id) => {
 	storePage.optionPageId = id;
@@ -213,15 +213,15 @@ const rename = (node, data) => {
 }
 const openMoveMenu = (onlyMove) => {
 	// TODO
-	// onlyMoveMode.value = onlyMove
-	// visibleMoveMenu.value = true
+	// onlyMoveMode.value = onlyMove;
+	// visibleMoveMenu.value = true;
 	// moveToPageId.value = storePage.choosePageId
 	// moveToSpaceId.value = storeSpace.chooseSpaceId
 	// moveToWikiPageList.value = storePage.wikiPageList
 }
 const openTemplateCreate = (exsit) => {
 	// TODO
-	// templateManageRef.value.showTemplateCreate(exsit)
+	// templateManageRef.value.showTemplateCreate(exsit);
 }
 const deleteWikiPage = (data) => {
 	let msg = '确定要删除此页面及其所有子页面吗？'
@@ -239,10 +239,10 @@ const deleteWikiPage = (data) => {
 	});
 }
 const spaceChangeEvents = (data) => {
-	emit('spaceChangeEvents', data, props.readOnly)
+	emit('spaceChangeEvents', data, props.readOnly);
 }
 const doRename = (node, data) => {
-	pageApi.renamePage({"id": data.id, "name": data.name})
+	pageApi.renamePage({"id": data.id, "name": data.name});
 		.then((json) => {
 			doGetPageList();
 			ElMessage.success('重命名成功');
@@ -252,35 +252,35 @@ const doRename = (node, data) => {
 const doGetPageList = () => {
 	let param = {spaceId: storeSpace.chooseSpaceId}
 	pageApi.pageList(param).then((json) => {
-		storePage.wikiPageList = json.data || []
-	})
+		storePage.wikiPageList = json.data || [];
+	});
 }
 const doSearchByKeywords = (queryString, callback) => {
 	if (!queryString || !queryString.trim()) {
-		callback([])
-		return
+		callback([]);
+		return;
 	}
 	pageApi
-		.pageNews({spaceId: props.choiceSpace, keywords: queryString})
+		.pageNews({spaceId: props.choiceSpace, keywords: queryString});
 		.then((json) => {
-			let spacePageNews = json.data || []
-			callback(spacePageNews)
-		})
+			let spacePageNews = json.data || [];
+			callback(spacePageNews);
+		});
 }
 const handleSearchKeywordsSelect = (item) => {
-	searchKeywords.value = ''
-	router.push({path: '/page/show', query: {pageId: item.pageId}})
+	searchKeywords.value = '';
+	router.push({path: '/page/show', query: {pageId: item.pageId}});
 }
 
 const changeDropWownStatus = () => {
 	if (explan.value) {
 		explanClass.value = "el-tree"
 		descriptorForTree.value = "点击收起目录"
-		explan.value = false
+		explan.value = false;
 	} else {
 		explanClass.value = "hidTree"
 		descriptorForTree.value = "点击展开目录"
-		explan.value = true
+		explan.value = true;
 	}
 }
 
@@ -291,36 +291,36 @@ const filterPageNode = (value, data) => {
 	return name.indexOf(value.toLowerCase()) !== -1;
 }
 const searchByKeywords = () => {
-	wikiPageTreeRef.value.filter(searchKeywords.value)
+	wikiPageTreeRef.value.filter(searchKeywords.value);
 }
 const handleNodeClick = (data) => {
-	//console.log('点击节点：', data, props.nowPageId)
-	storeDisplay.showHeader = true
-	emit('setNowPageId', data.id, props.readOnly)
+	//console.log('点击节点：', data, props.nowPageId);
+	storeDisplay.showHeader = true;
+	emit('setNowPageId', data.id, props.readOnly);
 	if (props.readOnly) {
-		return
+		return;
 	}
 	if (data.editorType !== 0) {
-		router.push({path: '/page/show', query: {pageId: data.id}})
+		router.push({path: '/page/show', query: {pageId: data.id}});
 	}
 }
 const handlePageDrop = (draggingNode, dropNode, dropType, ev) => {
-	console.log('tree drop: ', draggingNode.data, dropNode.data, dropType)
+	console.log('tree drop: ', draggingNode.data, dropNode.data, dropType);
 	// 'prev'、'inner'、'next'
 	// before、after、inner
 	var param = {id: draggingNode.data.id, parentId: dropNode.data.parentId}
 	if (dropType == 'inner') {
-		param.parentId = dropNode.data.id
+		param.parentId = dropNode.data.id;
 	} else if (dropType == 'before') {
-		param.beforeSeq = dropNode.data.seqNo
+		param.beforeSeq = dropNode.data.seqNo;
 	} else if (dropType == 'after') {
-		param.afterSeq = dropNode.data.seqNo
+		param.afterSeq = dropNode.data.seqNo;
 	}
 	pageApi.pageChangeParent(param).then((res) => {
 		doGetPageList();
 	});
 }
-defineExpose({searchByKeywords})
+defineExpose({searchByKeywords});
 </script>
 
 <style lang="scss">

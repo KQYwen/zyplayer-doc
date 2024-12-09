@@ -1,6 +1,6 @@
 <template>
 	<div class="navigation">
-		<div ref="navigationRef" style="display: inline-block; width: 100%"></div>
+		<div ref="navigationRef" style="display: inline-block; width: 100%;"></div>
 		<div class="navigation-heading" :style="{ width: navigationWidth }">
 			<div v-for="item in heading" :class="'heading-item heading-' + item.level" @click="headingItemClick(item)">
 				{{ item.text }}
@@ -20,30 +20,30 @@ import {
 	defineProps,
 	defineExpose,
 } from 'vue'
-import {useStoreDisplay} from '@/store/wikiDisplay.js'
+import {useStoreDisplay} from '@/store/wikiDisplay.js';
 import {useStorePageData} from "@/store/pageData";
 
 let storePage = useStorePageData();
-const storeDisplay = useStoreDisplay()
-let navigationWidth = ref('100px')
+const storeDisplay = useStoreDisplay();
+let navigationWidth = ref('100px');
 const props = defineProps({
 	heading: {
 		type: Array,
 		default: [],
 	},
-})
+});
 onMounted(() => {
 	window.onresize = () => {
 		computeNavigationWidth();
 	}
 	setTimeout(() => computeNavigationWidth(), 100);
-})
+});
 watch(() => storeDisplay.viewMenuWidth, (newVal) => {
 	computeNavigationWidth();
-})
+});
 watch(() => storePage.commentShow, (newVal) => {
 	computeNavigationWidth();
-})
+});
 let navigationRef = ref();
 const computeNavigationWidth = () => {
 	navigationWidth.value = window.getComputedStyle(
@@ -59,7 +59,7 @@ const headingItemClick = (item) => {
 		inline: 'nearest',
 	});
 	// 距离顶部高度
-	//console.log(item.node.offsetTop - item.node.scrollHeight)
+	//console.log(item.node.offsetTop - item.node.scrollHeight);
 }
 </script>
 

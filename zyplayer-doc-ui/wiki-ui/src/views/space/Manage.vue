@@ -1,8 +1,8 @@
 <template>
 	<div style="min-height: 100%;" class="space-manage-vue">
 		<div style="max-width: 1200px;margin: 0 auto;background: #fff;padding: 20px;min-height: 100%;box-sizing: border-box;">
-			<div style="text-align: right; margin-bottom: 10px">
-		        <span style="float: left; line-height: 40px">
+			<div style="text-align: right; margin-bottom: 10px;">
+		        <span style="float: left; line-height: 40px;">
 		          仅展示我收藏的空间：
 		          <el-switch v-model="userSetting.wiki_only_show_favorite" inactive-value="0" active-value="1" @change="wikiOnlyShowFavoriteChange"></el-switch>
 		          <el-tooltip class="item" effect="dark" content="控制左上角空间下拉列表仅展示我收藏的空间" placement="top-start">
@@ -12,7 +12,7 @@
 				<el-button @click="loadSpaceList" :icon="ElIconRefresh" :loading="spaceListLoading">刷新</el-button>
 				<el-button type="primary" @click="showCreateSpace" :icon="ElIconPlus">创建空间</el-button>
 			</div>
-			<el-table :data="spaceList" border style="width: 100%; margin-bottom: 5px">
+			<el-table :data="spaceList" border style="width: 100%; margin-bottom: 5px;">
 				<el-table-column prop="id" label="ID" width="60"></el-table-column>
 				<el-table-column prop="name" label="名字"></el-table-column>
 				<el-table-column prop="spaceExplain" label="说明"></el-table-column>
@@ -59,7 +59,7 @@
 		<!--分组权限弹窗-->
 		<el-dialog title="权限管理" v-model="spaceAuthDialogVisible" width="900px" :close-on-click-modal="false">
 			<el-row>
-				<el-select v-model="spaceAuthNewGroupId" filterable placeholder="请选择分组" style="width: 750px; margin-right: 10px">
+				<el-select v-model="spaceAuthNewGroupId" filterable placeholder="请选择分组" style="width: 750px; margin-right: 10px;">
 					<el-option v-for="item in searchGroupList" :key="item.id" :label="searchGroupMap[item.id]" :value="item.id"></el-option>
 				</el-select>
 				<el-button @click="addSpaceAuthUserGroup">添加</el-button>
@@ -95,7 +95,7 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
+import {ElMessageBox, ElMessage} from 'element-plus';
 import {
 	Warning as ElIconWarningOutline,
 	StarFilled as ElIconStarOn,
@@ -103,11 +103,11 @@ import {
 	Refresh as ElIconRefresh,
 	Plus as ElIconPlus,
 } from '@element-plus/icons-vue'
-import pageApi from '../../assets/api/page'
-import userApi from '../../assets/api/user'
-import CreateSpace from '../../components/space/CreateSpace'
-import {useStoreSpaceData}from '@/store/spaceData'
-import {useStorePageData}from '@/store/pageData'
+import pageApi from '../../assets/api/page';
+import userApi from '../../assets/api/user';
+import CreateSpace from '../../components/space/CreateSpace';
+import {useStoreSpaceData}from '@/store/spaceData';
+import {useStorePageData}from '@/store/pageData';
 import {useStoreDisplay} from "@/store/wikiDisplay";
 
 let spaceListLoading = ref(false);
@@ -135,37 +135,33 @@ let storeSpace = useStoreSpaceData();
 
 onMounted(() => {
 	storeDisplay.currentPage = 'space';
-	loadSpaceList()
-	getSelfUserInfo()
-	getSpaceSettingList()
+	loadSpaceList();
+	getSelfUserInfo();
+	getSpaceSettingList();
 });
 
 const showOpenSpace = (space) => {
 	let routeUrl = router.resolve({
 		path: '/page/share/home',
 		query: {space: space}
-	})
-	window.open(routeUrl.href, '_blank')
+	});
+	window.open(routeUrl.href, '_blank');
 }
 let createSpaceRef = ref();
 const showCreateSpace = () => {
-	createSpaceRef.value.show()
+	createSpaceRef.value.show();
 }
 const editSpaceInfo = (row) => {
-	createSpaceRef.value.show(row.id)
+	createSpaceRef.value.show(row.id);
 }
 const addSpaceAuthUserGroup = () => {
 	if (!spaceAuthNewGroupId.value) {
-		ElMessage.warning('请先选择分组')
-		return
+		ElMessage.warning('请先选择分组');
+		return;
 	}
-	if (
-		!!spaceAuthGroupList.value.find(
-			(item) => item.groupId == spaceAuthNewGroupId.value
-		)
-	) {
-		spaceAuthNewGroupId.value = ''
-		return
+	if (!!spaceAuthGroupList.value.find((item) => item.groupId == spaceAuthNewGroupId.value)) {
+		spaceAuthNewGroupId.value = '';
+		return;
 	}
 	spaceAuthGroupList.value.push({
 		groupId: spaceAuthNewGroupId.value,
@@ -175,14 +171,14 @@ const addSpaceAuthUserGroup = () => {
 		pageFileUpload: 0,
 		pageFileDelete: 0,
 		pageAuthManage: 0,
-	})
-	spaceAuthNewGroupId.value = ''
+	});
+	spaceAuthNewGroupId.value = '';
 }
 const updateSpaceFavorite = (row) => {
 	let delFlag = row.favorite == 1 ? 1 : 0
 	pageApi.spaceFavoriteUpdate({spaceId: row.id, delFlag: delFlag}).then((json) => {
 		row.favorite = row.favorite == 1 ? 0 : 1
-	})
+	});
 }
 const saveGroupSpaceAuth = () => {
 	let param = {
@@ -190,30 +186,30 @@ const saveGroupSpaceAuth = () => {
 		authList: JSON.stringify(spaceAuthGroupList.value),
 	}
 	pageApi.spaceAuthAssign(param).then((json) => {
-		ElMessage.success('授权成功！')
-	})
+		ElMessage.success('授权成功！');
+	});
 }
 const manageUserGroup = () => {
 	let manageUrl = location.href.substring(0, location.href.indexOf('/doc-wiki')) + '#/console/userGroupList'
-	window.open(manageUrl, '_blank')
+	window.open(manageUrl, '_blank');
 }
 const deleteGroupSpaceAuth = (row) => {
 	spaceAuthGroupList.value = spaceAuthGroupList.value.filter(
 		(item) => item.groupId != row.groupId
-	)
+	);
 }
 const editSpaceAuth = (row) => {
-	editSpaceId.value = row.id
-	spaceAuthNewGroupId.value = ''
-	spaceAuthGroupList.value = []
+	editSpaceId.value = row.id;
+	spaceAuthNewGroupId.value = '';
+	spaceAuthGroupList.value = [];
 	userApi.userGroupList().then((json) => {
-		searchGroupList.value = json.data || []
-		searchGroupList.value.forEach((item) => (searchGroupMap.value[item.id] = item.name))
-	})
+		searchGroupList.value = json.data || [];
+		searchGroupList.value.forEach((item) => (searchGroupMap.value[item.id] = item.name));
+	});
 	pageApi.spaceAuthList({spaceId: row.id}).then((json) => {
-		spaceAuthGroupList.value = json.data || []
-		spaceAuthDialogVisible.value = true
-	})
+		spaceAuthGroupList.value = json.data || [];
+		spaceAuthDialogVisible.value = true;
+	});
 }
 const deleteSpaceInfo = (row) => {
 	ElMessageBox.confirm('确定要删除此空间及下面的所有文档吗？', '提示', {
@@ -223,11 +219,11 @@ const deleteSpaceInfo = (row) => {
 	}).then(() => {
 		let param = {id: row.id, delFlag: 1}
 		pageApi.updateSpace(param).then(() => {
-			ElMessage.success('删除成功')
-			loadSpaceList()
-			loadSpace()
-		})
-	})
+			ElMessage.success('删除成功');
+			loadSpaceList();
+			loadSpace();
+		});
+	});
 }
 let totalCount = ref(0);
 let searchParam = ref({
@@ -236,22 +232,22 @@ let searchParam = ref({
 	pageSize: 10,
 });
 const loadSpaceList = () => {
-	spaceListLoading.value = true
+	spaceListLoading.value = true;
 	pageApi.spaceList(searchParam.value).then((json) => {
-		spaceList.value = json.data || []
+		spaceList.value = json.data || [];
 		if (searchParam.value.pageNum === 1) {
 			totalCount.value = json.total;
 		}
-		setTimeout(() => (spaceListLoading.value = false), 500)
-	})
+		setTimeout(() => (spaceListLoading.value = false), 500);
+	});
 }
 const handleSizeChange = (val) => {
-	searchParam.value.pageSize = val
-	loadSpaceList()
+	searchParam.value.pageSize = val;
+	loadSpaceList();
 }
 const handleCurrentChange = (val) => {
-	searchParam.value.pageNum = val
-	loadSpaceList()
+	searchParam.value.pageNum = val;
+	loadSpaceList();
 }
 const wikiOnlyShowFavoriteChange = () => {
 	let param = {
@@ -259,8 +255,8 @@ const wikiOnlyShowFavoriteChange = () => {
 		value: userSetting.value.wiki_only_show_favorite,
 	}
 	pageApi.spaceSettingUpdate(param).then((json) => {
-		loadSpace()
-	})
+		loadSpace();
+	});
 }
 const getSpaceSettingList = () => {
 	pageApi.spaceSettingList().then((json) => {
@@ -268,12 +264,12 @@ const getSpaceSettingList = () => {
 		userSetting.value = {
 			wiki_only_show_favorite: result.wiki_only_show_favorite || 0,
 		}
-	})
+	});
 }
 const getSelfUserInfo = () => {
 	userApi.getSelfUserInfo().then((json) => {
-		userSelfInfo.value = json.data
-	})
+		userSelfInfo.value = json.data;
+	});
 }
 
 const loadSpace = (spaceId) => {
@@ -303,13 +299,13 @@ const loadSpace = (spaceId) => {
 				console.log(e);
 			}
 		}
-	})
+	});
 }
 const doGetPageList = (parentId, node) => {
 	let param = {spaceId: storeSpace.chooseSpaceId}
 	pageApi.pageList(param).then((json) => {
-		storePage.wikiPageList = json.data || []
-	})
+		storePage.wikiPageList = json.data || [];
+	});
 }
 </script>
 

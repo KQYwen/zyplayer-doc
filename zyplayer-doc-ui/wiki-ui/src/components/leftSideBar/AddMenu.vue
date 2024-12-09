@@ -39,15 +39,15 @@ import {
 } from '@icon-park/vue-next'
 import {ref, defineProps, defineEmits} from 'vue';
 import {useRouter} from "vue-router";
-import {ElMessage} from 'element-plus'
-import pageApi from '../../assets/api/page'
+import {ElMessage} from 'element-plus';
+import pageApi from '../../assets/api/page';
 import axios from "axios";
-import IconDocument from '@/components/base/IconDocument.vue'
+import IconDocument from '@/components/base/IconDocument.vue';
 
 let router = useRouter();
 let uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + '/zyplayer-doc-wiki/page/file/import/upload');
 let fileList = ref([]);
-let emit = defineEmits(['choosePageIdFunc', 'doGetPageList', 'createWikiByTemplate'])
+let emit = defineEmits(['choosePageIdFunc', 'doGetPageList', 'createWikiByTemplate']);
 let props = defineProps({
 	choiceSpace: Number,
 	choosePageId: Number,
@@ -86,10 +86,10 @@ const doAUpload = (data) => {
 	});
 }
 const choosePageIdFunc = (id) => {
-	emit('choosePageIdFunc', id)
+	emit('choosePageIdFunc', id);
 }
 const createWikiByTemplate = (id) => {
-	emit('createWikiByTemplate', id)
+	emit('createWikiByTemplate', id);
 }
 const createWiki = (editorType, parentId) => {
 	if (props.choiceSpace > 0) {
@@ -105,17 +105,17 @@ const createWiki = (editorType, parentId) => {
 			content: '',
 			preview: ''
 		}).then((json) => {
-			emit('doGetPageList', null)
-			ElMessage.success('创建成功')
+			emit('doGetPageList', null);
+			ElMessage.success('创建成功');
 			if (editorType !== 0) {
 				router.push({
 					path: '/page/edit',
 					query: {parentId: props.nowPageId.value, pageId: json.data.id}
-				})
+				});
 			}
-		})
+		});
 	} else {
-		ElMessage.warning('请先选择或创建空间')
+		ElMessage.warning('请先选择或创建空间');
 	}
 }
 </script>

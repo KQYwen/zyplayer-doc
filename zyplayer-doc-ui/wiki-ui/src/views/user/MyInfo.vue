@@ -1,6 +1,6 @@
 <template>
 	<div class="my-info-vue">
-		<div style="margin: 0 auto; max-width: 1000px">
+		<div style="margin: 0 auto; max-width: 1000px;">
 			<el-card class="box-card">
 				<template v-slot:header>
 					<div class="clearfix">我的信息</div>
@@ -21,8 +21,8 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import userApi from '../../assets/api/user'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import userApi from '../../assets/api/user';
 
 let userInfo = ref({});
 onMounted(() => {
@@ -30,8 +30,8 @@ onMounted(() => {
 });
 const getUserInfo = () => {
 	userApi.getSelfUserInfo().then((json) => {
-		userInfo.value = json.data
-	})
+		userInfo.value = json.data;
+	});
 }
 </script>
 

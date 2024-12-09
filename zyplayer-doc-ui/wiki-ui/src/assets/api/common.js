@@ -1,5 +1,5 @@
-import Qs from 'qs'
-import request from './request'
+import Qs from 'qs';
+import request from './request';
 
 export default {
 	getUserBaseInfo: (data) => {

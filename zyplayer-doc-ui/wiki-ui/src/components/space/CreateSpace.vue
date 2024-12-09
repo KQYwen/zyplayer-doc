@@ -13,18 +13,18 @@
 					<el-switch v-model="newSpaceForm.openDoc" inactive-text="需要登录" :inactive-value="0" active-text="开放访问" :active-value="1"></el-switch>
 				</el-form-item>
 				<el-form-item label="空间类型：">
-					<el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%">
+					<el-select v-model="newSpaceForm.type" filterable placeholder="选择类型" style="width: 100%;">
 						<el-option :key="1" label="公共空间" :value="1">
 							<span style="float: left">公共空间</span>
-							<span style="float: right; color: #8492a6; font-size: 13px">属于公共，登录用户可访问、编辑</span>
+							<span style="float: right; color: #8492a6; font-size: 13px;">属于公共，登录用户可访问、编辑</span>
 						</el-option>
 						<el-option :key="2" label="个人空间" :value="2">
 							<span style="float: left">个人空间</span>
-							<span style="float: right; color: #8492a6; font-size: 13px">属于个人，所有登录用户可访问</span>
+							<span style="float: right; color: #8492a6; font-size: 13px;">属于个人，所有登录用户可访问</span>
 						</el-option>
 						<el-option :key="3" label="隐私空间" :value="3">
 							<span style="float: left">隐私空间</span>
-							<span style="float: right; color: #8492a6; font-size: 13px">属于个人，仅创建者可访问</span>
+							<span style="float: right; color: #8492a6; font-size: 13px;">属于个人，仅创建者可访问</span>
 						</el-option>
 					</el-select>
 				</el-form-item>
@@ -41,8 +41,8 @@
 <script setup>
 import {onBeforeUnmount, ref, onMounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
-import {ElMessageBox, ElMessage} from 'element-plus'
-import pageApi from '../../assets/api/page'
+import {ElMessageBox, ElMessage} from 'element-plus';
+import pageApi from '../../assets/api/page';
 
 let editSpaceId = ref('');
 let newSpaceFormRules = ref({
@@ -64,7 +64,7 @@ let newSpaceForm = ref({
 	openDoc: 0,
 	uuid: '',
 	type: 1,
-})
+});
 let newSpaceDialogVisible = ref(false);
 let manageSpaceDialogVisible = ref(false);
 let emit = defineEmits(['success']);
@@ -81,13 +81,13 @@ const show = (spaceId) => {
 	editSpaceId.value = spaceId || ''
 	if (!!editSpaceId.value) {
 		pageApi.spaceList({id: editSpaceId.value}).then((json) => {
-			let spaceList = json.data || []
+			let spaceList = json.data || [];
 			if (spaceList.length > 0) {
-				newSpaceForm.value = spaceList[0]
+				newSpaceForm.value = spaceList[0];
 			}
-		})
+		});
 	}
-	newSpaceDialogVisible.value = true
+	newSpaceDialogVisible.value = true;
 }
 let newSpaceFormRef = ref();
 const onNewSpaceSubmit = () => {
@@ -102,15 +102,15 @@ const onNewSpaceSubmit = () => {
 				treeLazyLoad: newSpaceForm.value.treeLazyLoad,
 			}
 			pageApi.updateSpace(param).then((json) => {
-				ElMessage.success('创建成功')
-				newSpaceDialogVisible.value = false
-				emit('success', json.data.id)
-			})
+				ElMessage.success('创建成功');
+				newSpaceDialogVisible.value = false;
+				emit('success', json.data.id);
+			});
 		}
-	})
+	});
 }
 const onNewSpaceCancel = () => {
-	newSpaceDialogVisible.value = false
+	newSpaceDialogVisible.value = false;
 }
 defineExpose({show});
 </script>

@@ -1,20 +1,20 @@
-import PageLayout from './views/view/PageLayout.vue'
-// import ShareLayout from './components/layouts/ShareLayout.vue'
-// import ShareMobileLayout from './components/layouts/ShareMobileLayout.vue'
+import PageLayout from './views/view/PageLayout.vue';
+// import ShareLayout from './components/layouts/ShareLayout.vue';
+// import ShareMobileLayout from './components/layouts/ShareMobileLayout.vue';
 
-// import Search from './views/page/Search.vue'
-import NoAuth from './views/common/NoAuth.vue'
+// import Search from './views/page/Search.vue';
+import NoAuth from './views/common/NoAuth.vue';
 
-// import Home from './views/home/Home.vue'
-// import MyInfo from './views/user/MyInfo.vue'
-import Show from './views/view/View.vue'
-// import Edit from './views/page/Edit.vue'
+// import Home from './views/home/Home.vue';
+// import MyInfo from './views/user/MyInfo.vue';
+import Show from './views/view/View.vue';
+// import Edit from './views/page/Edit.vue';
 
-// import spaceManage from './views/space/Manage.vue'
+// import spaceManage from './views/space/Manage.vue';
 
-// import sharePcHome from './views/page/share/pc/Home.vue'
-// import sharePcView from './views/page/share/pc/View.vue'
-// import shareMobileView from './views/page/share/mobile/View.vue'
+// import sharePcHome from './views/page/share/pc/Home.vue';
+// import sharePcView from './views/page/share/pc/View.vue';
+// import shareMobileView from './views/page/share/mobile/View.vue';
 
 let routes = [
 	{path: '/', redirect: '/home'},
@@ -61,6 +61,6 @@ let routes = [
 			},
 		],
 	},
-]
+];
 
-export default routes
+export default routes;

@@ -12,8 +12,8 @@
 </template>
 
 <script setup>
-import {toRefs, ref, reactive, onMounted, watch, defineEmits, defineProps, defineExpose,} from 'vue'
-import {useStoreDisplay} from '@/store/wikiDisplay.js'
+import {toRefs, ref, reactive, onMounted, watch, defineEmits, defineProps, defineExpose,} from 'vue';
+import {useStoreDisplay} from '@/store/wikiDisplay.js';
 import {useStorePageData} from "@/store/pageData";
 import {useResizeEvent} from "@/composable/windowsScroll";
 
@@ -40,7 +40,7 @@ const headingItemClick = (item) => {
 		inline: 'nearest',
 	});
 	// 距离顶部高度
-	//console.log(item.node.offsetTop - item.node.scrollHeight)
+	//console.log(item.node.offsetTop - item.node.scrollHeight);
 }
 </script>
 
@@ -58,7 +58,6 @@ const headingItemClick = (item) => {
 		border-radius: 8px;
 		padding: 16px;
 		margin-left: -40px;
-		box-shadow: var(--el-box-shadow-lighter);
 	}
 
 	.nav-heading {
