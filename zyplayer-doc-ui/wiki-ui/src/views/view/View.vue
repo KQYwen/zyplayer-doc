@@ -66,6 +66,7 @@ const props = defineProps({
 let emit = defineEmits(['switchSpace', 'changeExpandedKeys', 'loadPageList']);
 onMounted(() => {
 	storeDisplay.currentPage = 'view';
+	storeDisplay.showHeader = true;
 	initQueryParam(route);
 });
 onBeforeRouteUpdate((to) => {
@@ -264,78 +265,11 @@ const initQueryParam = (to) => {
 	height: 600px !important;
 }
 
-.page-show-vue .head {
-	float: left;
-	background-color: #ccc;
-	border-radius: 50%;
-	margin-right: 10px;
-	width: 45px;
-	height: 45px;
-	line-height: 45px;
-	text-align: center;
-	color: #fff;
-}
-
-.page-show-vue .el-tabs__header {
-	margin: 0;
-}
-
-.page-show-vue .el-tabs__nav-wrap {
-	padding: 0 20px;
-}
-
-.page-show-vue .close-action-tab {
-	position: absolute;
-	right: 15px;
-	top: 12px;
-	cursor: pointer;
-	z-index: 1;
-}
-
-.page-show-vue .action-tab-box {
-	height: calc(100vh - 120px);
-	overflow: auto;
-	padding: 20px 10px;
-}
-
-.page-show-vue .action-box-empty {
-	text-align: center;
-	padding-top: 30px;
-	color: #888;
-	font-size: 14px;
-}
-
-.page-show-vue .history-item {
-	height: 55px;
-	line-height: 25px;
-	cursor: pointer;
-	vertical-align: middle;
-}
-
-.page-show-vue .history-loading-status {
-	margin-left: 5px;
-	color: #67c23a;
-}
-
-.page-show-vue .history-loading-status.el-icon-circle-close {
-	color: #f56c6c;
-}
-
 .page-show-vue .el-timeline {
 	padding-inline-start: 0;
 }
 
 .page-show-vue .markdown-body table {
 	display: table;
-}
-
-.mobile-qr {
-	width: 250px;
-	height: 250px;
-	border: 1px solid #ccc;
-	display: inline-block;
-	border-radius: 4px;
-	margin-bottom: 10px;
-	padding: 5px;
 }
 </style>

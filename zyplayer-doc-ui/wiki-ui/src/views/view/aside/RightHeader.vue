@@ -104,20 +104,13 @@ const emit = defineEmits(['collapse']);
 
 let turnLeftCollapse = () => {
 	storeDisplay.showMenu = !storeDisplay.showMenu;
-	setTimeout(() => {
-		if (storeDisplay.showMenu) {
-			storeDisplay.rightAsideWidth = 301;
-		} else {
-			storeDisplay.rightAsideWidth = 1;
-		}
-	}, 100);
 };
 const editWiki = () => {
 	// 锁定页面并进入编辑页面
 	storePage.pageIsUnlock = false;
 	let param = {pageId: storePage.pageInfo.id};
 	pageApi.pageLock(param).then(() => {
-		router.push({path: '/page/edit', query: {pageId: storePage.pageInfo.id}});
+		router.push({path: `/edit/${storePage.pageInfo.spaceId}/${storePage.pageInfo.id}`});
 	});
 }
 const showCommentWiki = () => {

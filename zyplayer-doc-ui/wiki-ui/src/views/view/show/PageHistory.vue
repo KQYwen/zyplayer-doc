@@ -68,3 +68,34 @@ const historyClick = (history) => {
 	}
 }
 </script>
+
+<style lang="scss" scoped>
+.action-tab-box {
+	height: calc(100vh - 120px);
+	overflow: auto;
+	padding: 20px 10px;
+
+	.action-box-empty {
+		text-align: center;
+		padding-top: 30px;
+		color: #888;
+		font-size: 14px;
+	}
+
+	.history-item {
+		height: 55px;
+		line-height: 25px;
+		cursor: pointer;
+		vertical-align: middle;
+	}
+
+	.history-loading-status {
+		margin-left: 5px;
+		color: #67c23a;
+	}
+
+	.history-loading-status.el-icon-circle-close {
+		color: #f56c6c;
+	}
+}
+</style>

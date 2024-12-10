@@ -127,7 +127,7 @@ CREATE TABLE `wiki_page_content`  (
   `update_user_id` bigint(20) NULL DEFAULT NULL COMMENT '修改人ID',
   `update_user_name` varchar(20) NULL DEFAULT NULL COMMENT '修改人名字',
   `update_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
-  `preview` varchar(16000) NULL DEFAULT NULL COMMENT '预览内容',
+  `preview` text NULL DEFAULT NULL COMMENT '预览内容',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_page_id`(`page_id`) USING BTREE COMMENT '页面ID'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;

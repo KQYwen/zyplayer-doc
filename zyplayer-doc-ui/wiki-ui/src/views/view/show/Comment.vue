@@ -146,6 +146,18 @@ const getUserHeadBgColor = (userId) => {
 	overflow: auto;
 
 	.comment-card {
+		.head {
+			float: left;
+			background-color: #ccc;
+			border-radius: 50%;
+			margin-right: 10px;
+			width: 45px;
+			height: 45px;
+			line-height: 45px;
+			text-align: center;
+			color: #fff;
+		}
+
 		.comment-user-name {
 			margin-bottom: 10px;
 

@@ -41,19 +41,11 @@ public class WikiPageUploadService {
     private final UserMessageService userMessageService;
     private final WikiPageHistoryService wikiPageHistoryService;
 
-
     public Object update(WikiPage wikiPage, String content, String preview) {
         DocUserDetails currentUser = DocUserUtil.getCurrentUser();
         WikiPageContent pageContent = new WikiPageContent();
         pageContent.setContent(content);
-        if (wikiPage.getEditorType() == 2) {
-            preview = MDToText.mdToText(preview);
-        }
         pageContent.setPreview(preview);
-        // 数据库是varchar(16000)，所以如果不开启es的话搜索超过16000的文章就搜不到~，es存preview不截断
-        if (StringUtils.isNotBlank(preview) && preview.length() > 16000) {
-            pageContent.setPreview(preview.substring(0, 16000));
-        }
         if (StringUtils.isBlank(wikiPage.getName())) {
             return "标题不能为空！";
         }

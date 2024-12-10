@@ -165,8 +165,14 @@ const computeFileSize = (fileSize) => {
 
 	.head {
 		float: left;
+		background-color: #ccc;
+		border-radius: 50%;
 		margin-right: 10px;
-		line-height: 40px;
+		width: 45px;
+		height: 45px;
+		line-height: 45px;
+		text-align: center;
+		color: #fff;
 	}
 
 	.files-user-name .time {

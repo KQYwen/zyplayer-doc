@@ -260,7 +260,7 @@ const wikiOnlyShowFavoriteChange = () => {
 }
 const getSpaceSettingList = () => {
 	pageApi.spaceSettingList().then((json) => {
-		let result = json.data || {}
+		let result = json.data || {};
 		userSetting.value = {
 			wiki_only_show_favorite: result.wiki_only_show_favorite || 0,
 		}

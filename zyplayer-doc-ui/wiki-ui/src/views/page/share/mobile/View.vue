@@ -69,10 +69,10 @@ const popupShowChange = () => {
 const loadPageDetail = (pageId) => {
 	let param = {pageId: pageId, space: spaceUuid.value}
 	pageApi.openPageDetail(param).then((json) => {
-		let wikiPageRes = json.data.wikiPage || {}
+		let wikiPageRes = json.data.wikiPage || {};
 		wikiPageRes.selfZan = json.data.selfZan || 0
 		wikiPage.value = wikiPageRes;
-		let pageContent = json.data.pageContent || {}
+		let pageContent = json.data.pageContent || {};
 		pageFileList.value = json.data.fileList || [];
 		if (wikiPage.value.editorType === 2) {
 			pageContent.content = mavonEditor.getMarkdownIt().render(pageContent.content);

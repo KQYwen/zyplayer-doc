@@ -33,7 +33,6 @@ onMounted(() => {
 });
 const rightAsideWidthChange = (width) => {
 	storeDisplay.rightAsideWidth = width;
-	storeDisplay.commentShow = width;
 }
 let leftAsideStyle = computed(() => {
 	return {width: storeDisplay.rightAsideWidth + 'px'};

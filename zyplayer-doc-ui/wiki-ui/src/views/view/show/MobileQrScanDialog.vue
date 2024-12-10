@@ -80,3 +80,15 @@ const initMobileQrScan = () => {
 	}, 0);
 }
 </script>
+
+<style scoped lang="scss">
+.mobile-qr {
+	width: 250px;
+	height: 250px;
+	border: 1px solid #ccc;
+	display: inline-block;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	padding: 5px;
+}
+</style>

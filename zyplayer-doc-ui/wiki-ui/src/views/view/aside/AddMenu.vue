@@ -99,7 +99,8 @@ const createPage = (editorType, confirmName) => {
 		storePage.eventPageListUpdate = !storePage.eventPageListUpdate;
 		ElMessage.success('创建成功');
 		if (editorType !== 0) {
-			router.push({path: '/page/edit', query: {parentId: props.pageId, pageId: json.data.id}});
+			let newPageId = json.data.id;
+			router.push({path: `/edit/${storeSpace.chooseSpaceId}/${newPageId}`});
 		}
 	});
 }
