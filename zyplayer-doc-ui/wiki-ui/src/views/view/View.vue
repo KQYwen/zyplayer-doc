@@ -173,9 +173,18 @@ let pageContentRef = ref();
 const initQueryParam = (to) => {
 	spaceId = parseInt(to.params.spaceId);
 	pageId = parseInt(to.params.pageId);
+	clearPageData();
 	if (!!pageId) {
 		loadPageDetail(pageId);
 	}
+}
+const clearPageData = () => {
+	wikiPage.value = {};
+	wikiPageAuth.value = {};
+	pageContent.value = '';
+	pageContentShow.value = '';
+	storePage.pageInfo = {};
+	storePage.pageAuth = {};
 }
 </script>
 

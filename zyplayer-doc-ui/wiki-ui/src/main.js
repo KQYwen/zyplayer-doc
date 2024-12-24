@@ -1,7 +1,6 @@
 import hljs from 'highlight.js';
 import {createApp} from 'vue';
 import App from './App.vue';
-import {createRouter, createWebHashHistory} from 'vue-router';
 import ElementUI from 'element-plus';
 import Antd from 'ant-design-vue';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
@@ -15,10 +14,6 @@ import './assets/scss/markdown.scss';
 import './assets/scss/pageView.scss';
 import './assets/scss/base.scss';
 
-const router = createRouter({
-	history: createWebHashHistory(),
-	routes,
-});
 const app = createApp(App);
 app.config.productionTip = false;
 app.use(Antd);
@@ -26,7 +21,7 @@ app.use(ElementUI, {
 	locale: zhCn,
 });
 app.use(Vant);
-app.use(router);
+app.use(routes);
 app.use(createPinia());
 app.mount('#app');
 

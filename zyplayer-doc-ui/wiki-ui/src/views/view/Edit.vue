@@ -17,10 +17,10 @@
 			<div v-if="wikiPage.editorType === 1">
 				<WangEditor ref="wangEditorRef" :pageId="pageId"></WangEditor>
 			</div>
-			<div v-else-if="wikiPage.editorType === 2" style="padding: 10px; background: #fff;">
+			<div v-else-if="wikiPage.editorType === 2" style="padding: 5px 8px 5px; background: #fff;">
 				<mavonEditor ref="mavonEditorRef" v-model="markdownContent" :toolbars="toolbars" :externalLink="false"
 				             @save="createWikiSave(0)" @imgAdd="addMarkdownImage" placeholder="请录入文档内容"
-				             class="page-content-editor wang-editor-body" style="height: calc(100vh - 100px);z-index: 1;"/>
+				             class="page-content-editor wang-editor-body" style="height: calc(100vh - 80px);z-index: 1;"/>
 			</div>
 		</div>
 	</div>
@@ -219,8 +219,8 @@ const addMarkdownImage = (pos, file) => {
 <style lang="scss">
 .fake-header {
 	color: #333;
-	height: 60px !important;
-	line-height: 60px !important;
+	height: 50px !important;
+	line-height: 50px !important;
 
 	.fold-btn {
 		font-size: 18px;

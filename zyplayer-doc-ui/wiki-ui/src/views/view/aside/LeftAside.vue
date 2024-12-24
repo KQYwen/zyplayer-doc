@@ -1,14 +1,19 @@
 <template>
 	<div class="left-aside-box">
 		<div class="left-aside-top-box">
-			<el-select :model-value="storeSpace.chooseSpaceId" @change="spaceChangeEvents" filterable
-			           placeholder="选择空间" class="choice-space-select">
-				<el-option-group label="" v-if="!props.readOnly">
-					<el-option :key="-1" label="空间管理" :value="-1"></el-option>
-				</el-option-group>
-				<el-option-group label=""></el-option-group>
-				<el-option v-for="item in storeSpace.spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-			</el-select>
+			<a-row type="flex" style="flex-flow: row nowrap;">
+				<a-col flex="32px" style="margin-right: -1px;">
+					<a-tooltip title="返回首页" placement="right" :mouseEnterDelay="0.5">
+						<a-button @click="openHomePage" :icon="h(HomeOutlined)" class="home-page-btn"/>
+					</a-tooltip>
+				</a-col>
+				<a-col flex="auto">
+					<el-select v-model="storeSpace.chooseSpaceId" @change="spaceChangeEvents" filterable
+					           placeholder="选择空间" class="choice-space-select">
+						<el-option v-for="item in storeSpace.spaceOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+					</el-select>
+				</a-col>
+			</a-row>
 			<el-autocomplete v-model="searchKeywords" v-if="!props.readOnly" :fetch-suggestions="doSearchByKeywords"
 			                 @select="handleSearchKeywordsSelect" placeholder="在当前空间搜索"
 			                 popper-class="search-autocomplete-popper" class="search-autocomplete">
@@ -38,7 +43,7 @@
 		</div>
 		<div v-show="!spaceTreeIsClose" class="wiki-page-tree-box">
 			<el-tree ref="wikiPageTreeRef" :current-node-key="props.nowPageId" :data="storePage.wikiPageList"
-			         :default-expanded-keys="wikiPageExpandedKeys" :expand-on-click-node="true" :class="explanClass"
+			         :default-expanded-keys="wikiPageExpandedKeys" :expand-on-click-node="true"
 			         :filter-node-method="filterPageNode" :props="defaultProps" :draggable="!props.readOnly"
 			         @node-click="handleNodeClick" @node-drop="handlePageDrop" node-key="id" highlight-current
 			         style="background-color: #fafafa;">
@@ -112,7 +117,7 @@ import {
 	EditTwo as IconParkEditTwo,
 	PageTemplate as IconParkPageTemplate,
 } from '@icon-park/vue-next'
-import { EllipsisOutlined } from '@ant-design/icons-vue';
+import { EllipsisOutlined, HomeOutlined } from '@ant-design/icons-vue';
 import {ref, defineProps, defineEmits, defineExpose, onMounted, h, watch} from 'vue';
 import {useRouter, useRoute} from "vue-router";
 import pageApi from '@/assets/api/page';
@@ -122,8 +127,6 @@ import AddMenu from "./AddMenu.vue";
 import IconDocument from "@/components/base/IconDocument.vue";
 import {ElMessageBox, ElMessage} from 'element-plus';
 import {useStoreSpaceData} from "@/store/spaceData";
-import Navigation from "@/views/page/show/Navigation.vue";
-import PageZan from "@/views/page/show/PageZan.vue";
 import MessagePrompt from "@/components/single/MessagePrompt";
 
 let route = useRoute();
@@ -132,11 +135,7 @@ let storePage = useStorePageData();
 let storeDisplay = useStoreDisplay();
 let storeSpace = useStoreSpaceData();
 
-let emit = defineEmits(['spaceChangeEvents', 'setNowPageId']);
 let searchKeywords = ref('');
-let descriptorForTree = ref("点击收起目录");
-let explan = ref(false);
-let explanClass = ref("el-tree");
 let wikiPageExpandedKeys = ref([]);
 let defaultProps = ref({children: 'children', label: 'name',});
 let wikiPageTreeRef = ref();
@@ -153,8 +152,20 @@ onMounted(() => {
 watch(() => storePage.eventPageListUpdate, () => {
 	loadSpaceList();
 });
+watch(() => storeSpace.spaceInfo, () => {
+	doGetPageList();
+});
+let openHomePage = (event) => {
+	if (event.ctrlKey) {
+		let routeUrl = router.resolve({path: `/wiki/space`});
+		window.open(routeUrl.href, '_blank');
+	} else {
+		router.push({path: '/wiki/space'});
+	}
+}
 let nowSpaceShow = ref({});
-const loadSpaceList = (spaceId) => {
+const loadSpaceList = () => {
+	let spaceId = parseInt(route.params.spaceId);
 	pageApi.spaceList({}).then((json) => {
 		storeSpace.spaceList = json.data || [];
 		let spaceOptionsNew = [];
@@ -172,14 +183,6 @@ const loadSpaceList = (spaceId) => {
 			storeSpace.chooseSpaceId = nowSpaceId;
 			storePage.choosePageId = 0;
 			doGetPageList();
-			// TODO 在首页时跳转
-			try {
-				if (route.path === '/home') {
-					router.push({path: '/home', query: {spaceId: nowSpaceId}});
-				}
-			} catch (e) {
-				console.log(e);
-			}
 		}
 	});
 }
@@ -188,7 +191,7 @@ const changeNodeOptionStatus = (param) => {
 	optionPageId.value = param.id;
 }
 const assisSetCurrentKey = () => {
-	emit('setNowPageId', route.query.pageId, props.readOnly);
+	// emit('setNowPageId', route.query.pageId, props.readOnly);
 	if (props.nowPageId) {
 		wikiPageTreeRef.value.setCurrentKey(nowPageId.value);
 	}
@@ -257,7 +260,12 @@ const deleteWikiPage = (data) => {
 	});
 }
 const spaceChangeEvents = (data) => {
-	emit('spaceChangeEvents', data, props.readOnly);
+	let nowSpaceShowTemp = storeSpace.spaceList.find((item) => item.id === data);
+	nowSpaceShow.value = nowSpaceShowTemp;
+	storeSpace.spaceInfo = nowSpaceShowTemp;
+	storeSpace.chooseSpaceId = data;
+	storePage.choosePageId = 0;
+	router.push({path: `/view/${data}`});
 }
 const doRename = (node, data) => {
 	pageApi.renamePage({"id": data.id, "name": data.name}).then((json) => {
@@ -266,6 +274,8 @@ const doRename = (node, data) => {
 	});
 }
 const doGetPageList = () => {
+	storePage.pageList = [];
+	storePage.favoritePageList = [];
 	let param = {spaceId: storeSpace.chooseSpaceId};
 	pageApi.pageList(param).then((json) => {
 		storePage.wikiPageList = json.data || [];
@@ -334,9 +344,22 @@ defineExpose({searchByKeywords});
 	.left-aside-top-box {
 		padding: 10px;
 
+		.home-page-btn {
+			border-radius: 4px 0 0 4px;
+			z-index: 0;
+
+			&:hover, &:focus, &:active {
+				z-index: 1;
+			}
+		}
+
 		.choice-space-select {
 			width: 100%;
 			margin-bottom: 5px;
+
+			.el-input__wrapper {
+				border-radius: 0 4px 4px 0;
+			}
 		}
 
 		.search-autocomplete {

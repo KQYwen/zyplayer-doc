@@ -31,7 +31,7 @@
 		<div class="comment-input-box">
 			<textarea rows="5" placeholder="发表评论" v-model="commentTextInput" :maxlength="500"></textarea>
 			<div class="comment-btn-box">
-				<el-button type="primary" size="small" @click="submitPageComment">发送</el-button>
+				<a-button @click="submitPageComment">发送</a-button>
 			</div>
 		</div>
 	</div>
@@ -56,7 +56,6 @@ let page = {
 // 评论相关
 let commentTextInput = ref('');
 let commentList = ref([]);
-let recommentInfo = ref({});
 
 let route = useRoute();
 let router = useRouter();
@@ -82,7 +81,6 @@ const loadCommentList = () => {
 	if (!storePage.pageInfo || !storePage.pageInfo.id) {
 		return;
 	}
-	cancelCommentUser();
 	pageApi.pageCommentList({pageId: storePage.pageInfo.id}).then((json) => {
 		let commentListRes = json.data || [];
 		for (let i = 0; i < commentListRes.length; i++) {
@@ -109,9 +107,6 @@ const deleteComment = (id) => {
 		loadCommentList();
 	});
 }
-const cancelCommentUser = () => {
-	recommentInfo.value = {};
-}
 const submitPageComment = () => {
 	if (commentTextInput.value.length <= 0) {
 		ElMessage.error('请输入评论内容');
@@ -120,7 +115,6 @@ const submitPageComment = () => {
 	let param = {
 		pageId: storePage.pageInfo.id,
 		content: commentTextInput.value,
-		parentId: recommentInfo.value.id,
 	}
 	pageApi.updatePageComment(param).then((json) => {
 		let data = json.data;
