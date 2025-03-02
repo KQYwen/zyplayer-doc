@@ -42,7 +42,7 @@
 			</div>
 		</div>
 		<div v-show="!spaceTreeIsClose" class="wiki-page-tree-box">
-			<el-tree ref="wikiPageTreeRef" :current-node-key="props.nowPageId" :data="storePage.wikiPageList"
+			<el-tree ref="wikiPageTreeRef" :current-node-key="props.nowPageId" :data="storePage.pageList"
 			         :default-expanded-keys="wikiPageExpandedKeys" :expand-on-click-node="true"
 			         :filter-node-method="filterPageNode" :props="defaultProps" :draggable="!props.readOnly"
 			         @node-click="handleNodeClick" @node-drop="handlePageDrop" node-key="id" highlight-current
@@ -238,7 +238,7 @@ const openMoveMenu = (onlyMove) => {
 	// visibleMoveMenu.value = true;
 	// moveToPageId.value = storePage.choosePageId
 	// moveToSpaceId.value = storeSpace.chooseSpaceId
-	// moveToWikiPageList.value = storePage.wikiPageList
+	// moveToWikiPageList.value = storePage.pageList
 }
 const openTemplateCreate = (exsit) => {
 	// TODO
@@ -276,9 +276,24 @@ const doRename = (node, data) => {
 const doGetPageList = () => {
 	storePage.pageList = [];
 	storePage.favoritePageList = [];
-	let param = {spaceId: storeSpace.chooseSpaceId};
-	pageApi.pageList(param).then((json) => {
-		storePage.wikiPageList = json.data || [];
+	let spaceId = storeSpace.chooseSpaceId;
+	pageApi.pageList({spaceId: spaceId}).then((json) => {
+		storePage.pageList = json.data || [];
+		// 查看页面
+		if (storePage.pageList.length <= 0) {
+			router.push({path: `/view/${spaceId}`});
+		} else {
+			let routePageId = parseInt(route.params.pageId);
+			let findPage = storePage.getPageById(routePageId);
+			if (findPage) {
+				router.replace({path: `/view/${spaceId}/${routePageId}`});
+			} else {
+				let firstPage = storePage.getFirstViewPage();
+				if (firstPage) {
+					router.replace({path: `/view/${spaceId}/${firstPage.id}`});
+				}
+			}
+		}
 	});
 }
 const doSearchByKeywords = (queryString, callback) => {

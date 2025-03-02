@@ -67,10 +67,10 @@ let emit = defineEmits(['switchSpace', 'changeExpandedKeys', 'loadPageList']);
 onMounted(() => {
 	storeDisplay.currentPage = 'view';
 	storeDisplay.showHeader = true;
-	initQueryParam(route);
+	loadPageDetail(route.params);
 });
-onBeforeRouteUpdate((to) => {
-	initQueryParam(to);
+onBeforeRouteUpdate((updateGuard) => {
+	loadPageDetail(updateGuard.params);
 });
 // 页面展示相关
 let wikiPage = ref({});
@@ -113,10 +113,17 @@ const afterLoadPage = () => {
 		createNavigationHeading();
 	}, 500);
 }
-const loadPageDetail = (pageId) => {
-	clearHistory();
+const loadPageDetail = (query) => {
+	clearPageData();
+	let pageId = query.pageId;
+	let spaceId = query.spaceId;
+	if (!pageId || !spaceId) {
+		return;
+	}
 	pageContent.value = '';
+	storePage.pageLoadStatus = 1;
 	pageApi.pageDetail({id: pageId}).then(async (json) => {
+		storePage.pageLoadStatus = 2;
 		let result = json.data || {};
 		let wikiPageRes = result.wikiPage || {};
 		wikiPageRes.selfZan = result.selfZan || 0;
@@ -150,6 +157,9 @@ const loadPageDetail = (pageId) => {
 		storePage.pageInfo = wikiPageRes;
 		storePage.pageAuth = wikiPageAuth.value;
 		afterLoadPage();
+	}).catch(e => {
+		console.log(e);
+		storePage.pageLoadStatus = 3;
 	});
 	getPageHistory(pageId);
 }
@@ -170,14 +180,6 @@ const createNavigationHeading = () => {
 let spaceId = '';
 let pageId = '';
 let pageContentRef = ref();
-const initQueryParam = (to) => {
-	spaceId = parseInt(to.params.spaceId);
-	pageId = parseInt(to.params.pageId);
-	clearPageData();
-	if (!!pageId) {
-		loadPageDetail(pageId);
-	}
-}
 const clearPageData = () => {
 	wikiPage.value = {};
 	wikiPageAuth.value = {};
@@ -185,6 +187,8 @@ const clearPageData = () => {
 	pageContentShow.value = '';
 	storePage.pageInfo = {};
 	storePage.pageAuth = {};
+	storePage.fileList = [];
+	storePage.pageLoadStatus = 0;
 }
 </script>
 
@@ -202,7 +206,7 @@ const clearPageData = () => {
 			overflow: auto;
 			padding: 30px 20px;
 			position: relative;
-			border-right: 1px solid #eee;
+			border-right: 1px solid #f0f0f0;
 
 			.view-body-box {
 				max-width: 840px;

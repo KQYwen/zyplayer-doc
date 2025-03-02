@@ -7,10 +7,15 @@
 					<a-button @click="turnLeftCollapse" v-else type="text" :icon="h(MenuUnfoldOutlined)"></a-button>
 				</div>
 				<div v-if="storeDisplay.currentPage === 'view'" class="title-time-box">
-					<div class="title">
-						<span class="text">{{storePage.pageInfo.name || ''}}</span>
-					</div>
-					<div class="time">最近修改：{{storePage.pageInfo.updateTime || ''}}</div>
+					<template v-if="storePage.pageLoadStatus===1">
+						<LoadingOutlined style="margin-top: 16px;font-size: 18px;"/>
+					</template>
+					<template v-else-if="storePage.pageLoadStatus===2">
+						<div class="title">
+							<span class="text">{{storePage.pageInfo.name || ''}}</span>
+						</div>
+						<div class="time">最近修改：{{storePage.pageInfo.updateTime || ''}}</div>
+					</template>
 				</div>
 			</div>
 		</el-col>
@@ -78,7 +83,7 @@ import {
 } from '@element-plus/icons-vue'
 import {
 	UserOutlined, EditOutlined, MessageOutlined, CheckOutlined, EllipsisOutlined,
-	MenuFoldOutlined, MenuUnfoldOutlined
+	MenuFoldOutlined, MenuUnfoldOutlined, LoadingOutlined
 } from '@ant-design/icons-vue';
 import {toRefs, ref, reactive, onMounted, watch, defineEmits, h, computed} from 'vue';
 import {useRouter, useRoute} from "vue-router";
@@ -139,7 +144,7 @@ const deleteWikiPage = () => {
 	}).then(() => {
 		pageApi.pageDelete({pageId: storePage.pageInfo.id}).then(() => {
 			pageApi.pageList({spaceId: storeSpace.chooseSpaceId}).then((json) => {
-				storePage.wikiPageList = json.data || [];
+				storePage.pageList = json.data || [];
 			}).then(()=>{
 				router.push({path: '/home', query: {spaceId: storePage.pageInfo.spaceId}});
 			});

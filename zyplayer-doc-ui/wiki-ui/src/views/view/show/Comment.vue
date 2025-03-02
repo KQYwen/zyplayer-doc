@@ -136,7 +136,7 @@ const getUserHeadBgColor = (userId) => {
 <style lang="scss">
 .comment-box {
 	padding: 8px;
-	height: calc(100vh - 275px);
+	height: calc(100vh - 285px);
 	overflow: auto;
 
 	.comment-card {
