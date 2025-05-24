@@ -20,7 +20,10 @@
 import {ViewList as IconParkViewList} from '@icon-park/vue-next'
 import {toRefs, ref, reactive, onMounted, watch, defineEmits, defineProps, defineExpose,} from 'vue';
 import {useResizeEvent} from "@/composable/windowsScroll";
+import applyOnce from "@/assets/js/applyOnce";
+import {useStoreDisplay} from "@/store/wikiDisplay";
 
+let storeDisplay = useStoreDisplay();
 const props = defineProps({
 	heading: {type: Array, default: []},
 });
@@ -28,6 +31,9 @@ onMounted(() => {
 	setTimeout(() => computeNavigationWidth(), 100);
 });
 useResizeEvent(() => {
+	computeNavigationWidth();
+});
+watch(() => storeDisplay.rightAsideWidth, (newVal) => {
 	computeNavigationWidth();
 });
 let isLeave = false;
@@ -53,7 +59,7 @@ const navigationToMax = () => {
 let navigationMin = ref(false);
 let navigationShow = ref(true);
 let navigationStyle = ref({width: '200px'});
-const computeNavigationWidth = () => {
+const computeNavigationWidth = applyOnce(() => {
 	let pageViewContent = document.getElementById('pageContentBox');
 	let pageContentScrollBox = document.getElementById('pageContentScrollBox');
 	// pageContentScrollBox的宽度减去pageViewContent的宽度除以2
@@ -68,7 +74,7 @@ const computeNavigationWidth = () => {
 		}
 		navigationMin.value = !navigationShow.value;
 	}
-}
+}, 500);
 const headingItemClick = (item) => {
 	// 滚动到指定节点
 	item.node.scrollIntoView({

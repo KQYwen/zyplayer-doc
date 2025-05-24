@@ -10,7 +10,7 @@
 					</div>
 					<PageZan></PageZan>
 				</div>
-				<Navigation :heading="navigationList"></Navigation>
+				<Navigation v-if="navigationList.length > 0" :heading="navigationList"></Navigation>
 			</a-col>
 			<a-col v-if="storeDisplay.commentShow" flex="280px">
 				<a-tabs v-model:activeKey="actionTabActiveName" class="action-tabs-box">

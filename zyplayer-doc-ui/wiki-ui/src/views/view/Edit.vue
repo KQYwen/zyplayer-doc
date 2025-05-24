@@ -1,16 +1,16 @@
 <template>
-	<div style="height: 100%" class="page-edit-vue">
+	<div style="height: 100%;" class="page-edit-vue">
 		<el-row class="fake-header">
 			<el-col style="flex: 0 0 45px;" class="collapse-box">
-				<el-button @click="turnLeftCollapse" v-if="storeDisplay.showMenu" text :icon="ElIconFold" class="fold-btn"></el-button>
-				<el-button @click="turnLeftCollapse" v-else text :icon="ElIconExpand" class="fold-btn"></el-button>
+				<a-button @click="turnLeftCollapse" v-if="storeDisplay.showMenu" type="text" :icon="h(MenuFoldOutlined)"></a-button>
+				<a-button @click="turnLeftCollapse" v-else type="text" :icon="h(MenuUnfoldOutlined)"></a-button>
 			</el-col>
 			<el-col style="flex: 1 1 auto;">
 				<el-input v-model="pageTitleEdit" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
 			</el-col>
-			<el-col style="flex: 0 0 180px;text-align: right;">
-				<el-button type="primary" @click="createWikiSave(1)" :icon="ElIconDocumentChecked">保存</el-button>
-				<el-button @click="createWikiCancel" :icon="ElIconBack" style="margin-right: 5px;">取消</el-button>
+			<el-col style="flex: 0 0 190px;text-align: right;">
+				<a-button @click="createWikiSave(1)" :icon="h(SaveOutlined)" :loading="saveContentLoading" type="primary">保存</a-button>
+				<a-button @click="createWikiCancel" :icon="h(IconParkBack)" style="margin-left: 10px;">取消</a-button>
 			</el-col>
 		</el-row>
 		<div style="box-sizing: border-box;background: #f5f5f5;overflow: hidden">
@@ -27,7 +27,9 @@
 </template>
 
 <script setup>
-import {onBeforeUnmount, ref, onMounted, onUnmounted, watch, defineProps, nextTick, defineEmits, defineExpose, computed} from 'vue';
+import {Back as IconParkBack} from '@icon-park/vue-next'
+import {MenuFoldOutlined, MenuUnfoldOutlined, SaveOutlined} from '@ant-design/icons-vue';
+import {onBeforeUnmount, ref, onMounted, onUnmounted, watch, defineProps, h, nextTick, defineEmits, defineExpose, computed} from 'vue';
 import {onBeforeRouteUpdate, useRouter, useRoute} from "vue-router";
 import {ElMessageBox, ElMessage} from 'element-plus';
 import {
@@ -133,7 +135,7 @@ const createWikiSave = (saveAfter) => {
 		preview = wangEditorRef.value.getPreview();
 	} else if (wikiPage.value.editorType === 2) {
 		content = markdownContent.value;
-		const showContentSelector = mavonEditorRef.value.querySelectorAll('.v-show-content');
+		const showContentSelector = mavonEditorRef.value.$el.querySelectorAll('.v-show-content');
 		if (showContentSelector && showContentSelector.length > 0) {
 			preview = showContentSelector[0].textContent;
 		}
@@ -221,6 +223,9 @@ const addMarkdownImage = (pos, file) => {
 	color: #333;
 	height: 50px !important;
 	line-height: 50px !important;
+	padding: 0 8px 0 8px;
+	font-size: 14px;
+	background: #fff;
 
 	.fold-btn {
 		font-size: 18px;

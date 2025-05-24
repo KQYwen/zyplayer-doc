@@ -197,7 +197,7 @@ const getUserHeadBgColor = (userId) => {
 
 	.comment-btn-box {
 		text-align: right;
-		padding: 4px 15px 6px 0;
+		padding: 4px 6px 6px 0;
 	}
 }
 </style>

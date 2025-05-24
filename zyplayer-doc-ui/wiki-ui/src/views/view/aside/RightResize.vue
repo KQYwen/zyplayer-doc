@@ -10,7 +10,7 @@ import {toRefs, ref, reactive, onMounted, onBeforeUnmount, watch, defineEmits, c
 const props = defineProps({
 	modelValue: Number,
 	max: {type: Number, default: 600},
-	min: {type: Number, default: 200}
+	min: {type: Number, default: 240}
 });
 let emit = defineEmits(['update:modelValue', 'change']);
 

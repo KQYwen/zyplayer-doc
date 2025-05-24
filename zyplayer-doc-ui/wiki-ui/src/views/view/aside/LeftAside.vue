@@ -27,24 +27,20 @@
 				</template>
 			</el-autocomplete>
 			<div class="space-folder-box" v-if="!props.readOnly">
-				<el-row justify="space-between">
-					<el-col :span="16">
-						<div class="page-group-tag">
-							<el-tooltip :content="spaceTreeIsClose?'点击展开目录':'点击收起目录'" placement="top">
-								<span class="label" @click="changeDropdownStatus">空间目录</span>
-							</el-tooltip>
-						</div>
-					</el-col>
-					<el-col :span="8" style="text-align: right;">
-						<AddMenu/>
-					</el-col>
-				</el-row>
+				<a-flex align="center" justify="space-between">
+					<div class="page-group-tag">
+						<el-tooltip :content="spaceTreeIsClose?'点击展开目录':'点击收起目录'" placement="top">
+							<span class="label" @click="changeDropdownStatus">空间目录</span>
+						</el-tooltip>
+					</div>
+					<AddMenu/>
+				</a-flex>
 			</div>
 		</div>
 		<div v-show="!spaceTreeIsClose" class="wiki-page-tree-box">
 			<el-tree ref="wikiPageTreeRef" :current-node-key="props.nowPageId" :data="storePage.pageList"
 			         :default-expanded-keys="wikiPageExpandedKeys" :expand-on-click-node="true"
-			         :filter-node-method="filterPageNode" :props="defaultProps" :draggable="!props.readOnly"
+			         :props="defaultProps" :draggable="!props.readOnly"
 			         @node-click="handleNodeClick" @node-drop="handlePageDrop" node-key="id" highlight-current
 			         style="background-color: #fafafa;">
 				<template v-slot="{ node, data }">
@@ -63,7 +59,7 @@
 							<el-tooltip v-if="data.shareStatus > 0" :content="data.tags" placement="top-start" :show-after="500">
 								<a-tag color="warning" style="margin-inline-end: 4px;padding-inline: 4px;"> {{data.shareStatus === 1 ? '公共模板' : '个人模板'}}</a-tag>
 							</el-tooltip>
-							<span style="vertical-align: middle;margin-left: 5px;">
+							<span style="margin-left: 5px;">
 								<el-tooltip :content="node.label" placement="top-start" :show-after="700">{{ node.label }}</el-tooltip>
 							</span>
 							<!--操作-->
@@ -279,18 +275,20 @@ const doGetPageList = () => {
 	let spaceId = storeSpace.chooseSpaceId;
 	pageApi.pageList({spaceId: spaceId}).then((json) => {
 		storePage.pageList = json.data || [];
-		// 查看页面
-		if (storePage.pageList.length <= 0) {
-			router.push({path: `/view/${spaceId}`});
-		} else {
-			let routePageId = parseInt(route.params.pageId);
-			let findPage = storePage.getPageById(routePageId);
-			if (findPage) {
-				router.replace({path: `/view/${spaceId}/${routePageId}`});
+		if (route.path.startsWith('/view')) {
+			// 查看页面
+			if (storePage.pageList.length <= 0) {
+				router.push({path: `/view/${spaceId}`});
 			} else {
-				let firstPage = storePage.getFirstViewPage();
-				if (firstPage) {
-					router.replace({path: `/view/${spaceId}/${firstPage.id}`});
+				let routePageId = parseInt(route.params.pageId);
+				let findPage = storePage.getPageById(routePageId);
+				if (findPage) {
+					router.replace({path: `/view/${spaceId}/${routePageId}`});
+				} else {
+					let firstPage = storePage.getFirstViewPage();
+					if (firstPage) {
+						router.replace({path: `/view/${spaceId}/${firstPage.id}`});
+					}
 				}
 			}
 		}
@@ -308,17 +306,11 @@ const doSearchByKeywords = (queryString, callback) => {
 }
 const handleSearchKeywordsSelect = (item) => {
 	searchKeywords.value = '';
-	router.push({path: '/page/show', query: {pageId: item.pageId}});
+	router.push({path: `/view/${item.spaceId}/${item.pageId}`});
 }
 let spaceTreeIsClose = ref(false);
 const changeDropdownStatus = () => {
 	spaceTreeIsClose.value = !spaceTreeIsClose.value;
-}
-const filterPageNode = (value, data) => {
-	if (!value || !data.name) return true;
-	// issues:I2CG72 忽略大小写
-	let name = data.name.toLowerCase();
-	return name.indexOf(value.toLowerCase()) !== -1;
 }
 const searchByKeywords = () => {
 	wikiPageTreeRef.value.filter(searchKeywords.value);
@@ -413,13 +405,8 @@ defineExpose({searchByKeywords});
 				width: 100%;
 
 				.label {
-					.el-icon {
-						vertical-align: middle;
-					}
-
 					.text {
 						margin-left: 5px;
-						vertical-align: middle;
 						max-width: calc(100% - 40px);
 						display: inline-block;
 						overflow: hidden;
@@ -454,6 +441,24 @@ defineExpose({searchByKeywords});
 
 .search-autocomplete-popper {
 	width: 600px !important;
+
+	.search-option-item {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+
+		.title {
+			font-weight: bold;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.content {
+			font-size: 12px;
+			color: #888;
+		}
+	}
 }
 
 .space-folder-box {

@@ -36,12 +36,12 @@
 						<a-button class="hover-button hover-bg" size="large" :icon="h(EllipsisOutlined)"></a-button>
 						<template #overlay>
 							<a-menu>
-								<a-menu-item @click="editWikiAuth" v-if="storePage.pageAuth.canConfigAuth === 1"><el-icon><ElIconSCheck/></el-icon> 权限设置</a-menu-item>
-								<a-menu-item @click="showOpenPage" v-if="storeSpace.spaceInfo.openDoc === 1"><el-icon><ElIconShare/></el-icon> 查看开放文档</a-menu-item>
-								<a-menu-item @click="showMobileView" v-if="storeSpace.spaceInfo.openDoc === 1"><el-icon><ElIconMobilePhone/></el-icon> 手机端查看</a-menu-item>
-								<a-menu-item @click="exportWord"><el-icon><ElIconDownload/></el-icon>导出为Word</a-menu-item>
+								<a-menu-item @click="editWikiAuth" v-if="storePage.pageAuth.canConfigAuth === 1" :icon="h(SafetyOutlined)">权限设置</a-menu-item>
+								<a-menu-item @click="showOpenPage" v-if="storeSpace.spaceInfo.openDoc === 1" :icon="h(ShareAltOutlined)">查看开放文档</a-menu-item>
+								<a-menu-item @click="showMobileView" v-if="storeSpace.spaceInfo.openDoc === 1" :icon="h(MobileOutlined)">手机端查看</a-menu-item>
+								<a-menu-item @click="exportWord" :icon="h(DownloadOutlined)">导出为Word</a-menu-item>
 								<a-menu-divider />
-								<a-menu-item @click="deleteWikiPage" v-if="storePage.pageAuth.canDelete === 1" class="delete"><el-icon><ElIconDelete/></el-icon> 删除</a-menu-item>
+								<a-menu-item @click="deleteWikiPage" v-if="storePage.pageAuth.canDelete === 1" :icon="h(DeleteOutlined)" danger class="delete">删除</a-menu-item>
 							</a-menu>
 						</template>
 					</a-dropdown>
@@ -70,20 +70,8 @@
 
 <script setup>
 import {
-	Fold as ElIconFold,
-	Expand as ElIconExpand,
-	Delete as ElIconDelete,
-	Stamp as ElIconSCheck,
-	Share as ElIconShare,
-	Iphone as ElIconMobilePhone,
-	Download as ElIconDownload,
-	MoreFilled as ElIconMoreFilled,
-	Setting as ElIconSetting,
-	UserFilled as ElIconUserFilled,
-} from '@element-plus/icons-vue'
-import {
-	UserOutlined, EditOutlined, MessageOutlined, CheckOutlined, EllipsisOutlined,
-	MenuFoldOutlined, MenuUnfoldOutlined, LoadingOutlined
+	UserOutlined, EditOutlined, MessageOutlined, CheckOutlined, EllipsisOutlined, DeleteOutlined, ShareAltOutlined,
+	MenuFoldOutlined, MenuUnfoldOutlined, LoadingOutlined, SafetyOutlined, DownloadOutlined, MobileOutlined
 } from '@ant-design/icons-vue';
 import {toRefs, ref, reactive, onMounted, watch, defineEmits, h, computed} from 'vue';
 import {useRouter, useRoute} from "vue-router";
