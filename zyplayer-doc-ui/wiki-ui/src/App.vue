@@ -12,6 +12,8 @@ import {useStoreUserData} from "@/store/userData";
 let storeUser = useStoreUserData();
 
 onMounted(() => {
+	// 注意：按照产品开源协议禁止隐藏此申明的输出
+	console.log('本文档产品由zyplayer-doc提供：https://doc.zyplayer.com');
 	checkSystemUpgrade();
 });
 const checkSystemUpgrade = () => {

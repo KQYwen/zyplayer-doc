@@ -6,6 +6,7 @@
 			<div class="doc-desc">
 				<div class="slogan">专注于私有化部署的在线知识库管理平台</div>
 				<div>当前版本 {{ storeUser.upgradeInfo.nowVersion || '1.0.0' }}</div>
+				<!-- 注意：按照产品开源协议禁止隐藏关于弹窗，关于弹窗中必须申明基于 zyplayer-doc 开源项目进行修改和二次开发。 -->
 				<div>版权所有 © 2018-2024 <a target="_blank" href="https://doc.zyplayer.com">doc.zyplayer.com</a></div>
 			</div>
 		</div>

@@ -71,9 +71,12 @@ create database zyplayer_doc;
 2. 保留`关于页面`的项目链接
 3. 你也可以选择使用 [商业版](https://doc.zyplayer.com/#/integrate/zyplayer-doc/commercial) 来支持我们
 
-# 界面展示
-控制台页面
-![主页面](https://images.gitee.com/uploads/images/2020/0516/125840_d6284954_596905.png "主页面.png")
+# 开源协议
+zyplayer-doc 是一个基于Apache License 2.0协议的开源项目，您可以自由使用、复制、修改和分发本软件的源代码和二进制形式。
+如需二次开发请必须遵循以下条款：
+1. **禁止**隐藏关于弹窗，关于弹窗中必须申明基于 zyplayer-doc 开源项目进行修改和二次开发。
+2. **禁止**隐藏控制台输出的版权申明，如需修改必须申明基于 zyplayer-doc 开源项目进行修改和二次开发。
 
-WIKI文档页面
-![wiki文档](https://images.gitee.com/uploads/images/2020/0516/130119_bc2f5021_596905.png "wiki文档.png")
+我们不希望将协议改为AGPL，导致大家无法进行二次开发和使用，所以仅包含两项强制性的无实质影响的附加条款。
+这是促使我们继续更新开源项目最基本的诉求，同时也希望大家能够尊重我们的劳动成果。
+如果您无法满足以上条款，请勿使用本项目，如有侵权行为，我们将保留追究法律责任的权利。
