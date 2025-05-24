@@ -17,6 +17,12 @@
 						<div class="time">最近修改：{{storePage.pageInfo.updateTime || ''}}</div>
 					</template>
 				</div>
+				<div v-if="storeDisplay.currentPage === 'setting'" class="title-setting-box">
+					<div class="setting-title">空间设置</div>
+				</div>
+				<div v-else-if="storeDisplay.currentPage === 'recycle'" class="title-setting-box">
+					<div class="setting-title">回收站</div>
+				</div>
 			</div>
 		</el-col>
 		<el-col :span="12" style="text-align: right;">
@@ -51,9 +57,8 @@
 					<template #overlay>
 						<a-menu>
 							<a-menu-item @click="showAbout">关于</a-menu-item>
-							<a-menu-item @click="showConsole">控制台</a-menu-item>
 							<a-menu-divider />
-							<a-menu-item @click="userSignOut">退出登录</a-menu-item>
+							<a-menu-item @click="userSignOut" danger>退出登录</a-menu-item>
 						</a-menu>
 					</template>
 				</a-dropdown>

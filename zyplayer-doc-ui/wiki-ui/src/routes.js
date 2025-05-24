@@ -12,6 +12,8 @@ import NoAuth from './views/common/NoAuth.vue';
 // import Home from './views/home/Home.vue';
 // import MyInfo from './views/user/MyInfo.vue';
 import Show from './views/view/View.vue';
+import Setting from './views/view/Setting.vue';
+import Recycle from './views/view/Recycle.vue';
 import Edit from './views/view/Edit.vue';
 
 // import spaceManage from './views/space/Manage.vue';
@@ -43,10 +45,12 @@ export default createRouter({
 			component: PageLayout,
 			children: [
 				// {path: '/home', name: 'WIKI文档管理', component: NoAuth},
-				{path: '/user/myInfo', name: 'WIKI-我的信息', component: NoAuth},
-				{path: '/view/:spaceId?/:pageId?', name: 'WIKI-页面查看', component: Show},
-				{path: '/edit/:spaceId/:pageId', name: 'WIKI-编辑内容', component: Edit},
-				{path: '/space/manage', name: 'WIKI-空间管理', component: NoAuth},
+				{path: '/user/myInfo', name: '我的信息', component: NoAuth},
+				{path: '/view/:spaceId?/:pageId?', name: '页面查看', component: Show},
+				{path: '/edit/:spaceId/:pageId', name: '页面编辑', component: Edit},
+				{path: '/view/setting/:spaceId', name: '空间设置', component: Setting},
+				{path: '/view/recycle/:spaceId', name: '回收站', component: Recycle},
+				{path: '/space/manage', name: '空间管理', component: NoAuth},
 			],
 		},
 		{

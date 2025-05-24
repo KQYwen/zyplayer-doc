@@ -77,7 +77,7 @@ public class WikiPageServiceImpl extends ServiceImpl<WikiPageMapper, WikiPage> i
 	}
 	
 	private void deletePageAndSon(WikiPage wikiPage) {
-		wikiPage.setDelFlag(1);
+		wikiPage.setDelFlag(wikiPage.getDelFlag());
 		this.updateById(wikiPage);
 		
 		QueryWrapper<WikiPage> wrapper = new QueryWrapper<>();

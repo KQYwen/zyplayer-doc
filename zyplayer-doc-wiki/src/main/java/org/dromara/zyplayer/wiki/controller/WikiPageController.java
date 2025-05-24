@@ -20,6 +20,10 @@ import org.dromara.zyplayer.data.repository.manage.vo.WikiPageTemplateInfoVo;
 import org.dromara.zyplayer.data.repository.support.consts.DocSysType;
 import org.dromara.zyplayer.data.repository.support.consts.UserMsgType;
 import org.dromara.zyplayer.data.service.manage.*;
+import org.dromara.zyplayer.data.service.params.PageDeleteParam;
+import org.dromara.zyplayer.data.service.params.PageRecycleListParam;
+import org.dromara.zyplayer.data.service.params.RecycleDeletePageParam;
+import org.dromara.zyplayer.data.service.params.RestorePageParam;
 import org.dromara.zyplayer.data.utils.CachePrefix;
 import org.dromara.zyplayer.data.utils.CacheUtil;
 import org.dromara.zyplayer.wiki.controller.vo.WikiPageContentVo;
@@ -78,7 +82,6 @@ public class WikiPageController {
         if (SpaceType.isOthersPrivate(wikiSpaceSel.getType(), currentUser.getUserId(), wikiSpaceSel.getCreateUserId())) {
             return DocResponseJson.warn("您没有权限查看该空间的文章列表！");
         }
-
         List<WikiPageTemplateInfoVo> wikiPageList = wikiPageService.wikiPageTemplateInfos(wikiPage.getSpaceId());
         Map<Long, List<WikiPageVo>> listMap = wikiPageList.stream().map(WikiPageVo::new).collect(Collectors.groupingBy(WikiPageVo::getParentId));
         List<WikiPageVo> nodePageList = listMap.get(0L);
@@ -88,7 +91,22 @@ public class WikiPageController {
         }
         return DocResponseJson.ok(nodePageList);
     }
-
+    
+    @PostMapping("/recycleList")
+    public ResponseJson<List<WikiPageVo>> recycleList(PageRecycleListParam param) {
+        return wikiPageWebService.recycleList(param);
+    }
+    
+    @PostMapping("/restore")
+    public ResponseJson<Object> restore(RestorePageParam param) {
+        return wikiPageWebService.restore(param.getPageIds());
+    }
+    
+    @PostMapping("/recycleDelete")
+    public ResponseJson<Object> recycleDelete(RecycleDeletePageParam param) {
+        return wikiPageWebService.recycleDelete(param);
+    }
+    
     @PostMapping("/detail")
     public ResponseJson<WikiPageContentVo> detail(WikiPage wikiPage) {
         DocUserDetails currentUser = DocUserUtil.getCurrentUser();
@@ -172,28 +190,8 @@ public class WikiPageController {
     }
 
     @PostMapping("/delete")
-    public ResponseJson<Object> delete(Long pageId) {
-        DocUserDetails currentUser = DocUserUtil.getCurrentUser();
-        WikiPage wikiPageSel = wikiPageService.getById(pageId);
-        // 删除权限判断
-        WikiSpace wikiSpaceSel = wikiSpaceService.getById(wikiPageSel.getSpaceId());
-        String canDelete = wikiPageAuthService.canDelete(wikiSpaceSel, wikiPageSel.getEditType(), wikiPageSel.getId(), currentUser.getUserId());
-        if (canDelete != null) {
-            return DocResponseJson.warn(canDelete);
-        }
-        // 执行删除
-        WikiPage wikiPage = new WikiPage();
-        wikiPage.setId(pageId);
-        wikiPage.setDelFlag(1);
-        wikiPage.setName(wikiPageSel.getName());
-        wikiPage.setUpdateTime(new Date());
-        wikiPage.setUpdateUserId(currentUser.getUserId());
-        wikiPage.setUpdateUserName(currentUser.getUsername());
-        wikiPageService.deletePage(wikiPage);
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("space_id", wikiPageSel.getSpaceId());
-        queryWrapper.eq("page_id", wikiPageSel.getId());
-        wikiPageTemplateService.remove(queryWrapper);
+    public ResponseJson<Object> delete(PageDeleteParam param) {
+        wikiPageWebService.delete(param);
         return DocResponseJson.ok();
     }
 

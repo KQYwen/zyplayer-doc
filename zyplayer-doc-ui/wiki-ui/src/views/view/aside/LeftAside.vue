@@ -29,15 +29,13 @@
 			<div class="space-folder-box" v-if="!props.readOnly">
 				<a-flex align="center" justify="space-between">
 					<div class="page-group-tag">
-						<el-tooltip :content="spaceTreeIsClose?'点击展开目录':'点击收起目录'" placement="top">
-							<span class="label" @click="changeDropdownStatus">空间目录</span>
-						</el-tooltip>
+						<span class="label">空间目录</span>
 					</div>
 					<AddMenu/>
 				</a-flex>
 			</div>
 		</div>
-		<div v-show="!spaceTreeIsClose" class="wiki-page-tree-box">
+		<div class="wiki-page-tree-box">
 			<el-tree ref="wikiPageTreeRef" :current-node-key="props.nowPageId" :data="storePage.pageList"
 			         :default-expanded-keys="wikiPageExpandedKeys" :expand-on-click-node="true"
 			         :props="defaultProps" :draggable="!props.readOnly"
@@ -65,7 +63,7 @@
 							<!--操作-->
 							<div @click.stop class="page-action-box">
 								<AddMenu :pageId="data.id"/>
-								<a-dropdown :trigger="['click']" @click="choosePageIdFunc(data.id)">
+								<a-dropdown @click="choosePageIdFunc(data.id)" :trigger="['click']" placement="bottom">
 									<a-button :icon="h(EllipsisOutlined)" type="text" style="color: #888;"></a-button>
 									<template #overlay>
 										<a-menu>
@@ -98,6 +96,19 @@
 				</template>
 			</el-tree>
 		</div>
+		<div class="wiki-page-footer">
+			<div style="flex: 1;">
+				<a-tooltip title="空间设置" placement="top">
+					<a-button @click="openSetting" :icon="h(SettingOutlined)" class="footer-btn">设置</a-button>
+				</a-tooltip>
+			</div>
+			<el-divider direction="vertical" style="margin-top: 8px;"/>
+			<div style="flex: 1;">
+				<a-tooltip title="回收站" placement="top">
+					<a-button @click="openRecycle" :icon="h(DeleteOutlined)" class="footer-btn">回收站</a-button>
+				</a-tooltip>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -113,7 +124,7 @@ import {
 	EditTwo as IconParkEditTwo,
 	PageTemplate as IconParkPageTemplate,
 } from '@icon-park/vue-next'
-import { EllipsisOutlined, HomeOutlined } from '@ant-design/icons-vue';
+import { EllipsisOutlined, HomeOutlined, SettingOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 import {ref, defineProps, defineEmits, defineExpose, onMounted, h, watch} from 'vue';
 import {useRouter, useRoute} from "vue-router";
 import pageApi from '@/assets/api/page';
@@ -276,6 +287,9 @@ const doGetPageList = () => {
 	pageApi.pageList({spaceId: spaceId}).then((json) => {
 		storePage.pageList = json.data || [];
 		if (route.path.startsWith('/view')) {
+			if (route.path.startsWith('/view/setting') || route.path.startsWith('/view/recycle')) {
+				return;
+			}
 			// 查看页面
 			if (storePage.pageList.length <= 0) {
 				router.push({path: `/view/${spaceId}`});
@@ -308,10 +322,6 @@ const handleSearchKeywordsSelect = (item) => {
 	searchKeywords.value = '';
 	router.push({path: `/view/${item.spaceId}/${item.pageId}`});
 }
-let spaceTreeIsClose = ref(false);
-const changeDropdownStatus = () => {
-	spaceTreeIsClose.value = !spaceTreeIsClose.value;
-}
 const searchByKeywords = () => {
 	wikiPageTreeRef.value.filter(searchKeywords.value);
 }
@@ -336,6 +346,14 @@ const handlePageDrop = (draggingNode, dropNode, dropType, ev) => {
 	pageApi.pageChangeParent(param).then((res) => {
 		doGetPageList();
 	});
+}
+// 打开设置页面
+let openSetting = () => {
+	router.push({path: `/view/setting/${storeSpace.chooseSpaceId}`});
+}
+// 打开回收站页面
+let openRecycle = () => {
+	router.push({path: `/view/recycle/${storeSpace.chooseSpaceId}`});
 }
 defineExpose({searchByKeywords});
 </script>
@@ -379,15 +397,10 @@ defineExpose({searchByKeywords});
 				font-size: 12px;
 				padding: 4px 8px;
 				color: #888;
-				cursor: pointer;
 				line-height: 32px;
 				height: 32px;
 				border-radius: 3px;
 				box-sizing: border-box;
-
-				&:hover {
-					background: #eee;
-				}
 			}
 		}
 	}
@@ -396,6 +409,7 @@ defineExpose({searchByKeywords});
 		overflow-y: auto;
 		overflow-x: hidden;
 		padding-bottom: 10px;
+		height: calc(100vh - 140px);
 
 		.el-tree-node__content {
 			height: 35px;
@@ -434,6 +448,29 @@ defineExpose({searchByKeywords});
 
 			&:hover .page-action-box {
 				display: block;
+			}
+		}
+	}
+
+	.wiki-page-footer {
+		padding: 5px;
+		display: flex;
+		border-top: 1px solid #eee;
+
+		.footer-btn {
+			width: 100%;
+			border: 0;
+			color: #666;
+			background: #fafafa;
+			box-shadow: unset;
+
+			&:focus {
+				background: #fafafa;
+				color: #666;
+			}
+
+			&:hover {
+				background: #eaeaea;
 			}
 		}
 	}

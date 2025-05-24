@@ -87,7 +87,7 @@ public class WikiPage implements Serializable {
     private Date updateTime;
 
     /**
-     * 0=有效 1=删除
+     * 0=有效 1=删除 2=永久删除
      */
     private Integer delFlag;
 

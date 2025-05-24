@@ -1,5 +1,5 @@
 <template>
-	<a-dropdown :trigger="['click']">
+	<a-dropdown :trigger="['click']" placement="bottom">
 		<a-button :icon="h(PlusOutlined)" type="text" style="color: #888;"></a-button>
 		<template #overlay>
 			<a-menu>
