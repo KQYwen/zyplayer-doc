@@ -22,7 +22,7 @@ zyplayer:
         driverClassName: ${DATASOURCE_DRIVER:com.mysql.cj.jdbc.Driver}
         url: jdbc:mysql://${DATASOURCE_HOST_PORT:127.0.0.1:3306}/${DATASOURCE_DATABASE:zyplayer_doc}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
         username: ${DATASOURCE_USER:root}
-        password: ${DATASOURCE_PASSWORD:root}
+        password: ${DATASOURCE_PASSWORD:12345678aA}
       # 版本和升级信息获取地址
       upgradePropertiesUrl: https://gitee.com/zyplayer/zyplayer-doc/raw/master/upgrade.properties
       # 系统根域名，调试UI时需要使用，同时需要在host文件里配置：127.0.0.1 local.zyplayer.com

@@ -21,8 +21,8 @@ zyplayer:
       datasource:
         driverClassName: ${DATASOURCE_DRIVER:org.postgresql.Driver}
         url: jdbc:postgresql://${DATASOURCE_HOST_PORT:127.0.0.1:5432}/${DATASOURCE_DATABASE:zyplayer_doc}?ssl=false&characterEncoding=utf-8&currentSchema=zyplayer_doc
-        username: ${DATASOURCE_USER:rootxxx}
-        password: ${DATASOURCE_PASSWORD:passwordxxxx}
+        username: ${DATASOURCE_USER:root}
+        password: ${DATASOURCE_PASSWORD:12345678aA}
       enable:
         #wiki模块的是否加载，没有此配置也为true，只有填写false才是不加载
         wiki: ${ZYPLAYER_ENABLE_WIKI:true}
