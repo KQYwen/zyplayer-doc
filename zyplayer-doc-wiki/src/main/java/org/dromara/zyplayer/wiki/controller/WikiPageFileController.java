@@ -70,5 +70,20 @@ public class WikiPageFileController {
 		wikiPageFile.setFileSource(PageFileSource.UPLOAD_FILES.getSource());
 		return wikiPageFileServiceEx.basicUpload(wikiPageFile, file);
 	}
+	
+	@PostMapping("/luckysheet/upload")
+	public Map<String, Object> luckysheetUpload(WikiPageFile wikiPageFile, @RequestParam("files") MultipartFile file) {
+		Map<String, Object> resultMap = new HashMap<>();
+		wikiPageFile.setFileSource(PageFileSource.UPLOAD_FILES.getSource());
+		DocResponseJson<Object> docResponseJson = wikiPageFileServiceEx.basicUpload(wikiPageFile, file);
+		if (!docResponseJson.isOk()) {
+			resultMap.put("errno", 1);
+			resultMap.put("message", docResponseJson.getErrMsg());
+		} else {
+			resultMap.put("errno", 0);
+			resultMap.put("data", new JSONObject().fluentPut("url", wikiPageFile.getFileUrl()));
+		}
+		return resultMap;
+	}
 }
 

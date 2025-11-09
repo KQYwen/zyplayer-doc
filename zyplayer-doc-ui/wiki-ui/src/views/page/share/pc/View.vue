@@ -24,6 +24,7 @@
 					</div>
 					<div ref="pageContentRef" class="wiki-page-content">
 						<div v-html="pageShowDetail" class="markdown-body" v-if="wikiPage.editorType == 2"></div>
+						<div v-else-if="wikiPage.editorType == 3" v-html="pageShowDetail" class="luckysheet-body"></div>
 						<div v-html="pageShowDetail" class="wang-editor-body" v-else></div>
 					</div>
 				</div>

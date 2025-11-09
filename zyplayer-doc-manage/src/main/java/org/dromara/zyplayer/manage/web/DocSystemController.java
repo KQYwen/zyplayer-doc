@@ -21,7 +21,8 @@ public class DocSystemController {
 		return modelAndView;
 	}
 	
-	@GetMapping("/doc-wiki")
+	// 支持带尾斜杠的访问，避免 /doc-wiki/ 访问不到导致 404
+	@GetMapping({"/doc-wiki", "/doc-wiki/"})
 	public ModelAndView wiki() {
 		ModelAndView modelAndView = new ModelAndView("/doc-wiki.html");
 		modelAndView.setStatus(HttpStatus.OK);

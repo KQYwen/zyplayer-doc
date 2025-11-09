@@ -6,6 +6,7 @@
 					<div class="wiki-title" ref="wikiTitleRef">{{ storePage.pageInfo.name }}</div>
 					<div id="pageContentBox" ref="pageContentRef" class="wiki-page-content">
 						<div v-if="wikiPage.editorType === 2" v-html="pageContentShow" class="page-view-content markdown-body" v-highlight></div>
+						<div v-else-if="wikiPage.editorType === 3" v-html="pageContentShow" class="page-view-content luckysheet-body"></div>
 						<div v-else v-html="pageContentShow" class="page-view-content wang-editor-body"></div>
 					</div>
 					<PageZan></PageZan>

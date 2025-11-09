@@ -6,7 +6,7 @@
 				<el-button @click="turnLeftCollapse" v-else text :icon="ElIconExpand" class="fold-btn"></el-button>
 			</el-col>
 			<el-col style="flex: 1 1 auto;">
-				<el-input v-if="wikiPageEdit.editorType===2" v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
+				<el-input v-if="wikiPageEdit.editorType===2 || wikiPageEdit.editorType===3" v-model="wikiPageEdit.pageTitle" :maxlength="40" placeholder="请输入标题" class="page-title-input" ></el-input>
 			</el-col>
 			<el-col style="flex: 0 0 180px;text-align: right;">
 				<el-button type="primary" @click="createWikiSave(1)" :icon="ElIconDocumentChecked">保存</el-button>
@@ -30,6 +30,10 @@
 			<div v-show="wikiPageEdit.editorType === 1">
 				<WangEditor ref="wangEditorRef"></WangEditor>
 			</div>
+            <div v-show="wikiPageEdit.editorType === 3" style="height: calc(100vh - 100px);">
+                <!-- 通过 v-model:title 与子组件双向绑定标题，避免在保存时被空标题覆盖 -->
+                <LuckysheetEditor ref="luckysheetEditorRef" v-model:title="wikiPageEdit.pageTitle" style="height: 100%;"></LuckysheetEditor>
+            </div>
 		</div>
 	</div>
 </template>
@@ -51,6 +55,7 @@ import 'mavon-editor/dist/markdown/github-markdown.min.css';
 import 'mavon-editor/dist/css/index.css';
 import axios from 'axios';
 import WangEditor from './editor/WangEditor.vue';
+import LuckysheetEditor from './editor/LuckysheetEditor.vue';
 import {useStoreSpaceData} from "@/store/spaceData";
 import {useStorePageData} from "@/store/pageData";
 import {useStoreDisplay} from "@/store/wikiDisplay";
@@ -157,22 +162,39 @@ const createWikiCancel = () => {
 	});
 }
 let wangEditorRef = ref();
+let luckysheetEditorRef = ref();
 const createWikiSave = (saveAfter) => {
 	let content = '',
 		preview = '';
-	if (wikiPageEdit.value.editorType === 2) {
-		content = markdownContent.value;
-		preview = markdownContent.value;
-	} else {
-		let pageData = wangEditorRef.value.getPageData();
-		content = pageData.html;
-		preview = pageData.text;
-		wikiPageEdit.value.pageTitle = pageData.title;
-	}
-	if (!wikiPageEdit.value.pageTitle) {
-		ElMessage.warning('标题不能为空');
-		return;
-	}
+	try {
+		if (wikiPageEdit.value.editorType === 2) {
+			content = markdownContent.value;
+			preview = markdownContent.value;
+        } else if (wikiPageEdit.value.editorType === 3) {
+            if (!luckysheetEditorRef.value) {
+                ElMessage.error('表格编辑器未初始化');
+                return;
+            }
+            let pageData = luckysheetEditorRef.value.getPageData();
+            content = pageData.json;
+            // 不再强制覆盖用户输入的标题，若子组件返回的标题为空，则使用输入框中的标题
+            preview = pageData.title || wikiPageEdit.value.pageTitle;
+        } else {
+            let pageData = wangEditorRef.value.getPageData();
+            content = pageData.html;
+            preview = pageData.text;
+            wikiPageEdit.value.pageTitle = pageData.title;
+        }
+    } catch (error) {
+        console.error('获取内容失败:', error);
+        ElMessage.error('获取内容失败，请重试');
+        return;
+    }
+    
+    if (!wikiPageEdit.value.pageTitle) {
+        ElMessage.warning('标题不能为空');
+        return;
+    }
 	// 修改内容时强制不能修改父路径，只能在目录上拖动修改
 	let parentIdVal = pageId.value > 0 ? '' : parentId.value;
 	if (!!pageId.value){
@@ -188,12 +210,12 @@ const createWikiSave = (saveAfter) => {
 		preview: preview,
 	}
 
-	pageApi.updatePage(param).then((json) => {
-		ElMessage.success('保存成功！');
-		// 重新加载左侧列表，跳转到展示页面
-		doGetPageList();
-		pageId.value = json.data.id;
-		if (saveAfter == 1) {
+    pageApi.updatePage(param).then((json) => {
+        ElMessage.success('保存成功！');
+        // 重新加载左侧列表，跳转到展示页面
+        doGetPageList();
+        pageId.value = json.data.id;
+        if (saveAfter == 1) {
 			router.push({
 				path: '/page/show',
 				query: {pageId: pageId.value},
@@ -203,6 +225,9 @@ const createWikiSave = (saveAfter) => {
 		} else {
 			loadPageDetail(pageId.value);
 		}
+	}).catch((error) => {
+		console.error('保存失败:', error);
+		ElMessage.error('保存失败：' + (error.message || '未知错误'));
 	});
 }
 
@@ -222,6 +247,11 @@ const loadPageDetail = (pageId) => {
 		wikiPageEdit.value.editorType = wikiPage.value.editorType;
 		if (wikiPageEdit.value.editorType === 2) {
 			markdownContent.value = pageContent.value.content || ''
+		} else if (wikiPageEdit.value.editorType === 3) {
+			setTimeout(() => {
+				luckysheetEditorRef.value.setTitle(wikiPage.value.name || '');
+				luckysheetEditorRef.value.setContent(pageContent.value.content || '{}');
+			}, 0);
 		} else {
 			// editor.value.txt.html(pageContent.value.content || "");
 			setTimeout(() => {
@@ -251,8 +281,9 @@ const initQueryParam = (to) => {
 	pageId.value = to.query.pageId;
 	parentId.value = to.query.parentId;
 	if (!!pageId.value){
-		wangEditorRef.value.setPageId(pageId.value);
-	}
+			wangEditorRef.value.setPageId(pageId.value);
+			luckysheetEditorRef.value.setPageId(pageId.value);
+		}
 	if (!!pageId.value) {
 		loadPageDetail(pageId.value);
 		pageApi.pageLock({pageId: pageId.value}).catch((json) => {

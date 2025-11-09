@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 使用绝对路径，确保无论当前访问路径是否为 /doc-wiki 或 /doc-wiki/ 均可正确加载 -->
+    <link rel="icon" href="/wiki-logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WIKI文档管理系统</title>
+    <!-- 本地静态 jQuery（复制到 /wiki-assets/），确保在模块脚本执行前提供全局 $ -->
+    <script src="/wiki-assets/jquery.min.js"></script>
+    <!-- jQuery 鼠标滚轮插件，Luckysheet 依赖 $(...).mousewheel -->
+    <script src="/wiki-assets/jquery.mousewheel.min.js"></script>
+    <script>
+      // 兜底：确保 window.$ / window.jQuery 存在
+      (function(){
+        if (typeof window !== 'undefined' && typeof window.$ === 'undefined' && typeof window.jQuery !== 'undefined') {
+          window.$ = window.jQuery;
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/wiki-assets/main-22fb824f.js"></script>
+    <link rel="modulepreload" crossorigin href="/wiki-assets/highlight.js-d64bc19a.js">
+    <link rel="modulepreload" crossorigin href="/wiki-assets/vue-650a4d10.js">
+    <link rel="modulepreload" crossorigin href="/wiki-assets/vendor-12d8e4ad.js">
+    <link rel="modulepreload" crossorigin href="/wiki-assets/vant-d14e3f01.js">
+    <link rel="modulepreload" crossorigin href="/wiki-assets/wangeditor-2118e498.js">
+    <link rel="stylesheet" href="/wiki-assets/style.a13d1b36.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    
+    <!-- katex 资源改为绝对路径，避免在 /doc-wiki/ 下解析为 /doc-wiki/katex/... -->
+	<script src="/katex/katex.min.js"></script>
+  </body>
+</html>

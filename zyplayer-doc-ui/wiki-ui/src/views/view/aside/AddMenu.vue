@@ -12,16 +12,19 @@
 				<a-menu-item @click="createFolder">
 					<FolderOpen fill="#ffd149"/> 新建文件夹
 				</a-menu-item>
-<!--				<a-menu-item @click="createPageByTemplate()">-->
-<!--					<IconParkPageTemplate/> 从模板创建-->
-<!--				</a-menu-item>-->
-<!--				<a-menu-item key="3">-->
-<!--					<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">-->
-<!--						<a-upload v-model:file-list="fileList" name="file" :multiple="false" :customRequest="doAUpload" class="import-upload">-->
-<!--							<IconParkAfferent/> 导入-->
-<!--						</a-upload>-->
-<!--					</el-tooltip>-->
-<!--				</a-menu-item>-->
+				<a-menu-item @click="createPage(3)">
+					<IconDocument fill="#ff6b35"/> 创建表格
+				</a-menu-item>
+				<a-menu-item @click="createPageByTemplate()">
+					<IconParkPageTemplate/> 从模板创建
+				</a-menu-item>
+				<a-menu-item key="5">
+					<el-tooltip content="支持MD，ZIP格式（图片和MD文件请放到同级目录并配置同级相对路径）" placement="right-start" :show-after="300">
+						<a-upload v-model:file-list="fileList" name="file" :multiple="false" :customRequest="doAUpload" class="import-upload">
+							<IconParkAfferent/> 导入
+						</a-upload>
+					</el-tooltip>
+				</a-menu-item>
 			</a-menu>
 		</template>
 	</a-dropdown>
